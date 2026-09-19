@@ -202,6 +202,40 @@ of Pillar 1 even if it serves Pillar 3.)*
 
 ---
 
+## Visual Identity Anchor
+
+**Direction**: Quiet World, Loud Hazards *(proposed by the art-director gate, chosen 2026-09-19)*
+
+**Visual rule**: *Only danger is bright.*
+
+### Supporting principles
+
+1. **Muted world, saturated hazards.** The tube, background and environment stay
+   low-saturation; obstacles are the only saturated, high-contrast shapes on
+   screen.
+   *Design test*: if a more vivid environment element competes with an obstacle,
+   obstacle dominance wins.
+2. **Chunky, distinct silhouettes.** Each obstacle type has a bold low-poly
+   silhouette readable at thumbnail size; shape carries the meaning, color only
+   supports it.
+   *Design test*: if two obstacles look confusable in grayscale, redesign one.
+3. **Moodboards vary the world, never the hazard language.** A level's moodboard
+   may change background, tube material and palette, but never the rule that
+   hazards are the most saturated element, nor the silhouette rules.
+   *Design test*: a level palette is rejected if any obstacle stops standing out
+   against it.
+
+### Color philosophy
+
+Environment palettes are muted per level. The saturated warm family is reserved
+for hazards and is never used for decoration. Hazard identification never relies
+on hue alone (accessibility). Juice effects must not use hazard colors or cover
+obstacles. The ball must not use the hazard hue family: it needs its own
+distinct identity so it separates from both hazards and the muted world. Exact
+palettes, the ball's color and contrast thresholds are decided in `/art-bible`.
+
+---
+
 ## Inspiration and References
 
 | Reference | What We Take From It | What We Do Differently | Why It Matters |
