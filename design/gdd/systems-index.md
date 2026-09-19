@@ -34,7 +34,7 @@ and skins are content on top of it.
 
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
-| 1 | Tube Track | Core | MVP | Not Started | — | — |
+| 1 | Tube Track | Core | MVP | Designed | design/gdd/tube-track.md | — |
 | 2 | Ball Movement | Gameplay | MVP | Not Started | — | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | Not Started | — | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart |
@@ -44,7 +44,7 @@ and skins are content on top of it.
 | 8 | Scoring & Personal Best | Gameplay | MVP | Not Started | — | Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence |
 | 9 | Pickups & Boosters | Gameplay | Content Expansion | Not Started | — | Obstacle System, Ball Movement, Run State & Restart |
 | 10 | Camera | Presentation | MVP | Not Started | — | Ball Movement, Tube Track, Run State & Restart |
-| 11 | Juice & Feedback (partly inferred) | Presentation | MVP | Not Started | — | Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services |
+| 11 | Juice & Feedback (partly inferred) | Presentation | MVP | Not Started | — | Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services, Tube Track |
 | 12 | Environment & Theming (inferred) | Presentation | MVP | Not Started | — | Tube Track, Ball Movement |
 | 13 | HUD (inferred) | UI | MVP | Not Started | — | Scoring & Personal Best, Run State & Restart, Near-Miss Detection |
 | 14 | Menus & Screen Flow (inferred) | UI | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence, Settings & Accessibility |
@@ -106,7 +106,7 @@ and skins are content on top of it.
 ### Presentation Layer (depends on Features)
 1. Camera — depends on: Ball Movement, Tube Track, Run State & Restart
 2. Environment & Theming — depends on: Tube Track, Ball Movement
-3. Juice & Feedback — depends on: Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services
+3. Juice & Feedback — depends on: Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services, Tube Track
 4. HUD — depends on: Scoring & Personal Best, Run State & Restart, Near-Miss Detection
 5. Menus & Screen Flow — depends on: Run State & Restart, Scoring & Personal Best, Save & Persistence, Settings & Accessibility
 
@@ -201,10 +201,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 0 |
+| Design docs started | 1 |
 | Design docs reviewed | 0 |
 | Design docs approved | 0 |
-| MVP systems designed | 0/17 |
+| MVP systems designed | 1/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---

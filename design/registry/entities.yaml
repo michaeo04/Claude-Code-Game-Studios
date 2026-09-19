@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: ""
+last_updated: "2026-09-19"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -106,7 +106,51 @@ items: []
 #   output_range[min, max], added
 # Optional: expression (the actual formula), notes
 
-formulas: []
+formulas:
+  - name: tube_world_position
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+    variables:
+      - theta
+      - s
+      - h
+      - R
+      - s_origin
+    output_range: [-1024, 1024]
+    expression: "P(theta, s, h) = ((R + h) * sin(theta), (R + h) * cos(theta), -(s - s_origin))"
+    notes: "Returns a world-space position. The z component is bounded to about +/-1024 by the hidden rebase. Only Tube Track converts to world space; other systems address things by (theta, s, h)."
+    added: 2026-09-19
+    revised: ""
+
+  - name: angle_delta
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+    variables:
+      - a
+      - b
+    output_range: [-3.141592653589793, 3.141592653589793]
+    expression: "wrap(a - b), wrap(x) = fposmod(x + PI, TAU) - PI"
+    notes: "Shortest signed arc in [-PI, PI). Exactly opposite angles give -PI, so the sign of a half-turn is arbitrary. Systems must use it instead of subtracting angles."
+    added: 2026-09-19
+    revised: ""
+
+  - name: lane_capacity
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+    variables:
+      - R
+      - D
+    output_range: [22, 34]
+    expression: "floor(PI / asin(D / (2 * (R + D/2))))"
+    notes: "Number of ball widths that fit around the tube. Range shown is for R in 2.5-4 with D = 0.8 (R = 3 gives 26). Informational for Obstacle System and Pattern & Difficulty, which own difficulty."
+    added: 2026-09-19
+    revised: ""
 
 # Example:
 #
@@ -139,7 +183,28 @@ formulas: []
 #
 # Required fields: name, status, source, referenced_by, value, unit, added
 
-constants: []
+constants:
+  - name: tube_radius
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+    value: 3.0
+    unit: world units
+    notes: "Proposed default (guess), safe range 2.5-4. Constant across all maps for now. Vertex radius of the 32-sided tube mesh."
+    added: 2026-09-19
+    revised: ""
+
+  - name: segment_length
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+    value: 12
+    unit: world units
+    notes: "Proposed default (guess), safe range 6-24. Pattern & Difficulty may align chunks to whole segments (open question)."
+    added: 2026-09-19
+    revised: ""
 
 # Example:
 #
