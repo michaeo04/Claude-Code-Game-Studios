@@ -1,6 +1,6 @@
 # Godot — Deprecated APIs
 
-Last verified: 2026-02-12
+Last verified: 2026-09-14 (no new deprecated-API renames identified for 4.7 — see breaking-changes.md for 4.7 behavior changes)
 
 If an agent suggests any API in the "Deprecated" column, it MUST be replaced
 with the "Use Instead" column.

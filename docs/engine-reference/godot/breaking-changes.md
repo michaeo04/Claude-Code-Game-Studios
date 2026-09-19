@@ -1,8 +1,21 @@
 # Godot — Breaking Changes
 
-Last verified: 2026-02-12
+Last verified: 2026-09-14
 
 Changes between Godot versions, focused on post-LLM-cutoff changes (4.4+).
+
+## 4.6 → 4.7 (Aug 2026 — POST-CUTOFF, HIGH RISK)
+
+| Subsystem | Change | Details |
+|-----------|--------|---------|
+| Animation | BlendSpace point handling changed | Projects relying on specific BlendSpace internals should retest blend behavior. |
+| Audio | Audio spectrum analyzer API change | Custom audio visualizer code may need adjustment. |
+| Input | Keyboard/mouse device ID numbering changed | Code that hardcoded device IDs will break — re-derive IDs at runtime instead. |
+| Particles | Angular velocity calculation corrected | Rotating particles will look subtly different from 4.6. |
+| Shaders | Shader preprocessor restrictions tightened | Some macro patterns that compiled in 4.6 no longer compile in 4.7. |
+| Platform | OBB Android support removed | Projects relying on OBB expansion files for Android must migrate to another delivery method. |
+
+See the official "Upgrading from Godot 4.6 to 4.7" guide for the canonical list (linked in VERSION.md).
 
 ## 4.5 → 4.6 (Jan 2026 — POST-CUTOFF, HIGH RISK)
 

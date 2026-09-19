@@ -5,42 +5,42 @@
 
 ## Engine & Language
 
-- **Engine**: [TO BE CONFIGURED — run /setup-engine]
-- **Language**: [TO BE CONFIGURED]
-- **Rendering**: [TO BE CONFIGURED]
-- **Physics**: [TO BE CONFIGURED]
+- **Engine**: Godot 4.7.2
+- **Language**: GDScript
+- **Rendering**: Forward+ (Godot 4 default, stylized low-poly 3D)
+- **Physics**: Jolt (Godot 4.6+ default)
 
 ## Input & Platform
 
 <!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
 <!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
 
-- **Target Platforms**: [TO BE CONFIGURED — e.g., PC, Console, Mobile, Web]
-- **Input Methods**: [TO BE CONFIGURED — e.g., Keyboard/Mouse, Gamepad, Touch, Mixed]
-- **Primary Input**: [TO BE CONFIGURED — the dominant input for this game]
-- **Gamepad Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Touch Support**: [TO BE CONFIGURED — Full / Partial / None]
-- **Platform Notes**: [TO BE CONFIGURED — any platform-specific UX constraints]
+- **Target Platforms**: Mobile (iOS/Android)
+- **Input Methods**: Touch (device tilt/accelerometer)
+- **Primary Input**: Touch (tilt)
+- **Gamepad Support**: None
+- **Touch Support**: Full
+- **Platform Notes**: Movement is analog — tilt angle maps directly to the ball's angular position around the tube's exterior surface, not discrete taps or lane-snapping.
 
 ## Naming Conventions
 
-- **Classes**: [TO BE CONFIGURED]
-- **Variables**: [TO BE CONFIGURED]
-- **Signals/Events**: [TO BE CONFIGURED]
-- **Files**: [TO BE CONFIGURED]
-- **Scenes/Prefabs**: [TO BE CONFIGURED]
-- **Constants**: [TO BE CONFIGURED]
+- **Classes**: PascalCase (e.g., `PlayerController`)
+- **Variables**: snake_case (e.g., `move_speed`)
+- **Signals/Events**: snake_case, past tense (e.g., `health_changed`)
+- **Files**: snake_case matching class (e.g., `player_controller.gd`)
+- **Scenes/Prefabs**: PascalCase matching root node (e.g., `PlayerController.tscn`)
+- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_HEALTH`)
 
 ## Performance Budgets
 
-- **Target Framerate**: [TO BE CONFIGURED]
-- **Frame Budget**: [TO BE CONFIGURED]
-- **Draw Calls**: [TO BE CONFIGURED]
-- **Memory Ceiling**: [TO BE CONFIGURED]
+- **Target Framerate**: 60 FPS
+- **Frame Budget**: 16.6ms
+- **Draw Calls**: ≤ 150 per frame (mobile 3D budget)
+- **Memory Ceiling**: 512 MB (mid-tier Android target)
 
 ## Testing
 
-- **Framework**: [TO BE CONFIGURED]
+- **Framework**: GUT (Godot Unit Test)
 - **Minimum Coverage**: [TO BE CONFIGURED]
 - **Required Tests**: Balance formulas, gameplay systems, networking (if applicable)
 
@@ -65,12 +65,12 @@
 <!-- Read by /code-review, /architecture-decision, /architecture-review, and team skills -->
 <!-- to know which specialist to spawn for engine-specific validation. -->
 
-- **Primary**: [TO BE CONFIGURED — run /setup-engine]
-- **Language/Code Specialist**: [TO BE CONFIGURED]
-- **Shader Specialist**: [TO BE CONFIGURED]
-- **UI Specialist**: [TO BE CONFIGURED]
-- **Additional Specialists**: [TO BE CONFIGURED]
-- **Routing Notes**: [TO BE CONFIGURED]
+- **Primary**: godot-specialist
+- **Language/Code Specialist**: godot-gdscript-specialist (all .gd files)
+- **Shader Specialist**: godot-shader-specialist (.gdshader files, VisualShader resources)
+- **UI Specialist**: godot-specialist (no dedicated UI specialist — primary covers all UI)
+- **Additional Specialists**: godot-gdextension-specialist (GDExtension / native C++ bindings only)
+- **Routing Notes**: Invoke primary for architecture decisions, ADR validation, and cross-cutting code review. Invoke GDScript specialist for code quality, signal architecture, static typing enforcement, and GDScript idioms. Invoke shader specialist for material design and shader code. Invoke GDExtension specialist only when native extensions are involved.
 
 ### File Extension Routing
 
@@ -79,9 +79,9 @@
 
 | File Extension / Type | Specialist to Spawn |
 |-----------------------|---------------------|
-| Game code (primary language) | [TO BE CONFIGURED] |
-| Shader / material files | [TO BE CONFIGURED] |
-| UI / screen files | [TO BE CONFIGURED] |
-| Scene / prefab / level files | [TO BE CONFIGURED] |
-| Native extension / plugin files | [TO BE CONFIGURED] |
+| Game code (primary language) | godot-gdscript-specialist |
+| Shader / material files | godot-shader-specialist |
+| UI / screen files | godot-specialist |
+| Scene / prefab / level files | godot-specialist |
+| Native extension / plugin files | godot-gdextension-specialist |
 | General architecture review | Primary |
