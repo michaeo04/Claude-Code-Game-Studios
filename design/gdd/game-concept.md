@@ -57,7 +57,7 @@ around you rather than three flat lanes.
 
 | Aesthetic | Priority | How We Deliver It |
 | ---- | ---- | ---- |
-| **Sensation** (sensory pleasure) | 2 | Near-miss juice (screen shake, whoosh SFX, particle trail), sense of speed |
+| **Sensation** (sensory pleasure) | 2 | Near-miss juice (FOV punch, white ring pulse, whoosh SFX; no screen shake, see art bible Section 2), sense of speed (tube seam flow) |
 | **Fantasy** (make-believe, role-playing) | N/A | Not a role-driven game |
 | **Narrative** (drama, story arc) | N/A | No narrative layer |
 | **Challenge** (obstacle course, mastery) | 1 (primary) | Fair, learnable difficulty ramp; precision dodging |
@@ -206,7 +206,10 @@ of Pillar 1 even if it serves Pillar 3.)*
 
 **Direction**: Quiet World, Loud Hazards *(proposed by the art-director gate, chosen 2026-09-19)*
 
-**Visual rule**: *Only danger is bright.*
+**Visual rule** (as extended in the art bible, 2026-09-19): *Danger is the loudest
+thing on screen. Only hazards get full-chroma warm hue plus peak contrast;
+everything else, rewards included, stays a step quieter.* The original short form
+was "Only danger is bright."
 
 ### Supporting principles
 
@@ -232,7 +235,8 @@ for hazards and is never used for decoration. Hazard identification never relies
 on hue alone (accessibility). Juice effects must not use hazard colors or cover
 obstacles. The ball must not use the hazard hue family: it needs its own
 distinct identity so it separates from both hazards and the muted world. Exact
-palettes, the ball's color and contrast thresholds are decided in `/art-bible`.
+palettes, the ball's color and contrast thresholds are defined in
+`design/art/art-bible.md` (Sections 1-4), which extends and supersedes this summary.
 
 ---
 
