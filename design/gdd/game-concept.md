@@ -342,9 +342,13 @@ voluntarily retry within 10 seconds of their first death, and complete at least
 | Tier | Content | Features | Timeline |
 | ---- | ---- | ---- | ---- |
 | **MVP** | 1 environment | Pure dodge loop only, as listed above | 4–8 weeks |
-| **Vertical Slice** | 3–4 environments/moodboards | + cosmetic ball skins, in-run boosters, cross-level difficulty curve | +3–5 weeks |
+| **Content Expansion** | 3–4 environments/moodboards | + cosmetic ball skins, in-run boosters, cross-level difficulty curve | +3–5 weeks |
 | **Alpha** | All planned environments, placeholder polish | + extra modes (heavier ball, slippery ball, gold-rush mode) | +4–6 weeks |
 | **Full Vision** | Complete content, polished | + leaderboard/ghost-race layer, "Roll & Build" branch/booster depth, web version | TBD |
+
+> **Note (2026-09-19)**: this second tier was formerly named "Vertical Slice". It
+> is a content tier. The pipeline's `/vertical-slice` is a different thing: a
+> production-quality build of the MVP scope, validated in Pre-Production.
 
 ---
 
