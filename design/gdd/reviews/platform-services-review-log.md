@@ -16,3 +16,6 @@ Deferred as Open Questions 19-25 (story stage or later): keep-on scope, OS audio
 Disagreements left visible: none new; the three from the review were adjudicated as listed above.
 Propagated (approved by the user): `systems-index.md` (row 20 status and the Platform Services author note). Not touched: `tilt-input.md`, `run-state-restart.md` (Open Question 24 is the only pending edit).
 Status after revision: In Review pending the `PlatformCore` harness and the device spike. Nothing has been run in Godot or on a device; the new AC-1 rows, the AC-2 invariants (10920 sequences, both `fis`, with liveness) and the AC-3 and AC-4 oracles were recomputed in a Node script with no mismatch (not yet in GDScript).
+
+### Approval (2026-09-22)
+The user accepted the revision without a third full document round (the Tilt Input precedent). Status: Approved, pending the `PlatformCore` harness and the device spike; `systems-index.md` row 20 and the progress tracker updated. No fresh-session re-review was run.

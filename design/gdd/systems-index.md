@@ -53,7 +53,7 @@ and skins are content on top of it.
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
 | 18 | Save & Persistence (inferred) | Persistence | MVP | Not Started | — | Platform Services |
 | 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
-| 20 | Platform Services (inferred) | Core | MVP | In Review (2026-09-21; first /design-review NEEDS REVISION with 9 blocking items, all applied the same day; no third full round, next are the `PlatformCore` harness and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
+| 20 | Platform Services (inferred) | Core | MVP | Approved, pending the device spike (2026-09-21; first /design-review NEEDS REVISION with 9 blocking items, all applied the same day and accepted without a further full round; next are the `PlatformCore` harness and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
 
 ---
@@ -219,8 +219,8 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 |--------|-------|
 | Total systems identified | 21 |
 | Design docs started | 4 |
-| Design docs reviewed | 2 |
-| Design docs approved | 2 |
+| Design docs reviewed | 3 |
+| Design docs approved | 3 |
 | MVP systems designed | 4/17 |
 | Content Expansion systems designed | 0/3 |
 
