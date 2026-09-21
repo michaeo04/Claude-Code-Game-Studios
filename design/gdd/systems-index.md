@@ -53,7 +53,7 @@ and skins are content on top of it.
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
 | 18 | Save & Persistence (inferred) | Persistence | MVP | Not Started | — | Platform Services |
 | 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
-| 20 | Platform Services (inferred) | Core | MVP | Designed (2026-09-21; pending an independent /design-review and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
+| 20 | Platform Services (inferred) | Core | MVP | In Review (2026-09-21; first /design-review NEEDS REVISION with 9 blocking items, all applied the same day; no third full round, next are the `PlatformCore` harness and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
 
 ---
@@ -186,9 +186,11 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Tilt Input GDD**: run the on-device spike first; do not lock tuning values
   derived from keyboard testing (`CAMERA_FOLLOW_SPEED` 3.0, angular speed 3.0
   rad/s, forward speed 6.0 u/s are prototype starting points only).
-- **Platform Services GDD (designed 2026-09-21)**: owns the OS app-lifecycle notifications and exposes
+- **Platform Services GDD (designed 2026-09-21, revised after its design review)**: owns the OS app-lifecycle notifications and exposes
   `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
-  portrait lock, and the Android sensor project settings (Tilt Input rules 3 and 9).
+  portrait lock, the keep-screen-on call, and the Android sensor project settings (Tilt Input rules 3 and 9).
+  On Android it ignores `PAUSED/RESUMED` and uses `FOCUS_OUT/IN` only; Tilt Input's settle must count only
+  while `attentive` (Platform Services Open Question 24).
 - **HUD and Menus & Screen Flow GDDs**: forward the touch half-screen fallback hold
   to Tilt Input only while Running and only for a touch that began after `run_started` (no-sensor phones), gate Play, Resume and Restart on
   `valid` (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "no motion sensor" notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause screen
