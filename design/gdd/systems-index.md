@@ -36,7 +36,7 @@ and skins are content on top of it.
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
 | 2 | Ball Movement | Gameplay | MVP | Not Started | — | Tube Track, Tilt Input, Run State & Restart |
-| 3 | Tilt Input | Core | MVP | In Review (revised twice 2026-09-21: after the review and after the re-review, NEEDS REVISION with 5 blocking items addressed; needs a fresh-session re-review) | design/gdd/tilt-input.md | — |
+| 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
 | 6 | Near-Miss Detection | Gameplay | MVP | Not Started | — | Ball Movement, Obstacle System |
@@ -53,7 +53,7 @@ and skins are content on top of it.
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
 | 18 | Save & Persistence (inferred) | Persistence | MVP | Not Started | — | Platform Services |
 | 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
-| 20 | Platform Services (inferred) | Core | MVP | Not Started | — | — |
+| 20 | Platform Services (inferred) | Core | MVP | Designed (2026-09-21; pending an independent /design-review and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
 
 ---
@@ -186,13 +186,21 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Tilt Input GDD**: run the on-device spike first; do not lock tuning values
   derived from keyboard testing (`CAMERA_FOLLOW_SPEED` 3.0, angular speed 3.0
   rad/s, forward speed 6.0 u/s are prototype starting points only).
-- **Platform Services GDD**: must own the OS app-lifecycle notification and expose
+- **Platform Services GDD (designed 2026-09-21)**: owns the OS app-lifecycle notifications and exposes
   `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
   portrait lock, and the Android sensor project settings (Tilt Input rules 3 and 9).
 - **HUD and Menus & Screen Flow GDDs**: forward the touch half-screen fallback hold
-  to Tilt Input only while Running (no-sensor phones), gate Play and Resume on
-  `valid`, show the "no motion sensor" notice, and give the sensor-lost pause screen
+  to Tilt Input only while Running and only for a touch that began after `run_started` (no-sensor phones), gate Play, Resume and Restart on
+  `valid` (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "no motion sensor" notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause screen
   a way to the Menu (Tilt Input rules 10 and 11, UI Requirements).
+- **Scoring & Personal Best GDD**: decide how a run played with Tilt Input's
+  `input_source` `FALLBACK` (touch hold, a different control scheme) is flagged
+  (Tilt Input Open Question 27).
+- **Save & Persistence, Juice & Feedback, Menus & Screen Flow, Camera, HUD and Settings
+  GDDs**: connect to Platform Services as listed in its Dependencies section (Save
+  flushes on `app_backgrounded` and keeps it short; Juice calls `haptic(kind)` and never
+  makes haptics the only cue; Menus handles `back_pressed` outside Running and owns
+  `quit()`; Camera and HUD read the safe area; Settings supplies `haptics_enabled`).
 - **Scoring, Pattern & Difficulty, Environment & Theming**: read per-map values
   through `MapConfig`. Each map will have its own theme, rewards and scoring style;
   only Map 1 is in scope now.
@@ -208,10 +216,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 3 |
+| Design docs started | 4 |
 | Design docs reviewed | 2 |
 | Design docs approved | 2 |
-| MVP systems designed | 3/17 |
+| MVP systems designed | 4/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---

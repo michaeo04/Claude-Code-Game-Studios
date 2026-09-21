@@ -246,6 +246,7 @@ constants:
       - design/gdd/run-state-restart.md
       - design/gdd/tube-track.md   # named t_lat / RECYCLE_STEP_MARGIN there
       - design/gdd/tilt-input.md   # clamp on the filter step (rule 6, dt from the clock)
+      - design/gdd/platform-services.md   # max_fps interaction (Tuning Knobs): any cap from 30 to 60 fps stays inside dt_max
     value: 0.1
     unit: seconds
     notes: "Proposed default (guess), safe range 0.05-0.25 (narrowed from 0.05-0.45 on 2026-09-20, second design-review, so that stall_pause_threshold >= 2 x dt_max always holds; Tube Track's default A = 6 still holds up to 0.48). The clamp on one per-frame time step; a single shared constant for the run clock (Run State F1), the ball's advance and Tube Track's window margin. Lowered from 0.25 to 0.1 on 2026-09-20 (first design-review): a clamped hitch moves the ball at most 2.5 u instead of 6.25 u (6.25 u at the top of the range). The engine caps the _process delta at about 0.133 s (Godot 4.7.2), so real_dt must come from the clock. Owner to be settled in the Ball Movement GDD."
@@ -302,6 +303,7 @@ constants:
     source: design/gdd/run-state-restart.md
     referenced_by:
       - design/gdd/run-state-restart.md
+      - design/gdd/platform-services.md   # AC-16: app_returned re-anchors this guard (299999 us rejected, 300000 us accepted)
     value: 0.3
     unit: seconds
     notes: "Proposed default (guess), safe range 0.2-0.5 (second design-review, 2026-09-20). Restart and menu presses stamped earlier than the entry into Paused plus this value are ignored, so a double tap on the pause button or a touch just after the pause screen appears cannot abandon a run; resume is never guarded and wins same-tick ties. Starts over on every entry to Paused; anchored to the entry (for app_interrupted, the clock at send), not to the player's return to the app, so it does not cover a stray touch after a call or a screen lock (Open Question 17, third design-review). Replace with telemetry on abandoned runs."
@@ -330,6 +332,18 @@ constants:
     unit: seconds
     notes: "Simple visual reaction time (Run State T_REACT, used in the lock bound LOCK_MIN). Tube Track derives T_VIS_MIN = 1.5 s from it; if this changes, redo that sum. Not the same constant as Run State's T_READ (also 0.25 s, a guess for reading the killer)."
     added: 2026-09-20
+    revised: ""
+
+  - name: max_fps
+    status: active
+    source: design/gdd/platform-services.md
+    referenced_by:
+      - design/gdd/platform-services.md
+      - design/gdd/tilt-input.md   # F3 noise rejection and AC-9 are 60 Hz claims; F_MIN 20 Hz is the lowest supported rate
+    value: 60
+    unit: frames per second
+    notes: "Proposed default (guess), safe range 30-60 (Platform Services Tuning Knobs). The project setting application/run/max_fps and the frame-rate assumption of the technical preferences (60 FPS, 16.6 ms). iOS already prefers 60 fps (source-verified); whether the cap holds on a 120 Hz Android device is UNVERIFIED (Platform Services Open Question 12). Tilt Input's noise rejection is a 60 Hz claim (F3, AC-9)."
+    added: 2026-09-21
     revised: ""
 
   - name: t_in
