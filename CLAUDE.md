@@ -7,7 +7,7 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 
 - **Engine**: Godot 4.7.2
 - **Language**: GDScript
-- **Version Control**: Git with trunk-based development
+- **Version Control**: Git with a `dev` / `main` flow (work and push on `dev`; merge into `main` at milestones)
 - **Build System**: SCons (engine), Godot Export Templates
 - **Asset Pipeline**: Godot Import System + custom resource pipeline
 
@@ -38,9 +38,9 @@ Every task follows: **Question -> Options -> Decision -> Draft -> Approval**
 - Agents MUST ask "May I write this to [filepath]?" before using Write/Edit tools
 - Agents MUST show drafts or summaries before requesting approval
 - Multi-file changes require explicit approval for the full changeset
-- Commits, branch pushes and pull requests follow the Version Control Workflow
-  below (standing user authorization since 2026-09-21). Merging to `main`,
-  force-pushing, tags and repository settings need explicit approval every time.
+- Commits and pushes to `dev` follow the Version Control Workflow below (standing
+  user authorization since 2026-09-21). Merging into `main`, force-pushing, tags,
+  visibility and repository settings need explicit approval every time.
 
 See `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md` for full protocol and examples.
 
