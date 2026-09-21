@@ -38,12 +38,18 @@ Every task follows: **Question -> Options -> Decision -> Draft -> Approval**
 - Agents MUST ask "May I write this to [filepath]?" before using Write/Edit tools
 - Agents MUST show drafts or summaries before requesting approval
 - Multi-file changes require explicit approval for the full changeset
-- No commits without user instruction
+- Commits, branch pushes and pull requests follow the Version Control Workflow
+  below (standing user authorization since 2026-09-21). Merging to `main`,
+  force-pushing, tags and repository settings need explicit approval every time.
 
 See `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md` for full protocol and examples.
 
 > **First session?** If the project has no engine configured and no game concept,
 > run `/start` to begin the guided onboarding flow.
+
+## Version Control Workflow
+
+@.claude/docs/git-workflow.md
 
 ## Coding Standards
 

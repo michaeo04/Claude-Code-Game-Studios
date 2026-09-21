@@ -1,15 +1,16 @@
 ## Summary
 
-Brief description of what this PR does.
+What this PR does and why, in two or three sentences.
 
-## Type of Change
+## Type of change
 
-- [ ] New agent
-- [ ] New skill
-- [ ] New hook or rule
-- [ ] Bug fix
-- [ ] Documentation improvement
-- [ ] Other:
+- [ ] GDD (`design/gdd`)
+- [ ] ADR (`docs/architecture`)
+- [ ] Code (`src/`)
+- [ ] Tests (`tests/`)
+- [ ] Assets
+- [ ] Config, tooling or CI
+- [ ] Docs only
 
 ## Changes
 
@@ -17,11 +18,19 @@ Brief description of what this PR does.
 -
 -
 
+## Related design docs, stories and issues
+
+-
+
+## Verification
+
+What was checked, with evidence (test results, screenshots, `/design-review` or
+`/consistency-check` verdicts, playtest notes). State plainly what was **not** verified.
+
 ## Checklist
 
-- [ ] I've tested this in a Claude Code session
-- [ ] New agents include the Collaboration Protocol section
-- [ ] New skills use the subdirectory format (`.claude/skills/<name>/SKILL.md`)
-- [ ] Reference docs are updated (agent-roster, skills-reference, hooks-reference, rules-reference)
-- [ ] Hooks use `grep -E` (POSIX) and fail gracefully without jq/python
-- [ ] No hardcoded paths or platform-specific assumptions
+- [ ] Conventional Commit messages; each body references the story or design doc
+- [ ] Design changes: registry (`design/registry/entities.yaml`) and systems index updated
+- [ ] Tests added, or test evidence attached (coding standards, Testing Standards)
+- [ ] No session state, logs, secrets or build output committed
+- [ ] Independent review done (`/design-review` in a fresh session, `/code-review`) or listed as pending above
