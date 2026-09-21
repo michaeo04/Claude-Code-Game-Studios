@@ -68,7 +68,17 @@ Examples: `docs/ball-movement-gdd`, `feat/tilt-core`, `fix/run-state-double-rest
 - Emergency fixes use `/hotfix`: a `hotfix/<description>` branch and a PR to `main`.
 - There is no long-lived `develop` branch.
 
-## Branch protection for `main` (recommended settings)
+## Branch protection for `main`
+
+**Status (2026-09-21):** not enabled. GitHub returns HTTP 403 ("Upgrade to GitHub Pro
+or make this repository public") for branch protection on a private repository on the
+Free plan. What is enabled: automatic deletion of head branches after merge. Until
+protection is available, the rules below are enforced by discipline, and the local
+`.claude/hooks/validate-push.sh` warns on any push to `main` (uncomment its `exit 2`
+line to make Claude Code block such pushes; that does not stop a push made outside
+Claude Code). Options to get real enforcement: GitHub Pro, or a public repository.
+
+Recommended settings once available:
 
 - Require a pull request before merging (0 required approvals while solo).
 - Require conversations to be resolved; require linear history.
