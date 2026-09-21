@@ -36,7 +36,7 @@ and skins are content on top of it.
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
 | 2 | Ball Movement | Gameplay | MVP | Not Started | — | Tube Track, Tilt Input, Run State & Restart |
-| 3 | Tilt Input | Core | MVP | In Review (revised after design review 2026-09-21; needs a fresh re-review) | design/gdd/tilt-input.md | — |
+| 3 | Tilt Input | Core | MVP | In Review (revised twice 2026-09-21: after the review and after the re-review, NEEDS REVISION with 5 blocking items addressed; needs a fresh-session re-review) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
 | 6 | Near-Miss Detection | Gameplay | MVP | Not Started | — | Ball Movement, Obstacle System |
@@ -186,6 +186,13 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Tilt Input GDD**: run the on-device spike first; do not lock tuning values
   derived from keyboard testing (`CAMERA_FOLLOW_SPEED` 3.0, angular speed 3.0
   rad/s, forward speed 6.0 u/s are prototype starting points only).
+- **Platform Services GDD**: must own the OS app-lifecycle notification and expose
+  `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
+  portrait lock, and the Android sensor project settings (Tilt Input rules 3 and 9).
+- **HUD and Menus & Screen Flow GDDs**: forward the touch half-screen fallback hold
+  to Tilt Input only while Running (no-sensor phones), gate Play and Resume on
+  `valid`, show the "no motion sensor" notice, and give the sensor-lost pause screen
+  a way to the Menu (Tilt Input rules 10 and 11, UI Requirements).
 - **Scoring, Pattern & Difficulty, Environment & Theming**: read per-map values
   through `MapConfig`. Each map will have its own theme, rewards and scoring style;
   only Map 1 is in scope now.

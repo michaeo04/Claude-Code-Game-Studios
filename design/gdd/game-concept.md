@@ -174,7 +174,8 @@ content, this pillar says we **polish core feel first**.
 
 ### Pillar 4: One-Thumb Simplicity
 Controls use a single input axis (left-right around the tube); the game is
-playable one-handed, anywhere.
+playable one-handed in any normal holding posture: seated, standing, reclined,
+or commuting.
 
 *Design test*: If a feature would require multi-touch or complex gestures,
 this pillar says we **simplify or cut it**.

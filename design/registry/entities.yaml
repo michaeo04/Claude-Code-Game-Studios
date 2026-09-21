@@ -290,7 +290,7 @@ constants:
     source: design/gdd/run-state-restart.md
     referenced_by:
       - design/gdd/run-state-restart.md
-      - design/gdd/tilt-input.md   # neutral window (guard + window <= 0.95 s) must fit inside the shortest countdown (1.0 s); run_resumed captures the neutral
+      - design/gdd/tilt-input.md   # SENSOR_RESUME_SETTLE + neutral guard + neutral window must be <= 1.0 s (the shortest countdown); run_resumed captures the neutral
     value: 2.0
     unit: seconds
     notes: "Proposed default (guess), safe range 1.0-3.0. World-frozen countdown after a resume tap; HUD displays it. Replace with the measured time for tilt to settle."
