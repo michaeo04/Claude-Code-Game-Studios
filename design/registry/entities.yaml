@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-09-19"
+last_updated: "2026-09-21"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -117,12 +117,11 @@ formulas:
       - s
       - h
       - R
-      - s_origin
-    output_range: [-1024, 1024]
-    expression: "P(theta, s, h) = ((R + h) * sin(theta), (R + h) * cos(theta), -(s - s_origin))"
-    notes: "Returns a world-space position. The z component is bounded to about +/-1024 by the hidden rebase. Only Tube Track converts to world space; other systems address things by (theta, s, h)."
+    output_range: [-16384, 16384]
+    expression: "P(theta, s, h) = ((R + h) * sin(theta), (R + h) * cos(theta), -s)"
+    notes: "Returns a world-space position. There is no render-origin rebase in the MVP; z = -s grows with the run and is only precise below S_PRECISION_LIMIT (16384, F4). s is 64-bit and cast to 32 bits only when the Vector3 is built. Only Tube Track converts to world space; other systems address things by (theta, s, h)."
     added: 2026-09-19
-    revised: ""
+    revised: 2026-09-20
 
   - name: angle_delta
     status: active
@@ -133,10 +132,10 @@ formulas:
       - a
       - b
     output_range: [-3.141592653589793, 3.141592653589793]
-    expression: "wrap(a - b), wrap(x) = fposmod(x + PI, TAU) - PI"
-    notes: "Shortest signed arc in [-PI, PI). Exactly opposite angles give -PI, so the sign of a half-turn is arbitrary. Systems must use it instead of subtracting angles."
+    expression: "delta_theta(a, b) = wrap_angle(a - b), wrap_angle(x) = fposmod(x + PI, TAU) - PI, then if the result is at least PI subtract TAU"   # was: "wrap(a - b), wrap(x) = ..." before 2026-09-20 (renamed: a function named wrap does not parse in GDScript; tube-track review 2)
+    notes: "Shortest signed arc in [-PI, PI). Exactly opposite angles give a result of magnitude PI, but the sign depends on rounding of a - b (exactly -PI for delta_theta(0, PI), possibly +PI minus 1 ulp for other values), so the sign of a half-turn is arbitrary. Systems must use it instead of subtracting angles."
     added: 2026-09-19
-    revised: ""
+    revised: 2026-09-20   # was: notes said exactly opposite angles give -PI; expression lacked the subtract-TAU clause
 
   - name: lane_capacity
     status: active
@@ -146,11 +145,45 @@ formulas:
     variables:
       - R
       - D
-    output_range: [22, 34]
+    output_range: [22, 29]
     expression: "floor(PI / asin(D / (2 * (R + D/2))))"
-    notes: "Number of ball widths that fit around the tube. Range shown is for R in 2.5-4 with D = 0.8 (R = 3 gives 26). Informational for Obstacle System and Pattern & Difficulty, which own difficulty."
+    notes: "Number of ball widths that fit around the tube. Range shown is for R in 2.5-3.3 with D = 0.8 (R = 3 gives 26; R = 3.3 gives 29.003, a borderline floor). Informational for Obstacle System and Pattern & Difficulty, which own difficulty."
     added: 2026-09-19
+    revised: 2026-09-20
+
+  - name: run_clock
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+    variables:
+      - dt
+      - DT_MAX
+      - run_time
+    output_range: [0, 10000]
+    expression: "step = min(dt, DT_MAX) if dt is finite and positive else 0; dt_eff = step only on a tick that begins and ends in Running and is not a settling tick (else 0); run_time += dt_eff at the end of the tick; run_time_ms = round(run_time * 1000)"
+    notes: "Seconds spent in Running since run_reset. Applied at the end of the tick (second design review, 2026-09-20): a frame in which a hit, pause, restart, resume or stall happens, and each settling frame, adds 0, so tick() returns 0 there and the owner never steps Tube Track outside Running. The same effective step drives the ball and Tube Track. Feeds Scoring, Pattern & Difficulty and Telemetry through run_time_ms (integer). Uses the same DT_MAX clamp as Tube Track's t_lat."
+    added: 2026-09-20
     revised: ""
+
+  - name: restart_time_sum
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+    variables:
+      - t_in
+      - t_disp
+      - t_track
+      - t_reset
+      - N_present
+      - f
+      - t_var
+    output_range: [0.2, 1.0]
+    expression: "T_restart = t_in + t_disp + t_track + t_reset + N_present * f + t_var"
+    notes: "Restart budget check from the physical touch of an accepted restart (t_in, measured by camera) to the first frame presented after run_started; the engine-side part is measured from the press_us stamp taken in the input handler. Default 0.216 s at 60 fps (0.266 at 30 fps). A verified sum, checked against restart_budget (1.0 s) and the p95 engineering target 0.4 s; not enforced by code. Formally unbounded (it breaks the budget only below about 3.6 fps); output_range is the band of interest (defaults give 0.216-0.316 s). Every system's reset handler shares t_reset."
+    added: 2026-09-20
+    revised: 2026-09-20   # note clarified: output_range is the band of interest, not a formal bound
 
 # Example:
 #
@@ -191,9 +224,9 @@ constants:
       - design/gdd/tube-track.md
     value: 3.0
     unit: world units
-    notes: "Proposed default (guess), safe range 2.5-4. Constant across all maps for now. Vertex radius of the 32-sided tube mesh."
+    notes: "Proposed default (guess), safe range 2.5-3.3 (above 3.3 the ball-to-facet gap exceeds 2% of the ball diameter, F7). Constant across all maps for now. Vertex radius of the 32-sided tube mesh."
     added: 2026-09-19
-    revised: ""
+    revised: 2026-09-20
 
   - name: segment_length
     status: active
@@ -202,8 +235,113 @@ constants:
       - design/gdd/tube-track.md
     value: 12
     unit: world units
-    notes: "Proposed default (guess), safe range 6-24. Pattern & Difficulty may align chunks to whole segments (open question)."
+    notes: "Proposed default (guess), safe range integer 6-24 and at least L_min = ceil(v_max / SEAM_HZ_MAX) (9 at v_max = 25 and 3 Hz; L 6-8 can never load, tube-track F5). Pattern & Difficulty may align chunks to whole segments (open question)."   # was: safe range integer 6-24 only, before 2026-09-20 (tube-track review 3)
     added: 2026-09-19
+    revised: 2026-09-20
+
+  - name: dt_max
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+      - design/gdd/tube-track.md   # named t_lat / RECYCLE_STEP_MARGIN there
+      - design/gdd/tilt-input.md   # clamp on the filter step (rule 6, dt from the clock)
+    value: 0.1
+    unit: seconds
+    notes: "Proposed default (guess), safe range 0.05-0.25 (narrowed from 0.05-0.45 on 2026-09-20, second design-review, so that stall_pause_threshold >= 2 x dt_max always holds; Tube Track's default A = 6 still holds up to 0.48). The clamp on one per-frame time step; a single shared constant for the run clock (Run State F1), the ball's advance and Tube Track's window margin. Lowered from 0.25 to 0.1 on 2026-09-20 (first design-review): a clamped hitch moves the ball at most 2.5 u instead of 6.25 u (6.25 u at the top of the range). The engine caps the _process delta at about 0.133 s (Godot 4.7.2), so real_dt must come from the clock. Owner to be settled in the Ball Movement GDD."
+    added: 2026-09-20
+    revised: 2026-09-20
+
+  - name: stall_pause_threshold
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+    value: 0.5
+    unit: seconds
+    notes: "Proposed default (guess), safe range 0.5-3.0 and always at least 2 x dt_max (0.5 >= 2 x 0.25). A single frame whose real time step is at least this long while Running or Resuming is treated as an OS interruption: the run pauses and any hit queued on that tick is discarded. Lowered from 1.0 on 2026-09-20 (design-review)."
+    added: 2026-09-20
+    revised: ""
+
+  - name: restart_budget
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+    value: 1.0
+    unit: seconds
+    notes: "Fixed by the art bible (mood state 5, restart in under 1 s). Measured from the physical touch of an accepted restart (art bible: from the player's tap) to the first frame presented after run_started. Juice & Feedback and every reset handler must fit inside it."
+    added: 2026-09-20
+    revised: ""
+
+  - name: restart_lock
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+    value: 0.5
+    unit: seconds
+    notes: "Proposed default, safe range 0.45-0.60 (Run State F4). Restart and menu presses stamped earlier than hit time plus this value are ignored (a press held across the unlock does not convert; no buffering). Bounds the death-to-death cycle and so the flash rate (at most 1 / restart_lock per second). Juice & Feedback's hit presentation must fit inside it minus T_READ."
+    added: 2026-09-20
+    revised: ""
+
+  - name: resume_countdown
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+      - design/gdd/tilt-input.md   # neutral window (guard + window <= 0.95 s) must fit inside the shortest countdown (1.0 s); run_resumed captures the neutral
+    value: 2.0
+    unit: seconds
+    notes: "Proposed default (guess), safe range 1.0-3.0. World-frozen countdown after a resume tap; HUD displays it. Replace with the measured time for tilt to settle."
+    added: 2026-09-20
+    revised: ""
+
+  - name: pause_input_guard
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+    value: 0.3
+    unit: seconds
+    notes: "Proposed default (guess), safe range 0.2-0.5 (second design-review, 2026-09-20). Restart and menu presses stamped earlier than the entry into Paused plus this value are ignored, so a double tap on the pause button or a touch just after the pause screen appears cannot abandon a run; resume is never guarded and wins same-tick ties. Starts over on every entry to Paused; anchored to the entry (for app_interrupted, the clock at send), not to the player's return to the app, so it does not cover a stray touch after a call or a screen lock (Open Question 17, third design-review). Replace with telemetry on abandoned runs."
+    added: 2026-09-20
+    revised: 2026-09-20
+
+  - name: v_max
+    status: active
+    source: design/gdd/ball-movement.md   # not written yet; Ball Movement owns the real value
+    referenced_by:
+      - design/gdd/run-state-restart.md
+      - design/gdd/tube-track.md
+    value: 25
+    unit: world units per second
+    notes: "UNVALIDATED external contract (assumed; the concept prototype ran at 6.0 u/s). Both GDDs use 25: Run State for the clamped-hitch arithmetic (25 x DT_MAX), Tube Track for F3 (window size), F5 (seam frequency, L_min) and F9 (T_vis). At 6 u/s Tube Track's F9, seam cap and F4 are inert. Re-point source and confirm the value when the Ball Movement GDD is written (tube-track Open Question 12)."
+    added: 2026-09-20
+    revised: ""
+
+  - name: t_react
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+      - design/gdd/tube-track.md   # T_VIS_MIN derivation (F9): 1.05 + 0.25 + 0.05 + 0.15 margin
+    value: 0.25
+    unit: seconds
+    notes: "Simple visual reaction time (Run State T_REACT, used in the lock bound LOCK_MIN). Tube Track derives T_VIS_MIN = 1.5 s from it; if this changes, redo that sum. Not the same constant as Run State's T_READ (also 0.25 s, a guess for reading the killer)."
+    added: 2026-09-20
+    revised: ""
+
+  - name: t_in
+    status: active
+    source: design/gdd/run-state-restart.md
+    referenced_by:
+      - design/gdd/run-state-restart.md
+      - design/gdd/tube-track.md   # T_LATENCY in the T_VIS_MIN derivation (F9)
+    value: 0.05
+    unit: seconds
+    notes: "Proposed default (guess): touch to the press_us stamp (OS, driver, wait for a frame); to be replaced by a 240 fps camera measurement (Run State AC-27b). Tube Track reuses it as T_LATENCY in the T_VIS_MIN derivation; if the measurement differs, redo that sum."
+    added: 2026-09-20
     revised: ""
 
 # Example:

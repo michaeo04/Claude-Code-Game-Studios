@@ -2,7 +2,7 @@
 
 > **Status**: Draft
 > **Created**: 2026-09-19
-> **Last Updated**: 2026-09-19
+> **Last Updated**: 2026-09-21
 > **Source Concept**: design/gdd/game-concept.md
 
 ---
@@ -34,13 +34,13 @@ and skins are content on top of it.
 
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
-| 1 | Tube Track | Core | MVP | Designed | design/gdd/tube-track.md | — |
+| 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
 | 2 | Ball Movement | Gameplay | MVP | Not Started | — | Tube Track, Tilt Input, Run State & Restart |
-| 3 | Tilt Input | Core | MVP | Not Started | — | — |
+| 3 | Tilt Input | Core | MVP | In Review (revised after design review 2026-09-21; needs a fresh re-review) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
 | 6 | Near-Miss Detection | Gameplay | MVP | Not Started | — | Ball Movement, Obstacle System |
-| 7 | Run State & Restart (inferred) | Core | MVP | Not Started | — | — |
+| 7 | Run State & Restart (inferred) | Core | MVP | Approved | design/gdd/run-state-restart.md | — |
 | 8 | Scoring & Personal Best | Gameplay | MVP | Not Started | — | Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence |
 | 9 | Pickups & Boosters | Gameplay | Content Expansion | Not Started | — | Obstacle System, Ball Movement, Run State & Restart |
 | 10 | Camera | Presentation | MVP | Not Started | — | Ball Movement, Tube Track, Run State & Restart |
@@ -52,7 +52,7 @@ and skins are content on top of it.
 | 16 | Cosmetics & Unlocks | Progression | Content Expansion | Not Started | — | Scoring & Personal Best, Save & Persistence, Menus & Screen Flow |
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
 | 18 | Save & Persistence (inferred) | Persistence | MVP | Not Started | — | Platform Services |
-| 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence |
+| 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
 | 20 | Platform Services (inferred) | Core | MVP | Not Started | — | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
 
@@ -87,7 +87,7 @@ and skins are content on top of it.
 
 ### Foundation Layer (no dependencies)
 1. Tube Track — every coordinate (obstacles, ball, camera) lives on the tube
-2. Tilt Input — the only control (Pillar 4); reads the accelerometer directly
+2. Tilt Input — the only control (Pillar 4); reads the phone's motion sensors (the source, gravity or accelerometer, is decided by the spike ADR)
 3. Run State & Restart — state machine that nearly every system reacts to
 4. Platform Services — haptics, app lifecycle, screen orientation
 
@@ -101,7 +101,7 @@ and skins are content on top of it.
 2. Pattern & Difficulty — depends on: Obstacle System, Ball Movement, Tube Track, Run State & Restart
 3. Scoring & Personal Best — depends on: Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence
 4. Pickups & Boosters — depends on: Obstacle System, Ball Movement, Run State & Restart
-5. Settings & Accessibility — depends on: Save & Persistence
+5. Settings & Accessibility — depends on: Save & Persistence, Tube Track (soft: `seam_contrast_scale` reduced-motion hook), Tilt Input (soft: `sensitivity` hook)
 
 ### Presentation Layer (depends on Features)
 1. Camera — depends on: Ball Movement, Tube Track, Run State & Restart
@@ -201,10 +201,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 1 |
-| Design docs reviewed | 0 |
-| Design docs approved | 0 |
-| MVP systems designed | 1/17 |
+| Design docs started | 3 |
+| Design docs reviewed | 2 |
+| Design docs approved | 2 |
+| MVP systems designed | 3/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---

@@ -71,17 +71,18 @@ rules (hazard loudness and silhouette rules never vary).
 
 ## 2. Mood & Atmosphere
 
-Defined for Map 1. Restart is instant, so a hit and the restart are one state.
-Tension comes from hazard density, contrast compression and speed, never from
+Defined for Map 1. The hit and the next run are one continuous loop: the restart takes
+under 1 s, measured from the touch-down of the player's tap (a short locked sting, then one tap).
+Tension comes from hazard density, speed and world desaturation, never from
 darkening the world (the dusty base palette can otherwise read as cozy).
 
 | State | Emotion | Lighting | Descriptors | Energy | Mood carrier |
 |---|---|---|---|---|---|
 | 1 Menu / map select | Curious, poised | Cool-neutral key, top-left, lowest contrast, no warm light | Still, airy, dusty, open | 1/5 | Tube idles slowly, ball bobs; one lone hazard on the tube is the only saturated thing, previewing the rule |
 | 2 Run, low speed | Focused calm (not relaxed) | Same key, soft contrast, long fog | Spacious, deliberate, legible | 2/5 | Wide gaps between hazards, distant horizon, no speed FX |
-| 3 Run, high speed | Controlled tension, flow | Same direction; world contrast compresses and world chroma drops about 10-15%, fog pulls nearer; hazards untouched | Taut, streaming, hushed, narrow | 4/5 | Cool-white streaks at screen edges only (never the approach zone); FOV widening capped at 5% |
+| 3 Run, high speed | Controlled tension, flow | Same direction; world chroma drops about 12% (x0.88, range 0.85-0.90), value unchanged so hazard and seam contrast are unaffected; fog pulls nearer; hazards, ball and pickups untouched | Taut, streaming, hushed, narrow | 4/5 | Cool-white streaks at screen edges only (never the approach zone); FOV widening capped at 5% |
 | 4 Near-miss | Sharp thrill, tiny triumph | 60-100 ms cool-white rim on the ball | Bright, brief, crisp | Spike 5/5 | White ring pulse on the tube at the ball's position, whoosh, 1-2% FOV punch |
-| 5 Hit + restart | Sting, then "again", no shame | 150-200 ms hitstop; world greys out while the killer hazard keeps full chroma; then a soft white flash (peak at most 30% opacity, at most 2 frames) | Abrupt, exact, clean | Spike, then reset | Grey-out isolates the killer hazard (shows what killed the player); ball bursts into cool-white shards; restart in under 1 s |
+| 5 Hit + restart | Sting, then "again", no shame | 150-200 ms hitstop; world greys out while the killer hazard keeps full chroma; then a soft white flash (peak at most 30% opacity, at most 2 frames) | Abrupt, exact, clean | Spike, then reset | Grey-out isolates the killer hazard (shows what killed the player); ball bursts into cool-white shards; restart in under 1 s from the touch-down of the player's tap |
 | 6 New personal best | Earned pride | Brief value lift and capped cool bloom, no gold | Clean, ascending, clear | 3/5 | White ring sweeps down the tube plus a non-blocking banner; never delays the restart |
 
 ### Rules resolved from conflicts
@@ -104,7 +105,7 @@ the cool-neutral range, music timbre, and the ceiling of the energy curve.
 **Never varies:** hazards are the loudest element; warm is reserved for hazards;
 juice stays in the cool/white channel; energy ordering (menu < low speed < high
 speed < near-miss peak); the killer hazard is isolated on death; restart in
-under 1 s; readability beats effect.
+under 1 s from the touch-down of the player's tap; readability beats effect.
 
 ### Warm-themed maps (decided 2026-09-19)
 Mild warm themes (such as desert) are allowed, but their environment chroma must

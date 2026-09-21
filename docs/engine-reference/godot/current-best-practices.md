@@ -26,6 +26,39 @@ This supplements (not replaces) the agent's built-in knowledge.
 
 - **Script backtracing**: Detailed call stacks available even in Release builds
 
+## GDScript gotchas verified on the 4.7.2 binary (2026-09-20)
+
+Each item was run headless on `Godot_v4.7.2-stable_win64` (Tube Track and Run State design
+reviews, re-checked 2026-09-20). Anything not run is listed under "Still unverified" in
+`modules/rendering.md` or marked as such.
+
+- **No `nextafter`**: calling it gives `Parse Error: Function "nextafter()" not found`. To test a
+  value one ulp below a boundary, use the literal double (for example `11.999999999999998` for 12).
+  `Expression.parse` does not report the missing function, so do not use it to check.
+- **Do not name a function `wrap`**: an unqualified call resolves to the global
+  `wrap(value, min, max)` (`Too few arguments for "wrap()" call`). Use a distinct name
+  (`wrap_angle`).
+- **A static and an instance function cannot share a name**: `Function "x" has the same name as a
+  previously declared function`.
+- **`fposmod` edge cases**: `fposmod(a + PI, TAU) - PI` returns `+PI` (not `-PI`) for `a` the double
+  just below `-PI`, so an angle wrap needs a `>= PI` guard; `fposmod(-1e-20, 5.0)` returns exactly
+  `5.0`, so a "result in [0, y)" assumption fails for tiny negatives.
+- **`Vector3` is 32-bit**: `Vector3(0, 0, 16384.001).z` reads `16384.001953125`. GDScript `float`
+  is 64-bit; keep long-running distances in `float` and cast only when building the vector.
+- **Signal argument coercion depends on the handler**: `signal s(v: int)` emitted with `2.7`
+  delivers `2` to a handler declared `func h(v: int)` and `2.7` (a float) to an untyped handler or
+  lambda. The signal's declared types are not enforced at `emit`. An enum-typed argument reports
+  `TYPE_INT`.
+- **Lambda captures**: a primitive local is captured by value (the outer variable stays unchanged),
+  a container (`Array`, `Dictionary`) by reference. Count events through an `Array`.
+- **`Callable().call()` on an unset Callable is a script error** (`Attempt to call function on a
+  null instance`); default to `Callable()` and guard with `is_valid()`.
+- **`CONNECT_DEFERRED` handlers run after `emit()` returns** (next idle step), so any guarantee that
+  holds "inside the emission" (a re-entrancy guard, for example) does not cover them.
+- **`class_name` needs a class cache**: a script's `class_name` did not resolve without a project
+  and an import pass. Run `godot --headless --import` before a headless test run (GUT included), or
+  `preload` the script.
+
 ## Physics (4.6)
 
 - **Jolt Physics is the default 3D engine** for new projects
