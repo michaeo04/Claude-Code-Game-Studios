@@ -39,7 +39,22 @@ All stories must have appropriate test evidence before they can be marked Done:
 | **UI** (menus, HUD, screens) | Manual walkthrough doc OR interaction test | `production/qa/evidence/` | ADVISORY |
 | **Config/Data** (balance tuning) | Smoke check pass | `production/qa/smoke-[date].md` | ADVISORY |
 
-**Escalation exception (ratified 2026-09-22, Ball Movement `/design-review`):** Visual/Feel evidence is ADVISORY by default. A specific Visual/Feel check becomes BLOCKING only when it is the **sole falsification test for a stated game pillar** *and* its failure would force cross-system retuning rather than presentation polish. A GDD does not get to declare this on its own — the creative-director designates which checks qualify (as part of a `/design-review`), and the producer ratifies the designation before the GDD is marked Approved. Precedent: Ball Movement's BM-1 (latency, Pillar 4) and BM-3 (no jolt, Pillar 2) qualify; BM-2 (dodge-180) does not — a miss there is a tuning finding, not a pillar failure, so it blocks only locking the tuning defaults, not the first-playable build.
+**Escalation exception (designated by creative-director 2026-09-22; RATIFIED by producer 2026-09-22).** Visual/Feel evidence is ADVISORY by default. A check becomes BLOCKING only when **both** limbs hold:
+
+1. It is the **sole falsification test in the project for a specific pillar-breaking failure mode.** "Sole" is judged per *failure mode*, not per pillar — two checks may both serve one pillar if they detect different failure modes.
+2. Its failure would force **cross-system retuning** (changing a value another GDD consumes) rather than presentation polish.
+
+A GDD does not get to declare this on its own: the creative-director designates (as part of a `/design-review`) and the producer ratifies before the GDD is marked Approved. **If the producer declines, the check reverts to ADVISORY and the GDD may proceed**; the creative-director may escalate to the user.
+
+Each designation must state (a) the failure mode, (b) the **named build gate** it blocks — the designation expires when that gate is passed, unless re-designated — and (c) the **pre-committed failure response**: what gets changed if the check fails, decided before the result is known, so it is not chosen under deadline pressure.
+
+Designations are recorded in `production/qa/designated-gates.md`. Check the register before designating: if another GDD already claims the same failure mode, neither is sole.
+
+**Scope limit.** A check that is a quantitative measurement on hardware with a numeric pass/fail threshold is **Integration evidence executed on a device** — already BLOCKING under the table above — and does not need this exception. Use this exception only for checks that are genuinely subjective (screenshot + lead sign-off).
+
+**Precedent (ratified 2026-09-22).** Ball Movement BM-1 (failure mode: input-to-ball pipeline latency makes a death the pipeline's fault, not the player's — Pillar 2 primary, Pillar 4 secondary) and BM-3 (failure mode: unasked ball motion at run start/resume — Pillar 2) are BLOCKING for the **first-playable gate only**. Pre-committed failure response for both: lower `V_MAX` toward ~22 u/s; do **not** loosen Tube Track's `T_VIS_MIN` or Ball Movement's `T_DODGE_180_MAX`. BM-2 was not designated — a miss there is a tuning finding and blocks only locking the `OMEGA_MAX`/`BALL_LAG_TAU` defaults. Note: both BM-1 and BM-3 would also qualify as Integration-on-device under the scope limit above; the designation is belt-and-braces and must not be cited to escalate a merely-numeric device check in future.
+
+**Verification obligation.** A prior version of this paragraph stated "ratified" before any producer was invoked; the error was caught on 2026-09-22 by checking `production/session-logs/agent-audit.log`. Never record a ratification, approval or sign-off as complete without verifying it against that log. Full incident record: `design/gdd/reviews/ball-movement-review-log.md`.
 
 ## Automated Test Rules
 

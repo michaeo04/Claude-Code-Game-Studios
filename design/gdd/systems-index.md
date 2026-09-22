@@ -35,7 +35,7 @@ and skins are content on top of it.
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
-| 2 | Ball Movement | Gameplay | MVP | Designed, revised after /design-review (2026-09-22, full mode; 6 blocking items resolved, 13 important items deferred to a follow-up pass; pending re-review and the device spike BM-1..BM-6) | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
+| 2 | Ball Movement | Gameplay | MVP | Designed, revised after 3 /design-review passes (2026-09-22, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3 — remaining recommended revisions deferred to a follow-up pass); pending re-review and the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart, Ball Movement |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
@@ -186,26 +186,37 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Tilt Input GDD**: run the on-device spike first; do not lock tuning values
   derived from keyboard testing (`CAMERA_FOLLOW_SPEED` 3.0, angular speed 3.0
   rad/s, forward speed 6.0 u/s are prototype starting points only).
-- **Ball Movement GDD (designed 2026-09-22)**: position-mapped steering, anchored to Tilt Input's neutral
-  (`STEER_ARC` PI, first-order lag `BALL_LAG_TAU` 0.06 s capped by `OMEGA_MAX` 3.0 rad/s); RATE mode is
-  forced for the touch fallback and is a spike comparison for the default (Tilt Input Open Question 10).
-  Confirms `v_max` = 25 u/s (tube-track Open Question 12) and derives `T_DODGE_180` = 1.064 s, which Tube
-  Track F9 and Pattern & Difficulty should read instead of the 1.05 s keyboard-prototype assumption.
-  Owns the forward-speed ramp (`V_START` 10, `T_RAMP` 90 s) and the ball diameter (0.8). Provisionally,
-  Obstacle System (not Ball Movement) detects contact against the published ball state (Open Question 4,
-  the collision ADR). `DT_MAX` stays owned by Run State. Flags an `S_PRECISION_LIMIT` timing risk (`s`
-  reaches 16384 at 682 s) for Tube Track and Run State to resolve.
+- **Ball Movement GDD (designed 2026-09-22, revised through 3 `/design-review` passes)**: position-mapped
+  steering, anchored to Tilt Input's neutral (`STEER_ARC` PI — reverted in pass 3 after a brief 3.0 rad
+  experiment created an unenforceable, resume-relocating dead zone; first-order lag `BALL_LAG_TAU` 0.06 s
+  capped by `OMEGA_MAX` 3.0 rad/s). RATE mode is a documented spike-comparison configuration (Tilt Input
+  Open Question 10) but is **no longer wired to the touch fallback for the MVP**: `input_source` `FALLBACK`
+  is out of MVP scope entirely (pass 3) — a no-sensor device shows "device not supported" instead of
+  playing under RATE. Confirms `v_max` = 25 u/s (tube-track Open Question 12) and derives `T_DODGE_180` =
+  1.064 s, which Tube Track F9 and Pattern & Difficulty should read instead of the 1.05 s
+  keyboard-prototype assumption. The 60 Hz-only dodge-margin arithmetic is declared as such; 30 Hz is
+  recorded but not fairness-gated (pass 3). Owns the forward-speed ramp (`V_START` 10, `T_RAMP` 90 s) and
+  the ball diameter (0.8). Provisionally, Obstacle System (not Ball Movement) detects contact against the
+  published ball state (Open Question 4, the collision ADR). `DT_MAX` stays owned by Run State. Flags an
+  `S_PRECISION_LIMIT` timing risk (`s` reaches 16384 at 682 s) for Tube Track and Run State to resolve.
+  Its Node reference sim lives at `tools/reference-sim/ball_movement.js`.
 - **Platform Services GDD (designed 2026-09-21, revised after its design review)**: owns the OS app-lifecycle notifications and exposes
   `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
   portrait lock, the keep-screen-on call, and the Android sensor project settings (Tilt Input rules 3 and 9).
   On Android it ignores `PAUSED/RESUMED` and uses `FOCUS_OUT/IN` only; Tilt Input's settle must count only
   while `attentive` (Platform Services Open Question 24).
-- **HUD and Menus & Screen Flow GDDs**: forward the touch half-screen fallback hold
-  to Tilt Input only while Running and only for a touch that began after `run_started` (no-sensor phones), gate Play, Resume and Restart on
-  `valid` (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "no motion sensor" notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause screen
-  a way to the Menu (Tilt Input rules 10 and 11, UI Requirements).
-- **Scoring & Personal Best GDD**: decide how a run played with Tilt Input's
-  `input_source` `FALLBACK` (touch hold, a different control scheme) is flagged
+- **HUD and Menus & Screen Flow GDDs**: gate Play, Resume and Restart on `valid`
+  (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "no motion sensor"
+  notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause screen a way to the
+  Menu (Tilt Input rules 10 and 11, UI Requirements). **Updated per Ball Movement's pass-3 `/design-review`
+  (2026-09-22, Rule 6/B9):** a device with no usable motion sensor is blocked from starting a run at all
+  ("device not supported") rather than playing under a forwarded touch-fallback hold — the touch
+  half-screen fallback forwarding this note previously described is no longer an MVP gameplay path; Tilt
+  Input's own next revision should confirm whether it still builds that signal path for a possible
+  post-MVP reintroduction.
+- **Scoring & Personal Best GDD**: the `FALLBACK`-flagging decision this line previously pointed to is
+  moot for the MVP now that `input_source` `FALLBACK` is out of scope (Ball Movement Rule 6/B9); revisit
+  only if a touch-fallback control scheme is reintroduced post-MVP
   (Tilt Input Open Question 27).
 - **Save & Persistence, Juice & Feedback, Menus & Screen Flow, Camera, HUD and Settings
   GDDs**: connect to Platform Services as listed in its Dependencies section (Save
