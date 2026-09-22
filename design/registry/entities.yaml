@@ -166,6 +166,38 @@ formulas:
     added: 2026-09-20
     revised: ""
 
+  - name: ball_speed_curve
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+      - design/gdd/tube-track.md   # F9 T_vis reads v_max at the ramp's ceiling
+    variables:
+      - t
+      - v_start
+      - v_max
+      - t_ramp
+    output_range: [6, 30]
+    expression: "speed(t) = v_start + (v_max - v_start) * min(t / t_ramp, 1); S(t) = v_start*t + (v_max-v_start)*t^2/(2*t_ramp) for t <= t_ramp, else t_ramp*(v_start+v_max)/2 + v_max*(t - t_ramp)"
+    notes: "t is run_time (t_run). Monotone non-decreasing, exact integral (not a left-Riemann sum, which under-counts s by about a*dt*t/2). At the defaults (10, 25, 90): S(45)=618.75, S(90)=1575, S(120)=2325, S(682.36)=S_PRECISION_LIMIT (16384). t_ramp 0 or less is a sentinel: speed = v_max from t = 0."
+    added: 2026-09-22
+    revised: ""
+
+  - name: t_dodge_180
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+      - design/gdd/tube-track.md   # F9's dodge-time assumption
+    variables:
+      - omega_max
+      - ball_lag_tau
+    output_range: [0.94, 1.4]
+    expression: "K = omega_max * ball_lag_tau; T_dodge_180 = (PI - K) / omega_max + ball_lag_tau * ln(K / 0.05)"
+    notes: "Time for a first-order-lag-plus-cap turn to close a 180 degree (PI rad) arc to within 0.05 rad, from rest. At the defaults (3.0, 0.06): 1.064 s. This is the authoritative value Tube Track F9 and Pattern & Difficulty read; it supersedes the 1.05 s keyboard-prototype assumption (Ball Movement Open Question 9, propagated to tube-track.md pending approval). F9 stays valid while this is at most 1.167 s."
+    added: 2026-09-22
+    revised: ""
+
   - name: restart_time_sum
     status: active
     source: design/gdd/run-state-restart.md
@@ -247,11 +279,12 @@ constants:
       - design/gdd/tube-track.md   # named t_lat / RECYCLE_STEP_MARGIN there
       - design/gdd/tilt-input.md   # clamp on the filter step (rule 6, dt from the clock)
       - design/gdd/platform-services.md   # max_fps interaction (Tuning Knobs): any cap from 30 to 60 fps stays inside dt_max
+      - design/gdd/ball-movement.md   # injected as dt_max; a step is at most V_MAX * dt_max = 2.5 u (F1, Edge Cases)
     value: 0.1
     unit: seconds
-    notes: "Proposed default (guess), safe range 0.05-0.25 (narrowed from 0.05-0.45 on 2026-09-20, second design-review, so that stall_pause_threshold >= 2 x dt_max always holds; Tube Track's default A = 6 still holds up to 0.48). The clamp on one per-frame time step; a single shared constant for the run clock (Run State F1), the ball's advance and Tube Track's window margin. Lowered from 0.25 to 0.1 on 2026-09-20 (first design-review): a clamped hitch moves the ball at most 2.5 u instead of 6.25 u (6.25 u at the top of the range). The engine caps the _process delta at about 0.133 s (Godot 4.7.2), so real_dt must come from the clock. Owner to be settled in the Ball Movement GDD."
+    notes: "Proposed default (guess), safe range 0.05-0.25 (narrowed from 0.05-0.45 on 2026-09-20, second design-review, so that stall_pause_threshold >= 2 x dt_max always holds; Tube Track's default A = 6 still holds up to 0.48). The clamp on one per-frame time step; a single shared constant for the run clock (Run State F1), the ball's advance and Tube Track's window margin. Lowered from 0.25 to 0.1 on 2026-09-20 (first design-review): a clamped hitch moves the ball at most 2.5 u instead of 6.25 u (6.25 u at the top of the range). The engine caps the _process delta at about 0.133 s (Godot 4.7.2), so real_dt must come from the clock. Owner confirmed as Run State (Ball Movement GDD, 2026-09-22, Open Question 9): Ball Movement only ever sees the clamped dt_eff."
     added: 2026-09-20
-    revised: 2026-09-20
+    revised: 2026-09-22
 
   - name: stall_pause_threshold
     status: active
@@ -312,14 +345,82 @@ constants:
 
   - name: v_max
     status: active
-    source: design/gdd/ball-movement.md   # not written yet; Ball Movement owns the real value
+    source: design/gdd/ball-movement.md
     referenced_by:
       - design/gdd/run-state-restart.md
       - design/gdd/tube-track.md
+      - design/gdd/ball-movement.md   # Tuning Knobs, F2; Tube Track F9 margin recomputed against it (0.02 s at V_MAX 25)
     value: 25
     unit: world units per second
-    notes: "UNVALIDATED external contract (assumed; the concept prototype ran at 6.0 u/s). Both GDDs use 25: Run State for the clamped-hitch arithmetic (25 x DT_MAX), Tube Track for F3 (window size), F5 (seam frequency, L_min) and F9 (T_vis). At 6 u/s Tube Track's F9, seam cap and F4 are inert. Re-point source and confirm the value when the Ball Movement GDD is written (tube-track Open Question 12)."
+    notes: "Kept at 25 (Ball Movement GDD, 2026-09-22, resolves tube-track Open Question 12), but still a guess pending the on-device spike, not fully validated (the concept prototype ran at 6.0 u/s). Run State: the clamped-hitch arithmetic (25 x DT_MAX). Tube Track: F3 (window size), F5 (seam frequency, L_min) and F9 (T_vis = 1.52 s, a margin of only 0.02 s over T_VIS_MIN 1.5 s with default segments -- tight, flagged in Ball Movement's Tuning Knobs). Ball Movement: safe range 18-30 (Tuning Knobs); the speed ramp reaches it only after T_RAMP (90 s default, F2)."
     added: 2026-09-20
+    revised: 2026-09-22
+
+  - name: ball_diameter
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+      - design/gdd/tube-track.md   # lane_capacity formula, ring radius R + D/2
+    value: 0.8
+    unit: world units
+    notes: "The ball's diameter (D); the ball rides the ring of radius R + D/2 = 3.4 at the default tube_radius. Safe range 0.6-1.0 (Ball Movement Tuning Knobs); Tube Track's lane_capacity formula and every contact test use it. A guess pending the on-device spike."
+    added: 2026-09-22
+    revised: ""
+
+  - name: omega_max
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+    value: 3.0
+    unit: radians per second
+    notes: "The angular-speed cap on the ball's turn (F1, F3); safe range 2.75-4.0. Sets T_DODGE_180 with ball_lag_tau; Tube Track F9 needs T_DODGE_180 at most 1.167 s, which holds at omega_max >= 2.75 (at tau 0.06) or ball_lag_tau <= 0.12 (at 3.0). A guess pending the on-device spike (BM-1, BM-2)."
+    added: 2026-09-22
+    revised: ""
+
+  - name: steer_arc
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+    value: 3.141592653589793
+    unit: radians per unit steer
+    notes: "How much of the tube one full tilt (steer = +-1) covers in position mode (F1); PI means every point is reachable and steer +1/-1 map to the same point (a full-lock reversal is a full lap, 2 PI / omega_max = 2.09 s). Safe range 2.09-PI. Forms one joint tuning surface with Tilt Input's TILT_FULL_SCALE and DEAD_ZONE (F5c); the spike tunes them together."
+    added: 2026-09-22
+    revised: ""
+
+  - name: ball_lag_tau
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+    value: 0.06
+    unit: seconds
+    notes: "The first-order lag constant behind the ball's 'slight inertia' (F1, F3); safe range 0-0.12. In series with Tilt Input's FILTER_TAU (0.05 s) it gives a software 63%-response budget of 0.118 s (target at most 0.13 s, F5b). A guess pending the on-device spike (BM-1, BM-2, BM-3)."
+    added: 2026-09-22
+    revised: ""
+
+  - name: v_start
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+    value: 10
+    unit: world units per second
+    notes: "Forward speed at the start of a run (F2); safe range 6-14, always below v_max's range (18-30), so the two ranges never cross. A guess pending the novice playtest BM-6."
+    added: 2026-09-22
+    revised: ""
+
+  - name: t_ramp
+    status: active
+    source: design/gdd/ball-movement.md
+    referenced_by:
+      - design/gdd/ball-movement.md
+    value: 90
+    unit: seconds
+    notes: "Time for speed to rise from v_start to v_max (F2); 0 or less is an accepted sentinel meaning v_max from the start, otherwise safe range 45-240. At the defaults s reaches Tube Track's S_PRECISION_LIMIT (16384) at t = 682.36 s (Ball Movement Open Question 6). A guess pending the novice playtest BM-6."
+    added: 2026-09-22
     revised: ""
 
   - name: t_react

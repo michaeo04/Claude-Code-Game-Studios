@@ -35,9 +35,9 @@ and skins are content on top of it.
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
-| 2 | Ball Movement | Gameplay | MVP | Not Started | — | Tube Track, Tilt Input, Run State & Restart |
+| 2 | Ball Movement | Gameplay | MVP | Designed (2026-09-22; pending an independent /design-review and the device spike BM-1..BM-6) | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
-| 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart |
+| 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart, Ball Movement |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
 | 6 | Near-Miss Detection | Gameplay | MVP | Not Started | — | Ball Movement, Obstacle System |
 | 7 | Run State & Restart (inferred) | Core | MVP | Approved | design/gdd/run-state-restart.md | — |
@@ -93,7 +93,7 @@ and skins are content on top of it.
 
 ### Core Layer (depends on Foundation)
 1. Ball Movement — depends on: Tube Track, Tilt Input, Run State & Restart
-2. Obstacle System — depends on: Tube Track, Run State & Restart
+2. Obstacle System — depends on: Tube Track, Run State & Restart, Ball Movement (contact detection reads the published ball state; Ball Movement GDD, 2026-09-22)
 3. Save & Persistence — depends on: Platform Services
 
 ### Feature Layer (depends on Core)
@@ -186,6 +186,15 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Tilt Input GDD**: run the on-device spike first; do not lock tuning values
   derived from keyboard testing (`CAMERA_FOLLOW_SPEED` 3.0, angular speed 3.0
   rad/s, forward speed 6.0 u/s are prototype starting points only).
+- **Ball Movement GDD (designed 2026-09-22)**: position-mapped steering, anchored to Tilt Input's neutral
+  (`STEER_ARC` PI, first-order lag `BALL_LAG_TAU` 0.06 s capped by `OMEGA_MAX` 3.0 rad/s); RATE mode is
+  forced for the touch fallback and is a spike comparison for the default (Tilt Input Open Question 10).
+  Confirms `v_max` = 25 u/s (tube-track Open Question 12) and derives `T_DODGE_180` = 1.064 s, which Tube
+  Track F9 and Pattern & Difficulty should read instead of the 1.05 s keyboard-prototype assumption.
+  Owns the forward-speed ramp (`V_START` 10, `T_RAMP` 90 s) and the ball diameter (0.8). Provisionally,
+  Obstacle System (not Ball Movement) detects contact against the published ball state (Open Question 4,
+  the collision ADR). `DT_MAX` stays owned by Run State. Flags an `S_PRECISION_LIMIT` timing risk (`s`
+  reaches 16384 at 682 s) for Tube Track and Run State to resolve.
 - **Platform Services GDD (designed 2026-09-21, revised after its design review)**: owns the OS app-lifecycle notifications and exposes
   `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
   portrait lock, the keep-screen-on call, and the Android sensor project settings (Tilt Input rules 3 and 9).
@@ -218,10 +227,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 4 |
+| Design docs started | 5 |
 | Design docs reviewed | 3 |
 | Design docs approved | 3 |
-| MVP systems designed | 4/17 |
+| MVP systems designed | 5/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---
