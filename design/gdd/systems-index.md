@@ -35,7 +35,7 @@ and skins are content on top of it.
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
-| 2 | Ball Movement | Gameplay | MVP | Designed (2026-09-22; pending an independent /design-review and the device spike BM-1..BM-6) | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
+| 2 | Ball Movement | Gameplay | MVP | Designed, revised after /design-review (2026-09-22, full mode; 6 blocking items resolved, 13 important items deferred to a follow-up pass; pending re-review and the device spike BM-1..BM-6) | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart, Ball Movement |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |

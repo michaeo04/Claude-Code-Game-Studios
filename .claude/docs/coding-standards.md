@@ -35,9 +35,11 @@ All stories must have appropriate test evidence before they can be marked Done:
 |---|---|---|---|
 | **Logic** (formulas, AI, state machines) | Automated unit test — must pass | `tests/unit/[system]/` | BLOCKING |
 | **Integration** (multi-system) | Integration test OR documented playtest | `tests/integration/[system]/` | BLOCKING |
-| **Visual/Feel** (animation, VFX, feel) | Screenshot + lead sign-off | `production/qa/evidence/` | ADVISORY |
+| **Visual/Feel** (animation, VFX, feel) | Screenshot + lead sign-off | `production/qa/evidence/` | ADVISORY (see escalation exception below) |
 | **UI** (menus, HUD, screens) | Manual walkthrough doc OR interaction test | `production/qa/evidence/` | ADVISORY |
 | **Config/Data** (balance tuning) | Smoke check pass | `production/qa/smoke-[date].md` | ADVISORY |
+
+**Escalation exception (ratified 2026-09-22, Ball Movement `/design-review`):** Visual/Feel evidence is ADVISORY by default. A specific Visual/Feel check becomes BLOCKING only when it is the **sole falsification test for a stated game pillar** *and* its failure would force cross-system retuning rather than presentation polish. A GDD does not get to declare this on its own — the creative-director designates which checks qualify (as part of a `/design-review`), and the producer ratifies the designation before the GDD is marked Approved. Precedent: Ball Movement's BM-1 (latency, Pillar 4) and BM-3 (no jolt, Pillar 2) qualify; BM-2 (dodge-180) does not — a miss there is a tuning finding, not a pillar failure, so it blocks only locking the tuning defaults, not the first-playable build.
 
 ## Automated Test Rules
 

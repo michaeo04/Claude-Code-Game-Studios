@@ -334,7 +334,7 @@ v_max-dependent constraints when a map loads.
 | Fog end distance | F | float | derived range (F3) | `fog_depth_end`, radial distance from the camera eye; largest fog end distance across speeds; opacity 100% there (needs `fog_density = 1.0` and depth fog mode); used only for the window size |
 | Readable distance | F_read | float | external contract, guess | radial distance from the camera eye at `v_max` up to which a hazard is still readable through fog; the criterion (for example a hazard/tube contrast floor after fog blending) is set by Environment & Theming and the art-director, not by Tube Track (F9, Open Question 10) |
 | Camera distance | d_cam | float | 8 (guess; Camera owns) | distance from the camera eye to the ball, published by Camera at map load; converts `F_read` to a distance ahead of the ball (F9); the same estimate as F4's `d` |
-| Max speed | v_max | float | finite and > 0; 25 u/s (assumed) | Ball Movement owns the real value |
+| Max speed | v_max | float | finite and > 0; 25 u/s (confirmed as design intent 2026-09-22, provisional pending the device spike) | Ball Movement owns the real value |
 | Step margin | t_lat | float | 0.05-0.25 s, default 0.1 (guess) | the shared `DT_MAX`, the caller's per-frame time-step clamp (Run State & Restart uses it in its F1; its owner is settled in the Ball Movement GDD, Run State Open Question 9) |
 | Camera rear extent | C_b | float | 6 (Camera owns) | how far behind the ball the camera can see |
 | Camera slack | M_cam | float | 2 (guess) | safety margin |
@@ -473,12 +473,19 @@ rises, so dividing the largest `F` by `v_max` overstated the time at exactly the
 matters. F9 is a budget that Pattern & Difficulty consumes, not a fairness proof: the worst
 dodge (180 degrees, the gap on the hidden far side) is limited by the tube body and the camera
 height, and that reveal time, `T_reveal`, is supplied by Camera (Open Question 7).
-Derivation of `T_VIS_MIN` (guess): a 180 degree dodge at the ball's angular speed (3.0 rad/s
-prototype value, so 1.05 s), plus a simple visual reaction of 0.25 s (the value Run State uses),
-plus a touch-to-photon latency `T_LATENCY` of 0.05 s (guess, Run State's `t_in`) and a 0.15 s
-margin (guess): 1.5 s. Without the margin the sum is 1.05 + 0.25 + 0.05 = 1.35 s, which is the
-floor of the `T_VIS_MIN` safe range. Pattern & Difficulty will supply the real `T_dodge_worst` and the sum is
-redone then (Open Question 8).
+Derivation of `T_VIS_MIN` (guess, revised 2026-09-22 to consume Ball Movement's confirmed values):
+Ball Movement's `T_DODGE_180 = T(PI, 0.05)` = 1.064 s (its F5a; supersedes the 1.05 rad/s-cap-only
+prototype assumption), plus a simple visual reaction of 0.25 s (the value Run State uses), plus an
+input-pipeline latency of about 0.11 s (Ball Movement F5a and F5b: sensor, poll frame, display
+frames and Tilt Input's own filter settling, layered ahead of `BALL_LAG_TAU` and not double-counting
+it — `BALL_LAG_TAU`'s own contribution is already inside `T_DODGE_180`), giving about 1.42 s and a
+margin against the 1.5 s default of about 0.08 s (not the earlier, unverified 0.10 s, which had
+substituted a latency figure not traceable to Ball Movement's own numbers). Without the margin the
+sum is about 1.064 + 0.25 + 0.11 = 1.43 s, which is the floor of the `T_VIS_MIN` safe range
+(raised from 1.35 s, which was derived from the old 1.05 s / 0.05 s numbers and is stale under this
+derivation — a `T_VIS_MIN` inside the old 1.35-2.5 range but below 1.43 s would have passed
+validation while sitting under the real safe minimum). Pattern & Difficulty will supply the real
+`T_dodge_worst` and the sum is redone then (Open Question 8).
 Validation: `F_read >= T_VIS_MIN * v_max + d_cam`, `F >= F_read`, and `F <= (A_MAX - 1) * L -
 v_max * t_lat` (F3). If the range `[T_VIS_MIN * v_max + d_cam, (A_MAX - 1) * L - v_max * t_lat]` is
 empty for the map's `L`, `v_max`, `t_lat` and `d_cam`, the validator reports one `NO_VALID_F` error
@@ -576,7 +583,7 @@ are contracts rather than code dependencies, and several dependents.
 | Input | Supplied by | Used for | Note |
 |-------|-------------|----------|------|
 | `s` via `advance(s)` (traveller distance) | Ball Movement during a run; Tube Track's own idle scroll in the menu | Drives segment recycling | Ball Movement uses Tube Track's frame, but Tube Track only receives a number, so there is no code cycle |
-| `v_max` | Ball Movement (external contract) | F3, F5, F9 validation at map load | Unvalidated; 25 is an assumption |
+| `v_max` | Ball Movement (external contract) | F3, F5, F9 validation at map load | Confirmed as design intent 2026-09-22 (ball-movement.md Open Question 12); still provisional pending BM-1/BM-2 and Environment & Theming's `F_read` |
 | `rear_extent`, `camera_distance` (`d_cam`) | Camera, as configuration values published when a map loads | Checks `SEGMENTS_BEHIND` (F3); converts `F_read` to a distance ahead of the ball (F9) | Config values, not runtime calls, so Camera can depend on Tube Track without a cycle |
 | `MapConfig`: `seam_pattern_id`, `fog_mode`, `fog_depth_begin`, `fog_end_distance`, `fog_depth_curve`, `fog_density`, `fog_color`, `readable_distance` (`F_read`) | Environment & Theming (map data) | Seam pattern; horizon and visibility checks (F3, F9, rule 7) | Theming owns the values; `fog_mode` must be depth and `fog_density` 1.0; `fog_end_distance` and `F_read` are radial distances from the camera eye; `F_read` and its criterion are provisional until Theming, the art-director and Camera exist |
 | `seam_contrast_scale` | Settings & Accessibility | Reduced-motion scaling of seams (rule 9) | Soft dependency |
@@ -618,7 +625,7 @@ Values that live in other systems are not duplicated here. Every knob lives in t
 | `SEAM_CONTRAST_MIN` / `MAX` | 1.15 / 1.25 (floor a guess until AC-26; ceiling an art-director ruling 2026-09-20, device check pending) | floor >= 1.05 in a still frame; the ceiling keeps the seam below the map's darkest sky value and the rim-white ring readable (rule 9); the object-on-seam floors (hazard/seam and ball/seam >= 4:1, pickup/seam >= 3:1) guard only against a seam darker than the tube and never bind a lighter one (rule 9, Open Question 18); seams lighter than the tube | Seam visibility (rule 9, AC-26) | Seams compete with hazards; may erase the tube/sky contour and the rim-white ring | Seams invisible at speed |
 | `seam_contrast_scale` | 1.0 | 0-1 (set by Settings) | Reduced-motion hook | n/a | Flat seams |
 | `IDLE_SCROLL_SPEED` | 1.5 | 0.5-3 | Life in the menu | Menu motion competes with run energy | The tube looks dead |
-| `T_VIS_MIN` | 1.5 s | 1.35-2.5 (guess; the floor is the derivation without its 0.15 s margin, 1.05 + 0.25 + 0.05) | Minimum hazard visibility time (F9), lower bound of `F_read` (`T_VIS_MIN * v_max + d_cam`) and so of `F` | Fog must be pushed far | Unfair surprises |
+| `T_VIS_MIN` | 1.5 s | 1.43-2.5 (guess; the floor is the derivation without its margin, 1.064 + 0.25 + 0.11, revised 2026-09-22 to Ball Movement's confirmed `T_DODGE_180` and latency; raised from 1.35, which was stale under the old 1.05/0.05 numbers) | Minimum hazard visibility time (F9), lower bound of `F_read` (`T_VIS_MIN * v_max + d_cam`) and so of `F` | Fog must be pushed far | Unfair surprises |
 | `S_PRECISION_LIMIT` | 16384 | 4096-16384 | Where the precision warning fires (F4) | Jitter before the warning | Noisy warnings |
 | `RECYCLE_STEP_MARGIN` (t_lat) | 0.1 s (guess; the shared `DT_MAX`, its owner is settled in the Ball Movement GDD, Run State Open Question 9) | 0.05-0.25 (the range of the shared `DT_MAX`) | Window size (F3; at the default L, F and v_max the required A does not change inside this range); the caller's `dt` clamp; the idle-scroll step clamp (F8) | A larger window at other L or F | Not a window problem (recycling is synchronous): Run State clips hitches early and the run drifts slower than real time |
 | `CAMERA_MARGIN` (M_cam) | 2 (guess) | 1-4 | `B` requirement (F3) | Waste | Segments vanish while in view |
@@ -893,7 +900,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
 | 9 | The menu-to-run transition (and the run-to-menu transition, which resets `s_idle` to 0) must hide a seam-phase jump of up to `SP` for at least one frame | Menus & Screen Flow GDD | When that GDD is authored |
 | 10 | `MapConfig` fields (`seam_pattern_id`, `fog_mode` = depth, `fog_depth_begin`, `fog_end_distance` (radial from the camera eye), `fog_depth_curve`, `fog_density` = 1.0, `fog_color`, `readable_distance` = `F_read` (radial from the camera eye)); Environment & Theming and the art-director own the raw fog range and the **readable criterion**: the art bible's hazard/tube 4.17:1 against a 4:1 floor leaves about 4% headroom, so a "4:1 after fog blending" criterion puts `F_read` at about the fog start and makes the placeholder 46/48 defaults a fog wall (readable to invisible in about 0.1 s); decide a looser floor or a soft-fog rule, and consider a fade-time check `(F - F_read) / v_max >= T_FADE_MIN` (0.75-1.0 s, a guess) as the mechanism that prevents a wall, here or in Theming. They also name the owner of the speed-driven fog change to the shared Environment. **Art-director recommendation (2026-09-20, advisory, unverified; for that GDD to decide, no default here is changed):** keep 4:1 as the unfogged palette floor and add a separate fogged-readability floor for hazard/tube at `F_read` of about 2.5-3:1, plus the fade rule `(F - F_read) / v_max >= 0.75-1.0 s`; that would move `F` out to roughly 65-70 u (more segments and draw calls: a producer and technical-artist cost check), the speed-driven "fog pulls nearer" must be capped so `F_read(v) >= T_VIS_MIN * v + d_cam` at every speed, and hazards must not be exempted from fog (they would pop in at the horizon); validate on a device in sunlight at 50% brightness | Environment & Theming GDD, art-director | When that GDD is authored |
 | 11 | Settings & Accessibility: `seam_contrast_scale` reduced-motion hook; accessibility review of a full-screen periodic seam pattern at up to 3 Hz, and a ruling on a conditional flash cap in place of the frequency-only cap (Open Question 18) | Settings & Accessibility GDD, accessibility-specialist | When that GDD is authored |
-| 12 | `v_max` is an unvalidated contract (25 assumed, prototype 6.0); confirm with Ball Movement | Ball Movement GDD | When that GDD is authored |
+| 12 | RESOLVED 2026-09-22 (`/design-review`, ball-movement.md): `v_max` = 25 u/s confirmed as Ball Movement's design intent — provisional pending BM-1/BM-2 (the device spike) and Environment & Theming's `F_read`, not yet a locked contract; `v_max`'s registry source now points to Ball Movement | Ball Movement GDD | Resolved |
 | 13 | On-device check of precision without a rebase; under the conservative 8-ulp model the safe zone ends at s = 4096. Fallback: treadmill | user, godot-specialist | First playable build |
 | 14 | Default values (L, A, B, n_seams, SEAM_HZ_MAX, seam contrast band, IDLE_SCROLL_SPEED, t_lat, M_cam, T_VIS_MIN, R range) are guesses; validate on a real phone | user | First playable build |
 | 15 | Curved (spline) tube for later maps: revisit the camera model before adopting it | user | Full Vision |
