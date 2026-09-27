@@ -194,9 +194,9 @@ formulas:
       - ball_lag_tau
     output_range: [0.94, 1.4]
     expression: "K = omega_max * ball_lag_tau; T_dodge_180 = (PI - K) / omega_max + ball_lag_tau * ln(K / 0.05)"
-    notes: "Time for a first-order-lag-plus-cap turn to close a 180 degree (PI rad) arc to within 0.05 rad, from rest. At the defaults (3.0, 0.06): 1.064 s. This is the authoritative value Tube Track F9 and Pattern & Difficulty read; it supersedes the 1.05 s keyboard-prototype assumption (Ball Movement Open Question 9, propagated to tube-track.md pending approval). F9 stays valid while this is at most 1.167 s."
+    notes: "Time for a first-order-lag-plus-cap turn to close a 180 degree (PI rad) arc to within 0.05 rad, from rest. At the defaults (3.0, 0.06): 1.064 s. This is the authoritative value Tube Track F9 and Pattern & Difficulty read; it supersedes the 1.05 s keyboard-prototype assumption (Ball Movement Open Question 9, propagated to tube-track.md pending approval). F9 stays valid while this is at most 1.14 s (T_DODGE_180_MAX, corrected 2026-09-27 pass-4 registry sync; the prior 1.167 s figure was stale, superseded by ball-movement.md B6/F5a on 2026-09-22)."
     added: 2026-09-22
-    revised: ""
+    revised: 2026-09-27
 
   - name: restart_time_sum
     status: active
@@ -375,9 +375,9 @@ constants:
       - design/gdd/ball-movement.md
     value: 3.0
     unit: radians per second
-    notes: "The angular-speed cap on the ball's turn (F1, F3); safe range 2.75-4.0. Sets T_DODGE_180 with ball_lag_tau; Tube Track F9 needs T_DODGE_180 at most 1.167 s, which holds at omega_max >= 2.75 (at tau 0.06) or ball_lag_tau <= 0.12 (at 3.0). A guess pending the on-device spike (BM-1, BM-2)."
+    notes: "The angular-speed cap on the ball's turn (F1, F3); safe range 2.75-4.0. Sets T_DODGE_180 with ball_lag_tau; Tube Track F9 needs T_DODGE_180 at most 1.14 s (T_DODGE_180_MAX, corrected 2026-09-27 pass-4 registry sync — the prior 1.167 s ceiling and the ball_lag_tau <= 0.12 alternative were both stale, superseded by B6 the same day it was written). BallConfig.validated()'s derived check (Rule 13) enforces this at load by lowering ball_lag_tau, not omega_max, when a pair is over budget. A guess pending the on-device spike (BM-1, BM-2)."
     added: 2026-09-22
-    revised: ""
+    revised: 2026-09-27
 
   - name: steer_arc
     status: active
@@ -386,9 +386,9 @@ constants:
       - design/gdd/ball-movement.md
     value: 3.141592653589793
     unit: radians per unit steer
-    notes: "How much of the tube one full tilt (steer = +-1) covers in position mode (F1); PI means every point is reachable and steer +1/-1 map to the same point (a full-lock reversal is a full lap, 2 PI / omega_max = 2.09 s). Safe range 2.09-PI. Forms one joint tuning surface with Tilt Input's TILT_FULL_SCALE and DEAD_ZONE (F5c); the spike tunes them together."
+    notes: "How much of the tube one full tilt (steer = +-1) covers in position mode (F1); PI means every point is reachable and steer +1/-1 map to the same point. A full-lock reversal (steer +1 to -1 or back) gives e = 0 via the shortest-signed-arc wrap (F1, B3) — the fastest possible response, not a lap (corrected 2026-09-27 pass-4 registry sync: this entry previously described the pre-B3 defect, '2 PI / omega_max = 2.09 s', as current behavior; that description was disproven and reverted by ball-movement.md's own pass 2/3, 2026-09-22, and never synced here). Safe range 2.09-PI. Forms one joint tuning surface with Tilt Input's TILT_FULL_SCALE and DEAD_ZONE (F5c); the spike tunes them together."
     added: 2026-09-22
-    revised: ""
+    revised: 2026-09-27
 
   - name: ball_lag_tau
     status: active
@@ -397,9 +397,9 @@ constants:
       - design/gdd/ball-movement.md
     value: 0.06
     unit: seconds
-    notes: "The first-order lag constant behind the ball's 'slight inertia' (F1, F3); safe range 0-0.12. In series with Tilt Input's FILTER_TAU (0.05 s) it gives a software 63%-response budget of 0.118 s (target at most 0.13 s, F5b). A guess pending the on-device spike (BM-1, BM-2, BM-3)."
+    notes: "The first-order lag constant behind the ball's 'slight inertia' (F1, F3); safe range 0-0.072 (narrowed from 0-0.12 by B6, 2026-09-22; corrected here 2026-09-27 pass-4 registry sync — this entry still cited the pre-B6 range). In series with Tilt Input's FILTER_TAU (0.05 s) it gives a software 63%-response budget of 0.118 s (target at most 0.13 s, F5b). A guess pending the on-device spike (BM-1, BM-2, BM-3)."
     added: 2026-09-22
-    revised: ""
+    revised: 2026-09-27
 
   - name: v_start
     status: active

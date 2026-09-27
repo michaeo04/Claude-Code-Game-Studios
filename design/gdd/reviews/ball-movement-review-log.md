@@ -240,3 +240,102 @@ Not yet re-reviewed. Run `/design-review design/gdd/ball-movement.md` in a fresh
 - `tools/reference-sim/ball_movement.js` does not yet cover every AC's oracle (see "Deferred" above)
   — it is the oracle authority for what it does cover, not yet a complete replacement for hand
   verification of the rest.
+
+---
+
+## Review — 2026-09-27 (fourth review, full mode) — Verdict: NEEDS REVISION, then revised
+Scope signal: **XL** (unchanged from pass 3)
+Specialists: game-designer, systems-designer, qa-lead, godot-specialist (adversarial, parallel);
+creative-director (senior synthesis)
+Blocking items: 5 | Recommended: 7 | Nice-to-have: 3
+Summary: the document had converged on substance — pass 4 found **zero design reversals**; every
+blocking item was a sync or wording defect, not a rethinking of a design decision. Three of the five
+blockers shared one root cause the creative-director named explicitly: a decision applied in one
+location during a prior pass and never swept to every other location that cited it.
+
+### Specialist findings (adversarial pass)
+- **game-designer**: found that Player Fantasy's unconditional "it never moves while my hand is
+  still" is falsified by the GDD's own F5c (a 2 Hz hand drift is attenuated only to 0.68 once
+  off-neutral) — the promise is exact at rest, not off-neutral, and the doc never said so. Also
+  flagged (not escalated by creative-director, folded into the same fix): the reset-glide feel gap
+  open since pass 2, FALLBACK's motor-accessibility cost distinct from hardware-compat, and the
+  Rule 13 auto-corrector's lack of a feel gate for future Game Modes configs.
+- **systems-designer**: confirmed (by direct file read) that `design/registry/entities.yaml` had
+  three stale entries added the same day as B6/B8 but never synced to them (`ball_lag_tau`'s safe
+  range still 0-0.12, `omega_max`'s notes citing a stale 1.167 s ceiling, `steer_arc`'s notes
+  describing the pre-B3 full-lock-reversal bug as current behavior). Also found F4's `omega`
+  output can spike to roughly 500 rad/s on a `dt -> 0+` snap-convergence frame (reachable via
+  AC-3's own `dt` = 1e-9), a real range violation though practically harmless.
+- **qa-lead**: found AC-29 and AC-31 violate the standing rule pass 3 itself wrote (no AC may be
+  BLOCKING when its blocking dependency has no named owner and no date) — "the TiltCore story" and
+  "the Run State core story" are neither. Also found BM-3's own text internally contradicted
+  itself: "pooled... n = 30 each" alongside a parenthetical still naming the pre-raise "10
+  restarts, 10 resumes."
+- **godot-specialist**: ran the pinned Godot 4.7.2 binary headless (budgeted, delivered on a
+  second attempt after a first attempt hit its turn limit trying the same thing less efficiently)
+  and confirmed a real, binary-verified divergence: the built-in `wrapf(x, -PI, PI)` is not
+  equivalent to the GDD's hand-rolled `wrap_angle` at the `PI` seam (`wrapf(PI - 1e-9)` incorrectly
+  collapses to exactly `-PI`). Also confirmed GDScript's `float` is genuinely 64-bit in 4.7.2, and
+  found a second, previously-unnoticed evasion route for AC-25's still-open `static var` lint gap:
+  `const` Dictionary/Array containers are content-mutable in GDScript despite a `const` binding.
+
+### Disagreements adjudicated (creative-director)
+- **game-designer's off-neutral drift, tagged BLOCKING by game-designer, vs. whether it warrants a
+  new device gate**: creative-director agreed it blocks Approval but declined the proposed remedy
+  (a new device check) — no defensible pass/fail threshold exists before any device data, which
+  would be the same "BLOCKING label without an implementable oracle" defect this GDD's own standing
+  rule forbids. Reframed as a documentation blocker (qualify Player Fantasy, add an Edge Case entry,
+  log the drift ADVISORY in the existing BM-4), explicitly declining to designate it BLOCKING now —
+  recorded instead as a watched trigger condition in a new `production/qa/designated-gates.md`.
+- **qa-lead's BM-3 "held tilt" n=10 -> 30 proposal vs. game-designer's implicit preference for a
+  feel-rating instead**: adjudicated for the feel-rating — the "held tilt" condition already samples
+  its continuous per-frame bound about 600 times over 10 trials, independently pinned by AC-7;
+  raising trial count buys no comparable information the binary "held still" conditions needed it
+  for. Fixed the stated *justification* instead of the sample size, and added the glide-feel rating
+  to the same trials, closing the reset-glide gap without a new device check.
+- **systems-designer's proposed `omega` clamp vs. AC-23**: the specialist did not notice that
+  clamping `omega`'s output would break AC-23's snap-frame tolerance assertion. Creative-director
+  chose the cheaper of two fixes: state a `dt` floor below which the range guarantee doesn't hold,
+  leaving F4's formula and AC-23 both untouched.
+- **The standing rule's "no owner *and* no date"**: adopted qa-lead's flag that this is weaker than
+  intended (satisfied the moment either exists) and tightened it to "or" in the same edit, which
+  correctly pulls the game-loop ADR (owner but no date) into scope for AC-29/AC-31's restatement.
+
+### Resolution (2026-09-27, same day)
+Applied to the working copy per user approval of the full changeset (`entities.yaml` + `ball-movement.md` + a new `production/qa/designated-gates.md`), no design decisions required from the user beyond approving the batch (creative-director's synthesis had already adjudicated every specialist disagreement):
+- `design/registry/entities.yaml`: `t_dodge_180`, `omega_max`, `ball_lag_tau` and `steer_arc`
+  entries corrected to match the GDD's post-B6/B8 state; `revised:` dates set.
+- Player Fantasy: added the at-rest-vs-off-neutral qualification to the "holds still" promise and
+  to "Where the promise holds"; corrected a second, independently-found stale reference to the
+  touch fallback in the same paragraph (B9 cut it from MVP in pass 3; this paragraph was never
+  updated).
+- Edge Cases: new entry for off-neutral drift, explicitly recording the position-relative dead
+  zone as considered and rejected (it would make the ball stick on re-center).
+- BM-3: removed "pooled," restated as two separately-reported n=30 conditions; corrected the
+  "held tilt" n=10 justification; added a glide-feel rating to the same trials.
+- BM-4: added exploratory off-neutral drift logging.
+- Gate policy: AC-29/AC-31 restated as conditionally BLOCKING (owner/date not yet met for their
+  cited blockers); the standing rule's "and" corrected to "or."
+- F4: added a `dt` range-validity floor; F1/Rule 13: `wrap_angle` declared one canonical
+  implementation, `wrapf()` banned as a substitute.
+- AC-25: added `wrapf(` and the `const`-container/subscript-assignment gap to the forbidden-token
+  scan, scoped to `BallMath`.
+- AC-5b: noted it doubles as the `ln()` precision check.
+- Open Question 11: added a feel-re-verification requirement for any future Game Modes config
+  reached through Rule 13's derived corrector. New Open Question 13: FALLBACK's motor-accessibility
+  cost, routed to Settings & Accessibility, explicitly not grounds to reopen B9.
+- `production/qa/designated-gates.md` created: records the BM-1a/BM-1b/BM-3 designation ratified in
+  pass 3 (which had never been written to this file despite `coding-standards.md` requiring it) and
+  the new BM-4 drift trigger condition.
+- GDD header and this log updated.
+
+### Caveats to remember (pass 4)
+- Every fix in this pass is a documentation/contract correction, not a design change — no default
+  value, formula or acceptance threshold changed as a result of this pass.
+- Creative-director's recommendation: this should be the last full-mode round for this GDD. Not
+  independently re-verified by a subsequent pass at time of writing.
+- Not yet re-reviewed. If a pass 5 runs, prefer `--depth lean` on the diff (registry sync,
+  Player Fantasy/Edge Cases wording, BM-3/BM-4 wording, Gate policy wording, F4/AC-25/AC-5b/Open
+  Questions wording) over a fresh full-mode specialist panel — the creative-director's stated basis
+  for "last round" is that remaining uncertainty is device data, not text still worth adversarial
+  review.

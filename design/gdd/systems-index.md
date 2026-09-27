@@ -35,7 +35,7 @@ and skins are content on top of it.
 | # | System Name | Category | Priority | Status | Design Doc | Depends On |
 |---|-------------|----------|----------|--------|------------|------------|
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
-| 2 | Ball Movement | Gameplay | MVP | Designed, revised after 3 /design-review passes (2026-09-22, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3 — remaining recommended revisions deferred to a follow-up pass); pending re-review and the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
+| 2 | Ball Movement | Gameplay | MVP | Approved, pending the device spike (revised 4 times, 2026-09-22 passes 1-3 and 2026-09-27 pass 4, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3; pass 4 found no design reversals, only 5 sync/wording blockers — stale entities.yaml registry, an unqualified Player Fantasy promise, a wrapf()/wrap_angle divergence, an internally-contradictory BM-3 trial count, and two ACs violating pass 3's own standing rule — creative-director's verdict: last full-mode round, remaining uncertainty is device data not text); next is the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart, Ball Movement |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
@@ -186,20 +186,28 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Tilt Input GDD**: run the on-device spike first; do not lock tuning values
   derived from keyboard testing (`CAMERA_FOLLOW_SPEED` 3.0, angular speed 3.0
   rad/s, forward speed 6.0 u/s are prototype starting points only).
-- **Ball Movement GDD (designed 2026-09-22, revised through 3 `/design-review` passes)**: position-mapped
+- **Ball Movement GDD (designed 2026-09-22, Approved 2026-09-27 after 4 `/design-review` passes)**: position-mapped
   steering, anchored to Tilt Input's neutral (`STEER_ARC` PI — reverted in pass 3 after a brief 3.0 rad
   experiment created an unenforceable, resume-relocating dead zone; first-order lag `BALL_LAG_TAU` 0.06 s
   capped by `OMEGA_MAX` 3.0 rad/s). RATE mode is a documented spike-comparison configuration (Tilt Input
   Open Question 10) but is **no longer wired to the touch fallback for the MVP**: `input_source` `FALLBACK`
   is out of MVP scope entirely (pass 3) — a no-sensor device shows "device not supported" instead of
-  playing under RATE. Confirms `v_max` = 25 u/s (tube-track Open Question 12) and derives `T_DODGE_180` =
-  1.064 s, which Tube Track F9 and Pattern & Difficulty should read instead of the 1.05 s
-  keyboard-prototype assumption. The 60 Hz-only dodge-margin arithmetic is declared as such; 30 Hz is
-  recorded but not fairness-gated (pass 3). Owns the forward-speed ramp (`V_START` 10, `T_RAMP` 90 s) and
+  playing under RATE; its motor-accessibility cost (distinct from hardware compat) is routed to the
+  unauthored Settings & Accessibility GDD (pass 4, Open Question 13), not grounds to reopen the cut.
+  Confirms `v_max` = 25 u/s (tube-track Open Question 12) and derives `T_DODGE_180` =
+  1.064 s (ceiling `T_DODGE_180_MAX` 1.14 s), which Tube Track F9 and Pattern & Difficulty should read
+  instead of the 1.05 s keyboard-prototype assumption — the entity registry's `t_dodge_180`/`omega_max`/
+  `ball_lag_tau`/`steer_arc` entries were found stale against this same-day GDD state and resynced in
+  pass 4. The 60 Hz-only dodge-margin arithmetic is declared as such; 30 Hz is
+  recorded but not fairness-gated (pass 3). "It never moves while my hand is still" (Player Fantasy) is
+  exact at rest only; off-neutral drift is bounded, not zero, and logged (not yet gated) via BM-4 (pass 4).
+  Owns the forward-speed ramp (`V_START` 10, `T_RAMP` 90 s) and
   the ball diameter (0.8). Provisionally, Obstacle System (not Ball Movement) detects contact against the
   published ball state (Open Question 4, the collision ADR). `DT_MAX` stays owned by Run State. Flags an
   `S_PRECISION_LIMIT` timing risk (`s` reaches 16384 at 682 s) for Tube Track and Run State to resolve.
-  Its Node reference sim lives at `tools/reference-sim/ball_movement.js`.
+  Its Node reference sim lives at `tools/reference-sim/ball_movement.js`; its `wrap_angle` must never be
+  reimplemented over GDScript's built-in `wrapf()` (binary-confirmed divergent at the PI seam, pass 4).
+  BM-1a/BM-1b/BM-3's designation is recorded in `production/qa/designated-gates.md` (created pass 4).
 - **Platform Services GDD (designed 2026-09-21, revised after its design review)**: owns the OS app-lifecycle notifications and exposes
   `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
   portrait lock, the keep-screen-on call, and the Android sensor project settings (Tilt Input rules 3 and 9).
@@ -239,8 +247,8 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 |--------|-------|
 | Total systems identified | 21 |
 | Design docs started | 5 |
-| Design docs reviewed | 3 |
-| Design docs approved | 3 |
+| Design docs reviewed | 4 |
+| Design docs approved | 4 |
 | MVP systems designed | 5/17 |
 | Content Expansion systems designed | 0/3 |
 
