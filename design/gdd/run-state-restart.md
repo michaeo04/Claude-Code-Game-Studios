@@ -52,7 +52,7 @@ Run State & Restart is infrastructure: players never see a state machine. They f
 |---------|---------|----------|--------|
 | `map_ready` | map loader (provisional) | Boot | Menu |
 | `start_requested` | Menus & Screen Flow | Menu | Running (rule 4) |
-| `hit_reported(hazard_id, run_id)` | whichever system owns collision (Obstacle System or Ball Movement; physics ADR) | Running, matching `run_id`, not a settling tick | Hit |
+| `hit_reported(hazard_id, run_id)` | Obstacle System (resolved 2026-09-27, `design/gdd/obstacle-system.md`) | Running, matching `run_id`, not a settling tick | Hit |
 | `pause_requested(source)` | HUD button (`button`); Platform Services through an adapter (`app_interrupted`, applied when sent; `back`); Tilt Input adapter (`sensor_lost`, queued) | Running, Resuming | Paused |
 | `resume_requested` | Menus & Screen Flow (pause screen) | Paused | Resuming |
 | `restart_requested(press_us)` | tap anywhere in Hit; pause screen | Hit (`press_us` after the lock), Paused (`press_us` after the guard) | Running (rule 4) |
@@ -101,7 +101,7 @@ All interfaces are **provisional** except Tube Track, whose GDD exists.
 | Tilt Input | out / in | out: `run_reset` (with the previous phase, from `phase_changed`) and `run_resumed` (neutral capture at Menu-to-Play and resume; a restart from Hit or Paused conditionally re-anchors); in: `pause_requested(sensor_lost)` through Tilt Input's adapter (level-triggered: whenever the sensor is invalid in Running or Resuming, evaluated once per frame between the adapter's poll and Run State's tick and never from inside a handler, so a run that starts with an invalid sensor is paused on its settling tick) | ordering guarantee (rule 14) plus one pause source; the mechanism is Tilt Input's |
 | Playtest Telemetry | out | `run_started`, `run_ended`, `run_abandoned`, `run_paused` | |
 
-**Provisional assumptions to re-check:** who owns collision and sends `hit_reported`; who sends `map_ready`; which system receives the tap-anywhere in Hit (HUD or Menus); the Tilt Input adapter that sends `pause_requested(sensor_lost)`; how Pattern & Difficulty uses `run_time`.
+**Provisional assumptions to re-check:** who sends `map_ready`; which system receives the tap-anywhere in Hit (HUD or Menus); the Tilt Input adapter that sends `pause_requested(sensor_lost)`; how Pattern & Difficulty uses `run_time`. (Who owns collision and sends `hit_reported` is resolved — Obstacle System, `design/gdd/obstacle-system.md`, 2026-09-27.)
 
 ## Formulas
 
@@ -259,7 +259,7 @@ Run State & Restart has **no system dependencies** (Core layer). It has data inp
 |-------|-------------|----------|------|------|
 | `map_ready` | map loader (provisional) | Boot to Menu | Hard | Without it the game never leaves Boot |
 | `start_requested`, `resume_requested`, `restart_requested`, `menu_requested` | Menus & Screen Flow | Menu, Paused and Hit transitions | Hard | Without them a run can never start |
-| `hit_reported(hazard_id, run_id)` | the collision owner (Obstacle System or Ball Movement; decided in the physics ADR) | Running to Hit (the `run_id` must match) | Hard | Without it no run can end |
+| `hit_reported(hazard_id, run_id)` | Obstacle System (an analytic, no-`CollisionObject3D` swept-segment test against Ball Movement's published state; resolved by `design/gdd/obstacle-system.md`, 2026-09-27) | Running to Hit (the `run_id` must match) | Hard | Without it no run can end |
 | `app_interrupted`, `back` | Platform Services | pause on interruption and on Android Back (rule 11) | Hard for release | The stall guard (Edge Cases) is only a safeguard for stalls while the device is awake |
 | `pause_requested(button)` | HUD | player-initiated pause | Soft | The pause button; without it the player can only pause by leaving the app |
 | `pause_requested(sensor_lost)` | Tilt Input adapter | pause when the motion sensor is lost (rule 10) | Soft | Without it a lost sensor leaves the player with a dead control while the run continues (Tilt Input rule 10) |

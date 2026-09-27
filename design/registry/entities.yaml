@@ -459,6 +459,55 @@ constants:
     added: 2026-09-20
     revised: ""
 
+  - name: gap_margin
+    status: active
+    source: design/gdd/obstacle-system.md
+    referenced_by:
+      - design/gdd/obstacle-system.md
+    value: 2.5
+    unit: multiplier (unitless, x lane-widths)
+    notes: "Safety margin above bare geometric fit for a hazard placement's minimum safe gap (F3, GAP_MIN = gap_margin x w). Sourced from Ball Movement F5c's own finding ('fine positioning is feasible for gaps of about 2.5 ball widths or more'), not an independent guess. Safe range 2.0-3.5 (Obstacle System Tuning Knobs). A guess pending Pattern & Difficulty's real content authoring."
+    added: 2026-09-27
+    revised: ""
+
+  - name: t_reveal_min
+    status: active
+    source: design/gdd/obstacle-system.md
+    referenced_by:
+      - design/gdd/obstacle-system.md
+    value: 1.5
+    unit: seconds
+    notes: "Interim floor for a hidden-side hazard's worst-case-turn budget (F4); reuses Tube Track's T_VIS_MIN verbatim rather than an independently-derived number, since the live per-run reveal instant depends on the player's own steered angle and has no fixed formula yet (F4, honestly incomplete). Safe range mirrors t_vis_min's (1.43-2.5). Any future change to t_vis_min moves this value too, unless F4's s_ref open question is resolved with an independent derivation."
+    added: 2026-09-27
+    revised: ""
+
+  - name: hidden_span_min
+    status: active
+    source: design/gdd/obstacle-system.md
+    referenced_by:
+      - design/gdd/obstacle-system.md
+    value: 3
+    unit: segments
+    notes: "Frequency cap on hidden-side hazards (Core Rule 8): never two in a row, at most one per this many segments. A guess (safe range 2-6). Expressed in segments, not distance, so changing Tube Track's SEGMENT_LENGTH changes the actual distance this represents."
+    added: 2026-09-27
+    revised: ""
+
+  - name: ball_half_angle
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md   # F6, half of lane width w = 2 * ball_half_angle
+      - design/gdd/obstacle-system.md   # F1 effective-footprint expansion, F3 GAP_MIN
+    variables:
+      - R
+      - D
+    output_range: [0, 1.5708]
+    expression: "ball_half_angle = asin(D / (2 * (R + D/2)))"
+    unit: radians
+    notes: "Half the ball's angular footprint at its own riding radius R + D/2. First appeared inline inside Tube Track's F6 (lane width w = 2 * ball_half_angle); Obstacle System names and reuses it as a first-class symbol (F1, F3) rather than re-deriving the geometry, so it is registered here as the shared source of truth. At the registry defaults (D=0.8, R=3.0): 0.1179 rad (6.76 degrees)."
+    added: 2026-09-27
+    revised: ""
+
 # Example:
 #
 # constants:

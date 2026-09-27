@@ -37,7 +37,7 @@ and skins are content on top of it.
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
 | 2 | Ball Movement | Gameplay | MVP | Approved, pending the device spike (revised 4 times, 2026-09-22 passes 1-3 and 2026-09-27 pass 4, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3; pass 4 found no design reversals, only 5 sync/wording blockers — stale entities.yaml registry, an unqualified Player Fantasy promise, a wrapf()/wrap_angle divergence, an internally-contradictory BM-3 trial count, and two ACs violating pass 3's own standing rule — creative-director's verdict: last full-mode round, remaining uncertainty is device data not text); next is the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
-| 4 | Obstacle System | Gameplay | MVP | Not Started | — | Tube Track, Run State & Restart, Ball Movement |
+| 4 | Obstacle System | Gameplay | MVP | Designed (2026-09-27, lean mode: systems-designer for Formulas, art-director for Visual/Audio, qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/obstacle-system.md | Tube Track, Run State & Restart, Ball Movement |
 | 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
 | 6 | Near-Miss Detection | Gameplay | MVP | Not Started | — | Ball Movement, Obstacle System |
 | 7 | Run State & Restart (inferred) | Core | MVP | Approved | design/gdd/run-state-restart.md | — |
@@ -226,6 +226,18 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
   moot for the MVP now that `input_source` `FALLBACK` is out of scope (Ball Movement Rule 6/B9); revisit
   only if a touch-fallback control scheme is reintroduced post-MVP
   (Tilt Input Open Question 27).
+- **Obstacle System GDD (designed 2026-09-27)**: resolves who owns collision — Obstacle System, an
+  analytic (no `CollisionObject3D`) swept-segment test against Ball Movement's published state, closing
+  Run State's own "who owns collision" provisional item and contributing to Tube Track's Open Question 5
+  (physics/collision ADR). Defines the `HazardContentProvider` seam (`hazards_for_segment(index)`) that
+  Pattern & Difficulty will implement, and 4 illustrative MVP hazard types (Wall, Spike, Double Gate,
+  Near-Ring) as non-binding guidance for that GDD. The hidden-side "fair surprise" quantified rule (the
+  gate's own highest-flagged risk) is resolved as a frequency cap (`HIDDEN_SPAN_MIN`, fully testable
+  today) plus a time budget (`T_REVEAL_MIN`, reusing Tube Track's `T_VIS_MIN`) that is explicitly and
+  honestly incomplete — it depends on the player's own live steering and cannot be proven per-run without
+  Camera's real `VISIBLE_ARC_HALF_WIDTH`, which has no GDD yet (Open Questions 2, 3, 4). Pattern &
+  Difficulty, Near-Miss Detection, Camera and Environment & Theming must each list Obstacle System as a
+  dependency when written.
 - **Save & Persistence, Juice & Feedback, Menus & Screen Flow, Camera, HUD and Settings
   GDDs**: connect to Platform Services as listed in its Dependencies section (Save
   flushes on `app_backgrounded` and keeps it short; Juice calls `haptic(kind)` and never
@@ -246,10 +258,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 5 |
+| Design docs started | 6 |
 | Design docs reviewed | 4 |
 | Design docs approved | 4 |
-| MVP systems designed | 5/17 |
+| MVP systems designed | 6/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---
