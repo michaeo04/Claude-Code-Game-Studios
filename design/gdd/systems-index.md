@@ -214,14 +214,15 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
   On Android it ignores `PAUSED/RESUMED` and uses `FOCUS_OUT/IN` only; Tilt Input's settle must count only
   while `attentive` (Platform Services Open Question 24).
 - **HUD and Menus & Screen Flow GDDs**: gate Play, Resume and Restart on `valid`
-  (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "no motion sensor"
-  notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause screen a way to the
-  Menu (Tilt Input rules 10 and 11, UI Requirements). **Updated per Ball Movement's pass-3 `/design-review`
-  (2026-09-22, Rule 6/B9):** a device with no usable motion sensor is blocked from starting a run at all
-  ("device not supported") rather than playing under a forwarded touch-fallback hold — the touch
-  half-screen fallback forwarding this note previously described is no longer an MVP gameplay path; Tilt
-  Input's own next revision should confirm whether it still builds that signal path for a possible
-  post-MVP reintroduction.
+  (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "device not supported" /
+  "no motion sensor" notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause
+  screen a way to the Menu (Tilt Input rules 10 and 11, UI Requirements). **Updated per Ball Movement's
+  pass-3 `/design-review` (2026-09-22, Rule 6/B9):** a device with no usable motion sensor is blocked from
+  starting a run at all ("device not supported") rather than playing under a forwarded touch-fallback hold.
+  **Tilt Input's own follow-up revision done (2026-09-27, `/consistency-check` flagged it, Open Question 10
+  resolved):** the touch half-screen fallback stays a built, unit-tested `TiltCore` capability
+  (`fallback_source`, AC-48/AC-49) for the spike and a possible post-MVP reintroduction, but no MVP driver
+  wires it into a playable run.
 - **Scoring & Personal Best GDD**: the `FALLBACK`-flagging decision this line previously pointed to is
   moot for the MVP now that `input_source` `FALLBACK` is out of scope (Ball Movement Rule 6/B9); revisit
   only if a touch-fallback control scheme is reintroduced post-MVP
