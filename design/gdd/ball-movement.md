@@ -64,7 +64,7 @@ Ball Movement has no phase of its own; its behavior is a function of `dt_eff`. W
 | Run State & Restart | in | `dt_eff` from `tick()`; `run_reset`; `run_resumed` | Ball Movement sends nothing to Run State |
 | Tube Track | out | `s` (the driver calls `advance(s)` once per frame, only in Running); `theta`, `h` for `P(theta, s, h)` | Tube Track reads `V_MAX` (its F3, F5, F9) |
 | Obstacle System | out | published state (Rule 8) | New dependency edge for the index: Obstacle System depends on Ball Movement; it owns contact detection (Rule 11) |
-| Near-Miss Detection | out | `theta`, `s`, `radius`, `speed`, `omega` | Provisional |
+| Near-Miss Detection | out | `theta`, `theta_prev`, `s`, `s_prev`, `radius`, `speed`, `omega` | Provisional; `theta_prev`/`s_prev` added 2026-09-28 (`design/gdd/near-miss-detection.md`) — the same swept-segment pair already published to Obstacle System, extended here so Near-Miss Detection can reuse Obstacle System's own swept-rectangle test rather than point-sampling |
 | Camera | out | `theta`, `omega`, `speed`, `s` | Provisional; Camera owns its own lag |
 | Scoring & Personal Best | out | `s`, `speed` | Provisional; Scoring decides what it uses |
 | Pattern & Difficulty | out | `speed(t_run)` curve, `V_MAX`, `OMEGA_MAX`, `STEER_ARC`, `T_DODGE_180` | Its dodge budget is a single value, `T_DODGE_180` = 1.064 s (F5a); no unreachable-arc constraint (`STEER_ARC` = PI, B8, Open Question 7 resolved — every point on the tube is directly reachable, so this system carries no permanent hazard-placement exclusion from Ball Movement); the reset glide (Rule 5) requires `s` = 0 to at least 11 u hazard-free |
@@ -215,7 +215,7 @@ Pattern & Difficulty and Tube Track F9 consume `T_DODGE_180 = T(PI, 0.05)` = **1
 | System | Type | What it needs |
 |--------|------|---------------|
 | Obstacle System | Hard | The published state with previous values, to detect contact by a swept test and send `hit_reported` (Core Rules 8 and 11) |
-| Near-Miss Detection | Hard | `theta`, `s`, `radius`, `speed`, `omega` |
+| Near-Miss Detection | Hard | `theta`, `theta_prev`, `s`, `s_prev`, `radius`, `speed`, `omega` |
 | Camera | Hard | `theta`, `omega`, `speed`, `s` |
 | Pattern & Difficulty | Hard | `speed(t_run)`, `V_MAX`, `OMEGA_MAX`, `STEER_ARC`, `T_DODGE_180` (F5) for its dodge budget |
 | Scoring & Personal Best | Soft | `s` (distance), `speed` (the `FALLBACK`-run leaderboard-contamination flag B7 introduced is no longer needed for the MVP now that `input_source` `FALLBACK` is out of scope, Rule 6/B9; revisit if a touch-fallback control scheme is reintroduced post-MVP) |

@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-09-21"
+last_updated: "2026-09-28"
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -423,6 +423,19 @@ constants:
     added: 2026-09-22
     revised: ""
 
+  - name: t_vis_min
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+      - design/gdd/ball-movement.md   # T_DODGE_180 must keep F9 valid at at most T_DODGE_180_MAX
+      - design/gdd/obstacle-system.md   # T_REVEAL_MIN (F4) reuses this value verbatim as its own interim floor
+    value: 1.5
+    unit: seconds
+    notes: "Minimum hazard visibility time (Tube Track F9): the derivation without its margin is T_DODGE_180 + T_REACT + T_LATENCY (1.064 + 0.25 + 0.11), revised 2026-09-22 to Ball Movement's confirmed T_DODGE_180 and latency figures; raised from 1.35 (stale under the old 1.05/0.05 numbers). Safe range 1.43-2.5. Obstacle System's T_REVEAL_MIN (Formulas F4) is defined as reusing this constant verbatim rather than an independent derivation, so any future change here also moves T_REVEAL_MIN, unless F4's s_ref open question is resolved with an independent one. Registered here as its own entry (2026-09-28, /consistency-check) — previously only ever mentioned inline inside other entries' notes despite being a genuine cross-system fact."
+    added: 2026-09-28
+    revised: ""
+
   - name: t_react
     status: active
     source: design/gdd/run-state-restart.md
@@ -481,16 +494,20 @@ constants:
     added: 2026-09-27
     revised: ""
 
-  - name: hidden_span_min
+  - name: hidden_span_min_time
     status: active
     source: design/gdd/obstacle-system.md
     referenced_by:
       - design/gdd/obstacle-system.md
-    value: 3
-    unit: segments
-    notes: "Frequency cap on hidden-side hazards (Core Rule 8): never two in a row, at most one per this many segments. A guess (safe range 2-6). Expressed in segments, not distance, so changing Tube Track's SEGMENT_LENGTH changes the actual distance this represents."
+    value: 1.44
+    unit: seconds
+    notes: "Frequency cap on hidden-side hazards (Core Rule 8, F4b), expressed as wall-clock time, not segment count: never two in a row, and no two hidden-side pieces closer than this much time apart at v_max (derived HIDDEN_SPAN_MIN_S = hidden_span_min_time * v_max, 36 u at defaults). A guess (safe range 0.96-2.88 s). Renamed from the deprecated hidden_span_min (segment-count based, value 3) during the 2026-09-28 /design-review pass: a segment-count floor thinned in wall-clock terms as speed ramps over a run, weakening the frequency cap exactly where F4's time-budget proxy is already thinnest."
     added: 2026-09-27
-    revised: ""
+    revised: 2026-09-28   # renamed from hidden_span_min (segments, value 3) to hidden_span_min_time (seconds, value 1.44); was: "value: 3, unit: segments" before this rename
+
+  # DEPRECATED 2026-09-28: hidden_span_min (segments, value 3) was superseded by hidden_span_min_time
+  # above during obstacle-system.md's first /design-review revision (F4b). Entry intentionally not
+  # kept as a separate deprecated row since it was renamed in place, not replaced by an unrelated fact.
 
   - name: ball_half_angle
     status: active

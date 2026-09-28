@@ -37,9 +37,9 @@ and skins are content on top of it.
 | 1 | Tube Track | Core | MVP | Approved | design/gdd/tube-track.md | — |
 | 2 | Ball Movement | Gameplay | MVP | Approved, pending the device spike (revised 4 times, 2026-09-22 passes 1-3 and 2026-09-27 pass 4, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3; pass 4 found no design reversals, only 5 sync/wording blockers — stale entities.yaml registry, an unqualified Player Fantasy promise, a wrapf()/wrap_angle divergence, an internally-contradictory BM-3 trial count, and two ACs violating pass 3's own standing rule — creative-director's verdict: last full-mode round, remaining uncertainty is device data not text); next is the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
-| 4 | Obstacle System | Gameplay | MVP | Designed (2026-09-27, lean mode: systems-designer for Formulas, art-director for Visual/Audio, qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/obstacle-system.md | Tube Track, Run State & Restart, Ball Movement |
-| 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Not Started | — | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
-| 6 | Near-Miss Detection | Gameplay | MVP | Not Started | — | Ball Movement, Obstacle System |
+| 4 | Obstacle System | Gameplay | MVP | Approved (2026-09-28, full mode: game-designer, systems-designer, qa-lead, godot-specialist, art-director, creative-director; NEEDS REVISION first pass, 10 blockers resolved same session — see reviews/obstacle-system-review-log.md) | design/gdd/obstacle-system.md | Tube Track, Run State & Restart, Ball Movement |
+| 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Designed (2026-09-28, lean mode: systems-designer for Formulas, qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/pattern-difficulty.md | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
+| 6 | Near-Miss Detection | Gameplay | MVP | Designed (2026-09-28, lean mode: systems-designer for Formulas, qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/near-miss-detection.md | Ball Movement, Obstacle System, Run State & Restart |
 | 7 | Run State & Restart (inferred) | Core | MVP | Approved | design/gdd/run-state-restart.md | — |
 | 8 | Scoring & Personal Best | Gameplay | MVP | Not Started | — | Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence |
 | 9 | Pickups & Boosters | Gameplay | Content Expansion | Not Started | — | Obstacle System, Ball Movement, Run State & Restart |
@@ -51,7 +51,7 @@ and skins are content on top of it.
 | 15 | Maps & Levels | Progression | Content Expansion | Not Started | — | Pattern & Difficulty, Scoring & Personal Best, Environment & Theming, Pickups & Boosters, Save & Persistence |
 | 16 | Cosmetics & Unlocks | Progression | Content Expansion | Not Started | — | Scoring & Personal Best, Save & Persistence, Menus & Screen Flow |
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
-| 18 | Save & Persistence (inferred) | Persistence | MVP | Not Started | — | Platform Services |
+| 18 | Save & Persistence (inferred) | Persistence | MVP | Designed (2026-09-28, lean mode: qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/save-persistence.md | Platform Services |
 | 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
 | 20 | Platform Services (inferred) | Core | MVP | Approved, pending the device spike (2026-09-21; first /design-review NEEDS REVISION with 9 blocking items, all applied the same day and accepted without a further full round; next are the `PlatformCore` harness and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
@@ -97,7 +97,7 @@ and skins are content on top of it.
 3. Save & Persistence — depends on: Platform Services
 
 ### Feature Layer (depends on Core)
-1. Near-Miss Detection — depends on: Ball Movement, Obstacle System
+1. Near-Miss Detection — depends on: Ball Movement, Obstacle System, Run State & Restart (for `run_id` only)
 2. Pattern & Difficulty — depends on: Obstacle System, Ball Movement, Tube Track, Run State & Restart
 3. Scoring & Personal Best — depends on: Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence
 4. Pickups & Boosters — depends on: Obstacle System, Ball Movement, Run State & Restart
@@ -233,12 +233,36 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
   (physics/collision ADR). Defines the `HazardContentProvider` seam (`hazards_for_segment(index)`) that
   Pattern & Difficulty will implement, and 4 illustrative MVP hazard types (Wall, Spike, Double Gate,
   Near-Ring) as non-binding guidance for that GDD. The hidden-side "fair surprise" quantified rule (the
-  gate's own highest-flagged risk) is resolved as a frequency cap (`HIDDEN_SPAN_MIN`, fully testable
-  today) plus a time budget (`T_REVEAL_MIN`, reusing Tube Track's `T_VIS_MIN`) that is explicitly and
+  gate's own highest-flagged risk) is resolved as a frequency cap (`HIDDEN_SPAN_MIN_S`/`HIDDEN_SPAN_MIN_TIME`,
+  fully testable today, renamed from the segment-count `HIDDEN_SPAN_MIN` during the 2026-09-28
+  `/design-review` pass) plus a time budget (`T_REVEAL_MIN`, reusing Tube Track's `T_VIS_MIN`) that is explicitly and
   honestly incomplete — it depends on the player's own live steering and cannot be proven per-run without
-  Camera's real `VISIBLE_ARC_HALF_WIDTH`, which has no GDD yet (Open Questions 2, 3, 4). Pattern &
-  Difficulty, Near-Miss Detection, Camera and Environment & Theming must each list Obstacle System as a
-  dependency when written.
+  Camera's real `VISIBLE_ARC_HALF_WIDTH`, which has no GDD yet (Open Questions 2, 3, 4). **Revised
+  2026-09-27 (`/design-review`, first pass, NEEDS REVISION, resolved same session):** Core Rule 8 now
+  states plainly that only the frequency floor is enforced today and bars Pattern & Difficulty from
+  authoring hidden-side content until Open Questions 2 and 15 resolve — a hard authoring gate, not a
+  caveat; non-hidden content is unaffected. F5's `S_MIN_SPACING` floor was promoted from
+  informational to an enforced preflight check (`TOO_DENSE`), closing a self-named loophole (folding
+  several single-piece hazards close together to dodge the budget); `N_reads_max` itself stays
+  informational (Pattern & Difficulty's own Open Question 14 resolution, 2026-09-28, confirms this).
+  A joint-extreme proof now shows `N_reads_max` never reaches 0 at any (`L`, `v_max`, `SEAM_HZ_MAX`) corner Tube Track's own validator
+  would admit. Pattern & Difficulty, Near-Miss Detection, Camera and Environment & Theming must each
+  list Obstacle System as a dependency when written. **First full-mode `/design-review` (2026-09-28,
+  first pass, NEEDS REVISION, 10 blockers resolved same session):** enforced the hidden-side ban at
+  preflight (new `HIDDEN_CONTENT_FORBIDDEN`, not prose-only); corrected the collision test's
+  false-positive bound to the true joint safe-range corner (1.0 rad / 7.5 u, not 0.4 rad / 2.5 u);
+  fixed F3's collar-percentage claim (~87% to 76%, not 94% to 76%); corrected Core Rule 2's timing-risk
+  mechanism (Godot's physics-substep catch-up, not variable-refresh panels) and gave AC-25 an owner
+  and date; relabeled Near-Ring "family TBD (Open Question 5)" rather than asserting Gate-family
+  membership outside the art bible's stated range; flagged the Double Gate shared plinth's color
+  against the art bible's own color-semantic contract as a request to art-director, not a settled
+  choice. See `reviews/obstacle-system-review-log.md`. Status: **Approved**.
+- **Save & Persistence GDD (designed 2026-09-28)**: `ConfigFile` at `user://save.cfg`, one section per
+  owning system (`[scoring]`, `[settings]`, `[cosmetics]`), write-immediately-on-change with a
+  redundant `app_backgrounded` safety flush, write-to-temp-then-rename for corruption safety, and
+  per-key (not whole-file) fallback to defaults on a type mismatch. Resolves Run State's Open Question
+  6 as "no": an in-progress run is never persisted across an OS termination, only a run's *result*
+  once Scoring & Personal Best records it.
 - **Save & Persistence, Juice & Feedback, Menus & Screen Flow, Camera, HUD and Settings
   GDDs**: connect to Platform Services as listed in its Dependencies section (Save
   flushes on `app_backgrounded` and keeps it short; Juice calls `haptic(kind)` and never
@@ -259,10 +283,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 6 |
-| Design docs reviewed | 4 |
-| Design docs approved | 4 |
-| MVP systems designed | 6/17 |
+| Design docs started | 9 |
+| Design docs reviewed | 5 |
+| Design docs approved | 5 |
+| MVP systems designed | 9/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---
