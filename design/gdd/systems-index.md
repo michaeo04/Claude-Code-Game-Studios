@@ -38,8 +38,8 @@ and skins are content on top of it.
 | 2 | Ball Movement | Gameplay | MVP | Approved, pending the device spike (revised 4 times, 2026-09-22 passes 1-3 and 2026-09-27 pass 4, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3; pass 4 found no design reversals, only 5 sync/wording blockers — stale entities.yaml registry, an unqualified Player Fantasy promise, a wrapf()/wrap_angle divergence, an internally-contradictory BM-3 trial count, and two ACs violating pass 3's own standing rule — creative-director's verdict: last full-mode round, remaining uncertainty is device data not text); next is the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Approved (2026-09-28, full mode: game-designer, systems-designer, qa-lead, godot-specialist, art-director, creative-director; NEEDS REVISION first pass, 10 blockers resolved same session — see reviews/obstacle-system-review-log.md) | design/gdd/obstacle-system.md | Tube Track, Run State & Restart, Ball Movement |
-| 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Designed (2026-09-28, lean mode: systems-designer for Formulas, qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/pattern-difficulty.md | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
-| 6 | Near-Miss Detection | Gameplay | MVP | Designed (2026-09-28, lean mode: systems-designer for Formulas, qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/near-miss-detection.md | Ball Movement, Obstacle System, Run State & Restart |
+| 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | In Review (2026-09-28, full mode: game-designer, level-designer, systems-designer, qa-lead, creative-director; two passes so far, both MAJOR REVISION NEEDED, resolved same session each time — the second pass replaced Core Rule 9 with a sequencer-side spacing mechanism, a structural change, not a wording fix; a third, fresh `/design-review` is recommended before Approval — see reviews/pattern-difficulty-review-log.md) | design/gdd/pattern-difficulty.md | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
+| 6 | Near-Miss Detection | Gameplay | MVP | Approved (2026-09-28, full mode: game-designer, systems-designer, qa-lead, creative-director; re-review after a first NEEDS REVISION pass, resolved same session — see reviews/near-miss-detection-review-log.md) | design/gdd/near-miss-detection.md | Ball Movement, Obstacle System, Run State & Restart |
 | 7 | Run State & Restart (inferred) | Core | MVP | Approved | design/gdd/run-state-restart.md | — |
 | 8 | Scoring & Personal Best | Gameplay | MVP | Not Started | — | Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence |
 | 9 | Pickups & Boosters | Gameplay | Content Expansion | Not Started | — | Obstacle System, Ball Movement, Run State & Restart |
@@ -51,7 +51,7 @@ and skins are content on top of it.
 | 15 | Maps & Levels | Progression | Content Expansion | Not Started | — | Pattern & Difficulty, Scoring & Personal Best, Environment & Theming, Pickups & Boosters, Save & Persistence |
 | 16 | Cosmetics & Unlocks | Progression | Content Expansion | Not Started | — | Scoring & Personal Best, Save & Persistence, Menus & Screen Flow |
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
-| 18 | Save & Persistence (inferred) | Persistence | MVP | Designed (2026-09-28, lean mode: qa-lead for Acceptance Criteria), pending `/design-review` | design/gdd/save-persistence.md | Platform Services |
+| 18 | Save & Persistence (inferred) | Persistence | MVP | Approved (2026-09-28, full mode: godot-specialist, security-engineer, qa-lead, creative-director; re-review after a first NEEDS REVISION pass, resolved same session — see reviews/save-persistence-review-log.md) | design/gdd/save-persistence.md | Platform Services |
 | 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
 | 20 | Platform Services (inferred) | Core | MVP | Approved, pending the device spike (2026-09-21; first /design-review NEEDS REVISION with 9 blocking items, all applied the same day and accepted without a further full round; next are the `PlatformCore` harness and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
@@ -284,8 +284,8 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 |--------|-------|
 | Total systems identified | 21 |
 | Design docs started | 9 |
-| Design docs reviewed | 5 |
-| Design docs approved | 5 |
+| Design docs reviewed | 8 |
+| Design docs approved | 7 |
 | MVP systems designed | 9/17 |
 | Content Expansion systems designed | 0/3 |
 
