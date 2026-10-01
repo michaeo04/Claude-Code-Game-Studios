@@ -1,5 +1,31 @@
 # Scoring & Personal Best — Design Review Log
 
+## Review — 2026-10-01 — Verdict: NEEDS REVISION (resolved same session; Approved by user decision without re-review)
+Scope signal: S
+Specialists: game-designer, systems-designer, qa-lead, godot-specialist, creative-director
+Blocking items: 4 | Recommended: 9 | Nice-to-have: several (moved to story notes)
+Summary: Fifth full-mode pass (blockers 8 -> 4 -> 1 -> 1 -> 4). Core design (`floor(s)`, strictly-greater
+comparison, `RefCounted`/DI core, near-miss exclusion) held unchanged. The creative-director found the rise
+came from defensive prose and ACs added in passes 2-4, not from a worse design. Blockers: (1) the
+decreasing-`s` guard had no defined comparison target or reset behavior, so a separate `last_s` would score
+every run after the first as 0 (fixed: guard is `floori(s) < current_score`, no tracker, reset clears it);
+(2) `MILESTONE_DISTANCES` had no injection path because Rule 7 closed the constructor at three seams, plus an
+invalid `...` default and no consumer (user decision: fourth constructor data parameter, finite default, 1 u =
+1 m); (3) the AC-11a assert check was untestable and `assert` is stripped from release builds (fixed:
+static `validate_seams()`); (4) AC-20a and AC-23 claimed mutations that could not fail (fixed: boundary rows).
+Disagreements adjudicated by the creative-director: qa-lead's fixture/wiring items and godot-specialist's
+AC-11b item rated Recommended, not Blocking; godot-specialist's ConfigFile type gap judged mitigated by Save &
+Persistence's type-mismatch fallback (not independently verified in this session); systems-designer's
+plausibility cap on `s` rejected. User decisions: lint ACs (AC-10, AC-12b, typed-binding row, AC-19 scans)
+demoted to ADVISORY CI lint, producer to confirm; `game-concept.md` Autonomy row edited (OQ10 resolved).
+Stopping rule set by the creative-director: BLOCKING only for wrong player-visible behavior, an
+implementation-blocking contradiction, or a BLOCKING AC that cannot run or fail; no sixth full pass.
+Rules 5, 7, 11 and the Gate Policy were shortened and review-history commentary removed (file 96,952 -> 91,033
+bytes). Cross-file edits: `game-concept.md` (Autonomy row), `systems-index.md` row 8.
+**Approval caveat:** the user chose to mark the GDD Approved and skip the recommended lean re-review, so these
+revisions have not been checked by a second reviewer.
+Prior verdict resolved: Yes — fourth pass (1 blocker, logged below)
+
 ## Review — 2026-09-30/10-01 — Verdict: NEEDS REVISION (revised same session; re-review pending in a fresh session)
 Scope signal: S
 Specialists: game-designer, systems-designer, qa-lead, godot-specialist, creative-director

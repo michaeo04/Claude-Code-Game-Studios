@@ -85,7 +85,7 @@ around you rather than three flat lanes.
 
 | Need | How This Game Satisfies It | Strength |
 | ---- | ---- | ---- |
-| **Autonomy** | Player chooses when to risk a tight near-miss (for feedback/score) vs. play it safe | Supporting |
+| **Autonomy** | Player chooses when to risk a tight near-miss (for feedback and juice; near-misses carry no score, see scoring-personal-best.md Rule 8) vs. play it safe | Supporting |
 | **Competence** | Direct, immediate feedback on reflex skill; visible improvement run over run | Core |
 | **Relatedness** | Not addressed in MVP; deferred to a possible future leaderboard/ghost-race mode | Minimal |
 
