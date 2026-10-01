@@ -37,7 +37,7 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-09-30" # scoring-personal-best.md third-pass design-review session: new score_from_distance formula entry (F1), closing hud.md's named-reference gap
+last_updated: "2026-10-01" # cross-GDD review fixes: stale notes (colorblind consumer, max_fps platform, t_react derivation, stall guard), new constants s_precision_limit and seam_hz_max; was "2026-09-30" (scoring-personal-best third pass) # scoring-personal-best.md third-pass design-review session: new score_from_distance formula entry (F1), closing hud.md's named-reference gap
 
 
 
@@ -364,7 +364,7 @@ constants:
       - design/gdd/save-persistence.md   # [settings].colorblind_safe_enabled fixture key
     value: false
     unit: bool
-    notes: "Player-facing preference. No consumer exists yet (Environment & Theming has no GDD) — a real, named gap tracked in settings-accessibility.md Open Question 1, not an oversight."
+    notes: "Player-facing preference. Consumed by Environment & Theming (Core Rule 9, Formula F3: the ball luminance boost, applied to the ball material immediately on setting_changed; resolved 2026-10-01). Settings & Accessibility Open Question 1 is resolved."
     added: 2026-09-29
 
   - name: sensitivity_min
@@ -570,7 +570,7 @@ constants:
       - design/gdd/run-state-restart.md
     value: 0.5
     unit: seconds
-    notes: "Proposed default (guess), safe range 0.5-3.0 and always at least 2 x dt_max (0.5 >= 2 x 0.25). A single frame whose real time step is at least this long while Running or Resuming is treated as an OS interruption: the run pauses and any hit queued on that tick is discarded. Lowered from 1.0 on 2026-09-20 (design-review)."
+    notes: "Proposed default (guess), safe range 0.5-3.0 and always at least 2 x dt_max (0.5 >= 2 x 0.1 at the current dt_max). A single frame whose real time step is at least this long while Running or Resuming is treated as an OS interruption: the run pauses and any hit queued on that tick is discarded. Lowered from 1.0 on 2026-09-20 (design-review)."
     added: 2026-09-20
     revised: ""
 
@@ -718,7 +718,7 @@ constants:
     source: design/gdd/run-state-restart.md
     referenced_by:
       - design/gdd/run-state-restart.md
-      - design/gdd/tube-track.md   # T_VIS_MIN derivation (F9): 1.05 + 0.25 + 0.05 + 0.15 margin
+      - design/gdd/tube-track.md   # T_VIS_MIN derivation (F9): T_DODGE_180 1.064 + T_REACT 0.25 + T_LATENCY 0.11, then a margin (1.43 s before margin, 1.5 s shipped)
     value: 0.25
     unit: seconds
     notes: "Simple visual reaction time (Run State T_REACT, used in the lock bound LOCK_MIN). Tube Track derives T_VIS_MIN = 1.5 s from it; if this changes, redo that sum. Not the same constant as Run State's T_READ (also 0.25 s, a guess for reading the killer)."
@@ -733,7 +733,7 @@ constants:
       - design/gdd/tilt-input.md   # F3 noise rejection and AC-9 are 60 Hz claims; F_MIN 20 Hz is the lowest supported rate
     value: 60
     unit: frames per second
-    notes: "Proposed default (guess), safe range 30-60 (Platform Services Tuning Knobs). The project setting application/run/max_fps and the frame-rate assumption of the technical preferences (60 FPS, 16.6 ms). iOS already prefers 60 fps (source-verified); whether the cap holds on a 120 Hz Android device is UNVERIFIED (Platform Services Open Question 12). Tilt Input's noise rejection is a 60 Hz claim (F3, AC-9)."
+    notes: "Proposed default (guess), safe range 30-60 (Platform Services Tuning Knobs). The project setting application/run/max_fps and the frame-rate assumption of the technical preferences (60 FPS, 16.6 ms). Android only (ADR-0001, 2026-10-01); whether the cap holds on a 120 Hz Android device is UNVERIFIED (Platform Services Open Question 12). Tilt Input's noise rejection is a 60 Hz claim (F3, AC-9)."
     added: 2026-09-21
     revised: ""
 
@@ -800,6 +800,31 @@ constants:
     unit: radians
     notes: "Half the ball's angular footprint at its own riding radius R + D/2. First appeared inline inside Tube Track's F6 (lane width w = 2 * ball_half_angle); Obstacle System names and reuses it as a first-class symbol (F1, F3) rather than re-deriving the geometry, so it is registered here as the shared source of truth. At the registry defaults (D=0.8, R=3.0): 0.1179 rad (6.76 degrees)."
     added: 2026-09-27
+    revised: ""
+
+  - name: s_precision_limit
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md   # F4, rule 8: warning threshold for s
+      - design/gdd/ball-movement.md   # reached at t = 682.36 s at the default ramp (Open Question 6)
+      - design/gdd/run-state-restart.md   # run_time range; no cap or rebase has an owner yet
+    value: 16384
+    unit: world units (s)
+    notes: "Distance beyond which z = -s loses float32 precision for rendering (Tube Track F4); s itself is 64-bit and collision is analytic in (theta, s), so only render jitter is affected. Reached at 682.36 s at the default ball_speed_curve. Tube Track only warns; whether to cap runs or rebase is unowned (cross-GDD review 2026-10-01, W4)."
+    added: 2026-10-01
+    revised: ""
+
+  - name: seam_hz_max
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md   # F5, L_min = ceil(v_max / SEAM_HZ_MAX)
+      - design/gdd/settings-accessibility.md   # reduced_motion_enabled sets seam_contrast_scale to 0
+    value: 3
+    unit: hertz
+    notes: "Maximum seam flash rate for the general population (the WCAG-style 3 per second cap); at the default segment_length 12 and v_max 25 the rate is 2.08 Hz. Reduced motion flattens the seam through seam_contrast_scale rather than lowering this value."
+    added: 2026-10-01
     revised: ""
 
 # Example:
