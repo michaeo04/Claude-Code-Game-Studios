@@ -156,3 +156,21 @@ The systems index statuses were **not** changed (user decision 2026-10-01); this
 
 ### Required before architecture begins
 Resolve C1, C2, C3, C4, D1, S1, S2, S3 and S4 in the GDDs named above (each needs a decision first; none was decided in this review). Then re-run `/review-all-gdds consistency` (or `since-last-review`).
+
+---
+
+## Decisions taken (user, 2026-10-01)
+
+| # | Decision | GDDs to revise |
+|---|---|---|
+| C1 | Raise Tube Track defaults to **A = 9, N = 12** (L stays 12, F = 84 from Environment); update examples and AC-11/AC-12; recompute the `t_reset` and draw-call budgets for N = 12 | tube-track.md, environment-theming.md, run-state-restart.md (F2 share) |
+| C2 | **Menus gates Play and Resume on `valid` AND `input_source == SENSOR`**, plus an AC; HUD unchanged | menus-screen-flow.md (Rules 2, 3, 5; AC), design/ux/menus-screen-flow.md |
+| C3 | **Gate Paused Restart on `valid`** (same rule as Play/Resume: dimmed with a reason label, nothing sent). Menu stays ungated so there is always an exit | menus-screen-flow.md (Rule 3, AC-5), design/ux/menus-screen-flow.md |
+| C4 | **Near-Miss suppresses `near_miss_detected` on a release caused by a reset or window close** (a `released_by_reset` flag), which also covers Paused to Restart or Menu | near-miss-detection.md (Rule 5, States), obstacle-system.md (Rule 5 note) |
+| D1 | **`hidden` = the occupied arc lies entirely beyond `VISIBLE_ARC_HALF_WIDTH` of `THETA_REF`** (a Wall covering most of the circle is visible); still a proxy because the camera centre is not fixed | obstacle-system.md (F4, AC-34, AC-36), pattern-difficulty.md (Rule 7, AC-10), camera.md (F3 note) |
+| S1 | **Run State pins one subscriber-order list.** `run_reset`: Pattern, then Tube Track adapter / Obstacle, then Ball, then Camera, then the rest. Add an AC | run-state-restart.md (new "Subscriber order"), scoring-personal-best.md (Rule 11), pattern-difficulty.md, camera.md |
+| S2 | **`run_ended` order: Juice, then Scoring, then HUD**, in the same pinned list | run-state-restart.md, scoring-personal-best.md (Rule 11), juice-feedback.md (Rule 5) |
+| S3 | **The loader calls Tube Track `load_map` (validates) and sends `map_ready` only on success.** Remove the adapter row "`map_ready` to `load_map`". A failed load stays in Boot; Retry makes the loader retry `load_map`; the failure screen leaves by itself when `phase` becomes Menu | run-state-restart.md (Interactions, Edge Cases, Open Question 8), tube-track.md (state table), menus-screen-flow.md (Rule 8) |
+| S4 | **Environment & Theming applies `L_ball_adjusted` to the ball material; both `colorblind_safe_enabled` and `reduced_motion_enabled` (`seam_contrast_scale`) take effect immediately** (Tube Track reads `seam_contrast_scale` every frame or on `setting_changed`) | environment-theming.md (Rule 9, Open Question 4), tube-track.md (rule 9), settings-accessibility.md (Rules 6-8), ball-movement.md (no consumer row) |
+
+Status: **decided, not yet applied.** The GDD revisions above are pending; after they land, re-run `/review-all-gdds since-last-review`.
