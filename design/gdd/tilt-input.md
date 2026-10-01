@@ -223,7 +223,7 @@ Tilt Input has **no hard dependencies** (Core layer: no upstream system needs to
 |--------|------|-------------------------------|
 | Ball Movement | Hard | `steer` in `[-1, 1]` and `valid`, once per step; the sign convention (`steer > 0` raises `theta`) |
 | Run State & Restart | Soft | `pause_requested(sensor_lost)` queued from the adapter's per-frame `flush()`, level-triggered on `valid` in Running or Resuming |
-| Menus & Screen Flow / HUD | Soft | `valid`, to disable Play, Resume and Restart (and to swallow the tap-anywhere restart in Hit) while the sensor is not valid; `state`, to tell "reconnecting" (Acquiring) from "no motion sensor" (Unavailable); `input_source`, for the "no motion sensor" notice; a Menu path on the sensor-lost pause screen |
+| Menus & Screen Flow / HUD | Soft | `valid`, to disable Play, Resume and Restart (and to swallow the tap-anywhere restart in Hit) while the sensor is not valid; `state`, to tell "reconnecting" (Acquiring) from "no motion sensor" (Unavailable); `input_source`, for the "no motion sensor" notice; a Menu path on the sensor-lost pause screen — all RESOLVED 2026-09-29 by `hud.md` (Core Rules 7-9); Menus & Screen Flow's own share (if any, once authored) is additive |
 | Settings & Accessibility | Soft | The `sensitivity` hook |
 | Playtest Telemetry | Soft (optional) | A `sensor_lost` pause counter and possibly steer statistics; not specified here |
 | Scoring & Personal Best | Soft | `input_source` at `run_started`, to flag a run played with `FALLBACK` (Open Question 27) |
@@ -375,7 +375,7 @@ Test targets: **[M]** `TiltMath` called directly (no config validation); **[C]**
 
 | # | Question | Owner | Resolve when |
 |---|----------|-------|--------------|
-| 1 | (Resolved 2026-09-21) Pause on sensor loss is decided (`sensor_lost`, now level-triggered) and the Run State GDD has the source, the pause screen message and the Resume and Start gating; Menus & Screen Flow and HUD must implement the gating and the Menu path when authored | Menus & Screen Flow GDD | When authored |
+| 1 | (Resolved 2026-09-21) Pause on sensor loss is decided (`sensor_lost`, now level-triggered) and the Run State GDD has the source, the pause screen message and the Resume and Start gating; HUD's own half is RESOLVED 2026-09-29 (`hud.md` Core Rules 7-8); Menus & Screen Flow's own share, if any, remains for when it is authored | Menus & Screen Flow GDD | When authored |
 | 2 | **On-device spike** (blocks locking every Tuning Knob): raw `g` and gyro log at full rate, postures at pitch 0 / 30 / 60 / 85 / above 90 and side-lying, several testers, iOS and Android; measure V-1..V-8 and P-1..P-3 | user (needs a phone) | Before the first playable and before Ball Movement tuning |
 | 3 | Sensor-source ADR: `get_gravity()` versus accelerometer, the fallback order, whether `TYPE_GRAVITY` exists on target devices | technical-director, godot-specialist | Technical Setup |
 | 4 | Game-loop ADR: one driver node in `_process` (with `process_mode` ALWAYS) calling `tilt.poll()`, then `adapter.flush()`, then Run State's tick, then the ball step; not `_physics_process` (catch-up stamps); how the ball moves relative to physics interpolation (4.5) and 120 Hz frames (shared with Run State, its Open Question 4) | technical-director | Technical Setup |

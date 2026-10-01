@@ -56,9 +56,9 @@ Near-Miss Detection has no phase of its own; it is a pure follower of Obstacle S
 | Ball Movement | in | `theta`, `theta_prev`, `s`, `s_prev` (published state), once per frame | Hard dependency; proposed addition to its Dependencies table (`theta_prev`/`s_prev` already computed for Obstacle System, extended here) |
 | Obstacle System | in | `hazard_bound(hazard_id, footprint_pieces)`, `hazard_released(hazard_id)` (both proposed, filling its already-anticipated Dependencies row), `hit_reported(hazard_id, run_id)` (existing, read-only) | Hard dependency; Near-Miss Detection never calls into Obstacle System |
 | Run State & Restart | in | `run_id` from the last `run_reset` seen | Hard, for `run_id` only — same pattern Obstacle System uses |
-| Juice & Feedback | out (provisional) | `near_miss_detected(hazard_id, run_id)` | Owns the actual VFX/audio/haptic (art bible §2, Mood State 4) |
-| Scoring & Personal Best | out (provisional) | `near_miss_detected(hazard_id, run_id)` | Scoring decides whether/how this affects score |
-| HUD | out (provisional) | `near_miss_detected(hazard_id, run_id)` | Provisional — e.g. a near-miss counter, if HUD wants one |
+| Juice & Feedback | out | `near_miss_detected(hazard_id, run_id)` | Owns the actual VFX/audio/haptic (art bible §2, Mood State 4) — resolved 2026-09-29, no longer provisional |
+| Scoring & Personal Best | none | — | Resolved 2026-09-28 (`scoring-personal-best.md` Core Rule 8): score is distance-only; `near_miss_detected` is not consumed |
+| HUD | none | — | RESOLVED 2026-09-29 (`hud.md` Core Rule 10): not consumed in the MVP; a near-miss counter remains a real post-MVP option, not this event's own dependent today |
 
 ## Formulas
 
@@ -169,16 +169,16 @@ No additional formula is needed for Core Rule 5's edge-triggered output. The exi
 | System | Type | What it needs |
 |--------|------|-------|
 | Juice & Feedback | Hard | `near_miss_detected(hazard_id, run_id)` — the entire reason this system exists (art bible §2, Mood State 4) |
-| Scoring & Personal Best | Soft | `near_miss_detected(hazard_id, run_id)`, if it chooses to score near-misses |
-| HUD | Soft | `near_miss_detected(hazard_id, run_id)`, if it chooses to display a counter |
+| ~~Scoring & Personal Best~~ | — | Resolved 2026-09-28: removed as a dependent — `scoring-personal-best.md` Core Rule 8 decided score is distance-only and does not consume `near_miss_detected` |
+| ~~HUD~~ | — | Resolved 2026-09-29: removed as a dependent — `hud.md` Core Rule 10 decided not to consume this event in the MVP |
 
 **Bidirectional consistency (checked against the existing GDDs)**
 - **Ball Movement:** its Dependencies table already lists Near-Miss Detection as a dependent needing `theta`, `s`, `radius`, `speed`, `omega` — but not `theta_prev`/`s_prev`. A cross-file edit adding those two fields is proposed at the end of this session, mirroring exactly what it already publishes to Obstacle System.
 - **Obstacle System:** its Dependencies table already lists Near-Miss Detection as a Hard dependent needing "published hazard footprints and `hazard_id`s for pieces currently in the window," and its own Open Question 10 asks exactly the question this GDD resolves. It does not yet name concrete signals (`hazard_bound`/`hazard_released`) — a cross-file edit adding them, and closing Open Question 10, is proposed at the end of this session.
 - **Run State & Restart:** does not currently list Near-Miss Detection as a dependent at all (only Obstacle System, for `hit_reported`). A cross-file edit adding it (for `run_id` only, the same minimal edge Obstacle System has) is proposed at the end of this session.
-- **Systems index:** the Dependency Map already lists "Near-Miss Detection — depends on: Ball Movement, Obstacle System." A cross-file edit adding Run State & Restart to that line is proposed.
+- **Systems index:** the cross-file edit adding Run State & Restart to Near-Miss Detection's own Dependency Map line has been applied.
 
-**Provisional assumptions**: the exact `hazard_bound`/`hazard_released` signal shapes (only their call pattern is fixed here, mirroring Obstacle System's own `HazardContentProvider` provisional-shape pattern); Juice & Feedback's, Scoring's, and HUD's exact consumption of `near_miss_detected` (all three have no GDD yet).
+**Provisional assumptions**: the exact `hazard_bound`/`hazard_released` signal shapes (only their call pattern is fixed here, mirroring Obstacle System's own `HazardContentProvider` provisional-shape pattern). Scoring & Personal Best's own consumption is no longer provisional — resolved 2026-09-28 (`scoring-personal-best.md` Core Rule 8) as "not consumed at all," not merely unspecified. Juice & Feedback's own consumption is no longer provisional either — resolved 2026-09-29 (`juice-feedback.md` Core Rule 2): every `near_miss_detected` gets the identical fixed-magnitude presentation, no intensity scaling. HUD's own consumption is resolved too — RESOLVED 2026-09-29 (`hud.md` Core Rule 10): not consumed in the MVP, keeping the on-screen element count minimal; a near-miss counter remains a real post-MVP option (HUD's own Open Question 1), not an oversight.
 
 ## Tuning Knobs
 
@@ -201,7 +201,7 @@ None owned here. Near-Miss Detection sends one internal event (`near_miss_detect
 
 ## UI Requirements
 
-No player-facing UI of its own. No requests to other systems beyond what Dependencies already states (`near_miss_detected` consumed by Juice & Feedback, Scoring, and HUD). No UX Flag: there is no screen or HUD element of its own to specify.
+No player-facing UI of its own. No requests to other systems beyond what Dependencies already states (`near_miss_detected` consumed by Juice & Feedback; not consumed by Scoring or, as of 2026-09-29, HUD). No UX Flag: there is no screen or HUD element of its own to specify.
 
 ## Acceptance Criteria
 
@@ -249,7 +249,7 @@ Exact `==` for log/failure codes, counts, `hazard_id`s and integers; 1e-6 for ot
 - **AC-23 [I], deferred** — wiring to the real `BallCore`'s published state, including the proposed `theta_prev`/`s_prev` extension to Ball Movement's Dependencies table. Owner: whichever agent implements that cross-file edit; date not yet assigned.
 - **AC-24 [I], deferred** — wiring to the real Obstacle System's `hazard_bound`/`hazard_released` signals, which are themselves still proposed (not yet implemented upstream) and to its existing `hit_reported`. Blocked on Obstacle System's own cross-file edit landing first.
 - **AC-25 [I], deferred** — wiring to the real Run State & Restart's `run_id`/`run_reset`, itself a newly proposed dependency edge not yet reflected in the systems index.
-- **AC-26 [I], deferred** — the real Juice & Feedback, Scoring & Personal Best, and HUD consumption of `near_miss_detected`; all three are provisional dependents with no GDD yet (Dependencies, Provisional assumptions).
+- **AC-26 [I], deferred** — the real Juice & Feedback consumption of `near_miss_detected`, wiring still deferred integration until both cores are actually connected (resolved as a consumption *contract*, 2026-09-29, `juice-feedback.md` Core Rule 2). HUD does not consume this event in the MVP at all (resolved 2026-09-29, `hud.md` Core Rule 10) and is not part of this AC's own scope. Scoring & Personal Best is likewise no longer a dependent at all (resolved 2026-09-28: it does not consume this event).
 
 **Config/Data smoke, ADVISORY**
 
@@ -264,9 +264,9 @@ Exact `==` for log/failure codes, counts, `hazard_id`s and integers; 1e-6 for ot
 
 | # | Question | Owner | Resolve when |
 |---|----------|-------|--------------|
-| 1 | Whether Juice & Feedback wants a continuous closeness/intensity score after all (Core Rule 7 deliberately omits one, since no downstream GDD has asked for it yet) | Juice & Feedback GDD | When that GDD is authored |
-| 2 | Whether and how Scoring & Personal Best awards points for near-misses | Scoring & Personal Best GDD | When that GDD is authored |
-| 3 | Whether HUD wants a near-miss counter or streak display | HUD GDD | When that GDD is authored |
+| 1 | RESOLVED 2026-09-29 (`juice-feedback.md` Core Rule 2): no — Juice & Feedback gives every near-miss the identical fixed-magnitude presentation deliberately, matching Core Rule 7's own no-intensity design | — | Resolved |
+| 2 | RESOLVED 2026-09-28 (`scoring-personal-best.md` Core Rule 8): no — score is distance-only; Scoring & Personal Best does not consume `near_miss_detected` at all | — | Resolved |
+| 3 | RESOLVED 2026-09-29 (`hud.md` Core Rule 10, Open Question 1): not in the MVP, keeping the on-screen element count minimal; a near-miss counter or streak display remains a real post-MVP option | — | Resolved |
 | 4 | RESOLVED 2026-09-28: the three proposed cross-file edits were applied — `theta_prev`/`s_prev` added to Ball Movement's Dependencies table; `hazard_bound`/`hazard_released` named in Obstacle System's Dependencies table (closing its Open Question 10); Run State & Restart and the systems index gained the new `run_id`-only dependency edge | user | Resolved |
 | 5 | `docs/engine-reference/godot/modules/physics.md` verified only to Godot 4.6, not yet 4.7.2 — the same gap Obstacle System already flagged (its Open Question 7) | godot-specialist | Before implementation |
 | 6 | RESOLVED 2026-09-28 (this GDD's own revision): on-device validation of `NEAR_MISS_ANGLE_COEFF`/`NEAR_MISS_S_COEFF` is now the named, numeric, BLOCKING device check NM-1 (Acceptance Criteria), with a stated pass band and pre-committed failure response, designated against the first-playable gate | user, game-designer | Resolved — see NM-1 |
