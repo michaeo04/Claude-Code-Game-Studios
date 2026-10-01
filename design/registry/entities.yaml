@@ -515,7 +515,7 @@ constants:
       - design/gdd/tube-track.md   # F9's visibility budget; previously an unexplained external guess, now a real derivation
     value: 46.22
     unit: world units (Map 1, derived at v_max=25)
-    notes: "Radial distance from the camera eye at which hazard/tube contrast first drops below the art bible's own binding 4:1 floor (Formula F1). Re-derived per map at content-load time (Core Rule 11), not a fixed constant — this is Map 1's own value. Checked against Tube Track's own visibility floor (T_VIS_MIN*v_max+d_cam) at every map load, MAP_VISIBILITY_UNSAFE on failure."
+    notes: "Decided 2026-10-01 (cross-GDD review S3/C1): Tube Track validates against the value at v_max (about 46.00 after the fog pull of F2); 46.22 is the value at rest. Radial distance from the camera eye at which hazard/tube contrast first drops below the art bible's own binding 4:1 floor (Formula F1). Re-derived per map at content-load time (Core Rule 11), not a fixed constant — this is Map 1's own value. Checked against Tube Track's own visibility floor (T_VIS_MIN*v_max+d_cam) at every map load, MAP_VISIBILITY_UNSAFE on failure."
     added: 2026-09-29
 
   - name: fog_pull_max
