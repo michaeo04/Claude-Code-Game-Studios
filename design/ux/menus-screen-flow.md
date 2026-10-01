@@ -134,7 +134,7 @@ Arrangement chosen (user, 2026-10-01): **thumb-low** for Menu, **Resume low and 
 | **Inverted confirm pill** (solid Ink, Rim White label) | QUIT only | Yes | **New**, one-off (art bible §7, irreversible action) |
 | **Label pill** (16 sp, one line) | sensor reason under Play and Resume | No | Reused from `hud.md` |
 | **BEST pill** | Menu M1 | No | Reused from `hud.md`, larger |
-| **Readying underline** (Lagoon 3 dp, left to right along the pill base, label 50% to 100%) | Restart, Menu in Paused | No (cosmetic) | **New** (the pill counterpart of the HUD's circular fill) |
+| **Readying underline** (Lagoon 3 dp, left to right along the pill base, label 65% to 100%) | Restart, Menu in Paused | No (cosmetic) | **New** (the pill counterpart of the HUD's circular fill) |
 | **Toggle** (round knob, pill track) | `haptics_enabled`, `reduced_motion_enabled`, `colorblind_safe_enabled` | Yes | **New** |
 | **Slider** (Lagoon fill, round thumb) | `haptics_intensity`, `tilt_sensitivity` | Yes | **New** |
 | **Modal card + scrim** | confirm-quit, failure | No (container) | **New** |
@@ -291,7 +291,7 @@ Same principle as the HUD: a screen shows on the tick its phase begins. Every mo
 | **Entering or leaving ordinary Paused, Settings, failure** | **Instant**, no fade or slide (user decision 2026-10-01) | 0 |
 | **Confirm-quit** enter | Gentle scale-up plus fade, ease-out, no bounce | about 240 ms |
 | Confirm-quit leave | Instant | 0 |
-| **Readying underline** (Paused) | The Lagoon 3 dp line runs left to right over `PAUSE_INPUT_GUARD`, label 50% to 100%, then a soft brightness settle | 0.3 s, settle about 150 ms |
+| **Readying underline** (Paused) | The Lagoon 3 dp line runs left to right over `PAUSE_INPUT_GUARD`, label 65% to 100%, then a soft brightness settle | 0.3 s, settle about 150 ms |
 | **Outline pulse** (Reconnecting, Retrying) | The pill's Lagoon outline pulses | 1.2 s period, at most 1 Hz, no flashing |
 | **Toggle / slider** | Knob slides, fill follows the finger | toggle at most 150 ms |
 | **Press feedback** | Scale to 0.94 while held | instant |
@@ -400,4 +400,4 @@ Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a not
 | 10 | No left-handed mirroring in the MVP (as `hud.md` Open Question 5) | user | Post-MVP |
 | 11 | No distinct copy for "device not supported" (sensor Unavailable and never Live); this spec reuses `No motion sensor` | ux-designer, writer | Before first-playable |
 | 12 | `tilt_sensitivity` is adjusted blind (Settings has no motion preview); a preview may be needed | user, game-designer | First-playable playtest |
-| 13 | The new patterns in the Component Inventory (primary / secondary / inverted pill, readying underline, toggle, slider, modal card, scroll list, Ink cover) belong in `design/ux/interaction-patterns.md`, together with the HUD's candidates | ux-designer | `/ux-design patterns` |
+| 13 | DONE 2026-10-01 (`design/ux/interaction-patterns.md`, 20 patterns): the new patterns in the Component Inventory (primary / secondary / inverted pill, readying underline, toggle, slider, modal card, scroll list, Ink cover) belong in `design/ux/interaction-patterns.md`, together with the HUD's candidates | ux-designer | `/ux-design patterns` |
