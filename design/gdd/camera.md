@@ -55,7 +55,7 @@ Camera has no phase of its own; its behavior is a function of `dt_eff` and Run S
 |--------|-----------|----------------|------|
 | Ball Movement (Approved) | in | `theta`, `omega`, `speed`, `s`, once per frame | Hard dependency; already listed as a Ball Movement dependent (its own Interactions table) |
 | Tube Track (Approved) | in | `R`, the tube axis to orbit around | Hard dependency; already listed as a Tube Track dependent |
-| Run State & Restart (Approved) | in | `run_reset` (cuts to start pose), `run_paused`, `run_ended` (both hold) | Hard dependency; already listed exactly this way in Run State's own Interactions table. Camera's `run_reset` handler must run after Ball Movement's (order pinned by Run State, Rule 5) |
+| Run State & Restart (Approved) | in | `run_reset` (cuts to start pose), `run_paused`, `run_ended` (both hold) | Hard dependency; already listed exactly this way in Run State's own Interactions table. Camera's `run_reset` handler must run after Ball Movement's (order pinned by Run State, "Subscriber order") |
 | Tube Track (Approved) | out | `rear_extent` (`C_b`), `camera_distance` (`d_cam`), published as configuration values at map load | Resolves Tube Track's own placeholder guesses (6 and 8) for both — Tube Track's own Dependencies table already anticipates this exact shape |
 | Obstacle System (Approved) | out | `VISIBLE_ARC_HALF_WIDTH` | Resolves Obstacle System's own Open Question 7 and its "external contract, not yet supplied" placeholder |
 | Platform Services (Approved) | in (soft, provisional) | Safe area | Platform Services' own note already anticipates "Camera and HUD read the safe area" |

@@ -182,7 +182,7 @@ None. Placement and size values here are design constants, not player-adjustable
 | Running → Hit | Z2 hides. Z4 shows the restart prompt, locked. Z3 banner enters if `personal_best_updated` fired. Z1 frozen at `final_score` |
 | Running → Paused (`button`, `back`, `app_interrupted`) | Z2 hides, Z1 frozen. Nothing else; Menus & Screen Flow's Paused screen takes over |
 | Running → Paused (`sensor_lost`) | As above, plus Z4 shows the label pill (primary line per Sensor label rules: `No motion sensor`, or `Reconnecting…` if `state` is Acquiring) and Z5 shows the Menu button in its readying state (Element #7), which completes after `PAUSE_INPUT_GUARD` |
-| Paused (`sensor_lost`): `valid` becomes true | Z4 and Z5 hide in the same tick. Menus & Screen Flow's ordinary Paused screen (Resume gated on `valid`, Restart, Menu) takes over; HUD owns no screen from then on. HUD's latch of the pause source clears when Paused is left, as before |
+| Paused (`sensor_lost`): `valid` becomes true | Z4 and Z5 hide in the same tick. Menus & Screen Flow's ordinary Paused screen (Resume and Restart gated on `valid` and the sensor source, Menu ungated) takes over; HUD owns no screen from then on. HUD's latch of the pause source clears when Paused is left, as before |
 | Paused (any other source): `valid` changes | No HUD change. Gating Resume on `valid` is Menus & Screen Flow's |
 | Paused → Resuming | Z4 shows the countdown; Z1 stays visible, frozen |
 | Resuming → Running | Z4 hides, Z2 appears |

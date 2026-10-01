@@ -211,8 +211,9 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Platform Services GDD (designed 2026-09-21, revised after its design review)**: owns the OS app-lifecycle notifications and exposes
   `app_backgrounded` / `app_foregrounded` (names provisional) for Tilt Input, the
   portrait lock, the keep-screen-on call, and the Android sensor project settings (Tilt Input rules 3 and 9).
-  On Android it ignores `PAUSED/RESUMED` and uses `FOCUS_OUT/IN` only; Tilt Input's settle must count only
-  while `attentive` (Platform Services Open Question 24).
+  On Android it ignores `PAUSED/RESUMED` and uses `FOCUS_OUT/IN` only; `app_foregrounded` and
+  `app_returned` come from the same `FOCUS_IN`, so Tilt Input's settle needs no extra `attentive` check
+  (Platform Services Open Question 24, resolved 2026-10-01 by ADR-0001).
 - **HUD and Menus & Screen Flow GDDs**: gate Play, Resume and Restart on `valid`
   (swallow the tap-anywhere restart in Hit with a "sensor not ready" cue), show the "device not supported" /
   "no motion sensor" notice, tell "reconnecting" from "no motion sensor", and give the sensor-lost pause

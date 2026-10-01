@@ -559,7 +559,7 @@ constants:
       - design/gdd/ball-movement.md   # injected as dt_max; a step is at most V_MAX * dt_max = 2.5 u (F1, Edge Cases)
     value: 0.1
     unit: seconds
-    notes: "Proposed default (guess), safe range 0.05-0.25 (narrowed from 0.05-0.45 on 2026-09-20, second design-review, so that stall_pause_threshold >= 2 x dt_max always holds; Tube Track's default A = 6 still holds up to 0.48). The clamp on one per-frame time step; a single shared constant for the run clock (Run State F1), the ball's advance and Tube Track's window margin. Lowered from 0.25 to 0.1 on 2026-09-20 (first design-review): a clamped hitch moves the ball at most 2.5 u instead of 6.25 u (6.25 u at the top of the range). The engine caps the _process delta at about 0.133 s (Godot 4.7.2), so real_dt must come from the clock. Owner confirmed as Run State (Ball Movement GDD, 2026-09-22, Open Question 9): Ball Movement only ever sees the clamped dt_eff."
+    notes: "Proposed default (guess), safe range 0.05-0.25 (narrowed from 0.05-0.45 on 2026-09-20, second design-review, so that stall_pause_threshold >= 2 x dt_max always holds; Tube Track's default A = 9 (F = 84) still holds up to 0.48). The clamp on one per-frame time step; a single shared constant for the run clock (Run State F1), the ball's advance and Tube Track's window margin. Lowered from 0.25 to 0.1 on 2026-09-20 (first design-review): a clamped hitch moves the ball at most 2.5 u instead of 6.25 u (6.25 u at the top of the range). The engine caps the _process delta at about 0.133 s (Godot 4.7.2), so real_dt must come from the clock. Owner confirmed as Run State (Ball Movement GDD, 2026-09-22, Open Question 9): Ball Movement only ever sees the clamped dt_eff."
     added: 2026-09-20
     revised: 2026-09-22
 
