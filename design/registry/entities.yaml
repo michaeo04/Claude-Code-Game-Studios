@@ -37,7 +37,9 @@
 #   Each entry: name, status, source, referenced_by[], attributes{}, added, revised
 
 version: 1
-last_updated: "2026-09-28"
+last_updated: "2026-09-30" # scoring-personal-best.md third-pass design-review session: new score_from_distance formula entry (F1), closing hud.md's named-reference gap
+
+
 
 # ─── ENTITIES ────────────────────────────────────────────────────────────────
 # Named game-world objects: enemies, NPCs, characters, factions, bosses.
@@ -217,6 +219,20 @@ formulas:
     added: 2026-09-20
     revised: 2026-09-20   # note clarified: output_range is the band of interest, not a formal bound
 
+  - name: score_from_distance
+    status: active
+    source: design/gdd/scoring-personal-best.md
+    referenced_by:
+      - design/gdd/scoring-personal-best.md
+      - design/gdd/hud.md   # Core Rule 2 references this formula (F1) by name: "already computed upstream"
+    variables:
+      - s
+    output_range: [0, 9007199254740992]   # 2^53; s's own float64 mantissa-precision ceiling, not current_score's int64 range (2^63-1), which is never the limiting factor
+    expression: "current_score = floor(s)"
+    notes: "F1 in scoring-personal-best.md. s is Ball Movement's published distance (ball_speed_curve's own S(t) above). floor, not round, deliberately: round would show distance not yet covered. Monotone non-decreasing since s is (Ball Movement's own contract) and floor is monotone. Registered this pass (third full-mode /design-review) closing a gap hud.md's own named reference to F1 left open, the same class of omission previously found and fixed for ball_speed_curve/t_dodge_180."
+    added: 2026-09-30
+    revised: ""
+
 # Example:
 #
 # formulas:
@@ -270,6 +286,267 @@ constants:
     notes: "Proposed default (guess), safe range integer 6-24 and at least L_min = ceil(v_max / SEAM_HZ_MAX) (9 at v_max = 25 and 3 Hz; L 6-8 can never load, tube-track F5). Pattern & Difficulty may align chunks to whole segments (open question)."   # was: safe range integer 6-24 only, before 2026-09-20 (tube-track review 3)
     added: 2026-09-19
     revised: 2026-09-20
+
+  - name: haptics_enabled
+    status: active
+    source: design/gdd/settings-accessibility.md
+    referenced_by:
+      - design/gdd/settings-accessibility.md
+      - design/gdd/platform-services.md   # master switch consumed by Rule 1/F2; Platform Services' own Tuning Knobs table already noted "supplied by Settings & Accessibility"
+      - design/gdd/save-persistence.md   # [settings].haptics_enabled fixture key
+    value: true
+    unit: bool
+    notes: "Player-facing preference, not a designer tuning knob. Read once at boot via Save & Persistence's [settings] section (settings-accessibility.md Core Rule 3); Platform Services owns the presentation-side gating, Settings owns the stored on/off value."
+    added: 2026-09-29
+
+  - name: hitstop_actual
+    status: active
+    source: design/gdd/juice-feedback.md
+    referenced_by:
+      - design/gdd/juice-feedback.md   # Core Rule 3, Tuning Knobs (HITSTOP_ACTUAL), Formula validator (validate_hitstop, HITSTOP_EXCEEDS_MAX)
+      - design/gdd/run-state-restart.md   # F4 Interactions — injected back into Run State's config by the composition root; bounds RESTART_LOCK - hitstop_actual >= T_READ
+    value: 0.20
+    unit: seconds
+    notes: "Juice & Feedback's own value, not Run State's — Run State's own HITSTOP_MAX (0.20s) was only ever a worst-case derivation constant for its F4 LOCK_MIN; this GDD is the real owner and fixed it at exactly HITSTOP_MAX (2026-09-29), so no cross-file LOCK_MIN recomputation is needed. reduced_motion_enabled does NOT scale this value (Core Rule 10) — only flash/shard/bloom intensity."
+    added: 2026-09-29
+
+  - name: haptics_intensity
+    status: active
+    source: design/gdd/platform-services.md
+    referenced_by:
+      - design/gdd/platform-services.md   # Formula F3, Tuning Knobs — global amplitude scalar, resolves Open Question 16
+      - design/gdd/settings-accessibility.md   # fifth stored setting, Core Rule 1/6, added 2026-09-29
+      - design/gdd/juice-feedback.md   # Core Rule 12 — explicitly NOT the same knob as reduced_motion_enabled
+    value: 1.0
+    unit: dimensionless scalar, range [0, 1]
+    notes: "Player-facing preference. Multiplies amp_eff inside Platform Services' own Formula F3, after the -1 OS-default sentinel branch (never scales the sentinel itself). Deliberately separate from Juice & Feedback's reduced_motion_enabled — haptic amplitude carries no photosensitivity risk, unlike the flash/shard intensity reduced_motion_enabled scales."
+    added: 2026-09-29
+
+  - name: camera_fov
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md   # Tuning Knobs, Formula F5 variable table — the un-punched baseline FOV
+      - design/gdd/juice-feedback.md   # Formula F3 — amount = FOV_PUNCH_PCT * CAMERA_FOV
+    value: 75.0
+    unit: degrees
+    notes: "Godot 4.7.2's Camera3D.fov engine default, made an explicit Camera knob 2026-09-29 (previously an unstated assumption) so Juice & Feedback's own near-miss FOV-punch magnitude (F3) has a real baseline to compute amount against, rather than resting on an implicit engine default."
+    added: 2026-09-29
+
+  - name: tilt_sensitivity
+    status: active
+    source: design/gdd/settings-accessibility.md
+    referenced_by:
+      - design/gdd/settings-accessibility.md
+      - design/gdd/tilt-input.md   # consumed under Tilt Input's own internal name `sensitivity` (F4); same value, two names for two contexts (settings-accessibility.md Core Rule 2)
+      - design/gdd/save-persistence.md   # [settings].tilt_sensitivity fixture key
+    value: 1.0
+    unit: dimensionless multiplier
+    notes: "Player-facing preference. Validated against Tilt Input's own sensitivity_min/sensitivity_max at both boot read and every runtime change (settings-accessibility.md Core Rule 4, Formula F2) — a non-finite/zero/negative raw value falls back to this default, a finite out-of-range value clamps to the nearest bound."
+    added: 2026-09-29
+
+  - name: reduced_motion_enabled
+    status: active
+    source: design/gdd/settings-accessibility.md
+    referenced_by:
+      - design/gdd/settings-accessibility.md
+      - design/gdd/save-persistence.md   # [settings].reduced_motion_enabled fixture key (renamed 2026-09-28 from a placeholder accessibility_mode String)
+    value: false
+    unit: bool
+    notes: "Player-facing preference. Drives the derived seam_contrast_scale (0.0 when true, 1.0 when false) supplied to Tube Track — settings-accessibility.md Core Rule 7 / Formula F1. Resolved Tube Track's own Open Question 11 as a binary opt-in; the general-population default (reduced_motion_enabled = false) is unaffected and stays at Tube Track's own SEAM_HZ_MAX = 3 Hz."
+    added: 2026-09-29
+
+  - name: colorblind_safe_enabled
+    status: active
+    source: design/gdd/settings-accessibility.md
+    referenced_by:
+      - design/gdd/settings-accessibility.md
+      - design/gdd/save-persistence.md   # [settings].colorblind_safe_enabled fixture key
+    value: false
+    unit: bool
+    notes: "Player-facing preference. No consumer exists yet (Environment & Theming has no GDD) — a real, named gap tracked in settings-accessibility.md Open Question 1, not an oversight."
+    added: 2026-09-29
+
+  - name: sensitivity_min
+    status: active
+    source: design/gdd/tilt-input.md
+    referenced_by:
+      - design/gdd/tilt-input.md
+      - design/gdd/settings-accessibility.md   # accepted as a constructor parameter (default 0.5) for F2's clamp, not owned here
+    value: 0.5
+    unit: dimensionless multiplier
+    notes: "Lower bound of Tilt Input's own sensitivity range (its Tuning Knobs). Settings & Accessibility references this as a constructor default, never redefines it."
+    added: 2026-09-29
+
+  - name: sensitivity_max
+    status: active
+    source: design/gdd/tilt-input.md
+    referenced_by:
+      - design/gdd/tilt-input.md
+      - design/gdd/settings-accessibility.md   # accepted as a constructor parameter (default 2.0) for F2's clamp, not owned here
+    value: 2.0
+    unit: dimensionless multiplier
+    notes: "Upper bound of Tilt Input's own sensitivity range (its Tuning Knobs). Settings & Accessibility references this as a constructor default, never redefines it."
+    added: 2026-09-29
+
+  - name: seam_contrast_scale
+    status: active
+    source: design/gdd/tube-track.md
+    referenced_by:
+      - design/gdd/tube-track.md
+      - design/gdd/settings-accessibility.md   # derived and supplied here (Core Rule 7 / Formula F1) from the stored reduced_motion_enabled boolean
+    value: 1.0
+    unit: dimensionless, range 0-1
+    notes: "Tube Track's own reduced-motion hook, 'set by Settings.' Settings & Accessibility resolved Tube Track's own Open Question 11 by deriving this as a strict binary (0.0 or 1.0 only, never a partial scale) from reduced_motion_enabled, rather than exposing it as an independent slider."
+    added: 2026-09-29
+
+  - name: camera_lag_tau
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+    value: 0.3333
+    unit: seconds
+    notes: "Corrected 2026-09-29 (systems-designer, verified against prototypes/ball-in-tube-movement-concept/main.gd, not just its REPORT.md): the prototype's own CAMERA_FOLLOW_SPEED = 3.0 was a rate (1/tau, matching main.gd's cam_theta += diff*(1-exp(-CAMERA_FOLLOW_SPEED*delta))), not a time constant itself. CAMERA_LAG_TAU ships as the reciprocal, 1/3 ≈ 0.333. No OMEGA_MAX-style hard rate cap (Core Rule 1) — self-limiting via the freeze-together contract with Ball Movement (Rule 5)."
+    added: 2026-09-29
+
+  - name: camera_radius
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+    value: 6.0
+    unit: world units
+    notes: "Camera's own fixed orbit radius from the tube axis (Core Rule 2), = TUBE_RADIUS + 3.0 at the concept prototype's own starting geometry. Determines VISIBLE_ARC_HALF_WIDTH (F3) and d_cam (F2) jointly — not independent of either. Structural floor: must clear TUBE_RADIUS + camera_radius_margin_min (Core Rule 10)."
+    added: 2026-09-29
+
+  - name: camera_back_distance
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+      - design/gdd/tube-track.md   # confirmed equal to Tube Track's own rear_extent (C_b)
+    value: 6.0
+    unit: world units
+    notes: "Axial offset behind the ball the camera sits at (Core Rule 2). Confirmed 2026-09-29 to equal Tube Track's own rear_extent (C_b) exactly — the camera's own position is the rearmost point that must stay loaded for a forward-looking camera that never looks further back than itself."
+    added: 2026-09-29
+
+  - name: camera_look_ahead
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+    value: 12.0
+    unit: world units
+    notes: "How far past the ball's own s the camera's look-at point sits (Core Rule 3, Formula F4). Framing feel only, not safety-critical."
+    added: 2026-09-29
+
+  - name: camera_radius_margin_min
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+    value: 0.5
+    unit: world units
+    notes: "Minimum margin camera_radius must clear above tube_radius (Core Rule 10), added this session after Formula F3 showed VISIBLE_ARC_HALF_WIDTH approaches 0 as the two converge. A config below this margin is rejected at load with CAMERA_RADIUS_TOO_CLOSE."
+    added: 2026-09-29
+
+  - name: visible_arc_half_width
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+      - design/gdd/obstacle-system.md   # F4's hidden() classification; resolved 2026-09-29, was previously "external contract, not yet supplied"
+    value: 1.0472
+    unit: radians (60 degrees at shipped defaults)
+    notes: "Derived 2026-09-29 (godot-specialist, exact tangent-line geometry): acos(tube_radius / camera_radius). Proven independent of camera_back_distance, the camera's own live lagged angle, and field of view. The value's magnitude is exact; its center (THETA_REF = 0) is a near-neutral proxy for the camera's own live angle, not a literal live boundary — flagged in camera.md Open Questions and obstacle-system.md F4."
+    added: 2026-09-29
+
+  - name: d_cam
+    status: active
+    source: design/gdd/camera.md
+    referenced_by:
+      - design/gdd/camera.md
+      - design/gdd/tube-track.md   # F9's visibility budget, previously a fixed guess of 8; now cross-checked against this derived worst-case bound
+    value: 7.84
+    unit: world units
+    notes: "Derived 2026-09-29 (systems-designer, exact law-of-cosines + Pythagorean derivation): camera-to-ball distance, a function of camera_radius, camera_back_distance, and the camera's own angular lag from the ball. Practical range ≈6.54-7.84 at shipped defaults (never the fixed number a prior guess assumed); listed value here is the practical worst case, the figure Tube Track's own F9 should be checked against. Tube Track's own shipped d_cam = 8 clears this with 0.16 u of margin, but that margin is coincidental, not structural — re-derive before retuning camera_radius, camera_back_distance, or Ball Movement's OMEGA_MAX."
+    added: 2026-09-29
+
+  - name: fog_depth_begin
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+      - design/gdd/tube-track.md   # MapConfig field Tube Track already reads; previously unnamed/unvalued before this GDD
+    value: 44
+    unit: world units (Map 1)
+    notes: "Where the fog opacity ramp starts (Formula F1). F_read is ~17x more sensitive to this value than to fog_end_distance (F1's own derived sensitivity) — the contrast floor collapses in the first ~5.5% of the ramp's own distance, not near full opacity."
+    added: 2026-09-29
+
+  - name: fog_end_distance
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+      - design/gdd/tube-track.md   # F9's own external contract; corrected 2026-09-29 from a physically-impossible prior guess of 48
+    value: 84
+    unit: world units (Map 1)
+    notes: "Where fog reaches full opacity (fog_density=1.0). Corrected 2026-09-29 from Tube Track's own prior shipped default of 48 — that value paired with F_read=46 implied a 2u fog ramp, which cannot carry opacity from ~0% to 100%; 84 is the real requirement given fog_depth_begin=44 (Formula F1)."   # was: 48 (Tube Track's own placeholder, physically incompatible with F_read=46) before 2026-09-29
+    added: 2026-09-29
+    revised: 2026-09-29
+
+  - name: fog_depth_curve
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+      - design/gdd/tube-track.md
+    value: 1.0
+    unit: dimensionless (Godot smoothstep exponent)
+    notes: "Shape of the fog opacity ramp (Formula F1). F1's own t*-to-F_read derivation assumes this value; a different curve would require redoing that derivation, not a drop-in substitution."
+    added: 2026-09-29
+
+  - name: f_read
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+      - design/gdd/tube-track.md   # F9's visibility budget; previously an unexplained external guess, now a real derivation
+    value: 46.22
+    unit: world units (Map 1, derived at v_max=25)
+    notes: "Radial distance from the camera eye at which hazard/tube contrast first drops below the art bible's own binding 4:1 floor (Formula F1). Re-derived per map at content-load time (Core Rule 11), not a fixed constant — this is Map 1's own value. Checked against Tube Track's own visibility floor (T_VIS_MIN*v_max+d_cam) at every map load, MAP_VISIBILITY_UNSAFE on failure."
+    added: 2026-09-29
+
+  - name: fog_pull_max
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+    value: 4
+    unit: world units
+    notes: "Max inward pull of fog_end_distance at v_max (Formula F2). Derived hard ceiling ≈13.0 (the value that would exactly zero out F1's own margin at v_max against the tighter legacy d_cam=8 floor); shipped safe range 0-8 stays well clear of it."
+    added: 2026-09-29
+
+  - name: r_target
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+    value: 1.4
+    unit: dimensionless (WCAG contrast ratio)
+    notes: "Target ball/hazard-face luminance contrast once colorblind_safe_enabled is on (Formula F3) — the actual achievable ceiling given both the ball/tube 4:1 floor and the Ember-adjacent margin, not the art bible's own 4:1/3:1 floors used elsewhere (both are unreachable here since ball and hazard already sit at extreme low luminance)."
+    added: 2026-09-29
+
+  - name: margin_ember
+    status: active
+    source: design/gdd/environment-theming.md
+    referenced_by:
+      - design/gdd/environment-theming.md
+    value: 0.01
+    unit: luminance (0-1 scale)
+    notes: "Minimum luminance gap the colorblind-boosted ball keeps above Ember (the hazard shade color, L=0.03), so darkening the ball for contrast never makes it read as another hazard (Formula F3)."
+    added: 2026-09-29
 
   - name: dt_max
     status: active
