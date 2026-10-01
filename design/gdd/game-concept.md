@@ -23,7 +23,7 @@
 | Aspect | Detail |
 | ---- | ---- |
 | **Genre** | Arcade Endless-Runner / Obstacle-Dodge (tube-based) |
-| **Platform** | Mobile (iOS/Android) — MVP mobile-only; Web (mouse control) considered post-MVP |
+| **Platform** | Mobile (Android only, decided 2026-10-01) — MVP mobile-only; Web (mouse control) considered post-MVP |
 | **Target Audience** | Casual-to-midcore mobile players who enjoy skill-based reflex arcade games |
 | **Player Count** | Single-player |
 | **Session Length** | 1–5 min per run, several runs per sitting (~10–20 min total) |
@@ -261,7 +261,7 @@ around a fixed axis.
 | **Age range** | 13–35 |
 | **Gaming experience** | Casual to mid-core |
 | **Time availability** | Short bursts — about 10–20 minutes per sitting, commute/waiting-in-line play |
-| **Platform preference** | Mobile (iOS/Android) |
+| **Platform preference** | Mobile (Android only, decided 2026-10-01) |
 | **Current games they play** | Subway Surfers, Temple Run, Helix Jump |
 | **What they're looking for** | Quick, skill-based arcade sessions with a satisfying "one more run" pull |
 | **What would turn them away** | Unfair/random deaths, disorienting camera, controls that require two hands |

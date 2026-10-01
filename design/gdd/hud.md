@@ -175,7 +175,7 @@ The banner does **not** use the Lagoon-tinted-outer-edge treatment Juice & Feedb
 
 Round family (§3e): a circular button, Ink icon (pause bars) on a Rim White pill at 85% opacity — the same opaque-pill treatment as the score display, since it also renders directly over live gameplay and needs the same guaranteed contrast.
 
-Touch target: sized for Pillar 4's one-thumb requirement. This GDD does not lock an exact size (layout/sizing defers to `/ux-design`), but recommends the standard mobile floor (44pt iOS / 48dp Android) as the reference minimum for whoever authors that spec.
+Touch target: sized for Pillar 4's one-thumb requirement. This GDD does not lock an exact size (layout/sizing defers to `/ux-design`), but recommends the standard mobile floor (48dp Android) as the reference minimum for whoever authors that spec.
 
 Placement: reuses Run State & Restart's own already-committed wording verbatim — "in a reachable zone but away from the resting grip, activated on release inside the button, sized to prevent accidental taps." Visible only while `phase` == Running (Core Rule 4).
 

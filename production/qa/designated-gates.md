@@ -39,7 +39,7 @@ not a new decision.
 - **Production conditions** (producer, pass 3): BM-1 split into BM-1a (software, any single
   device, run first) and BM-1b (end-to-end jig, does not need to wait for BM-1a); a "spike
   readiness" story (harness, per-frame `theta` logging, jig setup, this directory's existence)
-  lands before the spike itself; device procurement (>= 2 Android makers + 1 iPhone) is an owned
+  lands before the spike itself; device procurement (>= 2 Android makers; no iPhone, the project is Android-only) is an owned
   external dependency, user-owned, date to be confirmed.
 - **Not designated**: BM-2 (Dodge 180) — its own text treats a miss as "a tuning finding," so it
   is BLOCKING only for locking the `OMEGA_MAX`/`BALL_LAG_TAU` tuning defaults, never for the

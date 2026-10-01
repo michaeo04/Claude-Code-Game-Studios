@@ -1,6 +1,7 @@
 # Tilt Input
 
 > **Status**: Revised three times on 2026-09-21: after the first `/design-review` (MAJOR REVISION NEEDED, 8 blocking), after the re-review (NEEDS REVISION, 5 blocking) and after the third review (NEEDS REVISION, 6 blocking). The senior reviewer judged that a fourth round of document review has reached diminishing returns: the next evidence is an executable harness (`TiltCore` and `TiltRunAdapter` against Run State's SceneTree-free core, whose tests are AC-39) plus the on-device spike
+> **Platform scope (2026-10-01)**: Android only. Any iOS content below is reference only, is not built or tested, and will be cleaned up with `/propagate-design-change` (`docs/architecture/adr-0001-android-only.md`).
 > **Author**: user + agents
 > **Last Updated**: 2026-09-21
 > **Implements Pillar**: Pillar 4 (One-Thumb Simplicity); supports Pillar 2 (Fair but Merciless Difficulty) by keeping sensor noise and sensor loss out of deaths

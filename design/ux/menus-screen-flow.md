@@ -231,12 +231,12 @@ Sensor strings are the HUD's (`Reconnecting…`, `No motion sensor`, each at mos
 | | Haptics off | `haptics_enabled` false | `haptics_intensity` dimmed (no pulse, no label: nothing is resolving) |
 | | Write failed | `set_value` returns false | No error is shown; the value still changes for the session (Settings AC-14) and one line is logged |
 | **Confirm-quit** | Default | Back on Menu or failure | One state only; Back again acts as Cancel |
-| **Map-load-failure** | Default | Boot longer than `MAP_LOAD_TIMEOUT` | Message, Retry, Quit (Quit is Android only, see below). Leaves by itself if `phase` becomes Menu |
+| **Map-load-failure** | Default | Boot longer than `MAP_LOAD_TIMEOUT` | Message, Retry, Quit. Leaves by itself if `phase` becomes Menu |
 | | Retrying (provisional, Run State Open Question 8) | tap Retry | Retry dimmed with the outline pulse until `phase` changes or the timeout runs out again, then the failure screen shows again |
 | **Boot, loading** | no screen of this system | Boot under the timeout | The engine splash, then a plain Ink background (no pill, no spinner). Menu appears when `phase` is Menu (user decision 2026-10-01) |
 
 **Platform variants.**
-- **iOS:** there is no Back key and iOS apps must not exit programmatically, so the failure screen shows **Retry only** (no Quit) and the confirm-quit dialog is unreachable on iOS. `quit()` is Android only. This differs from `menus-screen-flow.md` Core Rules 6 and 8 and is logged as Open Question 4.
+- **Platform:** Android only (user decision 2026-10-01); `quit()` and the confirm-quit dialog apply on every screen that offers them.
 - **Android:** as written; Back follows the GDD routing table (Core Rule 5).
 - **Tablets and foldables:** elements keep their dp sizes and stay centred (cards 300 dp, pills 240 dp); nothing scales up.
 
@@ -244,7 +244,7 @@ Sensor strings are the HUD's (`Reconnecting…`, `No motion sensor`, each at mos
 
 ## Interaction Map
 
-Touch only (iOS and Android, portrait): no hover, keyboard or gamepad. Every button activates on **release inside the button**, hit area at least 48 dp, and shows the press feedback of the HUD (scale to 0.94 while held). A gated control shows **no** press feedback and fires no haptic.
+Touch only (Android, portrait): no hover, keyboard or gamepad. Every button activates on **release inside the button**, hit area at least 48 dp, and shows the press feedback of the HUD (scale to 0.94 while held). A gated control shows **no** press feedback and fires no haptic.
 
 | Component | Action | Feedback | Outcome |
 |---|---|---|---|
@@ -257,7 +257,7 @@ Touch only (iOS and Android, portrait): no hover, keyboard or gamepad. Every but
 | **Back** (Settings) | tap | as Play | closes Settings; no revert, values are already written |
 | **QUIT** / **Cancel** | tap | as Play | `quit()` / closes the dialog. A tap on the scrim does nothing (user decision 2026-10-01); only Cancel or Back closes it |
 | **Retry** | tap | as Play | retry (provisional) |
-| **Failure Quit** (Android only) | tap | as Play | opens the confirm-quit dialog |
+| **Failure Quit** | tap | as Play | opens the confirm-quit dialog |
 | **Hardware Back** | press | no haptic (not an on-screen tap) | routed by the GDD table (Core Rule 5) |
 
 **Focus order:** not applicable (touch only). Screen-reader reading order is in Accessibility.
@@ -311,7 +311,7 @@ The UI owns no game state. The overlay flags `settings_open` and `confirm_quit_o
 | `personal_best` | Scoring & Personal Best | Read | pulled on every entry to Menu (no push event) | 0 or unreadable: the BEST pill is hidden |
 | The 5 settings values | Settings & Accessibility | Read and Write (`set_value`) | read when Settings opens | each key falls back to its own default (Settings contract) |
 | `back_pressed` | Platform Services | Read | event | n/a |
-| `safe_area`, `viewport_size`, `screen_dpi`, platform (iOS or Android) | Platform Services | Read | at layout, again after `app_foregrounded` | as the HUD: full screen rectangle, `viewport_units_per_dp = 1` |
+| `safe_area`, `viewport_size`, `screen_dpi` | Platform Services | Read | at layout, again after `app_foregrounded` | as the HUD: full screen rectangle, `viewport_units_per_dp = 1` |
 | `PAUSE_INPUT_GUARD` | Run State config (injected) | Read | at construction | n/a |
 | Boot elapsed time against `MAP_LOAD_TIMEOUT` (10 s default) | `MenuCore` / `MenuConfig` | Read | every tick | n/a |
 
@@ -376,7 +376,7 @@ Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a not
 - **MN-5 Safe abandon:** Restart and Menu in Paused are at least 80 dp from Resume (measured on screen); the readying underline runs for 0.3 s from every entry to Paused; a tap inside that window does not abandon the run and a tap after it does.
 - **MN-6 Layout:** at 360×640, 360×800, 412×915 and 360×560, no element lies outside the safe area, every button ends at least 96 dp above the safe bottom edge, no interactive element lies within 40 dp of the left or right safe edge, and every hit area is at least 48 dp.
 - **MN-7 Empty state:** on the very first run (stored best 0) Menu shows no BEST pill; after the first run it shows BEST with the right score.
-- **MN-8 Failure:** a Boot longer than `MAP_LOAD_TIMEOUT` shows the message and Retry (and Quit on Android only, **no Quit on iOS**); if `phase` becomes Menu the failure screen disappears by itself; Retry sends nothing but the haptic until a loader exists (provisional).
+- **MN-8 Failure:** a Boot longer than `MAP_LOAD_TIMEOUT` shows the message and Retry and Quit; if `phase` becomes Menu the failure screen disappears by itself; Retry sends nothing but the haptic until a loader exists (provisional).
 - **MN-9 Settings:** a toggled value is still set after closing and reopening the app; a slider writes once, on release; switching haptics off dims `haptics_intensity`; there is no Save, Apply or Cancel control; all 5 rows can be reached by scrolling at 360×560.
 - **MN-10 Cut:** the Menu↔Running cut hides at least one frame in both directions, no tube geometry is seen jumping, the cover sits above the HUD, and it cannot be confused with the white hit flash.
 - **MN-11 Accessibility:** contrast of Ink on the pills is at least 7:1 over three backdrops (same method as HUD AC-22); every state can be told apart in a greyscale screenshot; text sizes match the Accessibility table.
@@ -391,7 +391,7 @@ Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a not
 | 1 | No `design/player-journey.md`: the arrival states are assumptions. Template at `.claude/docs/templates/player-journey.md` | user, ux-designer | Before `/gate-check pre-production` |
 | 2 | No `design/accessibility-requirements.md`: the tier is not committed; WCAG-AA is the baseline | user, accessibility-specialist | Before `/gate-check pre-production` |
 | 3 | Retry and the Retrying look are provisional until Run State's Open Question 8 (who sends `map_ready`) is resolved | whoever authors the map loader | When that system is authored |
-| 4 | iOS has no `quit()` and no confirm-quit (user decision 2026-10-01): `design/gdd/menus-screen-flow.md` Core Rules 6 and 8 (and Platform Services' `quit()`) must say Android only | whoever next revises the Menus GDD | Menus GDD next revision |
+| 4 | SUPERSEDED 2026-10-01: the project is Android-only, so `quit()` applies everywhere and the GDD needs no platform split | — | Superseded |
 | 5 | No game name or wordmark on Menu (the name is a working title); a reserved area is not drawn | user, art-director | When the name and branding are final |
 | 6 | AccessKit names, roles and reading order on 4.7.2 are unverified (proposal only) | accessibility-specialist, godot-specialist | Vertical slice |
 | 7 | All sizes are starting values. Play at 64% to 70% of H needs a thumb-reach check; the Resume to Restart/Menu distance needs a playtest for accidental abandons | user, qa-lead | Vertical slice, on device |

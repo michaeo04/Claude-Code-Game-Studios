@@ -15,7 +15,7 @@
 <!-- Written by /setup-engine. Read by /ux-design, /ux-review, /test-setup, /team-ui, and /dev-story -->
 <!-- to scope interaction specs, test helpers, and implementation to the correct input methods. -->
 
-- **Target Platforms**: Mobile (iOS/Android)
+- **Target Platforms**: Android only (decided 2026-10-01; iOS is out of scope, see docs/architecture/adr-0001-android-only.md)
 - **Input Methods**: Touch (device tilt/accelerometer)
 - **Primary Input**: Touch (tilt)
 - **Gamepad Support**: None
@@ -57,7 +57,7 @@
 ## Architecture Decisions Log
 
 <!-- Quick reference linking to full ADRs in docs/architecture/ -->
-- [No ADRs yet — use /architecture-decision to create one]
+- ADR-0001: Android only, iOS out of scope (`docs/architecture/adr-0001-android-only.md`, 2026-10-01)
 
 ## Engine Specialists
 

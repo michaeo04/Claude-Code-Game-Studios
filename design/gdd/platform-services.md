@@ -1,6 +1,7 @@
 # Platform Services
 
 > **Status**: Approved, pending the device spike (first `/design-review` 2026-09-21 was NEEDS REVISION with 9 blocking items; all 9 applied the same day and the user accepted the revision without a further full document round; the next evidence is the `PlatformCore` harness and the device spike PS-1..PS-12, of which PS-1..PS-4 block the first playable)
+> **Platform scope (2026-10-01)**: Android only. Any iOS content below is reference only, is not built or tested, and will be cleaned up with `/propagate-design-change` (`docs/architecture/adr-0001-android-only.md`).
 > **Author**: user + agents
 > **Last Updated**: 2026-09-21
 > **Supports Pillars**: Pillar 2 (Fair but Merciless Difficulty), by keeping app interruptions out of deaths; Pillar 4 (One-Thumb Simplicity), by keeping the phone a reliable controller

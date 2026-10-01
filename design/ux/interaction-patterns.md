@@ -63,7 +63,7 @@ Every UI element sits on its own Rim White `#F4F8FF` pill at 85% opacity with In
 **Category**: Foundation · **Used In**: HUD (Pause, Menu), Menus (every button)
 
 **Specification**:
-- Hit area at least 48 dp (44 pt on iOS); the control activates on **release inside** the control. A press that starts outside and slides in does not activate it.
+- Hit area at least 48 dp; the control activates on **release inside** the control. A press that starts outside and slides in does not activate it.
 - A control that sends a timestamped request (Restart, Menu) stamps `press_us` on **press-down**.
 - No multi-touch and no gestures (Pillar 4 anti-pillar).
 
@@ -81,7 +81,7 @@ Every UI element sits on its own Rim White `#F4F8FF` pill at 85% opacity with In
 
 **Specification**:
 - Every offset is measured from Platform Services' `safe_area`, never the raw screen, and read again after `app_foregrounded`.
-- No interactive element within **40 dp** of the left or right safe edge (Android back-swipe strip) or within **16 dp** of the top safe edge (iOS Control Center). Non-interactive elements (HUD Z1) and full-screen tap catchers are exempt.
+- No interactive element within **40 dp** of the left or right safe edge (Android back-swipe strip) or within **16 dp** of the top safe edge (notification shade swipe). Non-interactive elements (HUD Z1) and full-screen tap catchers are exempt.
 - The bottom **96 dp** stays clear (gesture bar, resting thumbs).
 - Minimum supported safe area: 360 × 560 dp. `dp` = `screen_dpi / 160` physical pixels; `sp` = `dp` (OS text scaling is not honoured).
 
