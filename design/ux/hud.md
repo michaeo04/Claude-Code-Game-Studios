@@ -1,6 +1,6 @@
 # HUD Design
 
-> **Status**: Revised after a fifth `/ux-review` 2026-10-01 (NEEDS REVISION: 1 blocking and 7 advisory items addressed: Menu readying during `PAUSE_INPUT_GUARD` in the sensor-lost pause, pill-outline pulse for #8, Menus transition cut layering, Paused screen vs Z1 handoff, minimum supported size, performance and resolution criteria, Pattern Library deviation note); pending a re-run of `/ux-review` in a fresh session
+> **Status**: **Approved by the user 2026-10-01** (no sixth `/ux-review` run; remaining open items are in Open Questions). History: revised after a fifth `/ux-review` 2026-10-01 (NEEDS REVISION: 1 blocking and 7 advisory items addressed: Menu readying during `PAUSE_INPUT_GUARD` in the sensor-lost pause, pill-outline pulse for #8, Menus transition cut layering, Paused screen vs Z1 handoff, minimum supported size, performance and resolution criteria, Pattern Library deviation note)
 > **Author**: user + ux-designer
 > **Last Updated**: 2026-10-01
 > **Template**: HUD Design
