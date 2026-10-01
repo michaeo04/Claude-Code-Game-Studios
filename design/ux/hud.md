@@ -289,7 +289,7 @@ Measured on a device matrix of at least: a 16:9 phone (H about 640 dp), a 20:9 p
 | 7 | All sizes (56 dp pause, 44 dp score, 88 dp prompt, 130 dp score pill, etc.) and the 17% coverage budget are starting values; verify touch comfort, coverage and the 7:1 contrast on device (`hud.md` AC-22, HUD-2) | user, qa-lead | Vertical slice, on device |
 | 8 | Accidental restart from a re-grip tap just after the lock (`hud.md` Open Question 10), and an optional hold-to-restart | user, game-designer | First-playable playtest |
 | 9 | dp to viewport-unit conversion (dpi source, stretch mode) needs an ADR; no `project.godot` yet (Platform & Input Variants, Units) | technical-director, godot-specialist | Before the first UI story |
-| 10 | Location of the accessibility requirements file: `design/CLAUDE.md` says `design/ux/accessibility-requirements.md`, this spec and the gate checks say `design/accessibility-requirements.md` | user | Before writing it |
+| 10 | RESOLVED 2026-10-01: the accessibility requirements file lives at `design/accessibility-requirements.md` (the path the skills and gate checks read); `design/CLAUDE.md` corrected to match | — | Resolved |
 | 11 | Platform Services supplies no system-gesture insets; the Z2 values (40 dp right, 16 dp top) are fixed starting values. If UX-12 fails or devices differ widely, Platform Services should expose the real insets and Z2 should read them | technical-director, godot-specialist | Vertical slice, on device |
 
 ---

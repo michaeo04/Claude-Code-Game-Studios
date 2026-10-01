@@ -33,6 +33,6 @@ Use `/quick-design` to author.
 - Per-screen specs: `design/ux/[screen-name].md`
 - HUD design: `design/ux/hud.md`
 - Interaction pattern library: `design/ux/interaction-patterns.md`
-- Accessibility requirements: `design/ux/accessibility-requirements.md`
+- Accessibility requirements: `design/accessibility-requirements.md` (project-wide, not per screen; this is the path `/gate-check`, `/ux-review` and `/team-ui` read)
 
 Use `/ux-design` to author. Validate with `/ux-review` before passing to `/team-ui`.
