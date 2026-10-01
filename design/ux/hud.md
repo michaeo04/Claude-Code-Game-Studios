@@ -296,7 +296,7 @@ Measured on a device matrix of at least: a 16:9 phone (H about 640 dp), a 20:9 p
 | 9 | dp to viewport-unit conversion (dpi source, stretch mode) needs an ADR; no `project.godot` yet (Platform & Input Variants, Units) | technical-director, godot-specialist | Before the first UI story |
 | 10 | RESOLVED 2026-10-01: the accessibility requirements file lives at `design/accessibility-requirements.md` (the path the skills and gate checks read); `design/CLAUDE.md` corrected to match | — | Resolved |
 | 11 | Platform Services supplies no system-gesture insets; the Z2 values (40 dp right, 16 dp top) are fixed starting values. If UX-12 fails or devices differ widely, Platform Services should expose the real insets and Z2 should read them | technical-director, godot-specialist | Vertical slice, on device |
-| 12 | Menus & Screen Flow's ordinary Paused screen draws above the HUD canvas while Z1 stays visible and frozen in Paused. Its layout (no UX spec yet) must keep clear of Z1 (84 dp high, 170 dp wide, top-left), or state that it covers or hides Z1 | ux-designer | `/ux-design` for Menus & Screen Flow |
+| 12 | RESOLVED 2026-10-01 (`design/ux/menus-screen-flow.md` Layout Zones): the ordinary Paused screen keeps its abandon row and Resume below the top 92 dp, clear of Z1 | — | Resolved |
 | 13 | `hud.md` Core Rule 8 gives HUD no seam for `PAUSE_INPUT_GUARD`; the sensor-lost Menu readying (Element #7) needs the injected guard duration and a view-side timer started at the entry to Paused | ux-designer, whoever next revises `hud.md` | `hud.md` next revision (noted in Rule 8) |
 
 ---
