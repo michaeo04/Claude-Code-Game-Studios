@@ -3,6 +3,7 @@
 > **Status**: Drafted 2026-10-01, pending `/ux-review` in a fresh session
 > **Author**: user + ux-designer
 > **Last Updated**: 2026-10-01
+> **Revision note 2026-10-01**: `/review-all-gdds` 2026-10-01 items C2 (gates also need `input_source == SENSOR`), C3 (Paused Restart gated, Menu ungated) and S3 (Retry contract) applied.
 > **Journey Phase(s)**: unknown (no `design/player-journey.md`)
 > **Template**: UX Spec (multi-screen: Menu, ordinary Paused, Settings, confirm-quit dialog, map-load-failure, Menu↔Running cut)
 > **Behavior source**: `design/gdd/menus-screen-flow.md` (what each screen does and sends); this file owns layout, sizing, touch targets, transitions and accessibility. HUD layers are specified in `design/ux/hud.md`.
@@ -81,14 +82,14 @@ Hit (HUD) ──► Running | Menu
 
 | Screen | To | Trigger | Notes |
 |---|---|---|---|
-| Menu | Running | Play (gated on `valid`) | through the Ink cut |
+| Menu | Running | Play (gated: `valid` and `input_source == SENSOR`) | through the Ink cut |
 | Menu | Settings / confirm-quit | Settings / Back | overlays |
-| Ordinary Paused | Resuming | Resume or Back (gated on `valid`) | with `valid` false nothing is sent |
-| Ordinary Paused | Running | Restart (after the guard) | abandons the run |
-| Ordinary Paused | Menu | Menu (after the guard) | abandons the run, through the cut |
+| Ordinary Paused | Resuming | Resume or Back (gated: `valid` and `input_source == SENSOR`) | with the gate closed nothing is sent |
+| Ordinary Paused | Running | Restart (gated like Resume; then after the guard) | abandons the run; with the gate closed nothing is sent |
+| Ordinary Paused | Menu | Menu (never gated; after the guard) | abandons the run, through the cut; always available as the exit |
 | Settings | Menu | Back | values are already written, no revert |
 | Confirm-quit | the caller / app exit | Cancel or Back / QUIT | **one-way:** QUIT is the only path to `quit()` |
-| Failure | (retry) / confirm-quit | Retry (provisional, Run State Open Question 8) / Quit or Back | |
+| Failure | (retry) / confirm-quit | Retry (the loader retries `load_map`; its interface is provisional) / Quit or Back | a failed retry stays in Boot |
 | Failure | Menu | `phase` becomes Menu while the failure screen shows (a late map load) | the failure screen disappears by itself, no Retry press needed (user decision 2026-10-01) |
 
 ---
@@ -100,7 +101,7 @@ Hit (HUD) ──► Running | Menu
 | Screen | 1 (read first) | 2 | 3 | Discoverable |
 |---|---|---|---|---|
 | **Menu** | PLAY (largest, Lagoon accent) | why Play is dimmed (`Reconnecting…` / `No motion sensor`) | BEST | Settings (secondary); Quit only through Back |
-| **Ordinary Paused** | RESUME (largest, accent) | why Resume is dimmed | RESTART, MENU (secondary, small, set apart) | frozen score (HUD Z1) |
+| **Ordinary Paused** | RESUME (largest, accent) | why Resume and Restart are dimmed (same reason, two label slots) | RESTART (gated like Resume), MENU (never gated); secondary, small, set apart | frozen score (HUD Z1) |
 | **Settings** | the 5 controls, in 3 groups (input, feedback, accessibility) | Back | | |
 | **Confirm-quit** | the question `Quit Tube Rush?` | QUIT (inverted Ink, heaviest button) | Cancel | |
 | **Map-load-failure** | plain-language message | RETRY (primary) | Quit (secondary) | |
@@ -115,7 +116,7 @@ Arrangement chosen (user, 2026-10-01): **thumb-low** for Menu, **Resume low and 
 |---|---|---|
 | **Menu** | **M1 BEST** | Top-centre, 16 dp below the top safe edge. Pill 200×44, value 24 sp, tag `BEST` 14 sp. No accent; clearly smaller than Play. What it shows when the stored best is 0 (first run) is decided in States & Variants |
 | | **M2 Play group** | Centred. Play pill **240×72** (Lagoon accent, bold label). 8 dp below it, space reserved for the sensor label pill (28 dp, one line, shown only while `valid` is false). 16 dp below that, the Settings pill 160×48. The group ends 96 dp above the safe bottom edge, so Play's centre is at `min(0.70 × H, H − 232)` (H = 640: 408, 64%; H = 800: 560; H = 900: 630) |
-| **Ordinary Paused** | **P1 Abandon row** | Restart and Menu: two text pills **128×48**, 24 dp apart (280 dp in all, edge-to-edge 40 dp at 360 dp wide), centred at 45% H. One shared `PAUSE_INPUT_GUARD` clock drives both readying fills, so they finish together |
+| **Ordinary Paused** | **P1 Abandon row** | Restart and Menu: two text pills **128×48**, 24 dp apart (280 dp in all, edge-to-edge 40 dp at 360 dp wide), centred at 45% H. One shared `PAUSE_INPUT_GUARD` clock drives both readying fills, so they finish together. **Restart reason-label slot (C3):** one 28 dp label slot, centred under the P1 row and 8 dp below it, one line, reserved always so nothing moves; shown only while Restart is gated (same strings and rule as the Resume label). Menu is never dimmed, so a dimmed Restart beside a full-opacity Menu tells the label's subject. The 80 dp clearance below is measured between **pills** (the slot is not interactive); exact placement is Open Question 14 |
 | | **P2 Resume group** | Resume pill 240×72 (accent) with the reserved 28 dp sensor label slot under it. Centre at `min(0.70 × H, H − 168)` (H = 640: 448). The gap from P1 to Resume is at least 80 dp (H = 640: 100 dp) so a Resume tap cannot land on an abandon action |
 | | HUD layer | Z1 stays visible, frozen, top-left (84 dp high, 170 dp wide). Z2, Z4, Z5 are hidden. P1 and P2 never reach the top 92 dp, so Menus' screen does not cover Z1 (**resolves `hud.md` Open Question 12**) |
 | **Confirm-quit** | **Q1 Card** | Ink scrim at about 60% over the whole screen (heavier than any other overlay). Card 300 dp wide, centre at 50% H, title `Quit Tube Rush?` 24 sp. Two buttons **stacked**, each 252×48, 12 dp apart: **QUIT** (inverted: solid Ink, Rim White text) on top, **Cancel** (house pill) below. The safe option sits nearest the thumb, so a stray tap cancels instead of quitting |
@@ -132,7 +133,7 @@ Arrangement chosen (user, 2026-10-01): **thumb-low** for Menu, **Resume low and 
 | **Primary action pill** (240×72, Lagoon accent, bold Ink label) | Play, Resume; Retry (252×64) | Yes | **New** (art bible §7; add to the library) |
 | **Secondary action pill** (Rim White 85%, Ink label, no accent) | Settings, Restart, Menu, Quit, Cancel, Back | Yes | **New** |
 | **Inverted confirm pill** (solid Ink, Rim White label) | QUIT only | Yes | **New**, one-off (art bible §7, irreversible action) |
-| **Label pill** (16 sp, one line) | sensor reason under Play and Resume | No | Reused from `hud.md` |
+| **Label pill** (16 sp, one line) | sensor reason under Play and Resume, and under the Paused P1 row for Restart | No | Reused from `hud.md` |
 | **BEST pill** | Menu M1 | No | Reused from `hud.md`, larger |
 | **Readying underline** (Lagoon 3 dp, left to right along the pill base, label 65% to 100%) | Restart, Menu in Paused | No (cosmetic) | **New** (the pill counterpart of the HUD's circular fill) |
 | **Toggle** (round knob, pill track) | `haptics_enabled`, `reduced_motion_enabled`, `colorblind_safe_enabled` | Yes | **New** |
@@ -170,8 +171,8 @@ Ordinary Paused (H = 640):
 │                        │
 │                        │
 │  [RESTART]   [ MENU ]  │  P1, 128x48 each, 45% H, readying underline
-│                        │
-│          ↓ >= 80 dp    │
+│   [ label slot ]       │  Restart reason (only while gated)
+│          ↓ >= 80 dp    │  (pill to pill)
 │  ╭──────────────────╮  │
 │  │      RESUME      │  │  P2, 240x72, 70% H
 │  ╰──────────────────╯  │
@@ -217,22 +218,24 @@ Settings:
 
 ## States & Variants
 
-Sensor strings are the HUD's (`Reconnecting…`, `No motion sensor`, each at most 24 characters).
+Sensor strings are the HUD's (`Reconnecting…`, `No motion sensor`, each at most 24 characters). **Gate condition (all Gated rows):** a control is gated unless `valid` is true **and** `input_source == SENSOR`; a not-`SENSOR` source with `valid` true reuses the `No motion sensor` look and label (dimmed, no pulse).
 
 | Screen | State / variant | Trigger | What changes |
 |---|---|---|---|
-| **Menu** | Default | `valid` true | Play primary, full opacity |
+| **Menu** | Default | `valid` true and `input_source` `SENSOR` | Play primary, full opacity |
 | | Gated: Reconnecting | `valid` false, `state` Acquiring | Play dimmed to about 45%; the pill's Lagoon outline pulses (1.2 s period, at most 1 Hz); label pill `Reconnecting…`. A tap on Play sends nothing |
 | | Gated: No sensor | `valid` false, `state` Unavailable | Play dimmed to about 45%, no pulse; label pill `No motion sensor` |
+| | Gated: not a sensor source | `valid` true, `input_source` not `SENSOR` (no MVP driver produces it today) | As No sensor: Play dimmed, no pulse, label `No motion sensor`. A tap on Play sends nothing |
 | | BEST empty | stored best is 0 (first run) | The BEST pill is hidden (same rule as the HUD); a first-run Menu shows only Play and Settings (user decision 2026-10-01) |
-| **Ordinary Paused** | Default | `valid` true | Resume primary; Restart and Menu show the readying underline for `PAUSE_INPUT_GUARD` (0.3 s), then settle at full opacity |
-| | Resume gated | `valid` false | Resume dimmed with the label pill as on Menu; Android Back sends nothing either |
+| **Ordinary Paused** | Default | `valid` true and `input_source` `SENSOR` | Resume primary; Restart and Menu show the readying underline for `PAUSE_INPUT_GUARD` (0.3 s), then settle at full opacity |
+| | Resume and Restart gated | the gate condition fails (`valid` false, or `input_source` not `SENSOR`) | Resume and Restart dimmed to about 45%, each with its label pill (Resume's under Resume, Restart's in the P1 slot; pulse only while `state` Acquiring); Android Back sends nothing either. The Restart readying underline is not drawn while gated (the gated look takes precedence). **Menu stays at full opacity and tappable** (the exit) |
+| | Restart readying | gate open, inside `PAUSE_INPUT_GUARD` | Underline fill on Restart and Menu as in Default; a tap is forwarded and Run State's guard filters it. Visually distinct from the gated look (underline and 65% to 100% label, not a 45% dim with a label) |
 | **Settings** | Default | opened from Menu | Values come from the getters when the screen opens; no loading state |
 | | Haptics off | `haptics_enabled` false | `haptics_intensity` dimmed (no pulse, no label: nothing is resolving) |
 | | Write failed | `set_value` returns false | No error is shown; the value still changes for the session (Settings AC-14) and one line is logged |
 | **Confirm-quit** | Default | Back on Menu or failure | One state only; Back again acts as Cancel |
 | **Map-load-failure** | Default | Boot longer than `MAP_LOAD_TIMEOUT` | Message, Retry, Quit. Leaves by itself if `phase` becomes Menu |
-| | Retrying (provisional, Run State Open Question 8) | tap Retry | Retry dimmed with the outline pulse until `phase` changes or the timeout runs out again, then the failure screen shows again |
+| | Retrying (loader interface provisional) | tap Retry | The loader retries `load_map` and sends `map_ready` only on success. Retry dimmed with the outline pulse until `phase` changes (the screen then leaves by itself) or the timeout runs out again, then the failure screen shows again (a failed load stays in Boot) |
 | **Boot, loading** | no screen of this system | Boot under the timeout | The engine splash, then a plain Ink background (no pill, no spinner). Menu appears when `phase` is Menu (user decision 2026-10-01) |
 
 **Platform variants.**
@@ -248,9 +251,10 @@ Touch only (Android, portrait): no hover, keyboard or gamepad. Every button acti
 
 | Component | Action | Feedback | Outcome |
 |---|---|---|---|
-| **Play** | tap (release inside) | press scale, haptic `UI_TAP` | `start_requested`, through the Ink cut. **Gated:** with `valid` false nothing is sent, no haptic, no press feedback |
-| **Resume**, **Back in Paused** | tap / Back | as Play | `resume_requested`. Gated the same way when `valid` is false |
-| **Restart**, **Menu** (Paused) | tap, `press_us` stamped on press-down | as Play | `restart_requested(press_us)` / `menu_requested(press_us)`; always forwarded, the guard belongs to Run State |
+| **Play** | tap (release inside) | press scale, haptic `UI_TAP` | `start_requested`, through the Ink cut. **Gated:** unless `valid` is true and `input_source == SENSOR`, nothing is sent, no haptic, no press feedback |
+| **Resume**, **Back in Paused** | tap / Back | as Play | `resume_requested`. Gated the same way (the same condition) |
+| **Restart** (Paused) | tap, `press_us` stamped on press-down | as Play | `restart_requested(press_us)` when the gate is open; the guard belongs to Run State. **Gated** like Play: nothing sent, no haptic, no press feedback, dimmed with a reason label |
+| **Menu** (Paused) | tap, `press_us` stamped on press-down | as Play | `menu_requested(press_us)`; **never gated** (always forwarded, the guard belongs to Run State) |
 | **Settings** (Menu) | tap | as Play | opens the Settings screen |
 | **Toggle** | tap | knob slides, haptic | `set_value(key, bool)` at once |
 | **Slider** | drag the thumb | the Lagoon fill follows the finger | one `set_value(key, value)` and one `UI_TAP` **on release** (user decision 2026-10-01); nothing is written while dragging |
@@ -268,13 +272,14 @@ Touch only (Android, portrait): no hover, keyboard or gamepad. Every button acti
 
 | Player action | Event / request | Payload | Notes |
 |---|---|---|---|
-| Play (with `valid`) | `start_requested` | none | plus haptic `UI_TAP` |
-| Resume, Back in Paused (with `valid`) | `resume_requested` | none | |
-| Restart / Menu | `restart_requested` / `menu_requested` | `press_us` | |
+| Play (gate open: `valid` and `input_source == SENSOR`) | `start_requested` | none | plus haptic `UI_TAP` |
+| Resume, Back in Paused (gate open) | `resume_requested` | none | |
+| Restart (gate open) | `restart_requested` | `press_us` | plus haptic `UI_TAP` |
+| Menu | `menu_requested` | `press_us` | never gated; plus haptic `UI_TAP` |
 | Change a setting | `set_value(key, value)` | key, value | **Changes persistent state** (written through Settings & Accessibility to Save & Persistence): architecture should note it |
 | Confirm QUIT | `quit()` | none | the only path to `quit()` |
 | Every other on-screen tap | haptic `UI_TAP` only | | |
-| A gated tap, any hardware Back | none, no haptic | | deliberate (Core Rule 7) |
+| A gated tap (Play, Resume, Restart), any hardware Back | none, no haptic | | deliberate (Core Rule 7); a gated Restart tap is treated like a gated Play tap |
 | Analytics | **none** | | the project has no analytics system yet; omitted on purpose |
 
 ---
@@ -307,7 +312,7 @@ The UI owns no game state. The overlay flags `settings_open` and `confirm_quit_o
 | Data | Source (owner) | Read / Write | Update | If unavailable |
 |---|---|---|---|---|
 | `phase`, `run_paused(source)` | Run State & Restart | Read | pushed events | keep the current screen |
-| `valid`, `state`, `input_source` | Tilt Input | Read | pulled every tick | seam missing: treated as `valid` false with `No motion sensor` |
+| `valid`, `state`, `input_source` | Tilt Input | Read | pulled every tick | seam missing: treated as `valid` false with `No motion sensor`. `input_source` is a gate input, not only a label input: every gate needs `valid` true **and** `input_source == SENSOR`; a not-`SENSOR` source shows `No motion sensor` |
 | `personal_best` | Scoring & Personal Best | Read | pulled on every entry to Menu (no push event) | 0 or unreadable: the BEST pill is hidden |
 | The 5 settings values | Settings & Accessibility | Read and Write (`set_value`) | read when Settings opens | each key falls back to its own default (Settings contract) |
 | `back_pressed` | Platform Services | Read | event | n/a |
@@ -328,8 +333,8 @@ No `design/accessibility-requirements.md` exists, so there is no committed tier.
 | Colour independence | Toggle: knob position plus fill. Primary versus secondary: size plus accent. Gated: dimming plus a text label (the reason label is always at full opacity). Nothing relies on Lagoon versus Ink alone |
 | Text size | Play, Resume, Retry 28 sp bold; secondary buttons and Settings rows 16 sp; group headings 14 sp; dialog title 24 sp; failure message 20 sp. OS text scaling is **not** honoured (same deliberate exception to WCAG 1.4.4 as the HUD) |
 | Motion | Only the Ink cut, the dialog entrance, the readying underline, the outline pulse (at most 1 Hz), toggle slides and the press scale. No flashing |
-| Screen reader | **Proposed names, non-binding until AccessKit on 4.7.2 is verified:** `Play` (with the reason when gated), `Resume`, `Restart`, `Menu`, `Settings`; toggles as switches announcing on or off; sliders announcing a percentage; the confirm-quit dialog and the failure message as alerts, with focus on Cancel in the dialog |
-| Reading order (proposed, same caveat) | Menu: BEST, Play, reason label, Settings. Paused: Restart, Menu, Resume, reason label. Settings: title, the list in order, Back. Dialog: title, Cancel, QUIT. Failure: message, Retry, Quit (Android) |
+| Screen reader | **Proposed names, non-binding until AccessKit on 4.7.2 is verified:** `Play` (with the reason when gated), `Resume` and `Restart` (each with the reason when gated), `Menu` (never gated), `Settings`; toggles as switches announcing on or off; sliders announcing a percentage; the confirm-quit dialog and the failure message as alerts, with focus on Cancel in the dialog |
+| Reading order (proposed, same caveat) | Menu: BEST, Play, reason label, Settings. Paused: Restart (with the reason when gated), Menu, Restart reason label (P1 slot, only while gated), Resume (with the reason when gated), Resume reason label. Settings: title, the list in order, Back. Dialog: title, Cancel, QUIT. Failure: message, Retry, Quit (Android) |
 | Single-handed | The primary actions sit lower-centre within thumb reach; Settings is a vertical scroll with one finger; the abandon actions are set apart from Resume on purpose |
 
 ---
@@ -367,16 +372,16 @@ Numbers: BEST shows plain digits with no thousands separator, as the HUD (widths
 
 ## Acceptance Criteria
 
-Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a notched phone, a tablet in portrait, and the 360×560 dp minimum). Evidence in `production/qa/evidence/menus-screen-flow/`. Behavior and gating logic stay tested in `design/gdd/menus-screen-flow.md` (AC-1 to AC-26, MENU-1 to MENU-4).
+Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a notched phone, a tablet in portrait, and the 360×560 dp minimum). Evidence in `production/qa/evidence/menus-screen-flow/`. Behavior and gating logic stay tested in `design/gdd/menus-screen-flow.md` (AC-1 to AC-27, MENU-1 to MENU-4).
 
 - **MN-1 Performance:** every screen shows on the tick its phase begins; Menu shows within 100 ms of `phase` becoming Menu; Settings opens within one frame (no loading state); the confirm-quit entrance takes about 240 ms. All these screens together add at most 25 draw calls and 1.0 ms per tick on a mid-tier Android device (starting values, replaced by measurement; the project budget is 150 draw calls and 16.6 ms).
-- **MN-2 Gating:** with the sensor off (or `valid` simulated false), 10 taps on Play start no run, give no haptic and no press feedback, and the label `Reconnecting…` or `No motion sensor` shows correctly. The same holds for Resume and for Android Back in Paused.
-- **MN-3 Back (Android):** Menu opens confirm-quit; confirm-quit closes; Settings closes (and does not open confirm-quit); Paused acts like Resume (gated); Hit goes to Menu; Boot while loading does nothing; the failure screen opens confirm-quit. No Back press calls `quit()` or gives a haptic.
+- **MN-2 Gating:** with the sensor off (or `valid` simulated false, or `valid` true with `input_source` simulated not `SENSOR`), 10 taps on Play start no run, give no haptic and no press feedback, and the label `Reconnecting…` or `No motion sensor` shows correctly (a not-`SENSOR` source shows `No motion sensor`). The same holds for Resume, for Restart (dimmed, its label in the P1 slot, nothing sent, no abandoned run) and for Android Back in Paused. Menu in Paused stays tappable and works in the same state.
+- **MN-3 Back (Android):** Menu opens confirm-quit; confirm-quit closes; Settings closes (and does not open confirm-quit); Paused acts like Resume (gated on `valid` and `input_source == SENSOR`); Hit goes to Menu; Boot while loading does nothing; the failure screen opens confirm-quit. No Back press calls `quit()` or gives a haptic.
 - **MN-4 Quit:** `quit()` runs only through the QUIT button; Cancel, Back and a tap on the scrim never quit (a tap on the scrim does nothing). QUIT sits above Cancel and Cancel is nearest the thumb.
-- **MN-5 Safe abandon:** Restart and Menu in Paused are at least 80 dp from Resume (measured on screen); the readying underline runs for 0.3 s from every entry to Paused; a tap inside that window does not abandon the run and a tap after it does.
+- **MN-5 Safe abandon:** Restart and Menu in Paused are at least 80 dp from Resume (measured on screen); the readying underline runs for 0.3 s from every entry to Paused; with the sensor ready, a tap inside that window does not abandon the run and a tap after it does (with the gate closed Restart abandons nothing at any time, while Menu always can after the window); the Restart reason-label slot is reserved so no pill moves when it appears.
 - **MN-6 Layout:** at 360×640, 360×800, 412×915 and 360×560, no element lies outside the safe area, every button ends at least 96 dp above the safe bottom edge, no interactive element lies within 40 dp of the left or right safe edge, and every hit area is at least 48 dp.
 - **MN-7 Empty state:** on the very first run (stored best 0) Menu shows no BEST pill; after the first run it shows BEST with the right score.
-- **MN-8 Failure:** a Boot longer than `MAP_LOAD_TIMEOUT` shows the message and Retry and Quit; if `phase` becomes Menu the failure screen disappears by itself; Retry sends nothing but the haptic until a loader exists (provisional).
+- **MN-8 Failure:** a Boot longer than `MAP_LOAD_TIMEOUT` shows the message and Retry and Quit; if `phase` becomes Menu the failure screen disappears by itself; Retry sends nothing but the haptic until a loader exists (provisional; the contract is that the loader retries `load_map` and sends `map_ready` only on success).
 - **MN-9 Settings:** a toggled value is still set after closing and reopening the app; a slider writes once, on release; switching haptics off dims `haptics_intensity`; there is no Save, Apply or Cancel control; all 5 rows can be reached by scrolling at 360×560.
 - **MN-10 Cut:** the Menu↔Running cut hides at least one frame in both directions, no tube geometry is seen jumping, the cover sits above the HUD, and it cannot be confused with the white hit flash.
 - **MN-11 Accessibility:** contrast of Ink on the pills is at least 7:1 over three backdrops (same method as HUD AC-22); every state can be told apart in a greyscale screenshot; text sizes match the Accessibility table.
@@ -390,7 +395,7 @@ Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a not
 |---|----------|-------|--------------|
 | 1 | No `design/player-journey.md`: the arrival states are assumptions. Template at `.claude/docs/templates/player-journey.md` | user, ux-designer | Before `/gate-check pre-production` |
 | 2 | No `design/accessibility-requirements.md`: the tier is not committed; WCAG-AA is the baseline | user, accessibility-specialist | Before `/gate-check pre-production` |
-| 3 | Retry and the Retrying look are provisional until Run State's Open Question 8 (who sends `map_ready`) is resolved | whoever authors the map loader | When that system is authored |
+| 3 | Retry and the Retrying look: the contract is decided (the loader retries `load_map`, sends `map_ready` only on success, a failed load stays in Boot) but the loader's interface is provisional until Run State's Open Question 8 is resolved | whoever authors the map loader | When that system is authored |
 | 4 | SUPERSEDED 2026-10-01: the project is Android-only, so `quit()` applies everywhere and the GDD needs no platform split | — | Superseded |
 | 5 | No game name or wordmark on Menu (the name is a working title); a reserved area is not drawn | user, art-director | When the name and branding are final |
 | 6 | AccessKit names, roles and reading order on 4.7.2 are unverified (proposal only) | accessibility-specialist, godot-specialist | Vertical slice |
@@ -398,6 +403,7 @@ Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a not
 | 8 | Boot splash colour must equal Ink so the hand-off from the engine splash to the Ink background shows no flash | godot-specialist | `project.godot` setup |
 | 9 | dp to viewport-unit conversion needs an ADR (shared with `hud.md` Open Question 9) | technical-director, godot-specialist | Before the first UI story |
 | 10 | No left-handed mirroring in the MVP (as `hud.md` Open Question 5) | user | Post-MVP |
-| 11 | No distinct copy for "device not supported" (sensor Unavailable and never Live); this spec reuses `No motion sensor` | ux-designer, writer | Before first-playable |
+| 11 | No distinct copy for "device not supported" (sensor Unavailable and never Live) or for a not-`SENSOR` `input_source` with `valid` true (the gate is closed, C2); this spec reuses `No motion sensor` for both | ux-designer, writer | Before first-playable |
 | 12 | `tilt_sensitivity` is adjusted blind (Settings has no motion preview); a preview may be needed | user, game-designer | First-playable playtest |
 | 13 | DONE 2026-10-01 (`design/ux/interaction-patterns.md`, 20 patterns): the new patterns in the Component Inventory (primary / secondary / inverted pill, readying underline, toggle, slider, modal card, scroll list, Ink cover) belong in `design/ux/interaction-patterns.md`, together with the HUD's candidates | ux-designer | `/ux-design patterns` |
+| 14 | Placement of the gated Restart's reason label (C3): proposed as one reserved 28 dp line centred under the P1 row, 8 dp below it. At H = 640 that leaves about 64 dp between the slot and the Resume pill (100 dp pill to pill, which still meets the 80 dp rule measured between pills); a centred label under two pills could also read as describing Menu, which the full-opacity Menu mitigates. Alternatives: a label inside the Restart pill (does not fit 128 dp at 16 sp with `No motion sensor`), or one shared label for Resume and Restart | user, ux-designer | Next `/ux-review`, or before the first UI story |
