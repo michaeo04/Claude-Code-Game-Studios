@@ -37,3 +37,18 @@ are unedited. Run State needs an F5 read accessor, and its note that the *last* 
 contradict an upstream doc or make an AC untestable; lean re-review; hard cap of 2 passes, after which leftovers
 go to the user as decisions.
 Prior verdict resolved: First review
+
+## Review — 2026-10-01 — Verdict: NEEDS REVISION (minor; resolved same session)
+Scope signal: M
+Specialists: none (lean re-review, single session)
+Blocking items: 2 | Recommended: 5 | Nice-to-have: 2
+Summary: The 9 prior blockers hold up against `run-state-restart.md` and `scoring-personal-best.md`. Two mechanical
+blockers: (1) AC-8 tested a Hit to Resuming transition that Run State does not have (Hit exits only to Running or
+Menu); rewritten. (2) `scoring-personal-best.md` still said the banner "always shows" and called `milestone_crossed`
+provisional for HUD; both rows corrected. Recommended, all applied: a defensive `No motion sensor` label when `valid`
+is false in Hit with the latch unset (Rule 7, AC-10); the swallow cue is now the text `Sensor not ready` with no timer
+(Rule 6, AC-9); `valid` is read at tap handling, not at `press_us`; Run State's `menu_requested` row, HUD row and
+stale Open Question 3 line updated; the Tuning Knobs and UI Requirements wording tidied. The Tilt Input "Hard" vs
+combined-row note was reviewed and left as is (Tilt's own row already names HUD as a consumer of `valid`/`state`).
+User decision: keep the banner Hit-only (an abandoned run's banner is cleared with the phase change to Menu).
+Prior verdict resolved: Yes (9 of 9). Two-pass cap reached; next gate is `/ux-design`.
