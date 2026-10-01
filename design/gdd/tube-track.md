@@ -8,7 +8,7 @@
 > `SEAM_RELIEF` and the `RELIEF` code removed), and `SEAM_CONTRAST_MAX` is 1.25; the readable
 > criterion (`F_read`) was handed to Environment & Theming. `F_read` and `d_cam` are now both resolved (`environment-theming.md`
 > and `camera.md`, 2026-09-29 — Open Questions 7 and 10). Provisional inputs (`v_max`, the seam band) still
-> await an on-device test (Open Questions 12, 13, 14).
+> await an on-device test (Open Questions 12, 13, 14). Revised 2026-10-01 after `/review-all-gdds` (C1, S3, S4): defaults A = 9 and N = 12 at F = 84, load failure keeps Uninitialized, `seam_contrast_scale` read every frame.
 > **Author**: user + agents
 > **Last Updated**: 2026-09-20
 > **Supports Pillar**: Pillar 1 (Instant Readability); Pillar 2 (Fair but Merciless
@@ -185,7 +185,10 @@ the horizon, or a tube surface so busy that it competes with hazards for attenti
    1.25, against 1.22 at 1.5). A
    runtime multiplier `seam_contrast_scale` in [0, 1] from Settings & Accessibility
    (reduced motion) scales seam contrast; at 0 the seams match the tube surface: reduced motion
-   outranks the speed cue, which the other cues carry.
+   outranks the speed cue, which the other cues carry. Tube Track reads `seam_contrast_scale` **every
+   frame** (the view node samples Settings' getter each frame, and also reacts to `setting_changed`), so a
+   change of `reduced_motion_enabled` takes effect immediately, including while Settings is open over
+   the Menu (review item S4).
 10. **Deterministic.** Given the same `MapConfig` and segment index, segment content is
     identical. Tube Track uses no randomness.
 11. **Idle scroll.** When no run is active (menu), Tube Track scrolls slowly at
@@ -243,14 +246,18 @@ unit-testable).** Not an autoload.
 window `-B .. A` around it in one call, emits `window_primed`, and enters Running. `load_map()` and
 `to_idle()` are synchronous operations of the same kind (rule 11, Idle window): each primes
 `-B .. A` at `s_idle = 0`, emits `window_primed`, then enters Idle. A `load_map()` that fails
-validation does none of this: no binder call, no signal, state stays Uninitialized.
+validation does none of this: no binder call, no signal, state stays Uninitialized. `load_map` is
+accepted **only from Uninitialized**, and a Tube Track whose `load_map` failed validation is still
+Uninitialized, so the map loader may call `load_map` again (Retry) from that state; every other event is
+rejected meanwhile. The caller of `load_map` is the map loader, not Tube Track's Run State adapter: the
+loader sends `map_ready` to Run State only after `load_map` succeeded (review item S3).
 
 Accepted transitions (16 of the 40 state/event pairs). Every other pair is rejected: no
 state change, no signal, one error in the log sink.
 
 | From | Event | To |
 |------|-------|----|
-| Uninitialized | `load_map(config)` | Idle (stays Uninitialized and reports errors if `validate()` fails) |
+| Uninitialized | `load_map(config)` | Idle (stays Uninitialized and reports errors if `validate()` fails; a retry from Uninitialized is accepted) |
 | Idle | `begin_run()` | Running |
 | Idle | `unload_map()` | Uninitialized |
 | Running | `advance(s)` | Running |
@@ -296,12 +303,13 @@ All interfaces below are **provisional** until the other systems have GDDs.
 | System | Direction | Data / events | Interface owner |
 |--------|-----------|---------------|-----------------|
 | Run State & Restart | in | events that map to `begin_run`, `pause`, `resume`, `end_run`, `to_idle` (names provisional) | Run State defines the events |
+| Map loader (Boot) | in | `load_map(config)` (validates); on success the loader sends `map_ready` to Run State, on failure nothing is sent and Tube Track stays Uninitialized (Retry calls `load_map` again) | The loader owns the call and the `map_ready` signal; Tube Track owns the validation |
 | Ball Movement | in / out | in: `advance(s)` each frame (single caller). out: `P`, `R`, surface normal, `delta_theta`, state | Tube Track owns the frame; Ball Movement owns speed, `v_max` and the `s` value |
 | Obstacle System | out | the frame; `window_primed`, `segment_entered_window`, `segment_left_window`, `state_changed` | Tube Track owns the events; Obstacle System owns hazard lifecycle |
 | Pattern & Difficulty | out | the same events; `SEGMENT_LENGTH`; the guarantee that the ahead window reaches beyond `F` (rule 7); in: `T_dodge_worst` for F9 | as above |
 | Camera | out / in | out: `R`, the tube axis; in: `rear_extent` and `camera_distance` (`d_cam`, the camera-to-ball distance) as configuration values published at map load | Camera owns its offsets, `rear_extent` and `camera_distance` |
 | Environment & Theming | in (via `MapConfig`) | `seam_pattern_id`, `fog_mode`, `fog_depth_begin`, `fog_end_distance` (`F`, radial from the camera), `fog_depth_curve`, `fog_density`, `fog_color`, `readable_distance` (`F_read`, radial from the camera); Theming applies colors and materials; owns fog range, the readable criterion and speed-driven fog | Theming owns the values; Tube Track documents the fields it reads and validates derived constraints |
-| Settings & Accessibility | in | `seam_contrast_scale` (reduced motion), soft dependency | Settings owns the value |
+| Settings & Accessibility | in | `seam_contrast_scale` (reduced motion), sampled every frame (or on `setting_changed`), so it takes effect immediately; soft dependency | Settings owns the value |
 | Juice & Feedback | out | the frame for surface-anchored effects (ring pulse at the ball's position) | Juice owns the effects |
 
 Provisional assumptions to re-check when the other GDDs exist: whether Pattern &
@@ -311,12 +319,16 @@ event names and who calls `begin_run()` are settled in `run-state-restart.md`.)
 
 ## Formulas
 
-All worked examples use the proposed defaults (R = 3.0, D = 0.8, L = 12, A = 6, B = 2,
-n_seams = 1, F = 48, F_read = 46, d_cam = 8, v_max = 25, t_lat = 0.1). Defaults are proposals; see
-Tuning Knobs. (`F_read` was 40 before review 3; with `d_cam` in F9 that gives 1.28 s, below
-`T_VIS_MIN`. 46 and 48 leave a 2 u ramp, which is a fog wall: both are placeholders until
-Environment & Theming and the art-director set the readable criterion, Open Question 10.)
-**RESOLVED 2026-09-29 (`environment-theming.md` F1), with a real correction, not just a value fill-in**: the readable criterion is a fog-opacity-vs-contrast derivation, and solving it shows the `F` = 48 default above is itself physically incompatible with `F_read` = 46 — a 2 u gap cannot carry fog from ~0% to 100% opacity. The real requirement is `fog_depth_begin` ≈ 44 and `fog_end_distance` (`F`) ≈ 84 (a 40 u ramp), which reproduces `F_read` ≈ 46.02 almost exactly. **`F` should be corrected from 48 to 84 in this GDD's own shipped defaults and Tuning Knobs**; this has *not yet* been propagated into the worked-example table below (Formula F3's own "F = 48 | default" row and its "horizon 72 against fog 48" annotation) or any AC that computes window/horizon math from the old F = 48 — that propagation is a dedicated follow-up pass, tracked in Open Questions, not completed as a side effect of this cross-file note. `fog_depth_begin` is a genuinely new field this GDD did not previously name; `environment-theming.md`'s own F1 is its source of truth going forward.
+All worked examples use the proposed defaults (R = 3.0, D = 0.8, L = 12, A = 9, B = 2, N = 12,
+n_seams = 1, F = 84, F_read = 46.00, d_cam = 8, v_max = 25, t_lat = 0.1). Defaults are proposals; see
+Tuning Knobs. `F` = 84 is Environment & Theming's `fog_end_distance` for Map 1 (with `fog_depth_begin`
+= 44, a 40 u ramp) and `F_read` is the readable distance **at v_max**: `F_read(v) = fog_depth_begin + 0.0555
+* (F(v) - fog_depth_begin)` (`environment-theming.md` F1/F2). The speed pull gives `F(v_max)` = 84 - 4 =
+80, so `F_read(v_max)` = 44 + 0.0555 * 36 = 45.998, about 46.00 (46.22 at rest, `V_START`). F3 sizes the window
+on the largest `F`, the resting 84; F9 uses the v_max value 46.00. **RESOLVED 2026-10-01 (review item C1):**
+the earlier 48 / 46 pair (a 2 u ramp, a fog wall) was physically impossible and is replaced by 84 / 46.00
+in every example, table and AC of this GDD; `environment-theming.md` F1 is the source. `fog_depth_begin` is
+a field this GDD gained from that derivation, and Environment & Theming's own F1 is its source of truth.
 Numbers marked "guess" have no measured basis yet. **`v_max = 25` is an unvalidated
 external contract** (Ball Movement owns the real value; the concept prototype ran at 6.0
 u/s), and every example that uses it is "at v_max = 25". Tube Track asserts its
@@ -334,7 +346,7 @@ v_max-dependent constraints when a map loads.
 | Segments ahead / behind | A, B | int | A <= A_MAX = 12, B <= B_MAX = 3 | `SEGMENTS_AHEAD` / `SEGMENTS_BEHIND` |
 | Pool size | N | int | A + B + 1 <= N_MAX = 16 | number of window slots |
 | Fog end distance | F | float | derived range (F3) | `fog_depth_end`, radial distance from the camera eye; largest fog end distance across speeds; opacity 100% there (needs `fog_density = 1.0` and depth fog mode); used only for the window size |
-| Readable distance | F_read | float | resolved, 46.22 at Map 1 defaults (`environment-theming.md` F1) | radial distance from the camera eye at `v_max` up to which a hazard is still readable through fog; the criterion (a hazard/tube contrast floor after fog blending) is set by Environment & Theming and the art-director, not by Tube Track (F9, Open Question 10, resolved) |
+| Readable distance | F_read | float | resolved: 46.22 at rest and 46.00 at v_max on Map 1 (`environment-theming.md` F1/F2); F9 uses the v_max value | radial distance from the camera eye at `v_max` up to which a hazard is still readable through fog; the criterion (a hazard/tube contrast floor after fog blending) is set by Environment & Theming and the art-director, not by Tube Track (F9, Open Question 10, resolved) |
 | Camera distance | d_cam | float | 8 (guess; Camera owns) | distance from the camera eye to the ball, published by Camera at map load; converts `F_read` to a distance ahead of the ball (F9); the same estimate as F4's `d` |
 | Max speed | v_max | float | finite and > 0; 25 u/s (confirmed as design intent 2026-09-22, provisional pending the device spike) | Ball Movement owns the real value |
 | Step margin | t_lat | float | 0.05-0.25 s, default 0.1 (guess) | the shared `DT_MAX`, the caller's per-frame time-step clamp (Run State & Restart uses it in its F1; its owner is settled in the Ball Movement GDD, Run State Open Question 9) |
@@ -385,9 +397,10 @@ Examples at L = 12, v_max = 25, t_lat = 0.1, C_b = 6, M_cam = 2 (B >= 1, default
 | L | F | A required | Note |
 |---|---|-----------|------|
 | 12 | 37.5 | 5 | F3 alone; the minimum loadable F at v_max = 25 is 45.5 (F9, `d_cam` = 8), which also gives A = 5 |
-| 12 | 48 | 6 | default; horizon 72 against fog 48; N = 9 |
+| 12 | 84 | 9 | default (Map 1): ceil(86.5 / 12) + 1 = 9; horizon 108 against fog 84; N = 9 + 2 + 1 = 12 |
 | 12 | 129.5 | 12 | maximum F that fits A_MAX |
-| 6 | 48 | 10 | B >= 2 at L = 6 |
+| 6 | 48 | 10 | B >= 2 at L = 6; F3 alone, not a Map 1 value |
+| 9 | 84 | 11 | `L_min` at v_max = 25: ceil(86.5 / 9) + 1 = 11; N = 14 |
 | 6 | 100 | 19 | rejected (> A_MAX) |
 | 24 | 37.5 | 3 | B >= 1 |
 
@@ -502,7 +515,9 @@ with the range printed, and does not also report `VISIBILITY` or `A_TOO_LARGE`, 
 consequences of the empty range.
 Example at v_max = 25, L = 12, d_cam = 8, t_lat = 0.1: F_min = 1.5 * 25 + 8 = 45.5 and F_max =
 129.5; `F_read` = 20 gives T_vis = (20 - 8) / 25 = 0.48 s and is rejected; `F_read` = 45 gives 1.48 s
-and is rejected; `F_read` = 46 (F = 48, the default) gives 1.52 s.
+and is rejected; `F_read` = 46.00 (F = 84, the default, the v_max value from `environment-theming.md` F2)
+gives (46.00 - 8) / 25 = 1.52 s, a margin of 0.02 s over `T_VIS_MIN` (the exact 45.998 gives 1.5199 s). The
+resting 46.22 would give 1.529 s, but F9 is a v_max budget, so the 46.00 value is the one validated.
 
 ## Edge Cases
 
@@ -579,6 +594,9 @@ range of F reports `NO_VALID_F` and suppresses `VISIBILITY` and `A_TOO_LARGE`; b
   then `state_changed`. The seam phase can jump by up to `SP` here too (Open Question 9).
 - **If `load_map()` succeeds**: the window is primed at `-B .. A` before Idle is entered, so the
   menu never shows an unbound tube.
+- **If `load_map()` fails validation**: no binder call, no signal, state stays Uninitialized and the
+  failure codes are returned to the map loader, which sends no `map_ready`. A later `load_map()` from
+  Uninitialized (Retry) is accepted; from any other state it is rejected with one error.
 - **If the map is unloaded while Running**: go to Uninitialized, release every slot binding,
   and emit `state_changed`.
 
@@ -595,8 +613,9 @@ are contracts rather than code dependencies, and several dependents.
 | `v_max` | Ball Movement (external contract) | F3, F5, F9 validation at map load | Confirmed as design intent 2026-09-22 (ball-movement.md Open Question 12); still provisional pending BM-1/BM-2 (the device spike). Environment & Theming's `F_read` is no longer a provisional input — resolved 2026-09-29 |
 | `rear_extent`, `camera_distance` (`d_cam`) | Camera, as configuration values published when a map loads | Checks `SEGMENTS_BEHIND` (F3); converts `F_read` to a distance ahead of the ball (F9) | Config values, not runtime calls, so Camera can depend on Tube Track without a cycle |
 | `MapConfig`: `seam_pattern_id`, `fog_mode`, `fog_depth_begin`, `fog_end_distance`, `fog_depth_curve`, `fog_density`, `fog_color`, `readable_distance` (`F_read`) | Environment & Theming (map data) | Seam pattern; horizon and visibility checks (F3, F9, rule 7) | Theming owns the values; `fog_mode` must be depth and `fog_density` 1.0; `fog_end_distance` and `F_read` are radial distances from the camera eye; `F_read` and its criterion are provisional until Theming, the art-director and Camera exist |
-| `seam_contrast_scale` | Settings & Accessibility | Reduced-motion scaling of seams (rule 9) | Soft dependency |
-| Run State events (`run_reset`, `run_paused`, `run_resumed`, `run_ended`, entering Menu) | Run State & Restart | State transitions | Loose signal coupling; Run State does not know Tube Track. A thin adapter owned by Tube Track maps them to `load_map`, `begin_run`, `pause`, `resume`, `end_run` and `to_idle`; event names are defined in the Run State & Restart GDD |
+| `seam_contrast_scale` | Settings & Accessibility | Reduced-motion scaling of seams (rule 9) | Soft dependency; read every frame (or on `setting_changed`), so it applies immediately |
+| `load_map(config)` call | Map loader (Boot) | Primes the window and enters Idle; validation failure keeps Uninitialized (States and Transitions) | The loader sends `map_ready` to Run State only after a successful load |
+| Run State events (`run_reset`, `run_paused`, `run_resumed`, `run_ended`, entering Menu) | Run State & Restart | State transitions | Loose signal coupling; Run State does not know Tube Track. A thin adapter owned by Tube Track maps them to `begin_run`, `pause`, `resume`, `end_run` and `to_idle` (it does not call `load_map`: the map loader does, and sends `map_ready` to Run State only on success); event names are defined in the Run State & Restart GDD |
 
 ### Dependents
 
@@ -627,12 +646,12 @@ Values that live in other systems are not duplicated here. Every knob lives in t
 |------|---------|------------|---------|----------|---------|
 | `TUBE_RADIUS` (R) | 3.0 | 2.5-3.3 (guess) and `gap(R) <= 0.02 * D` for the real D (F7) | Lanes (F6), dodge ease, camera orbit radius, facet gap (F7) | Facet gap above 2% of D at R > 3.3; lanes finer than tilt resolution | Few lanes; the ball takes up much of the circumference |
 | `SEGMENT_LENGTH` (L) | 12 | integer 6-24 and at least `ceil(v_max / SEAM_HZ_MAX)` (F5): 9 at v_max = 25 and 3 Hz, 12 at 2.1 Hz | Recycle rate (`v_max / L` per second), window size, the lowest seam frequency | Larger window and more spawn work per recycle | Recycling more often; A may exceed A_MAX; below the floor no `n_seams` fits the cap and the map does not load |
-| `SEGMENTS_AHEAD` (A) | 6 (from F3) | required value from F3 up to 12 | Horizon length | Spawn and draw cost | The far end of the tube becomes visible (breaks rule 7) |
+| `SEGMENTS_AHEAD` (A) | 9 (from F3 at F = 84: ceil(86.5 / 12) + 1; N = 12 live segments with B = 2) | required value from F3 up to 12 | Horizon length | Spawn and draw cost (12 live segments at the default) | The far end of the tube becomes visible (breaks rule 7) |
 | `SEGMENTS_BEHIND` (B) | 2 | `ceil((C_b + M_cam) / L)` to 3 | Protection against pop-in behind the camera | Waste | Segments vanish while still in view |
 | `n_seams` | 1 (at L = 12, v_max = 25) | integer, `L / n_seams` giving `f_seam <= SEAM_HZ_MAX` at v_max | Seam rhythm, sense of speed | Flicker, discomfort, more than 3 flashes per second | Weak sense of speed (one seam per 12 u at the default) |
 | `SEAM_HZ_MAX` | 3 | 2.1-3.0 (the upper bound is the 3 flashes per second cap; the lower bound keeps the default `n_seams = 1` loadable at L = 12, v_max = 25) | Comfort and flash-safety cap on seam frequency (F5) | More than 3 flashes per second: not allowed | Forces fewer seams; at 2.1 Hz only one seam per 12 u at v_max = 25 |
 | `SEAM_CONTRAST_MIN` / `MAX` | 1.15 / 1.25 (floor a guess until AC-26; ceiling an art-director ruling 2026-09-20, device check pending) | floor >= 1.05 in a still frame; the ceiling keeps the seam below the map's darkest sky value and the rim-white ring readable (rule 9); the object-on-seam floors (hazard/seam and ball/seam >= 4:1, pickup/seam >= 3:1) guard only against a seam darker than the tube and never bind a lighter one (rule 9, Open Question 18); seams lighter than the tube | Seam visibility (rule 9, AC-26) | Seams compete with hazards; may erase the tube/sky contour and the rim-white ring | Seams invisible at speed |
-| `seam_contrast_scale` | 1.0 | 0-1 (set by Settings) | Reduced-motion hook | n/a | Flat seams |
+| `seam_contrast_scale` | 1.0 | 0-1 (set by Settings, read every frame) | Reduced-motion hook, applied immediately | n/a | Flat seams |
 | `IDLE_SCROLL_SPEED` | 1.5 | 0.5-3 | Life in the menu | Menu motion competes with run energy | The tube looks dead |
 | `T_VIS_MIN` | 1.5 s | 1.43-2.5 (guess; the floor is the derivation without its margin, 1.064 + 0.25 + 0.11, revised 2026-09-22 to Ball Movement's confirmed `T_DODGE_180` and latency; raised from 1.35, which was stale under the old 1.05/0.05 numbers) | Minimum hazard visibility time (F9), lower bound of `F_read` (`T_VIS_MIN * v_max + d_cam`) and so of `F` | Fog must be pushed far | Unfair surprises |
 | `S_PRECISION_LIMIT` | 16384 | 4096-16384 | Where the precision warning fires (F4) | Jitter before the warning | Noisy warnings |
@@ -685,7 +704,7 @@ countable; **[I]** integration test in `tests/integration/tube_track/` (BLOCKING
 **[V]** screenshot or playtest evidence in `production/qa/evidence/` (ADVISORY, needs a GPU
 renderer, not `--headless`); **[P]** on-device performance measurement (ADVISORY; numeric
 limits are set after the renderer ADR). Defaults: R = 3, D = 0.8, L = 12, n_seams = 1,
-A = 6, B = 2, N = 9, F = 48, F_read = 46, d_cam = 8, v_max = 25, t_lat = 0.1. Numeric tolerance is 1e-6 unless
+A = 9, B = 2, N = 12, F = 84, F_read = 46.00 (the v_max value), `fog_depth_begin` = 44, d_cam = 8, v_max = 25, t_lat = 0.1. Numeric tolerance is 1e-6 unless
 stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` function that can log takes a `log: Callable`; `TubeWindow` takes a log sink and a `slot_binder`; `tests/unit/tube_track/test-plan.md` (to be written, structured like Run State's) holds the state factory, the getters (`s`, `first_index`, `last_index`, `far_end_s`) and the ordered signal recorder (Open Question 17).
 
 **Logic: frame and math**
@@ -711,35 +730,38 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   error.
 
 **Logic: window and states**
-- **AC-7 [U]** (F2): **GIVEN** L = 12 and N = 9, **WHEN** s = -24, -1, 0, 11.999,
+- **AC-7 [U]** (F2): **GIVEN** L = 12 and N = 12, **WHEN** s = -24, -1, 0, 11.999,
   11.999999999999998 (the double just below 12), 12, 24, **THEN** i = -2, -1, 0, 0, 0, 1, 2 and
-  `slot(-1) = 8`.
-- **AC-8 [U]** (R5, R6, F2): **GIVEN** `begin_run()` from Idle, **THEN** the window is -2..6,
-  exactly one `window_primed(-2, 6)` and then one `state_changed(Running, Idle)` are emitted,
+  `slot(-1) = posmod(-1, 12) = 11`.
+- **AC-8 [U]** (R5, R6, F2): **GIVEN** `begin_run()` from Idle, **THEN** the window is -2..9,
+  exactly one `window_primed(-2, 9)` and then one `state_changed(Running, Idle)` are emitted,
   and no `segment_*` signal is emitted; **WHEN** `advance` is called with 11.999, 12.0 and
-  12.0, **THEN** exactly one `segment_left_window(-2)` then one `segment_entered_window(7)`
-  are emitted in total (during the second call), and the window is -1..7.
-- **AC-9 [U]** (F2, Edge): **GIVEN** Running at s = 0, **WHEN** `advance(96)` (8 = N-1
-  segments), **THEN** 8 pairs are emitted in increasing index order (left -2, entered 7,
-  ..., left 5, entered 14) and the window is 6..14. **GIVEN** Running at s = 0, **WHEN**
-  `advance(108)` (9 = N segments), **THEN** exactly one `window_primed(7, 15)` is emitted
+  12.0, **THEN** exactly one `segment_left_window(-2)` then one `segment_entered_window(10)`
+  are emitted in total (during the second call), and the window is -1..10.
+- **AC-9 [U]** (F2, Edge): **GIVEN** Running at s = 0, **WHEN** `advance(132)` (11 = N-1
+  segments), **THEN** 11 pairs are emitted in increasing index order (left -2, entered 10,
+  ..., left 8, entered 20) and the window is 9..20. **GIVEN** Running at s = 0, **WHEN**
+  `advance(144)` (12 = N segments), **THEN** exactly one `window_primed(10, 21)` is emitted
   and no `segment_left_window` or `segment_entered_window`.
 - **AC-10 [U]** (R4, Edge): **GIVEN** Running at s = 50, **WHEN** `advance(49)`, **THEN**
   the effective s stays 50 and exactly one warning is logged; `advance(50)` at s = 50 logs
   nothing and emits nothing; `advance(NaN)` and `advance(INF)` are ignored with one error each;
   `begin_run()` sets s = 0.
 - **AC-11 [U]** (F3): **GIVEN** v_max = 25, t_lat = 0.1, C_b = 6, M_cam = 2, **THEN** the
-  required A and B match the F3 table: (L = 12, F = 37.5, 48, 129.5) give A = 5, 6, 12 with
-  B >= 1; (L = 6, F = 48) gives A = 10 with B >= 2; (L = 24, F = 37.5) gives A = 3 with B >= 1;
-  (L = 6, F = 100) is rejected (A = 19 > A_MAX). These rows test the F3 function only: they need
-  not load as maps (F = 37.5 fails F9, and L = 6 is below `L_min`). A configured A = 5 at
-  (L = 12, F = 48) fails validation with `A_TOO_SMALL`, and a configuration with A = 13
+  required A and B match the F3 table: (L = 12, F = 37.5, 84, 129.5) give A = 5, 9, 12 with
+  B >= 1 (ceil(40 / 12) + 1 = 5; ceil(86.5 / 12) + 1 = 8 + 1 = 9; ceil(132 / 12) + 1 = 11 + 1 = 12, where
+  F + v_max * t_lat = F + 2.5), so the default (A = 9, B = 2) gives N = 12 <= N_MAX; (L = 6, F = 48) gives
+  A = 10 (ceil(50.5 / 6) + 1 = 9 + 1) with B >= 2; (L = 24, F = 37.5) gives A = 3 (ceil(40 / 24) + 1 = 3)
+  with B >= 1; (L = 9, F = 84) gives A = 11 (ceil(86.5 / 9) + 1 = 10 + 1); (L = 6, F = 100) is rejected
+  (ceil(102.5 / 6) + 1 = 19 > A_MAX). These rows test the F3 function only: they need
+  not load as maps (F = 37.5 fails F9, and L = 6 is below `L_min`). A configured A = 8 at
+  (L = 12, F = 84) fails validation with `A_TOO_SMALL` (required 9), and a configuration with A = 13
   (`A_OUT_OF_RANGE`) or B = 4 (`B_OUT_OF_RANGE`) fails (`N_MAX` is implied by the two caps).
 - **AC-12 [U]** (F9, map load, reporting rules): **GIVEN** a base map at v_max = 25, L = 12,
-  n_seams = 1, t_lat = 0.1, d_cam = 8, depth fog (`fog_depth_begin` = 10, `fog_depth_curve` = 1.0),
+  n_seams = 1, t_lat = 0.1, d_cam = 8, depth fog (`fog_depth_begin` = 44, `fog_depth_curve` = 1.0),
   `fog_density` = 1.0 and `F_read` = F with `A` set to the required value, **THEN** F = 45.5 (A = 5),
-  48 (A = 6) and 129.5 (A = 12) load. **WHEN** one change from the table is applied to the base map
-  (A = 6 and F = 48, F_read = 46 unless the row says otherwise), **THEN** the load fails, the state
+  84 (A = 9) and 129.5 (A = 12) load. **WHEN** one change from the table is applied to the base map
+  (A = 9, F = 84 and F_read = 46.00 unless the row says otherwise), **THEN** the load fails, the state
   stays Uninitialized and the **set** of returned failure codes equals the set in the row:
 
   | Change | Expected code set |
@@ -749,12 +771,12 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   | F = F_read = 45.49, A = 5 (T_vis 1.4996 s) | `VISIBILITY` |
   | F = F_read = 129.51, A = 12 (required A is 13) | `A_TOO_LARGE` (`A_TOO_SMALL` is suppressed) |
   | F_read = 20 (0.48 s); F_read = 45 (1.48 s) | `VISIBILITY` |
-  | F_read = 50 | `FOG_BEFORE_READ` |
-  | F_read = 46 | none (loads: 1.52 s, the default) |
+  | F_read = 90 (above F = 84) | `FOG_BEFORE_READ` |
+  | F_read = 46.00 | none (loads: (46.00 - 8) / 25 = 1.52 s, the default) |
   | `fog_density` = 0.01 | `FOG_DENSITY` |
   | `fog_mode` exponential | `FOG_MODE` |
-  | `fog_depth_begin` = 48 | `FOG_RANGE` |
-  | configured A = 5 | `A_TOO_SMALL` |
+  | `fog_depth_begin` = 84 (not below F) | `FOG_RANGE` |
+  | configured A = 8 (required 9) | `A_TOO_SMALL` |
   | configured A = 13 | `A_OUT_OF_RANGE` |
   | `v_max` = 0 | `NOT_POSITIVE` |
   | `v_max` = NaN; `v_max` = INF | `NOT_FINITE` |
@@ -763,7 +785,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   accepted (D = 0.8); with D = 0.6, R = 2.5 is rejected by `gap(R) <= 0.02 * D`; at v_max = 25
   and the 3 Hz cap `L_INVALID` is reported for L = 5, 12.5 and 25 and for L = 8 (below `L_min` = 9;
   the record prints 9 and `SEAM_HZ` is not reported) and is not reported for L = 9, 12 and 24;
-  the default map (L = 12) loads, and L = 9 with A = 7 (F = 48, the boundary of the floor) loads;
+  the default map (L = 12) loads, and L = 9 with A = 11 (F = 84, the boundary of the floor: ceil(86.5 / 9) + 1 = 11, N = 14) loads;
   `n_seams` = 0 and -1 are rejected (the validator takes a
   Variant, so 2.5 is also rejected as not an integer); at L = 12 and v_max = 25 `n_seams` = 2
   (4.17 Hz) is rejected and 1 (2.08 Hz) accepted, and the error prints the largest allowed
@@ -805,28 +827,36 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   and in `begin_run()` a handler of the `window_primed` emitted just before sees the final window
   and the old state.
 - **AC-20 [U]** (Edge): **GIVEN** `begin_run()` called twice in a row, **THEN** two
-  `window_primed(-2, 6)` are emitted, the window holds 9 unique slots and s = 0; **GIVEN** a
+  `window_primed(-2, 9)` are emitted, the window holds 12 unique slots and s = 0; **GIVEN** a
   handler connected to one of `window_primed`, `state_changed`, `segment_entered_window` or
   `segment_left_window` (the `advance` that triggers it crossing exactly one boundary) that calls
   `advance`, `begin_run` or `pause`, **THEN** the call is rejected with one error and state is
-  unchanged; `begin_run()` calls the injected `slot_binder` exactly N times, with `slot_index` 0..8
-  once each and `segment_index` -2..6 (`slot_index = posmod(segment_index, 9)`).
+  unchanged; `begin_run()` calls the injected `slot_binder` exactly N times, with `slot_index` 0..11
+  once each and `segment_index` -2..9 (`slot_index = posmod(segment_index, 12)`).
 - **AC-20a [U]** (R11, Idle window): **GIVEN** Uninitialized and a valid config, **WHEN**
-  `load_map(config)`, **THEN** `slot_binder` is called exactly 9 times (`segment_index` -2..6,
-  `slot_index = posmod(segment_index, 9)`), exactly one `window_primed(-2, 6)` and then one
+  `load_map(config)`, **THEN** `slot_binder` is called exactly 12 times (`segment_index` -2..9,
+  `slot_index = posmod(segment_index, 12)`), exactly one `window_primed(-2, 9)` and then one
   `state_changed(Idle, Uninitialized)` are emitted, and no `segment_*` signal; **GIVEN** an invalid
   config (`F` = NaN), **THEN** no binder call and no signal occur and the state stays Uninitialized.
-  **GIVEN** Running (and again Paused, and again Ended) at s = 1234.5 with the window 100..108,
-  **WHEN** `to_idle()`, **THEN** the binder is called 9 times as above, exactly one
-  `window_primed(-2, 6)` and then one `state_changed(Idle, old)` are emitted, `s_idle` is 0 and the
-  window is -2..6. **THEN**, in Idle, after 60 s of `tick_idle(1/64)` no `window_primed`,
-  `segment_entered_window` or `segment_left_window` is emitted and the window stays -2..6.
+  **GIVEN** Running (and again Paused, and again Ended) at s = 1234.5 with the window 100..111,
+  **WHEN** `to_idle()`, **THEN** the binder is called 12 times as above, exactly one
+  `window_primed(-2, 9)` and then one `state_changed(Idle, old)` are emitted, `s_idle` is 0 and the
+  window is -2..9. **THEN**, in Idle, after 60 s of `tick_idle(1/64)` no `window_primed`,
+  `segment_entered_window` or `segment_left_window` is emitted and the window stays -2..9.
+- **AC-20b [U]** (R11, States, review item S3): **GIVEN** Uninitialized and an invalid config (`F` = NaN),
+  **WHEN** `load_map(config)`, **THEN** no binder call and no signal occur, the state stays Uninitialized,
+  one `NOT_FINITE` is returned and a following `begin_run()` is rejected with one error. **WHEN**
+  `load_map(valid config)` is then called from that same Uninitialized state (a Retry), **THEN** it is accepted:
+  12 binder calls, one `window_primed(-2, 9)`, then one `state_changed(Idle, Uninitialized)`. **GIVEN**
+  Idle (and again Running, Paused, Ended), **WHEN** `load_map(valid config)`, **THEN** it is rejected with
+  one error, no signal, and the state and window are unchanged (`load_map` is accepted only from
+  Uninitialized).
 
 **Logic: simulation, then integration**
 - **AC-21 [U]** (R6, R7): **GIVEN** a deterministic 300 s simulation at 25 u/s with dt = 1/64
   (0.390625 u per frame, 19,200 frames, exact in binary) and a camera test double publishing
   `rear_extent = 6`, **THEN** on every frame the far edge of the window (the far edge of segment
-  `i + A`) is at least `F + v_max * t_lat` (= 50.5) ahead of s and at least `A * L` (= 72) ahead;
+  `i + A`) is at least `F + v_max * t_lat` (= 84 + 2.5 = 86.5) ahead of s and at least `A * L` (= 9 * 12 = 108) ahead;
   a single step of `dt = t_lat` (2.5 u) keeps both bounds after the call.
 - **AC-22 [U]** (R6): in the same simulation, when a slot is recycled its far edge is at most
   `s - rear_extent`; each boundary crossing emits exactly one `segment_left_window` and one
@@ -834,7 +864,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   `floori(s_final / L)` in exact arithmetic (625, because frame 19,200 reaches s = 7500 = 625 x 12
   exactly).
 - **AC-23 [U]** (R5): over the whole simulation every `slot_binder` call has a `slot_index` in
-  0..8 and `slot_index = posmod(segment_index, 9)`; that nothing is allocated or freed is asserted
+  0..11 and `slot_index = posmod(segment_index, 12)`; that nothing is allocated or freed is asserted
   by the [P] check AC-29 (engine object, node and resource counts), not here.
 - **AC-24 [I / static]** (R3, R12): the generated tube mesh has 32 facets with vertex radius
   `R`, and the `TubeTrack` node tree contains no `CollisionObject3D` (deferred until the mesh
@@ -878,8 +908,8 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
 - **AC-28 [P]**: draw calls are measured with `Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME` (a
   global total: an empty scene already reports 68) as a delta between the scene with the tube and
   the same scene without it, per renderer (Forward+ and Mobile), with tube `cast_shadow` off and
-  every slot sharing one Mesh and one Material (nine `MeshInstance3D` added +1 on Forward+ and +9
-  on Mobile, a MultiMesh +1); the total is at most 150 on an exported build; the numeric limit for
+  every slot sharing one Mesh and one Material (measured with nine `MeshInstance3D`: +1 on Forward+ and +9
+  on Mobile; with N = 12 the expected Mobile figure is +12, to be re-verified; a MultiMesh +1); the total is at most 150 on an exported build; the numeric limit for
   Tube Track's share follows the renderer ADR (Open Question 1).
 - **AC-29 [P]**: static memory is compared in a release export after a 10 s warm-up against
   an idle baseline; the drift limit is set after Open Question 2. `Performance.OBJECT_COUNT`,
@@ -888,7 +918,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   reports frame time at t = 0 and at the end.
 - **AC-30 [P]**: with `Time.get_ticks_usec()` around Tube Track's own `advance()` (signal
   handlers excluded), report the p99 over a run for recycle frames (provisional: at most 0.2
-  ms, guess), and at most 2 ms of Tube Track's own work in `begin_run()`. Downstream hazard
+  ms, guess), and at most 2 ms of Tube Track's own work in `begin_run()` (a guess made for N = 9; it now binds N = 12 slots, to be re-verified). Downstream hazard
   spawn cost is attributed to the Obstacle System.
 
 **Deferred until other GDDs exist**: the menu-to-run transition's own seam-phase-jump hiding is RESOLVED 2026-09-29 (`menus-screen-flow.md` Core Rule 9, at-least-one-frame guarantee); exact Run State event names (resolved separately, `run-state-restart.md`).
@@ -898,7 +928,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
 | # | Question | Owner | Resolve when |
 |---|----------|-------|--------------|
 | 1 | Renderer backend (Forward+ vs Mobile), shadow setup and draw-call accounting; the numeric limit for AC-28 | technical-director | ADR at Technical Setup |
-| 2 | Reference device class for the performance criteria; how the 1 s restart budget is split; memory drift limit | technical-director | Technical Setup |
+| 2 | Reference device class for the performance criteria; how the 1 s restart budget is split (the `t_reset` share of Tube Track's adapter, which re-primes 12 segments and makes 12 binder calls, and of Obstacle System's repopulation of those 12 segments, is to be re-verified at N = 12; it was sized for 9); memory drift limit (12 live segments, was 9) | technical-director | Technical Setup |
 | 3 | Verify Godot 4.7 specifics: how the tube is rendered (node per slot, MultiMesh with `custom_aabb`, or one mesh with a scrolling seam shader driven by a 64-bit-computed uniform, never `TIME`); depth-fog parameters and metric; the draw-call monitor name and what it counts; flat shading; GUT with 4.7 log capture | godot-specialist | Before implementation (ADR) |
 | 4 | Game-loop ADR: `advance(s)` called from `_process` with a clamped delta, or from the physics tick with interpolation | technical-director, godot-specialist | Technical Setup |
 | 5 | Physics/collision ADR: analytic (theta, s, h) overlap tests versus Jolt bodies; Tube Track owns none | technical-director | Technical Setup |
@@ -906,7 +936,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
 | 7 | RESOLVED 2026-09-29 (`camera.md`, F2/F3): Camera now publishes `rear_extent` = `CAMERA_BACK_DISTANCE` = 6.0 (confirmed, unchanged) and derives `camera_distance`/`d_cam` as a worst-case function rather than a fixed guess (`≈7.84 u`, this GDD's shipped `8` kept as a small-margin round-up — see F9's own updated note); the visible-arc formula (`VISIBLE_ARC_HALF_WIDTH = acos(TUBE_RADIUS/CAMERA_RADIUS)`, proven independent of camera height/FOV) is Camera's own F3, consumed by Obstacle System. Re-justifying `R` against tilt resolution and the visible arc after a device test remains open — tracked as a device-spike item, not a document gap | user, whoever runs the device spike | Alongside the Ball Movement / Tilt Input device spike |
 | 8 | RESOLVED 2026-09-28 (`design/gdd/pattern-difficulty.md`): yes to whole-segment alignment (forced by Obstacle System's own Core Rule 1, not a new decision); yes, negative indices are hazard-free (they are unreachable window-priming padding before `s = 0`); `T_dodge_worst` = Ball Movement's `T_DODGE_180`, supplied as a fixed configuration value, never derived per-chunk | Pattern & Difficulty GDD | Resolved |
 | 9 | RESOLVED 2026-09-29 (`menus-screen-flow.md` Core Rule 9): a brief cut or fade covers at least one frame at both the Menu→Running and Running→Menu boundaries — the exact visual treatment is deferred to `/ux-design`, but the "at least one frame hidden" guarantee is committed | — | Resolved |
-| 10 | RESOLVED 2026-09-29 (`environment-theming.md` F1/F2, Core Rules 3-5): `MapConfig`'s fog fields and the readable criterion are Environment & Theming's own real derivation, not a placeholder. **Kept the 4:1 floor as binding** (did not adopt the art-director's 2026-09-20 advisory recommendation to loosen it to 2.5-3:1) — a real fog-opacity-vs-luminance-contrast derivation shows 4:1 is achievable without a fog wall once the ramp is properly sized: the placeholder 46/48 pairing was itself physically impossible (a 2 u ramp cannot carry fog from ~0% to 100% opacity), not evidence the floor itself needed loosening. The actual fix is a wider ramp (`fog_depth_begin` ≈ 44, `fog_end_distance` ≈ 84, not 48 — see this GDD's own Formulas note above), which reproduces `F_read` ≈ 46.02 with the 4:1 floor intact and clears this GDD's own visibility floor by 0.02-0.03 s. Speed-driven fog pull is capped by construction (Environment & Theming's own `FOG_PULL_MAX` knob has a derived hard ceiling so `F_read(v)` can never drop below the floor at any speed) — the art-director's own "fade rule" and "cap the speed-pull" concerns are both addressed structurally rather than by a separate fade-time check | — | Resolved |
+| 10 | RESOLVED 2026-09-29 (`environment-theming.md` F1/F2, Core Rules 3-5): `MapConfig`'s fog fields and the readable criterion are Environment & Theming's own real derivation, not a placeholder. **Kept the 4:1 floor as binding** (did not adopt the art-director's 2026-09-20 advisory recommendation to loosen it to 2.5-3:1) — a real fog-opacity-vs-luminance-contrast derivation shows 4:1 is achievable without a fog wall once the ramp is properly sized: the placeholder 46/48 pairing was itself physically impossible (a 2 u ramp cannot carry fog from ~0% to 100% opacity), not evidence the floor itself needed loosening. The actual fix is a wider ramp (`fog_depth_begin` ≈ 44, `fog_end_distance` ≈ 84, not 48 — see this GDD's own Formulas note above), which reproduces `F_read` ≈ 46.02 with the 4:1 floor intact and clears this GDD's own visibility floor by 0.02-0.03 s. Propagated into this GDD's examples, tables, knobs and ACs on 2026-10-01 (review item C1). Speed-driven fog pull is capped by construction (Environment & Theming's own `FOG_PULL_MAX` knob has a derived hard ceiling so `F_read(v)` can never drop below the floor at any speed) — the art-director's own "fade rule" and "cap the speed-pull" concerns are both addressed structurally rather than by a separate fade-time check | — | Resolved |
 | 11 | RESOLVED 2026-09-28 (`settings-accessibility.md` Core Rule 7 / Formula F1): `seam_contrast_scale` is supplied as a strict binary opt-in — `0.0` when the player's `reduced_motion_enabled` toggle is on, `1.0` (this GDD's own shipped default, unaffected) otherwise. The general-population default stays at this GDD's own already-Approved `SEAM_HZ_MAX` (3 Hz) rather than being lowered for everyone; a conditional flash cap in place of the frequency-only cap was considered and not adopted (user decision, `settings-accessibility.md` session) | — | Resolved |
 | 12 | RESOLVED 2026-09-22 (`/design-review`, ball-movement.md): `v_max` = 25 u/s confirmed as Ball Movement's design intent — provisional pending BM-1/BM-2 (the device spike) and Environment & Theming's `F_read`, not yet a locked contract; `v_max`'s registry source now points to Ball Movement | Ball Movement GDD | Resolved |
 | 13 | On-device check of precision without a rebase; under the conservative 8-ulp model the safe zone ends at s = 4096. Fallback: treadmill | user, godot-specialist | First playable build |
