@@ -38,21 +38,21 @@ and skins are content on top of it.
 | 2 | Ball Movement | Gameplay | MVP | Approved, pending the device spike (revised 4 times, 2026-09-22 passes 1-3 and 2026-09-27 pass 4, full mode each time; pass 3 resolved 6 blockers — STEER_ARC reverted to PI, FALLBACK cut from MVP, 30Hz declared out of the fairness contract, AC-12/19b relabeled, Node reference sim checked in, producer ratified BM-1/BM-3; pass 4 found no design reversals, only 5 sync/wording blockers — stale entities.yaml registry, an unqualified Player Fantasy promise, a wrapf()/wrap_angle divergence, an internally-contradictory BM-3 trial count, and two ACs violating pass 3's own standing rule — creative-director's verdict: last full-mode round, remaining uncertainty is device data not text); next is the device spike BM-1a/BM-1b/BM-2/BM-3/BM-6 | design/gdd/ball-movement.md | Tube Track, Tilt Input, Run State & Restart |
 | 3 | Tilt Input | Core | MVP | In Review (revised three times 2026-09-21; the third review was NEEDS REVISION with 6 blocking items addressed; no fourth document review: next are the `TiltCore` + `TiltRunAdapter` harness and the on-device spike) | design/gdd/tilt-input.md | — |
 | 4 | Obstacle System | Gameplay | MVP | Approved (2026-09-28, full mode: game-designer, systems-designer, qa-lead, godot-specialist, art-director, creative-director; NEEDS REVISION first pass, 10 blockers resolved same session — see reviews/obstacle-system-review-log.md) | design/gdd/obstacle-system.md | Tube Track, Run State & Restart, Ball Movement |
-| 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | In Review (2026-09-28, full mode: game-designer, level-designer, systems-designer, qa-lead, creative-director; two passes so far, both MAJOR REVISION NEEDED, resolved same session each time — the second pass replaced Core Rule 9 with a sequencer-side spacing mechanism, a structural change, not a wording fix; a third, fresh `/design-review` is recommended before Approval — see reviews/pattern-difficulty-review-log.md) | design/gdd/pattern-difficulty.md | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
+| 5 | Pattern & Difficulty (partly inferred) | Gameplay | MVP | Approved (2026-09-28, fourth full-mode pass: game-designer, level-designer, systems-designer, qa-lead, creative-director; verdict NEEDS REVISION, resolved same session — two independently-convergent correctness bugs fixed (AC-11 fixture arithmetic, F5's untested zero-branch) and Core Rule 12's angular-clustering cap demoted from BLOCKING to ADVISORY after creative-director showed it risked rejecting genuine full-360° chunk variety — see reviews/pattern-difficulty-review-log.md) | design/gdd/pattern-difficulty.md | Obstacle System, Ball Movement, Tube Track, Run State & Restart |
 | 6 | Near-Miss Detection | Gameplay | MVP | Approved (2026-09-28, full mode: game-designer, systems-designer, qa-lead, creative-director; re-review after a first NEEDS REVISION pass, resolved same session — see reviews/near-miss-detection-review-log.md) | design/gdd/near-miss-detection.md | Ball Movement, Obstacle System, Run State & Restart |
 | 7 | Run State & Restart (inferred) | Core | MVP | Approved | design/gdd/run-state-restart.md | — |
-| 8 | Scoring & Personal Best | Gameplay | MVP | Not Started | — | Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence |
+| 8 | Scoring & Personal Best | Gameplay | MVP | Approved (2026-10-01, by user decision after the fifth full-mode `/design-review`: NEEDS REVISION, 4 blockers resolved same session; the lean re-review the creative-director recommended was skipped at the user's choice, so the revisions are unverified by a second reviewer). Open follow-ups: producer to confirm the lint-AC ADVISORY tier; `hud.md`/`juice-feedback.md` must still add a `milestone_crossed` row before either is Approved; AC-11b needs a throwaway check of `get_script_method_list()` on 4.7.2. See reviews/scoring-personal-best-review-log.md | design/gdd/scoring-personal-best.md | Run State & Restart, Ball Movement, Save & Persistence |
 | 9 | Pickups & Boosters | Gameplay | Content Expansion | Not Started | — | Obstacle System, Ball Movement, Run State & Restart |
-| 10 | Camera | Presentation | MVP | Not Started | — | Ball Movement, Tube Track, Run State & Restart |
-| 11 | Juice & Feedback (partly inferred) | Presentation | MVP | Not Started | — | Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services, Tube Track |
-| 12 | Environment & Theming (inferred) | Presentation | MVP | Not Started | — | Tube Track, Ball Movement |
-| 13 | HUD (inferred) | UI | MVP | Not Started | — | Scoring & Personal Best, Run State & Restart, Near-Miss Detection |
-| 14 | Menus & Screen Flow (inferred) | UI | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence, Settings & Accessibility |
+| 10 | Camera | Presentation | MVP | Designed (2026-09-29), pending independent `/design-review` | design/gdd/camera.md | Ball Movement, Tube Track, Run State & Restart |
+| 11 | Juice & Feedback (partly inferred) | Presentation | MVP | Designed (2026-09-29), pending independent `/design-review` | design/gdd/juice-feedback.md | Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services, Tube Track |
+| 12 | Environment & Theming (inferred) | Presentation | MVP | Designed (2026-09-29), pending independent `/design-review` | design/gdd/environment-theming.md | Tube Track, Ball Movement |
+| 13 | HUD (inferred) | UI | MVP | Revised (2026-10-01), 2 design-review passes complete, ready for `/ux-design` | design/gdd/hud.md | Scoring & Personal Best, Run State & Restart, Near-Miss Detection, Tilt Input |
+| 14 | Menus & Screen Flow (inferred) | UI | MVP | Designed (2026-09-29), pending independent `/design-review` | design/gdd/menus-screen-flow.md | Run State & Restart, Scoring & Personal Best, Save & Persistence, Settings & Accessibility, Tilt Input, Platform Services |
 | 15 | Maps & Levels | Progression | Content Expansion | Not Started | — | Pattern & Difficulty, Scoring & Personal Best, Environment & Theming, Pickups & Boosters, Save & Persistence |
 | 16 | Cosmetics & Unlocks | Progression | Content Expansion | Not Started | — | Scoring & Personal Best, Save & Persistence, Menus & Screen Flow |
 | 17 | Game Modes | Gameplay | Alpha | Not Started | — | Ball Movement, Scoring & Personal Best, Maps & Levels |
 | 18 | Save & Persistence (inferred) | Persistence | MVP | Approved (2026-09-28, full mode: godot-specialist, security-engineer, qa-lead, creative-director; re-review after a first NEEDS REVISION pass, resolved same session — see reviews/save-persistence-review-log.md) | design/gdd/save-persistence.md | Platform Services |
-| 19 | Settings & Accessibility (inferred) | Persistence | MVP | Not Started | — | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
+| 19 | Settings & Accessibility (inferred) | Persistence | MVP | Designed (2026-09-29), pending independent `/design-review` | design/gdd/settings-accessibility.md | Save & Persistence, Tube Track (soft), Tilt Input (soft) |
 | 20 | Platform Services (inferred) | Core | MVP | Approved, pending the device spike (2026-09-21; first /design-review NEEDS REVISION with 9 blocking items, all applied the same day and accepted without a further full round; next are the `PlatformCore` harness and the device spike PS-1..PS-12) | design/gdd/platform-services.md | — |
 | 21 | Playtest Telemetry (inferred) | Meta | MVP | Not Started | — | Run State & Restart, Scoring & Personal Best, Save & Persistence |
 
@@ -99,7 +99,7 @@ and skins are content on top of it.
 ### Feature Layer (depends on Core)
 1. Near-Miss Detection — depends on: Ball Movement, Obstacle System, Run State & Restart (for `run_id` only)
 2. Pattern & Difficulty — depends on: Obstacle System, Ball Movement, Tube Track, Run State & Restart
-3. Scoring & Personal Best — depends on: Run State & Restart, Ball Movement, Near-Miss Detection, Save & Persistence
+3. Scoring & Personal Best — depends on: Run State & Restart, Ball Movement, Save & Persistence (Near-Miss Detection removed 2026-09-28 — scoring-personal-best.md Core Rule 8 decided near-misses are not scored)
 4. Pickups & Boosters — depends on: Obstacle System, Ball Movement, Run State & Restart
 5. Settings & Accessibility — depends on: Save & Persistence, Tube Track (soft: `seam_contrast_scale` reduced-motion hook), Tilt Input (soft: `sensitivity` hook)
 
@@ -107,8 +107,8 @@ and skins are content on top of it.
 1. Camera — depends on: Ball Movement, Tube Track, Run State & Restart
 2. Environment & Theming — depends on: Tube Track, Ball Movement
 3. Juice & Feedback — depends on: Near-Miss Detection, Run State & Restart, Scoring & Personal Best, Obstacle System, Camera, Settings & Accessibility, Platform Services, Tube Track
-4. HUD — depends on: Scoring & Personal Best, Run State & Restart, Near-Miss Detection
-5. Menus & Screen Flow — depends on: Run State & Restart, Scoring & Personal Best, Save & Persistence, Settings & Accessibility
+4. HUD — depends on: Scoring & Personal Best, Run State & Restart, Near-Miss Detection, Tilt Input
+5. Menus & Screen Flow — depends on: Run State & Restart, Scoring & Personal Best, Save & Persistence, Settings & Accessibility, Tilt Input, Platform Services
 
 ### Polish Layer (depends on everything below)
 1. Playtest Telemetry — depends on: Run State & Restart, Scoring & Personal Best, Save & Persistence
@@ -283,10 +283,10 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 | Metric | Count |
 |--------|-------|
 | Total systems identified | 21 |
-| Design docs started | 9 |
+| Design docs started | 16 |
 | Design docs reviewed | 8 |
-| Design docs approved | 7 |
-| MVP systems designed | 9/17 |
+| Design docs approved | 8 |
+| MVP systems designed | 16/17 |
 | Content Expansion systems designed | 0/3 |
 
 ---
