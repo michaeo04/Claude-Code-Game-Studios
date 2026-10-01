@@ -1,6 +1,6 @@
 # HUD Design
 
-> **Status**: Revised after a second `/ux-review` 2026-10-01 (NEEDS REVISION: 3 blocking and 10 advisory items addressed: sensor label rules, label pills, Z4/Z5 budget, Menu pre-lock state); pending a re-run of `/ux-review` in a fresh session
+> **Status**: Revised after a third `/ux-review` 2026-10-01 (NEEDS REVISION: 2 blocking and 6 advisory items addressed: BEST pill width, system gesture edges, UX-9 observability, Back behavior, localized coverage budget, opacity matrix, null handling, countdown overhang); pending a re-run of `/ux-review` in a fresh session
 > **Author**: user + ux-designer
 > **Last Updated**: 2026-10-01
 > **Template**: HUD Design
@@ -58,13 +58,22 @@ Portrait, locked (`tilt-input.md` Rule 3). Arrangement chosen: **top corners**. 
 
 | Zone | Position | Holds | Phase |
 |---|---|---|---|
-| **Z1 Readout** | Top-left, 16 dp from the left safe edge, 8 dp below the top safe edge. The stack is 84 dp high (44 + 8 + 32), 130 dp wide | Score pill; BEST pill stacked under it (8 dp gap) | Running, Paused, Resuming (frozen), Hit |
-| **Z2 Pause** | Top-right, same 16 dp / 8 dp insets | Pause button | Running only |
+| **Z1 Readout** | Top-left, 16 dp from the left safe edge, 8 dp below the top safe edge. The stack is 84 dp high (44 + 8 + 32), 170 dp wide (Score pill 130 dp, BEST pill 170 dp, both left-aligned) | Score pill; BEST pill stacked under it (8 dp gap) | Running, Paused, Resuming (frozen), Hit |
+| **Z2 Pause** | Top-right, **40 dp from the right safe edge and 16 dp below the top safe edge** (larger than Z1's insets, see Gesture-edge rule) | Pause button | Running only |
 | **Z3 Banner** | Top-centre, 12 dp below the bottom of the Z1 stack (so its top is at 8 + 84 + 12 = 104 dp from the top safe edge), centred, at most 80% of safe width and 360 dp | Personal-best banner | Hit only |
 | **Z4 Status slot** | Horizontally centred; vertical centre of the **reserved group** at `min(0.70 × H, H − 264 dp)`, where H is the safe-area height (see Z4/Z5 budget below). The reserved group is 148 dp high: 88 dp circle, 8 dp gap, label pill reserved for 2 lines (52 dp). Contents are **top-anchored** to the group, so nothing moves when the label pill grows | Restart prompt (with its sensor label pill), **or** the resume countdown, **or** the sensor-lost pause label pill. Never two at once | Hit, Resuming, Paused (`sensor_lost`) |
 | **Z5 Menu** | Bottom-centre, 16 dp below the bottom of the reserved Z4 group; 78 dp high (48 dp button, 4 dp gap, 26 dp label pill); outside both thumb corners | Round Menu button with its label pill | Hit with `valid` false; sensor-lost pause |
 
-Z4 anchoring: the restart circle's centre sits 44 dp below the Z4 top. The countdown circle (96 dp) is centred on the same point. The sensor-lost pause shows only the label pill, vertically centred on that same point.
+Z4 anchoring: the restart circle's centre sits 44 dp below the Z4 top. The countdown circle (96 dp) is centred on the same point, so it extends 4 dp above the Z4 top and 4 dp below the circle row; this overhang is inside the reserved group's slack and the budget table below is unaffected (nothing else sits within 4 dp of it). The sensor-lost pause shows only the label pill, vertically centred on that same point.
+
+### Gesture-edge rule (Z2)
+
+`platform-services.md` UI Requirements 3 asks HUD to keep touch targets, the pause button in particular, away from the system gesture edges. Android gesture navigation reserves a back-swipe strip along the left and right edges (about 24 dp by default, up to about 40 dp at the highest user sensitivity), and iOS reserves the top-right corner (Control Center) and the bottom (home indicator). Therefore:
+
+1. Z2's hit area starts at least **40 dp** from the right safe edge and at least **16 dp** below the top safe edge (the 56 dp button spans 40 to 96 dp from the right edge).
+2. No interactive element sits within 40 dp of the left or right safe edge. Z1 (non-interactive) is exempt and keeps its 16 dp inset. Z4's full-screen tap catcher is exempt (a swallowed edge swipe costs nothing).
+3. The bottom 96 dp clear band (see the Z4/Z5 budget) covers the home indicator and gesture bar.
+4. The 40 dp / 16 dp values are starting values: Platform Services supplies no system-gesture insets, so they are verified on device (UX-12) and the real insets are requested from Platform Services if they fall short (Open Question 11).
 
 ### Z4/Z5 vertical budget
 
@@ -96,7 +105,7 @@ All sizes are **starting values, unverified on device** (measured at AC-22 and H
 | # | Element (zone) | Form and size | Content | Update | Trigger | Animation |
 |---|---|---|---|---|---|---|
 | 1 | **Score** (Z1) | Pill, 44 dp high, 130 dp wide (6 tabular digits at about 17 dp each plus 14 dp padding per side); bold 28 sp Ink on Rim White 85% | `current_score`, no unit | Every tick, exact, from the pull seam | Running; frozen in Paused, Resuming and Hit | **None.** No smoothing, pulse or colour shift (`hud.md` Rule 2) |
-| 2 | **BEST** (Z1) | Pill, 32 dp high, 130 dp wide (same as Score); 18 sp Ink, tag `BEST` at 14 sp | Stored best. In the passed state the tag becomes `NEW BEST`, the value tracks the live score, and a Lagoon 2 dp outline appears | Static; changes on `personal_best_updated`; passed state on `personal_best_passed` | Hidden while the stored best is 0; otherwise with Z1 | None. State is carried by label and outline only |
+| 2 | **BEST** (Z1) | Pill, 32 dp high, **170 dp wide** (wider than Score: it must hold the longest tag plus a 6-digit value, about 70 + 6 + 65 + 28 = 169 dp, using the same 0.6 em tabular-digit estimate as Score); 18 sp Ink, tag `BEST` at 14 sp. Value right-aligned, tag left-aligned. **7 or more digits** shrink the value (never the tag, never the pill) down to a 14 sp floor, which fits about 7 digits beside `NEW BEST`; beyond that is Open Question 4 | Stored best. In the passed state the tag becomes `NEW BEST`, the value tracks the live score, and a Lagoon 2 dp outline appears | Static; changes on `personal_best_updated`; passed state on `personal_best_passed` | Hidden while the stored best is 0; otherwise with Z1 | None. State is carried by label and outline only |
 | 3 | **Pause button** (Z2) | Circle, 56 dp, pause-bars icon Ink on Rim White 85%; hit area 56 dp | Icon only; accessible name `Pause` | Static | Running only | Press feedback: scale to 0.94 while held, back on release. No other motion |
 | 4 | **Resume countdown** (Z4) | Circle pill 96 dp, Lagoon progress ring (4 dp), Ink digit 48 sp centred | `digit` and `progress` from Run State's F5, never from HUD's `dt` | Every tick, pulled | Resuming only | Ring sweeps clockwise with the data; the final partial digit shows the ring alone |
 | 5 | **Restart prompt** (Z4) | Circle pill 88 dp with restart icon; Lagoon fill ring fills over `RESTART_LOCK`; **label pill** below (Rim White 85%, 16 sp Ink, 28 dp high for one line, see Sensor label rules) | Locked: icon 60% to 100% opacity as the ring fills (60% keeps the icon at about 4:1 on the pill; the GDD's "about 50%" is approximate). Unlocked: full opacity, label `Tap`. Sensor-dimmed (`valid` false): icon about 45% (inactive, exempt from the 3:1 non-text floor), label per Sensor label rules | `restart_unlocked`; `valid` and `state` pulled each tick | Hit only. The whole screen is the tap target (view-owned catcher), not just the circle | Fill is continuous and calm. Unlock settles with a ~150 ms brightness ease. Reconnecting adds a Lagoon ring pulse of 1.2 s period (at most 1 Hz, no flashing); `No motion sensor` and `Sensor not ready` have none |
@@ -113,6 +122,17 @@ One label pill, two possible lines. Rules, all re-derived each tick from `valid`
 3. **Growth:** the pill is 28 dp high with one line and grows **downward** to 52 dp when the secondary line appears. Z4's circle and Z5 do not move (the budget reserves the 2-line height).
 4. **With `valid` true:** locked shows the circle only (no pill); unlocked shows the pill with `Tap`.
 5. No label wraps (see Localization): one line each, 16 sp, pill at most 280 dp wide.
+
+**Restart circle states (valid × lock).** The art bible (§7) wants "still arming" and "genuinely disabled" to read differently. The label pill is the discriminator; opacity alone is not relied on, because the icon opacities are close (60% start versus 45%).
+
+| `valid` | Lock | Icon opacity | Lagoon ring | Label pill |
+|---|---|---|---|---|
+| true | locked | 60% rising to 100% | fills over `RESTART_LOCK` | none |
+| true | unlocked | 100% | full | `Tap` |
+| false | locked | 45%, fixed | fills over `RESTART_LOCK` | primary line (plus secondary after a swallowed tap) |
+| false | unlocked | 45%, fixed | full | primary line (plus secondary after a swallowed tap) |
+
+A circle with no pill is therefore always "arming and working"; a circle with a sensor pill is always "not usable". The device walkthrough (HUD-2) checks that testers read the two correctly (Open Question 7).
 
 ### Data source and priority
 
@@ -132,7 +152,8 @@ Priority decides what yields if a future element ever competes for Z4 or the 4-g
 ### Visual budget
 
 - At most **4 simultaneous groups** (Philosophy). Worst case is Hit with `valid` false: Z1 readout, Z3 banner, Z4 prompt with label, Z5 Menu.
-- At most **17% of the safe-area surface** is covered by HUD pills at any moment, measured on the worst-case state above (Hit, `valid` false, banner shown, after a swallowed tap) at H = 640 dp and 360 dp wide (230,400 dp²). Starting value, unverified; measured in HUD-2. Arithmetic for that state: Score 130×44 = 5,720; BEST 130×32 = 4,160; banner about 205×48 = 9,840; restart circle 88 dp ≈ 6,080; 2-line label pill about 160×52 = 8,320; Menu circle ≈ 1,810; Menu label pill about 50×26 = 1,300. Total ≈ 37,200 dp², about 16.2%. The earlier 12% figure did not survive this arithmetic; it was a guess made before the label pills and sizes existed.
+- At most **17% of the safe-area surface** is covered by HUD pills at any moment, measured on the worst-case state above (Hit, `valid` false, banner shown, after a swallowed tap) at H = 640 dp and 360 dp wide (230,400 dp²). Starting value, unverified; measured in HUD-2. Arithmetic for that state (English reference strings): Score 130×44 = 5,720; BEST 170×32 = 5,440; banner about 205×48 = 9,840; restart circle 88 dp ≈ 6,080; 2-line label pill about 160×52 = 8,320; Menu circle ≈ 1,810; Menu label pill about 50×26 = 1,300. Total ≈ 38,500 dp², about 16.7%. The earlier 12% figure did not survive this arithmetic; it was a guess made before the label pills and sizes existed. The margin to 17% is thin on purpose: it is a paper estimate to be replaced by the on-device measurement.
+- **Localized worst case:** with both label lines at the 24-character limit the label pill is about 228×52 = 11,856, which brings the total to about 42,050 dp², about 18.3%. The hard ceiling for that case is **19%** (UX-8). The 17% budget applies to the English reference strings only.
 - The vertical centre band (35% to 55% of H) holds no HUD element except Z4 on short screens (Open Question 3).
 
 ### Tuning knobs
@@ -167,8 +188,20 @@ None. Placement and size values here are design constants, not player-adjustable
 | Resuming → Paused | Z4 hides |
 | Hit → Running (restart) | All Hit elements hide, score back to 0, passed state cleared, banner tween killed, prompt re-locked |
 | Hit → Menu | HUD hides entirely; banner cleared |
+| Android Back pressed (`back_pressed`, owned by Menus & Screen Flow Rule 5 outside Running and Resuming) | Running: pauses (Platform Services adapter). **Hit: goes to Menu, not gated on `valid`**; Run State still rejects it before the lock, so nothing happens until `restart_unlocked`. **Sensor-lost pause with `valid` false: sends nothing** (Back mirrors Resume's `valid` gate), so the Menu button is the only way out there. Resuming: ignored. HUD sends nothing for Back itself; it only reacts to the resulting `phase` change |
 | `valid` flips while in Hit | Z4 dims or undims and its label pill follows the Sensor label rules; Z5 shows or hides (shown dimmed until `restart_unlocked`). No animation except the Reconnecting pulse |
 | `restart_unlocked` while `valid` is false | The restart circle finishes its fill and the Menu button goes from about 50% to full opacity, with press feedback enabled |
+
+### Missing or unavailable data
+
+| Data | If unavailable | What shows |
+|---|---|---|
+| `current_score` (pull seam) | Not yet readable at the first tick, or the seam returns null | The last shown value; `0` before any value exists. Never blank, never a placeholder glyph |
+| `personal_best` | Not readable at construction, or stored 0 | BEST pill hidden (same as "no best yet") |
+| Resume F5 `{remaining, digit, progress}` | Row missing on a Resuming tick | Keep the previous digit and ring for that tick; no HUD-side estimate (`hud.md` Rule 5) |
+| `valid` / `state` | Seam unavailable | Treated as `valid` false with the "No motion sensor" primary line in Hit and in the sensor-lost pause, nothing in other phases |
+| `safe_area` | Empty rectangle (desktop, no cutout information) | Platform Services returns the full screen rectangle in pixels; the layout uses it as is |
+| `viewport_size` or `screen_dpi` | Zero or missing | Layout falls back to `viewport_units_per_dp = 1` and logs once (Open Question 9) |
 
 ### Layering and input
 
@@ -212,7 +245,7 @@ No `design/accessibility-requirements.md` exists yet, so there is no committed t
 | Reduced-motion variant, **specified but not wired** | If the setting is ever wired: the banner appears instantly, the Reconnecting pulse becomes a static ring, and the press scale is removed. The countdown ring keeps sweeping because it shows real time |
 | Screen reader | Proposed names, **non-binding until AccessKit on 4.7.2 is verified**: Pause `Pause`; Menu `Menu`; restart surface `Restart, tap anywhere`; the sensor label as an alert. The live score is **not** announced per tick. On Hit announce `Run over. Score N.` and `New best.` when the banner shows; during Resuming announce each whole digit once |
 | Reading order (screen reader, proposed, same AccessKit caveat) | Running: Score, BEST, Pause. Hit: the `Run over. Score N.` announcement, banner (if shown), restart surface, label pill, Menu (if shown). Sensor-lost pause: label pill, Menu. Resuming: Score, BEST, then the countdown digits |
-| Single-handed | Pause sits top-right on purpose, away from the grip. Android Back also pauses (Platform Services); iOS has no equivalent, so the button is its only in-app pause |
+| Single-handed | Pause sits top-right on purpose, away from the grip, and inset 40 dp from the right edge to stay out of the system gesture strip (Gesture-edge rule). Android Back also pauses in Running (Platform Services); iOS has no equivalent, so the button is its only in-app pause. Back behavior elsewhere: see Dynamic Behaviors |
 | Non-visual countdown | The countdown has no non-visual equivalent; that is Run State's (`hud.md` Open Question 9) |
 
 ---
@@ -223,15 +256,17 @@ Measured on a device matrix of at least: a 16:9 phone (H about 640 dp), a 20:9 p
 
 - **UX-1** Every control (Pause, Menu) has a hit area of at least 48 dp, measured on screen; the restart tap target is the full screen.
 - **UX-2** On every device in the matrix, no HUD element lies outside the safe area, and Z5 ends at least 96 dp above the safe bottom edge.
-- **UX-3** The Score pill keeps the same position and width (130 dp) from 0 to 999,999 and across Running, Paused, Resuming and Hit.
+- **UX-3** The Score pill keeps the same position and width (130 dp) from 0 to 999,999 and across Running, Paused, Resuming and Hit. The BEST pill keeps its 170 dp width and never clips or overflows in the `NEW BEST` state with a 6-digit value, and shrinks (not widens) at 7 or more digits.
 - **UX-4** In the worst-case Hit state (`valid` false, banner shown), at most 4 groups are visible, no two overlap, and the isolated killer hazard is not covered on 10 deaths in a row.
-- **UX-5** HUD pills cover no more than 17% of the safe-area surface in that state at H = 640 dp (paper estimate 16.2%, see Visual budget).
+- **UX-5** HUD pills cover no more than 17% of the safe-area surface in that state at H = 640 dp with the English reference strings (paper estimate 16.7%, see Visual budget).
 - **UX-6** `valid` becoming true during a `sensor_lost` pause hides Z4 and Z5 in the same tick and the ordinary Paused screen shows with Resume enabled.
 - **UX-7** Phase changes show no fade; the only motion is the banner entrance (about 220 ms), the unlock settle (about 150 ms), the countdown ring, the Reconnecting pulse and the button press scale.
-- **UX-8** With the longest localized strings (40% expansion, up to the 24-character label limit) no label wraps, overflows its pill or drops below 14 sp, and Z4 and Z5 do not move or overlap.
-- **UX-9** Layering: a press on the Menu button in Hit sends `menu_requested` and never also `restart_requested` (spy on both sinks, on device, 10 presses).
+- **UX-8** With the longest localized strings (40% expansion, up to the 24-character label limit) no label wraps, overflows its pill or drops below 14 sp, and Z4 and Z5 do not move or overlap. In that localized worst case HUD pills cover no more than 19% of the safe-area surface at H = 640 dp.
+- **UX-9** Layering: a press on the Menu button in Hit (with `valid` false) sends `menu_requested` exactly once, sends no `restart_requested`, **and does not make the secondary line `Sensor not ready` appear** (spy on both sinks and watch the label, on device, 10 presses). The label check is the observable one: with `valid` false the catcher never forwards a restart anyway, so the sink spy alone cannot detect a fall-through to the catcher.
 - **UX-10** Sensor label: in Hit with `valid` false and `state` Acquiring, the pill shows `Reconnecting…`; after one tap it shows `Reconnecting…` plus `Sensor not ready` under it; when `state` becomes Unavailable the primary line changes to `No motion sensor` and the secondary line stays; `valid` true clears both. In the `sensor_lost` pause the primary line follows `state` and no secondary line ever appears.
 - **UX-11** Menu button in Hit with `valid` false: at about 50% opacity with no press feedback before `restart_unlocked`, full opacity with feedback after; a press before the unlock sends nothing.
+- **UX-12** Gesture edges: on an Android phone with gesture navigation (highest back-gesture sensitivity) and on an iPhone with a notch, the Pause button activates on 10 of 10 presses in Running, and no press triggers the system back gesture, Control Center or the notification shade. Z2's hit area is at least 40 dp from the right safe edge and 16 dp below the top safe edge, measured on screen.
+- **UX-13** Restart circle states: for each row of the valid × lock table, the circle matches its icon opacity, ring and pill; in the HUD-2 walkthrough testers tell "arming" (no pill) from "not usable" (sensor pill) without prompting.
 
 ---
 
@@ -249,6 +284,7 @@ Measured on a device matrix of at least: a 16:9 phone (H about 640 dp), a 20:9 p
 | 8 | Accidental restart from a re-grip tap just after the lock (`hud.md` Open Question 10), and an optional hold-to-restart | user, game-designer | First-playable playtest |
 | 9 | dp to viewport-unit conversion (dpi source, stretch mode) needs an ADR; no `project.godot` yet (Platform & Input Variants, Units) | technical-director, godot-specialist | Before the first UI story |
 | 10 | Location of the accessibility requirements file: `design/CLAUDE.md` says `design/ux/accessibility-requirements.md`, this spec and the gate checks say `design/accessibility-requirements.md` | user | Before writing it |
+| 11 | Platform Services supplies no system-gesture insets; the Z2 values (40 dp right, 16 dp top) are fixed starting values. If UX-12 fails or devices differ widely, Platform Services should expose the real insets and Z2 should read them | technical-director, godot-specialist | Vertical slice, on device |
 
 ---
 
