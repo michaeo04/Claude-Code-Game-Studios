@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: ""
+last_updated: "2026-10-02"  # ADR-0002 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -43,7 +43,39 @@ last_updated: ""
 # interface: how other systems access this state (read-only property, method call,
 #   signal, shared resource, etc.) — this is the contract other ADRs depend on.
 
-state_ownership: []
+state_ownership:
+  - state: frame_tick_order
+    status: active
+    owner_system: game-root
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    interface: "GameRoot._tick(real_dt, world_dt): the only place the per-frame call order is written"
+    write_access: game-root-only
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: subscriber_order
+    status: active
+    owner_system: game-root
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    interface: "GameRoot._wire() rows [Signal, Callable, rank:int]; ranks are owned by Run State (run_reset, run_ended, run_abandoned)"
+    write_access: game-root-only
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: clock_us
+    status: active
+    owner_system: game-root
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    interface: "Callable -> int (microseconds), wraps Time.get_ticks_usec(); injected into every system that needs time"
+    write_access: game-root-only
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
 
 # Example:
 #
@@ -71,7 +103,29 @@ state_ownership: []
 #
 # pattern options: signal | direct_call | event_bus | shared_resource | rpc | none
 
-interfaces: []
+interfaces:
+  - contract: run_lifecycle_events
+    status: active
+    pattern: signal
+    producer: run-state
+    consumers:
+      - pattern-difficulty
+      - tube-track-adapter
+      - obstacle-system
+      - ball-movement
+      - camera
+      - juice-feedback
+      - scoring-personal-best
+      - hud
+      - near-miss-detection
+      - tilt-input
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    signal_signature: "run_reset(run_id: int), run_ended(run_id: int, hazard_id: int, run_time_ms: int), run_abandoned(run_id: int, run_time_ms: int)"
+    notes: "Immediate connections only, typed handlers, no CONNECT_DEFERRED, no request from inside a handler; order pinned by GameRoot._wire() rows."
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
 
 # Example:
 #
@@ -100,7 +154,33 @@ interfaces: []
 # Register a budget when an ADR explicitly claims a frame time allocation.
 # The registry lets /architecture-review verify the total doesn't exceed the target.
 
-performance_budgets: []
+performance_budgets:
+  - target_fps: 60
+    total_frame_budget_ms: 16.6
+    platform: Mobile
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: simulation_tick
+    status: active
+    budget_ms: 3.0
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    notes: "Provisional (a guess): steps 1 to 10 of the per-frame order combined; measured in the first playable."
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: game_root_orchestration
+    status: active
+    budget_ms: 0.1
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    notes: "Provisional: a dozen method calls per frame, no logic of its own."
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
 
 # Example:
 #
@@ -131,7 +211,28 @@ performance_budgets: []
 # Register an API decision when the choice is non-obvious and other ADRs might
 # make a different choice for the same purpose without knowing this was decided.
 
-api_decisions: []
+api_decisions:
+  - purpose: frame_clock
+    status: active
+    api: "Time.get_ticks_usec() through the injected clock_us Callable"
+    not: "the _process engine delta (scaled by time_scale, capped near 0.133 s)"
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    reason: "Run State's stall guard needs the raw real-time interval; cores must not call Time."
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: game_tick
+    status: active
+    api: "GameRoot._process (PROCESS_MODE_ALWAYS)"
+    not: "_physics_process, per-node _process with process_priority"
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    reason: "One owner and one fixed order; analytic collision needs no physics step; sensor polling must follow rendered frames."
+    referenced_by:
+      - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
 
 # Example:
 #
@@ -157,7 +258,48 @@ api_decisions: []
 # Register a pattern when an ADR explicitly bans it AND other ADRs might
 # unknowingly use it (i.e., it's a tempting but wrong approach for this project).
 
-forbidden_patterns: []
+forbidden_patterns:
+  - pattern: autoload_singletons
+    status: active
+    description: "No autoload entries for game systems; GameRoot constructs and owns every system."
+    why: "Hidden coupling, no explicit construction order, hard to inject test doubles."
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+
+  - pattern: view_node_own_process
+    status: active
+    description: "View and driver Nodes do not run their own _process or _physics_process; GameRoot calls them."
+    why: "The per-frame order is a correctness requirement and must be written in one place."
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+
+  - pattern: connect_deferred_control_signals
+    status: active
+    description: "Control signals (run_*, hit_reported, window_*) are never connected with CONNECT_DEFERRED."
+    why: "Deferred handlers run after emit() returns and escape the re-entrancy guards and the pinned order."
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+
+  - pattern: engine_time_scale_writes
+    status: active
+    description: "No code writes Engine.time_scale."
+    why: "Run State derives time from the real clock; hit-stop is a real-time hold of effects, not a time scale."
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+
+  - pattern: scene_tree_paused_for_pause
+    status: active
+    description: "Pause, Hit and Resuming freeze the world through dt_eff = 0, never through SceneTree.paused."
+    why: "The tick must keep running for Tilt polling, the restart lock and the HUD."
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+
+  - pattern: physics_process_game_logic
+    status: active
+    description: "No game-logic code runs in _physics_process."
+    why: "Engine may run several physics steps per frame; polling and collision must follow the rendered frame."
+    adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
 
 # Example:
 #
