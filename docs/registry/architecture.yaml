@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007, ADR-0004 and ADR-0008 stances added
+last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007, ADR-0004, ADR-0008 and ADR-0009 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -212,6 +212,18 @@ state_ownership:
     write_access: pattern-compile-only
     referenced_by:
       - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - state: lint_rules
+    status: active
+    owner_system: tools-ci
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    interface: "tools/ci/lint_rules.json: one record per rule (id, source ADR or GDD, severity, kind forbid | only_in | project_setting | manifest | secret | custom, scope globs, patterns, allow list, message); rule content is owned by the ADR or GDD named in source, the harness by ADR-0009; every rule has a passing and a failing fixture"
+    write_access: tools-ci-and-source-adr-owners
+    referenced_by:
+      - docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
     revised: ""
 
@@ -427,6 +439,22 @@ interfaces:
     added: 2026-10-02
     revised: ""
 
+
+  - contract: ci_entry
+    status: active
+    pattern: direct_call
+    producer: tools-ci
+    consumers:
+      - github-actions
+      - smoke-check
+      - developers
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    signal_signature: "python tools/ci/run_ci.py [--only unit|integration|advisory|lint|all]: godot --headless --path . --import, GUT over tests/unit then tests/integration (BLOCKING), tests/advisory (warning), then lint_runner.py; results trusted only after the checks: JUnit XML present, more than zero tests, executed count >= number of *_test.gd files, zero failures, no SCRIPT ERROR or Parse Error in the output, per-call timeout"
+    referenced_by:
+      - docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # interfaces:
@@ -606,6 +634,18 @@ performance_budgets:
     verification: "spike OB-1 (first-playable profiling pass, advisory until then)"
     referenced_by:
       - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - budget: ci_runtime
+    status: active
+    owner_system: tools-ci
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    value: "full CI run <= 5 minutes on ubuntu-latest (no .godot cache in the MVP)"
+    verification: "spike T-2 (first green run)"
+    referenced_by:
+      - docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
     revised: ""
 
@@ -862,6 +902,29 @@ api_decisions:
     reason: "Bit-identical chunk sequences per run_id; the integer path is the portable one (verify on device)."
     referenced_by:
       - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - purpose: test_framework
+    status: active
+    api: "GUT 9.x vendored under addons/gut at a pinned release; tests extend GutTest; fixtures in tests/support have no framework dependency and are referenced with preload"
+    not: "gdUnit4 (pre-committed fallback only if spike T-1 fails), a custom runner, class_name as the fixture reference path in tests"
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    reason: "Matches technical preferences and the GDD fixtures; a framework switch is a mechanical port of test files."
+    referenced_by:
+      - docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: test_discovery_and_layout
+    status: active
+    api: ".gutconfig.json with prefix empty and suffix _test.gd; tests/unit (Logic, BLOCKING), tests/integration (Integration and Content, BLOCKING), tests/advisory (ADVISORY), device evidence under production/qa/evidence"
+    not: "GUT default prefix test_ (finds no project test); real file I/O in unit tests; device-only checks written as GUT tests"
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    reason: "One folder per evidence class of the testing standards."
+    referenced_by:
+      - docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
     revised: ""
 
@@ -1146,6 +1209,49 @@ forbidden_patterns:
     description: "The sequencer's read history holds every read including Spikes (empty solution set) and pads by max(S_MIN_SPACING, DODGE_RECOVERY_S if opposing) and footprint clearance D."
     why: "A Spike or a non-opposing chunk next to the previous chunk could otherwise violate spacing and overlap at the boundary."
     adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+
+
+  - pattern: skip_or_retry_failing_tests
+    status: active
+    description: "No pending, skip, disabled test or CI retry to obtain a green run; a failing or flaky test is fixed or deleted with a written reason."
+    why: "CI rules: never disable or skip a failing test; a retry hides flakiness."
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+
+  - pattern: unpinned_ci_dependency
+    status: active
+    description: "GitHub Actions are pinned to a commit SHA; the Godot archive is verified against a SHA-512 committed by hand; GUT is vendored; no third-party Godot container image."
+    why: "Public repository supply-chain surface."
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+
+  - pattern: secrets_in_ci
+    status: active
+    description: "The CI workflow uses no secrets and has permissions contents: read; keystores are decoded only in a separate, reviewed export workflow."
+    why: "The repository is public."
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+
+  - pattern: framework_base_in_test_support
+    status: active
+    description: "tests/support fixtures and fakes extend no GUT class and call no GUT function; names do not collide with GUT classes (Double, Spy)."
+    why: "A framework switch must touch only *_test.gd files."
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+
+  - pattern: trust_godot_exit_code
+    status: active
+    description: "A Godot run is trusted only after the JUnit XML check (present, more than zero tests, executed count at least the number of test files, zero failures) and a scan for SCRIPT ERROR and Parse Error."
+    why: "A parse error can skip a test file and still exit 0."
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
+    added: 2026-10-02
+
+  - pattern: lint_ignore_comment
+    status: active
+    description: "A lint is silenced only by an allowlist field in lint_rules.json, never by an inline ignore comment in source."
+    why: "Suppressions must be reviewable in one place."
+    adr: docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
 
 # Example:
