@@ -40,6 +40,10 @@ Independent recomputation agreed: A = 9 and N = 12 (and A = 12, N = 15 at the ma
 
 Warnings of the first report that were not part of the 9 decisions (stray tap after the Paused takeover, abandon-path banner, `haptics_intensity` input path, hit-stop time basis, the 682 s cap owner, the `t_reset` shares at N = 12) were checked and **none was made worse**.
 
+## Resolution of the open warnings (2026-10-02)
+
+User decisions, applied the same session: **W-D** drop "window close" as a release trigger (`released_by_reset` true for `window_primed`: reset, re-prime, to-idle; false for `segment_left_window`; no unload in the MVP; Obstacle AC-40); **W-E** Obstacle's `run_reset` handler only captures `run_id` (AC-41); **W1** Juice classifies hit versus abandon from the latched run-end kind (`run_ended` or `run_abandoned`), not from its track state (Juice AC-32; Run State "Subscriber order" gains a `run_abandoned` row); **W3** Environment reads the getter at construction or map load as well as on `setting_changed` (Environment AC-23 to AC-25); **W4** new preflight `EXIT_BEYOND_VISIBLE_ARC`: a `theta_solution` farther than `VISIBLE_ARC_HALF_WIDTH` from `THETA_REF` is allowed only for PI-symmetric types (Obstacle AC-42, Pattern AC-10 row e); **W-F** Tube Track AC-23a (live `seam_contrast_scale`). Status: all six warnings resolved; no open warning of this re-review remains except the Info items below.
+
 ## Info
 
 - `t_reset` and draw-call budgets are flagged "to be re-verified at N = 12", not recomputed; the risk is low (`T_restart` 0.216 s against 1 s).

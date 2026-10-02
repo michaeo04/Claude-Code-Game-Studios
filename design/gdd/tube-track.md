@@ -8,7 +8,7 @@
 > `SEAM_RELIEF` and the `RELIEF` code removed), and `SEAM_CONTRAST_MAX` is 1.25; the readable
 > criterion (`F_read`) was handed to Environment & Theming. `F_read` and `d_cam` are now both resolved (`environment-theming.md`
 > and `camera.md`, 2026-09-29 — Open Questions 7 and 10). Provisional inputs (`v_max`, the seam band) still
-> await an on-device test (Open Questions 12, 13, 14). Revised 2026-10-01 after `/review-all-gdds` (C1, S3, S4): defaults A = 9 and N = 12 at F = 84, load failure keeps Uninitialized, `seam_contrast_scale` read every frame.
+> await an on-device test (Open Questions 12, 13, 14). Revised 2026-10-01 after `/review-all-gdds` (C1, S3, S4): defaults A = 9 and N = 12 at F = 84, load failure keeps Uninitialized, `seam_contrast_scale` read every frame. Revised again after the `/review-all-gdds` re-run 2026-10-01 (W-F): AC-23a covers a mid-session `seam_contrast_scale` change.
 > **Author**: user + agents
 > **Last Updated**: 2026-09-20
 > **Supports Pillar**: Pillar 1 (Instant Readability); Pillar 2 (Fair but Merciless
@@ -866,6 +866,11 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
 - **AC-23 [U]** (R5): over the whole simulation every `slot_binder` call has a `slot_index` in
   0..11 and `slot_index = posmod(segment_index, 12)`; that nothing is allocated or freed is asserted
   by the [P] check AC-29 (engine object, node and resource counts), not here.
+- **AC-23a [U]** (R9, review re-run W-F): **GIVEN** Tube Track in Idle, then in Paused, then in Running, **WHEN** the injected
+  `seam_contrast_scale` getter is changed between 1.0 and 0.0 (the only two values Settings produces, so only
+  these are tested), **THEN** the seam contrast applied on the next tick is 1.0 and 0.0 respectively in each
+  state, with no restart and no half-applied value. A mutation that samples only at `load_map` or
+  `begin_run` must fail.
 - **AC-24 [I / static]** (R3, R12): the generated tube mesh has 32 facets with vertex radius
   `R`, and the `TubeTrack` node tree contains no `CollisionObject3D` (deferred until the mesh
   exists).
