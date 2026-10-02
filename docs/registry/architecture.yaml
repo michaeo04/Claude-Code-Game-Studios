@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002, ADR-0003 and ADR-0005 stances added
+last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005 and ADR-0006 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -134,6 +134,40 @@ state_ownership:
     added: 2026-10-02
     revised: ""
 
+
+  - state: lifecycle_state
+    status: active
+    owner_system: platform-services
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    interface: "focused, paused, attentive, suspended flags; attentive and suspended are read-only getters; consumers read them on connect because signals are not replayed"
+    write_access: platform-services-only
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: back_handling
+    status: active
+    owner_system: platform-services
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    interface: "application/config/quit_on_go_back = false (project and SceneTree at boot); NOTIFICATION_WM_GO_BACK_REQUEST emits back_pressed; Menus and Run State decide the meaning"
+    write_access: platform-services-only
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: android_export_manifest
+    status: active
+    owner_system: platform-services
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    interface: "export_presets.cfg plus the merged AndroidManifest.xml: Gradle build, AAB, arm64, minSdk 28, one Vulkan 1.1 uses-feature, accelerometer feature, VIBRATE only; linted in CI (release builds read the merged manifest)"
+    write_access: platform-services-manifest-only
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # state_ownership:
@@ -224,6 +258,23 @@ interfaces:
     signal_signature: "restart_requested(press_us: int), menu_requested(press_us: int); press_us read from clock_us on the first line of the catcher _gui_input or of the Button button_down handler"
     referenced_by:
       - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - contract: lifecycle_signals
+    status: active
+    pattern: signal
+    producer: platform-services
+    consumers:
+      - run-state-adapter
+      - save-persistence
+      - tilt-input
+      - menus-screen-flow
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    signal_signature: "app_interrupted(), app_backgrounded(), app_foregrounded(), app_returned(), back_pressed(); no payloads, emitted on edges only, synchronously on the main thread"
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
     added: 2026-10-02
     revised: ""
 
@@ -504,6 +555,51 @@ api_decisions:
     added: 2026-10-02
     revised: ""
 
+
+  - purpose: lifecycle_primary_signal
+    status: active
+    api: "NOTIFICATION_APPLICATION_FOCUS_OUT and FOCUS_IN (focus implies suspend on Android)"
+    not: "NOTIFICATION_APPLICATION_PAUSED and RESUMED (ignored; reliability under Vulkan unverified)"
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    reason: "FOCUS_OUT is the more sensitive trigger and fires for the shade, a call banner and split-screen focus; the stall guard is only the backup."
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: lifecycle_thread_marshal
+    status: active
+    api: "OS.get_thread_caller_id() == OS.get_main_thread_id(): main thread calls the core synchronously, any other thread uses call_deferred"
+    not: "always call_deferred (a deferred flush may not run before the OS suspends the process)"
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    reason: "The app_backgrounded flush must complete before suspension; PS-12 records which case occurs."
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: back_hook
+    status: active
+    api: "NOTIFICATION_WM_GO_BACK_REQUEST only"
+    not: "ui_cancel or KEY_BACK as a second path"
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    reason: "One press must arrive exactly once; Back not delivered on SDK 36 is a release blocker with the fallback of backgrounding the app."
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: device_floor
+    status: active
+    api: "minSdk 28, uses-feature Vulkan 0x401000 (1.1) required, accelerometer feature required, phones only via the Play Console device catalog"
+    not: "Android 7 with Vulkan 1.0; tablets and foldables as supported devices (Android 16 ignores the portrait lock on large screens)"
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    reason: "Fewer driver risks for the mobile renderer (ADR-0003) and a portrait-only layout."
+    referenced_by:
+      - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # api_decisions:
@@ -648,6 +744,49 @@ forbidden_patterns:
     description: "No ProjectSettings sensor flag other than input_devices/sensors/enable_gravity is true."
     why: "Unused sensors cost battery; the lint asserts it."
     adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+
+
+  - pattern: pause_resume_as_pause_signal
+    status: active
+    description: "NOTIFICATION_APPLICATION_PAUSED and RESUMED are not used as the pause or resume signal."
+    why: "FOCUS_OUT and FOCUS_IN cover the cases; PAUSED reliability under Vulkan is unverified."
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+
+  - pattern: always_deferred_lifecycle_flush
+    status: active
+    description: "The app_backgrounded flush is not marshalled with call_deferred when already on the main thread."
+    why: "A deferred call may not run before the OS suspends the process."
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+
+  - pattern: ui_cancel_for_back
+    status: active
+    description: "Back is not also mapped through ui_cancel or KEY_BACK."
+    why: "The same press could arrive twice; the single hook is WM_GO_BACK_REQUEST."
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+
+  - pattern: duplicate_vulkan_uses_feature
+    status: active
+    description: "The manifest holds exactly one Vulkan uses-feature entry (1.1); Godot's default 1.0 entry is replaced."
+    why: "Two conflicting entries give an undefined Play filter."
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+
+  - pattern: internet_permission_in_release
+    status: active
+    description: "A release build declares no INTERNET permission (VIBRATE only); the lint reads the merged manifest."
+    why: "No network in the MVP; debug exports may add INTERNET, so only release builds are linted."
+    adr: docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+
+  - pattern: keystore_in_repository
+    status: active
+    description: "No keystore, alias or password is committed; CI decodes the keystore from a secret to a temporary path."
+    why: "The repository is public; Play App Signing with an upload key."
+    adr: docs/architecture/adr-0006-android-platform-integration.md
     added: 2026-10-02
 
 # Example:
