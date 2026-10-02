@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005 and ADR-0006 stances added
+last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006 and ADR-0007 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -168,6 +168,18 @@ state_ownership:
     added: 2026-10-02
     revised: ""
 
+
+  - state: save_profile
+    status: active
+    owner_system: save-persistence
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    interface: "user://save.cfg (ConfigFile: [scoring], [settings], [cosmetics], [_meta]); written only through SaveCore.set_value, one complete-map temp-then-rename write; read once by SaveCore.boot_load before dependents exist"
+    write_access: save-core-only
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # state_ownership:
@@ -275,6 +287,34 @@ interfaces:
     signal_signature: "app_interrupted(), app_backgrounded(), app_foregrounded(), app_returned(), back_pressed(); no payloads, emitted on edges only, synchronously on the main thread"
     referenced_by:
       - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - contract: save_value_api
+    status: active
+    pattern: direct_call
+    producer: save-persistence
+    consumers:
+      - scoring-personal-best
+      - settings-accessibility
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    signal_signature: "get_value(section: String, key: String, default: Variant) -> Variant; set_value(section: String, key: String, value: Variant) -> bool (synchronous write, false on failure, memory still updated); flush() -> void (no-op today); no signals"
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
+  - contract: save_fs_facade
+    status: active
+    pattern: injected_object
+    producer: save-persistence
+    consumers:
+      - save-core
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    signal_signature: "SaveFs: read_config(path) -> Dictionary, write_config(path, sections) -> bool, exists(path) -> bool, size(path) -> int, rename(from, to) -> bool, delete(path) -> bool, list_backups(dir, prefix) -> PackedStringArray; real implementation is an inner class of SaveService, tests extend SaveFs"
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
     added: 2026-10-02
     revised: ""
 
@@ -421,6 +461,18 @@ performance_budgets:
     notes: "Menus screens; never concurrent with gameplay except the Paused screen over frozen HUD Z1. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
     referenced_by:
       - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - budget: save_write_latency
+    status: active
+    owner_system: save-persistence
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    value: "SaveCore.set_value full path p95 <= 3 ms over >= 1000 writes on a mid-tier Android phone (maximum reported, <= 8 ms expected); fallback if missed: dirty flag and flush as the last step of the same tick"
+    verification: "spike SP-3 (blocking, first playable)"
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
     added: 2026-10-02
     revised: ""
 
@@ -597,6 +649,40 @@ api_decisions:
     reason: "Fewer driver risks for the mobile renderer (ADR-0003) and a portrait-only layout."
     referenced_by:
       - docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - purpose: save_file_replace
+    status: active
+    api: "DirAccess.rename_absolute(tmp, real) after ConfigFile.save(tmp) returned OK and size(tmp) > 0"
+    not: "writing save.cfg in place; FileAccess hand-written serializer"
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    reason: "App-kill safety by temp then rename; whether the replace is atomic on Android and Windows is verified by SP-1 (boot-time .tmp promotion and A/B slots are the pre-committed fallbacks)."
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: save_type_check
+    status: active
+    api: "typeof(stored) == typeof(caller default); an int stored where a float is declared is a TYPE_MISMATCH"
+    not: "a per-key type table inside SaveCore"
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    reason: "Save never invents defaults or types for other systems' keys."
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: android_auto_backup
+    status: active
+    api: "android:allowBackup=false in the merged release manifest (mechanism to verify: custom Gradle template likely)"
+    not: "Auto Backup restoring save.cfg, .tmp or .corrupt-* files"
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    reason: "No cloud save in the MVP; avoids restoring a stale or other-schema file; accepted cost: the personal best does not follow the player to a new phone."
+    referenced_by:
+      - docs/architecture/adr-0007-persistence-implementation.md
     added: 2026-10-02
     revised: ""
 
@@ -787,6 +873,35 @@ forbidden_patterns:
     description: "No keystore, alias or password is committed; CI decodes the keystore from a secret to a temporary path."
     why: "The repository is public; Play App Signing with an upload key."
     adr: docs/architecture/adr-0006-android-platform-integration.md
+    added: 2026-10-02
+
+
+  - pattern: set_value_per_drag_event
+    status: active
+    description: "Continuous controls (sliders) never call set_value on value_changed; they commit on drag_ended."
+    why: "set_value writes the file synchronously; a drag would write about 60 times a second."
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+
+  - pattern: save_io_outside_save_service
+    status: active
+    description: "ConfigFile, FileAccess and DirAccess appear only in save_service.gd (the real SaveFs inner class); SaveCore, PersistMath, SaveFs base and fakes hold no engine calls."
+    why: "One place for real I/O; the core stays testable with a fake file system."
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+
+  - pattern: real_filesystem_in_unit_tests
+    status: active
+    description: "Unit tests of SaveCore use a fake SaveFs; the real file system is touched only by SP-1, SP-2 and SP-3."
+    why: "Determinism and isolation (testing standards)."
+    adr: docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+
+  - pattern: global_name_shadowing_in_save_core
+    status: active
+    description: "SaveCore does not declare methods named load, preload or other global utility functions; the boot entry point is boot_load."
+    why: "GDScript SHADOWED_GLOBAL_IDENTIFIER: a later load(\"res://...\") inside the class would call the method."
+    adr: docs/architecture/adr-0007-persistence-implementation.md
     added: 2026-10-02
 
 # Example:
