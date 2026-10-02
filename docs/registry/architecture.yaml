@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002 and ADR-0003 stances added
+last_updated: "2026-10-02"  # ADR-0002, ADR-0003 and ADR-0005 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -100,6 +100,40 @@ state_ownership:
     added: 2026-10-02
     revised: ""
 
+
+  - state: sensor_samples
+    status: active
+    owner_system: tilt-input
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    interface: "TiltInput.poll() reads Input.get_gravity() once per rendered frame; steer, valid, input_source are read-only getters; no other file reads motion sensors"
+    write_access: tilt-input-only
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: required_input_settings
+    status: active
+    owner_system: platform-services
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    interface: "manifest: input_devices/sensors/enable_gravity=true (other sensor flags false), display/window/handheld/orientation=1, emulate_mouse_from_touch=true, emulate_touch_from_mouse=true; checked at boot and in CI"
+    write_access: platform-services-only
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: press_us
+    status: active
+    owner_system: hud-and-menus-views
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    interface: "one stamp per tap from the injected clock_us: the Hit tap catcher in _gui_input (ScreenTouch pressed, any index) or a stock Button in button_down; forwarded to Run State"
+    write_access: input-handlers-only
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # state_ownership:
@@ -161,6 +195,35 @@ interfaces:
     signal_signature: "TubeView.bind_slot(slot_index: int, segment_index: int) -> void  (sets the slot transform and calls reset_physics_interpolation(); allocates nothing)"
     referenced_by:
       - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - contract: tilt_pull
+    status: active
+    pattern: direct_call
+    producer: tilt-input
+    consumers:
+      - ball-movement
+      - menus-screen-flow
+      - hud
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    signal_signature: "TiltInput.steer: float [-1,1], valid: bool, input_source: int (SENSOR, FALLBACK); read after poll() in the same tick"
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
+  - contract: tap_stamp
+    status: active
+    pattern: direct_call
+    producer: hud-and-menus-views
+    consumers:
+      - run-state
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    signal_signature: "restart_requested(press_us: int), menu_requested(press_us: int); press_us read from clock_us on the first line of the catcher _gui_input or of the Button button_down handler"
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
     added: 2026-10-02
     revised: ""
 
@@ -407,6 +470,40 @@ api_decisions:
     added: 2026-10-02
     revised: ""
 
+
+  - purpose: motion_sensor_source
+    status: active
+    api: "Input.get_gravity() (Android gravity sensor, m/s^2, float32)"
+    not: "get_accelerometer(), get_gyroscope(), get_magnetometer(), a native sensor plugin"
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    reason: "One low-noise source; a device without it is 'device not supported'; revisit by a new ADR if spike V-1 shows many target devices lack it."
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: touch_emulation
+    status: active
+    api: "emulate_mouse_from_touch = true (default) so stock Buttons fire; the tap catcher reacts to InputEventScreenTouch only"
+    not: "emulate_mouse_from_touch = false"
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    reason: "BaseButton handles mouse and key events, not InputEventScreenTouch; with emulation off the buttons would be dead on a phone."
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: press_stamp_clock
+    status: active
+    api: "the injected clock_us Callable (same microsecond domain as Run State), read on the first line of the handler"
+    not: "Time.get_ticks_usec() called directly in a view, any hardware event timestamp"
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    reason: "Run State compares press_us with hit_us and paused_us; input events carry no timestamp."
+    referenced_by:
+      - docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # api_decisions:
@@ -508,6 +605,49 @@ forbidden_patterns:
     description: "The OpenGL (Compatibility) fallback is disabled; a device that is not running the mobile renderer is blocked at boot."
     why: "Fog and glow differ under Compatibility and invalidate Environment F1."
     adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+
+
+  - pattern: sensor_reads_outside_tilt_input
+    status: active
+    description: "Only tilt_input.gd calls Input.get_gravity, get_accelerometer, get_gyroscope or get_magnetometer."
+    why: "One owner for sign, units, availability and the poll clock."
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+
+  - pattern: mouse_event_in_tap_catcher
+    status: active
+    description: "The Hit tap catcher never reads InputEventMouseButton (the emulated duplicate of a touch)."
+    why: "One tap must give exactly one action."
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+
+  - pattern: input_actions_for_gameplay
+    status: active
+    description: "Gameplay never reads Input.is_action_*; steering comes from TiltInput and taps from the Controls."
+    why: "Single input pipeline; the editor-only synthetic sensor is the only desktop path."
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+
+  - pattern: touch_index_filter
+    status: active
+    description: "No filtering on InputEventScreenTouch.index == 0 in the tap catcher."
+    why: "A second finger is a legal restart tap; Run State's lock and idempotence absorb duplicates."
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+
+  - pattern: debug_build_gate_for_dev_input
+    status: active
+    description: "The synthetic arrow-key sensor is gated on OS.has_feature(editor), never OS.is_debug_build()."
+    why: "A debug APK sent to testers is still a debug build; the path must never be reachable in an export."
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
+    added: 2026-10-02
+
+  - pattern: extra_sensor_flags
+    status: active
+    description: "No ProjectSettings sensor flag other than input_devices/sensors/enable_gravity is true."
+    why: "Unused sensors cost battery; the lint asserts it."
+    adr: docs/architecture/adr-0005-sensor-source-and-input-pipeline.md
     added: 2026-10-02
 
 # Example:
