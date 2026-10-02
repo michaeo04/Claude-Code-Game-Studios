@@ -2,13 +2,13 @@
 
 ## Document Status
 
-- Version: 0.1 (in progress, written incrementally by `/create-architecture`)
+- Version: 1.0
 - Last Updated: 2026-10-02
 - Engine: Godot 4.7.2, GDScript; Android only (ADR-0001); review mode `lean`
 - GDDs covered: tube-track, run-state-restart, tilt-input, platform-services, ball-movement, obstacle-system, pattern-difficulty, near-miss-detection, scoring-personal-best, save-persistence, settings-accessibility, camera, juice-feedback, environment-theming, hud, menus-screen-flow (16 system GDDs) plus `design/ux/hud.md`, `design/ux/menus-screen-flow.md`, `design/ux/interaction-patterns.md`
 - Technical Requirements Baseline: about 348 requirements (`TR-[slug]-[NNN]`) in `docs/architecture/tr-baseline/` (world-movement, gameplay, foundation, presentation-ui)
 - ADRs referenced: ADR-0001 (Android only)
-- Technical Director Sign-Off: pending
+- Technical Director Sign-Off: 2026-10-02 APPROVED WITH CONDITIONS. Condition: no implementation starts until ADR-0002 to ADR-0009 are Accepted (Foundation and Core ADR gaps are not yet resolved)
 - Lead Programmer Feasibility: skipped (lean mode)
 
 ## Engine Knowledge Gap Summary
@@ -304,8 +304,26 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 
 ## Architecture Principles
 
-[To be designed]
+1. **Pure core, thin shell.** A system's logic is `XCore` (RefCounted, no engine calls) + `XMath` (static) + `XConfig` (Resource); only a driver or view Node touches the engine. Dependencies enter through seams and signals, never autoloads. This keeps every system headless-testable with GUT and deterministic.
+2. **One clock, one tick, one order.** `GameRoot` runs a single `_process`; time comes from the microsecond clock; every cross-system ordering lives in the one list Run State owns; no `CONNECT_DEFERRED` on control signals.
+3. **Dependencies point down; upward data is load-time config.** Core never calls Presentation; Camera and Environment values reach Core through `MapConfig`.
+4. **Fairness-critical numbers are validated at load and fail loudly.** Offline preflight with stable error codes, never a mid-run rejection (Pillar 2).
+5. **Presentation never gates gameplay.** Juice, HUD and Camera read state and run on real time; Run State is the sole owner of phase and run time.
+6. **Do not trust memory of post-cutoff engine behavior.** Every HIGH risk API needs evidence (engine reference or an on-device spike) before an ADR is Accepted.
 
 ## Open Questions
 
-[To be designed]
+| # | Question | Resolves in |
+|---|---|---|
+| 1 | Renderer: Forward+ (technical preferences) or Mobile (Environment Open Question 5)? The F_read derivation was verified on Forward+ only | ADR-0003 |
+| 2 | Test framework: GUT (CLAUDE.md, technical preferences) or gdUnit4 (some GDDs, CI line)? | ADR-0009 |
+| 3 | Do Android lifecycle callbacks arrive on another thread (PS-12), and is `back_pressed` delivered on Android 16 / SDK 36 (PS-4)? | ADR-0006 |
+| 4 | Cost of the synchronous personal-best write on the death frame (SP-1); fallback A/B-slot scheme | ADR-0007 |
+| 5 | Run cap or rebase of `s` at 16384 (t = 682 s) | ADR-0013 |
+| 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | ADR-0003 |
+| 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | ADR-0005 |
+| 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | ADR-0008, then a Pattern GDD revision |
+| 9 | The Ink cover driven by `phase_changed` (Data Flow decision) differs from `design/ux/menus-screen-flow.md` (fade-in first) and `menus-screen-flow.md` Core Rule 9 | edit both documents |
+| 10 | `Composition Root` and `Map Loader` have no row in `design/gdd/systems-index.md` | edit the index |
+| 11 | Platform Services GDD names no `haptics_intensity` setter (API Boundaries adds `set_haptics_intensity`) | edit `platform-services.md` |
+| 12 | The tick order Obstacle then Near-Miss (Data Flow) is not written in any GDD | cross-reference in `obstacle-system.md` and `near-miss-detection.md` |
