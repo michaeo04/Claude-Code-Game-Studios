@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007 and ADR-0004 stances added
+last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007, ADR-0004 and ADR-0008 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -189,6 +189,29 @@ state_ownership:
     write_access: map-loader-only
     referenced_by:
       - docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - state: hazard_footprint
+    status: active
+    owner_system: obstacle-system
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    interface: "per-hazard record {hazard_id, home_segment, hazard_type, world-space footprint PackedFloat64Array (theta_min, theta_max, s_start, s_end per piece, float64), s_lo, s_hi} built at bind from a shared HazardSpec and s_offset = (segment - local_segment_index) * L; read through footprint_of(hazard_id) and hazard_type_of(hazard_id)"
+    write_access: obstacle-core-only
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: compiled_chunk_library
+    status: active
+    owner_system: pattern-difficulty
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    interface: "CompiledLibrary (RefCounted) of per-tier pools of CompiledChunk with immutable runtime HazardSpec (hazard_type, local_segment_index, flat pieces, solution_angles), built once by ChunkLibraryCompiler at Pattern.apply_map from the authored ChunkLibrary tree; never mutated, never copied"
+    write_access: pattern-compile-only
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
     added: 2026-10-02
     revised: ""
 
@@ -361,6 +384,49 @@ interfaces:
     added: 2026-10-02
     revised: ""
 
+
+  - contract: hazard_content_provider
+    status: active
+    pattern: direct_call
+    producer: pattern-difficulty
+    consumers:
+      - obstacle-system
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    signal_signature: "hazards_for_segment(segment_index: int) -> Array[HazardSpec]; called once per entering segment in increasing index order; returns shared immutable specs; HazardContentProvider base class is a plain RefCounted returning an empty array (no @abstract)"
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+  - contract: hazard_events
+    status: active
+    pattern: signal
+    producer: obstacle-system
+    consumers:
+      - near-miss-detection
+      - juice-feedback
+      - run-state-restart
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    signal_signature: "hazard_bound(hazard_id: int, footprint: PackedFloat64Array), hazard_released(hazard_id: int, released_by_reset: bool), hit_reported(hazard_id: int, run_id: int); immediate connections, never deferred; Obstacle.test runs before NearMiss.step in the same tick"
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+  - contract: content_preflight
+    status: active
+    pattern: direct_call
+    producer: pattern-difficulty
+    consumers:
+      - tests
+      - editor-tooling
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    signal_signature: "ContentPreflight.run(library, cfg) -> Array[Dictionary] of {code, chunk_id, other_chunk_id, detail}; P1 each chunk, P2 every ordered adjacent pair through the real sequencer, P3 500-seed soak; blocking GUT content test plus EditorScript; release builds run only structural compile checks"
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # interfaces:
@@ -528,6 +594,18 @@ performance_budgets:
     verification: "spike MS-1"
     referenced_by:
       - docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - budget: obstacle_nearmiss_tick
+    status: active
+    owner_system: obstacle-system
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    value: "Obstacle.test plus NearMiss.step <= 0.4 ms per tick at the 192-record worst case on a mid-tier Android phone, with a per-hazard s_lo/s_hi broad phase (about 24 pieces tested at a time)"
+    verification: "spike OB-1 (first-playable profiling pass, advisory until then)"
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
     added: 2026-10-02
     revised: ""
 
@@ -761,6 +839,29 @@ api_decisions:
     reason: "Run State leaves Boot only on a fully loaded map; a failed load keeps Boot with no events."
     referenced_by:
       - docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - purpose: hazard_collision
+    status: active
+    api: "analytic swept AABB in ObstacleMath (fposmod, float64), run once per tick in GameRoot._tick after TubeTrack.advance and before NearMiss.step"
+    not: "CollisionObject3D, Area3D, RayCast3D, PhysicsServer3D, a driver node with its own process"
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    reason: "Exact, deterministic, independent of physics sub-steps; single tick domain with Ball Movement."
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: pattern_prng
+    status: active
+    api: "RandomNumberGenerator instance with explicit seed from run_id, randi_range only, own Fisher-Yates; golden-sequence test re-run on every engine upgrade and once on a device build"
+    not: "randomize(), randf(), Array.shuffle(), setting state"
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    reason: "Bit-identical chunk sequences per run_id; the integer path is the portable one (verify on device)."
+    referenced_by:
+      - docs/architecture/adr-0008-hazard-collision-content-format.md
     added: 2026-10-02
     revised: ""
 
@@ -1009,6 +1110,42 @@ forbidden_patterns:
     description: "TubeConfig and EnvConfig hold only scalars, enums and Colors; no Resource, Array or Dictionary field; no EnvConfig back-reference to MapDefinition or MapConfig."
     why: "Shallow Resource.duplicate() would share state; circular references."
     adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+
+
+  - pattern: engine_physics_for_hazards
+    status: active
+    description: "No CollisionObject3D, Area3D, RayCast3D, ShapeCast3D or PhysicsServer calls in hazard, obstacle, near-miss or pattern code."
+    why: "The hit test is analytic and deterministic."
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+
+  - pattern: copy_or_mutate_hazard_resources
+    status: active
+    description: "No duplicate(), duplicate_deep() or write on a loaded ChunkLibrary, ChunkDef, HazardPlacement or HazardPiece, nor on a compiled HazardSpec."
+    why: "Authored Resources come from the ResourceLoader cache; runtime specs are immutable and shared."
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+
+  - pattern: float32_footprints
+    status: active
+    description: "Footprints use PackedFloat64Array and float; never Vector2, Vector3 or Vector4 (single precision in default builds)."
+    why: "The approved formulas and margins assume float64."
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+
+  - pattern: pattern_global_rng_or_float_draw
+    status: active
+    description: "Pattern code does not call randomize(), randf(), randf_range or the global Array.shuffle()."
+    why: "Determinism per run_id; float conversion is the fragile part across platforms."
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
+    added: 2026-10-02
+
+  - pattern: spacing_history_without_spikes
+    status: active
+    description: "The sequencer's read history holds every read including Spikes (empty solution set) and pads by max(S_MIN_SPACING, DODGE_RECOVERY_S if opposing) and footprint clearance D."
+    why: "A Spike or a non-opposing chunk next to the previous chunk could otherwise violate spacing and overlap at the boundary."
+    adr: docs/architecture/adr-0008-hazard-collision-content-format.md
     added: 2026-10-02
 
 # Example:
