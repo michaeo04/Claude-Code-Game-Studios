@@ -60,7 +60,62 @@ Decisions taken while mapping (user, 2026-10-02):
 
 ## Module Ownership
 
-[To be designed]
+Approved 2026-10-02. Engine risk tags: **H** = post-cutoff, HIGH risk; M = medium; L = low. Every H API is **NEEDS VERIFICATION** (not covered by `docs/engine-reference/godot/modules/`, which only reaches 4.6 for Input, Physics, Rendering and UI) and becomes a spike or an ADR check.
+
+**Standard module shape.** Every system is `XCore` (RefCounted, no engine calls) + `XMath` (static pure functions) + `XConfig` (Resource with `validated(log_sink)`) + one thin driver or view Node, the only place that touches the engine. Dependencies enter through injected seams (Callables) and signals, never through autoloads.
+
+### Foundation
+
+| Module | Owns | Exposes | Consumes | Engine APIs |
+|---|---|---|---|---|
+| **Composition Root** (`GameRoot`, scene root, no autoload) | construction order, the single tick driver (`_process`), the pinned subscriber order, the injected clock, MapConfig distribution, composition-time preflight | nothing (wires only) | everything | `Node`, `process_mode`/`process_priority` (L), `Time.get_ticks_usec` (L) |
+| **Run State & Restart** | phase, `run_id`, run clock, request queue | `tick(world_dt, real_dt)`, the requests, 9 signals | injected clock, log_sink | none |
+| **Platform Services** | every OS call, lifecycle state, ProjectSettings manifest | 5 signals, `haptic(kind)`, `quit()`, safe area and refresh getters | `haptics_*` settings | `_notification` FOCUS_IN/OUT, PAUSED/RESUMED, `WM_GO_BACK_REQUEST` (H); `DisplayServer` safe area, refresh, keep_on (H); `Input.vibrate_handheld` (M) |
+| **Save & Persistence** | `user://save.cfg`, schema, atomic write | `get_value`, `set_value` | `app_backgrounded` | `ConfigFile` (M), `FileAccess` (H, 4.4), `DirAccess` (M) |
+| **Settings & Accessibility** | the 5 settings in memory | 6 getters, `set_value`, `setting_changed` | Save | none |
+| **Map Loader** | the load and retry sequence | `retry()` | MapConfig, Tube Track | `ResourceLoader` (not chosen yet) |
+
+### Core
+
+| Module | Owns | Exposes | Consumes | Engine APIs |
+|---|---|---|---|---|
+| **Tube Track** | frame `(theta, s, h)`, segment window, seam, map validation | `advance(s)`, `load_map`, `begin_run`, `P`, `delta_theta`; signals `window_primed`, `segment_entered/left_window` | `s`, MapConfig, `seam_contrast_scale` (every frame), Run State events via its adapter | `Node3D`, `MeshInstance3D`/MultiMesh, ShaderMaterial, Environment fog (H) |
+| **Tilt Input** | sensor reading, neutral, `steer`, `valid` | `steer`/`valid`/`input_source` getters, `poll()` | Run State events, lifecycle, sensitivity | `Input.get_gravity()` (H), ProjectSettings sensor flags (H) |
+| **Ball Movement** | ball state, speed curve | `step()`, `theta/theta_prev/s/s_prev/speed/omega` | steer, `dt_eff`, `wrap_angle` | view only: `Node3D` |
+| **Obstacle System** | hazard instances, analytic collision, preflight | `hit_reported`, `hazard_bound`, `hazard_released(id, released_by_reset)` | ball state, Tube Track window signals, `VISIBLE_ARC_HALF_WIDTH` (config), Pattern provider | `Resource` HazardSpec, `duplicate_deep` (H) |
+
+### Feature
+
+| Module | Owns | Exposes | Consumes | Engine APIs |
+|---|---|---|---|---|
+| **Pattern & Difficulty** | chunks, tier, bag and PRNG, read history | `hazards_for_segment(int)`, `t_dodge_worst` | `run_id`, `run_time`, Ball and Tube constants | `RandomNumberGenerator` (L, explicit seed) |
+| **Near-Miss Detection** | near zone and per-hazard state | `near_miss_detected(hazard_id, run_id)` | ball state, the 3 Obstacle signals | none |
+| **Scoring & Personal Best** | `current_score`, `personal_best` | getters, `personal_best_updated/passed`, `milestone_crossed` | `s`, Run State, Save | `Callable.is_valid` (L), script reflection (H, unverified) |
+
+### Presentation
+
+| Module | Owns | Exposes | Consumes | Engine APIs |
+|---|---|---|---|---|
+| **Camera** | camera pose, `d_cam`, `VISIBLE_ARC_HALF_WIDTH`, FOV punch | `step`, `apply_fov_punch`; config `rear_extent`, `camera_distance`, visible arc | `theta`, `s`, `R`, `P`, Run State events | `Camera3D` fov, look_at (M) |
+| **Environment & Theming** | palette, fog, ball material, plinth, `L_ball_adjusted` | fog and colour fields in MapConfig (at load) | `speed`, `colorblind_safe_enabled` + `setting_changed`, `R` | `WorldEnvironment` fog and glow (H), spatial shader (H), MultiMesh |
+| **Juice & Feedback** | the two presentation tracks, run-end latch, flash ledger | none (calls Camera and Platform) | `near_miss_detected`, `run_ended/abandoned/reset`, `personal_best_updated`, hazard lookup | `GPUParticles3D` (H), shader (H), CanvasLayer, AudioStreamPlayer |
+| **HUD** | display state, was-Live latch, banner | `snapshot()`, 3 requests to Run State | score pull, Run State events, `valid`/`state`, safe area | CanvasLayer, Control, `InputEventScreenTouch` (H, emulation), AccessKit (H) |
+| **Menus & Screen Flow** | active screen, overlay flags, `transition_covering` | display-state snapshot, 7 outbound calls | phase, `valid`/`state`/`input_source`, `personal_best`, Settings getters, `back_pressed` | CanvasLayer, Control, ScrollContainer, AccessKit (H) |
+
+### Dependency diagram
+
+```
+PRESENTATION   Camera  Env  Juice  HUD  Menus
+                  ^      ^     ^     ^     ^          (read downward: state and events)
+FEATURE        Pattern  Near-Miss  Scoring
+                  ^        ^         ^
+CORE           Tube Track  Tilt  Ball  Obstacle --- hit_reported ---+
+                  ^          ^     ^      ^                         v
+FOUNDATION     Run State  Platform  Save  Settings  Map Loader  <- Composition Root (wires all)
+PLATFORM       Godot 4.7.2
+
+Controlled exception: MapConfig (Camera and Environment to Tube Track and Obstacle) is loaded once at map load.
+```
 
 ## Data Flow
 
