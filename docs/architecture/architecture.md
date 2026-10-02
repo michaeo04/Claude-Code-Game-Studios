@@ -176,7 +176,93 @@ Death sequence: Obstacle `hit_reported` (tick N) -> Run State processes it at ti
 
 ## API Boundaries
 
-[To be designed]
+Approved 2026-10-02. Signatures are typed GDScript and match the GDDs; names the GDDs call "provisional" are fixed here. `@abstract` is GDScript 4.5 (H, NEEDS VERIFICATION); a plain base class is the fallback.
+
+```gdscript
+# 1. Run State (Foundation)
+class_name RunStateCore extends RefCounted
+signal run_reset(run_id: int)
+signal run_started(run_id: int)
+signal run_paused(source: int)                 # enum PauseSource {BUTTON, BACK, APP_INTERRUPTED, SENSOR_LOST}
+signal run_resuming(duration_ms: int)
+signal run_resumed(run_id: int)
+signal run_ended(run_id: int, hazard_id: int, run_time_ms: int)
+signal run_abandoned(run_id: int, run_time_ms: int)
+signal restart_unlocked(run_id: int)
+signal phase_changed(new_phase: int, old_phase: int)   # enum Phase {BOOT, MENU, RUNNING, PAUSED, RESUMING, HIT}
+func tick(world_dt: float, real_dt: float) -> float    # returns dt_eff
+func map_ready() -> void
+func start_requested() -> void
+func hit_reported(hazard_id: int, run_id: int) -> void
+func pause_requested(source: int) -> void              # APP_INTERRUPTED applied at once, the rest queued
+func resume_requested() -> void
+func restart_requested(press_us: int) -> void
+func menu_requested(press_us: int) -> void
+var phase: int; var run_id: int; var run_time: float   # read-only
+# Invariant: a request sent from inside a handler is rejected (no re-entrancy).
+
+# 2. Tube Track and Ball state (Core)
+class_name TubeWindow extends RefCounted
+signal window_primed(first: int, last: int)
+signal segment_entered_window(index: int)
+signal segment_left_window(index: int)
+signal state_changed(new_state: int, old_state: int)
+func load_map(cfg: TubeConfig) -> bool                 # validates; a failure stays Uninitialized
+func advance(s: float) -> void                         # one caller (GameRoot), Running only
+func begin_run() -> void
+func pause() -> void
+func resume() -> void
+func end_run() -> void
+func to_idle() -> void
+static func to_world(theta: float, s: float, h: float) -> Vector3   # the ONLY (theta, s, h) to world conversion
+static func delta_theta(a: float, b: float) -> float   # canonical; never built-in wrapf()
+
+class_name BallCore extends RefCounted
+func step(dt_eff: float, steer: float, valid: bool, input_source: int) -> void
+func reset() -> void
+func on_resumed() -> void
+var theta: float; var theta_prev: float; var s: float; var s_prev: float; var speed: float; var omega: float
+
+# 3. Content seam and gameplay signals
+@abstract class_name HazardContentProvider
+func hazards_for_segment(segment_index: int) -> Array[HazardSpec]   # once per entering segment, increasing index
+signal hit_reported(hazard_id: int, run_id: int)                    # Obstacle (to Run State)
+signal hazard_bound(hazard_id: int, footprint_pieces: Array[HazardPiece])
+signal hazard_released(hazard_id: int, released_by_reset: bool)
+signal near_miss_detected(hazard_id: int, run_id: int)              # Near-Miss to Juice
+signal personal_best_updated(final_score: int)                      # Scoring to HUD, Juice, Menus
+signal personal_best_passed(personal_best: int)
+signal milestone_crossed(threshold: int)                            # no consumer in the MVP
+
+# 4. Persistence and settings
+func get_value(section: String, key: String, default: Variant) -> Variant   # type check is typeof(default)
+func set_value(section: String, key: String, value: Variant) -> bool        # false on WRITE_FAILED; memory still updated
+signal setting_changed(key: String, new_value: Variant)
+
+# 5. Platform Services
+signal app_interrupted
+signal app_backgrounded
+signal app_foregrounded
+signal app_returned
+signal back_pressed
+func haptic(kind: int) -> void                         # enum Haptic {NEAR_MISS, HIT, UI_TAP}
+func set_haptics_enabled(on: bool) -> void
+func set_haptics_intensity(v: float) -> void           # NEW: the GDD named no setter
+func quit() -> void
+var attentive: bool; var safe_area: Rect2i; var screen_size: Vector2i; var refresh_rate: float
+
+# 6. Map-load data contract (built by GameRoot at load; consumers never call up)
+class_name MapConfig extends Resource
+@export var tube: TubeConfig
+@export var env: EnvConfig
+var rear_extent: float; var camera_distance: float; var visible_arc_half_width: float   # published by Camera at load
+```
+
+### Decisions taken (user, 2026-10-02)
+
+- **`HazardSpec` and `HazardPiece` are immutable Resources shared by reference.** They are never mutated at run time, so no per-hazard copy and **no `duplicate_deep()`** (a HIGH risk API) is needed. Per-hazard state (`hazard_id`, `home_segment`) lives in `ObstacleCore` records, not in the spec. The chunk library is `.tres` content authored in the editor.
+- **Touch input and `press_us`.** The view stamps `Time.get_ticks_usec()` in the handler, from `InputEventScreenTouch` `pressed` only. `input_devices/pointing/emulate_mouse_from_touch` is turned **off** (a tap would otherwise arrive as touch and mouse) and `emulate_touch_from_mouse` **on** for the editor only. Both settings are **NEEDS VERIFICATION on 4.7.2** (spike).
+- **`get_value` type check** uses `typeof(default)`; a stored int is accepted for a float default (for example `tilt_sensitivity` 1 against 1.0) and coerced.
 
 ## ADR Audit
 
