@@ -266,11 +266,41 @@ var rear_extent: float; var camera_distance: float; var visible_arc_half_width: 
 
 ## ADR Audit
 
-[To be designed]
+Approved 2026-10-02. One ADR exists.
+
+| ADR | Engine Compat | Version | GDD linkage | Conflicts | Valid |
+|-----|--------------|---------|-------------|-----------|-------|
+| ADR-0001 Android only | upgraded to the template 2026-10-02 | Godot 4.7.2 | upgraded (7 GDDs listed) | none | yes |
+
+**Traceability.** The Technical Requirements Baseline holds about 348 requirements (`docs/architecture/tr-baseline/`). ADR-0001 covers only the platform-scope requirements; the GDDs carry most of their internal decisions, so the real gaps are the **cross-system and engine-dependent decisions that no GDD owns**, listed below. `/architecture-review` turns the baseline into `docs/architecture/tr-registry.yaml` and the full requirement-to-ADR matrix once these ADRs exist.
 
 ## Required ADRs
 
-[To be designed]
+Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to settle: renderer **Forward+** (technical preferences) versus **Mobile** (Environment Open Question 5); test framework **GUT** (CLAUDE.md, technical preferences) versus **gdUnit4** (some GDDs, CI line).
+
+**Must have before coding starts (Foundation and Core):**
+
+| ADR | Decision | Representative requirements |
+|---|---|---|
+| ADR-0002 Game loop, Composition Root, tick order | one `_process` in `GameRoot`, `process_mode`/priority, microsecond clock, construction tree, pinned subscriber order, no autoloads | run-state-restart-004/012/017/018/019/024, tilt-input-006/007/014, scoring-personal-best-013/014, ball-movement-005, tube-track-006 |
+| ADR-0003 Renderer and tube render route | Forward+ or Mobile for Android; tube route (node per slot, MultiMesh, or scrolling shader); fog depth mode; draw-call budget; Shader Baker; glow policy | tube-track-012/013/021, environment-theming-004/015, juice-feedback-010/011/017, hud-017/018 |
+| ADR-0004 Map Loader and MapConfig contract | load sequence, retry, `map_ready` only on success, config published by Camera and Environment at load | run-state-restart-020, tube-track-024, menus-screen-flow-009, camera-016 |
+| ADR-0005 Sensor source and input pipeline | `get_gravity()` or accelerometer, ProjectSettings flags, portrait lock, touch emulation, `press_us` stamping | tilt-input-001/016/017, run-state-restart-014, hud-013 |
+| ADR-0006 Android integration | lifecycle and threading, Back on SDK 36, haptics, safe area, export manifest, 16 KB pages, OBB | platform-services-003/005/006/012/014 |
+| ADR-0007 Persistence implementation | ConfigFile with temp then rename, seam list (file size, backup listing), death-frame write cost, A/B-slot fallback | save-persistence-001..022 |
+| ADR-0008 Hazard, collision and content format | immutable `HazardSpec` Resources, `.tres` chunk library, preflight tool owner, cross-chunk spacing hole | obstacle-system-002/009/012, pattern-difficulty-002/021 |
+| ADR-0009 Test framework and CI | GUT or gdUnit4, `tools/ci` lint scripts, `godot --headless --import` | every Testing requirement |
+
+**Should have before the relevant system is built:**
+
+| ADR | Decision |
+|---|---|
+| ADR-0010 Presentation time, hit-stop, Ink cover | real-time effects, FOV ease, cover driven by `phase_changed` (decided in Data Flow) |
+| ADR-0011 UI architecture | `CanvasLayer` indices, dp to viewport conversion and stretch mode, view and Control split, AccessKit scope, dual focus |
+| ADR-0012 Ball material and world chroma | one owner for `L_ball_adjusted`, how Juice's rim glow layers on it, one chroma uniform |
+| ADR-0013 Distance precision | run cap or rebase at s = 16384 (t = 682 s) |
+
+**Can defer to implementation:** OS audio policy owner, AccessKit names and reading order, specific shader techniques.
 
 ## Architecture Principles
 
