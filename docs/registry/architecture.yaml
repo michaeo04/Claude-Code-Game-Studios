@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002 stances added
+last_updated: "2026-10-02"  # ADR-0002 and ADR-0003 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -74,6 +74,29 @@ state_ownership:
     write_access: game-root-only
     referenced_by:
       - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - state: renderer_backend
+    status: active
+    owner_system: game-root
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    interface: "ProjectSettings rendering_method and rendering_method.mobile = mobile (rollback: rendering_method.mobile = forward_plus); GameRoot checks RenderingServer.get_current_rendering_method() at boot and blocks a non-mobile device"
+    write_access: game-root-only
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - state: tube_mesh_material
+    status: active
+    owner_system: tube-track
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    interface: "one ArrayMesh and one ShaderMaterial shared by all N slots, created once at load_map; the only dynamic shared parameter is seam_contrast_scale (set on change)"
+    write_access: tube-track-only
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
     added: 2026-10-02
     revised: ""
 
@@ -124,6 +147,20 @@ interfaces:
     notes: "Immediate connections only, typed handlers, no CONNECT_DEFERRED, no request from inside a handler; order pinned by GameRoot._wire() rows."
     referenced_by:
       - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - contract: tube_slot_binding
+    status: active
+    pattern: direct_call
+    producer: tube-track
+    consumers:
+      - tube-view
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    signal_signature: "TubeView.bind_slot(slot_index: int, segment_index: int) -> void  (sets the slot transform and calls reset_physics_interpolation(); allocates nothing)"
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
     added: 2026-10-02
     revised: ""
 
@@ -182,6 +219,97 @@ performance_budgets:
     added: 2026-10-02
     revised: ""
 
+
+  - system: draw_calls_total
+    status: active
+    budget_draw_calls: 150
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "Whole scene on a release export; the engine baseline is unmeasured (gate R-1). Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_tube
+    status: active
+    budget_draw_calls: 12
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "N = 12 slots sharing one Mesh and one Material; expected +12 on Mobile (about 24 on Forward+ if a depth pre-pass counts). Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_hazards
+    status: active
+    budget_draw_calls: 40
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "Provisional allocation. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_ball
+    status: active
+    budget_draw_calls: 4
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "Ball and rim glow. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_props
+    status: active
+    budget_draw_calls: 6
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "MultiMesh background props. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_sky
+    status: active
+    budget_draw_calls: 2
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "Provisional allocation. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_shards
+    status: active
+    budget_draw_calls: 2
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "Shard burst: one GPUParticles3D, one mesh, one material. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_hud
+    status: active
+    budget_draw_calls: 20
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "UX-16 worst-case Hit state. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - system: draw_calls_menus
+    status: active
+    budget_draw_calls: 25
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    notes: "Menus screens; never concurrent with gameplay except the Paused screen over frozen HUD Z1. Provisional, measured in gate R-1; headroom of at least 40 is kept inside the 150 total."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # performance_budgets:
@@ -231,6 +359,51 @@ api_decisions:
     reason: "One owner and one fixed order; analytic collision needs no physics step; sensor polling must follow rendered frames."
     referenced_by:
       - docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - purpose: renderer
+    status: active
+    api: "Mobile renderer (Vulkan) via rendering_method and rendering_method.mobile = mobile"
+    not: "Forward+ (fallback only, behind gate R-1), Compatibility (OpenGL)"
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    reason: "Mid-tier Android target; fog and draw calls verified on device before the fairness numbers are trusted."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: distance_fog
+    status: active
+    api: "Environment depth fog: fog_mode depth, fog_density 1.0, fog_depth_begin/end/curve; tonemapper linear"
+    not: "exponential fog, volumetric fog"
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    reason: "A fixed fully-fogged distance is needed for the F_read and T_vis fairness budget; radial distance from the eye."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: antialiasing
+    status: active
+    api: "MSAA 3D 2x default (4x measured); seam stripes use smoothstep with fwidth()"
+    not: "FXAA (blurs), TAA (not on Mobile); SMAA unverified on Mobile"
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    reason: "Crisp hazard edges at the lowest cost on tile-based GPUs; MSAA does not smooth shader stripes."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: draw_call_measurement
+    status: active
+    api: "delta of RenderingServer.viewport_get_render_info(VIEWPORT_RENDER_INFO_DRAW_CALLS_IN_FRAME) after frame_post_draw, cross-checked with Android GPU Inspector or Snapdragon Profiler"
+    not: "the absolute Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME number"
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    reason: "The absolute monitor counts all passes, reads the previous frame and returns 0 headless."
+    referenced_by:
+      - docs/architecture/adr-0003-renderer-and-tube-render-route.md
     added: 2026-10-02
     revised: ""
 
@@ -299,6 +472,42 @@ forbidden_patterns:
     description: "No game-logic code runs in _physics_process."
     why: "Engine may run several physics steps per frame; polling and collision must follow the rendered frame."
     adr: docs/architecture/adr-0002-game-loop-composition-root.md
+    added: 2026-10-02
+
+
+  - pattern: engine_glow_for_gameplay_effects
+    status: active
+    description: "WorldEnvironment glow is off in the MVP; the PB bloom and near-miss ring are shader terms or overlay opacity."
+    why: "Glow ordering changed in 4.6 and its Mobile cost is unmeasured; effects must not change the fog and contrast numbers."
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+
+  - pattern: realtime_shadows
+    status: active
+    description: "No light casts shadows; tube cast_shadow is off."
+    why: "Draw-call and GPU budget; the flat-shaded look comes from the material."
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+
+  - pattern: compositor_effects_mvp
+    status: active
+    description: "No Compositor / CompositorEffect post-processing in the MVP."
+    why: "Extra full-screen passes on Mobile are unmeasured and would alter measured contrast."
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+
+  - pattern: unique_mesh_or_material_per_tube_slot
+    status: active
+    description: "Every tube slot references the same Mesh and the same Material resource."
+    why: "Keeps the draw-call count predictable and the seam uniform shared."
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
+    added: 2026-10-02
+
+  - pattern: opengl_renderer_fallback
+    status: active
+    description: "The OpenGL (Compatibility) fallback is disabled; a device that is not running the mobile renderer is blocked at boot."
+    why: "Fog and glow differ under Compatibility and invalidate Environment F1."
+    adr: docs/architecture/adr-0003-renderer-and-tube-render-route.md
     added: 2026-10-02
 
 # Example:
