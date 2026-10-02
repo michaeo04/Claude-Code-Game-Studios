@@ -119,7 +119,60 @@ Controlled exception: MapConfig (Camera and Environment to Tube Track and Obstac
 
 ## Data Flow
 
-[To be designed]
+Approved 2026-10-02.
+
+**Conventions.** There is no global event bus. Systems talk through (a) direct signals connected immediately (never `CONNECT_DEFERRED`, whose handlers run after `emit()` returns and escape every re-entrancy guard), registered by the Composition Root in the pinned order; (b) per-tick pull seams (HUD, Menus and Scoring read state); (c) requests queued into Run State and applied at its next tick. Nothing crosses a thread boundary, **except** that Android lifecycle callbacks may arrive on another thread (UNVERIFIED, Platform Services PS-12, H): if the spike confirms it, Platform Services defers them to the main thread with `call_deferred`.
+
+### 1. Frame update path
+
+One tick driver: `GameRoot._process`. `real_dt` comes from the injected microsecond clock (`Time.get_ticks_usec`), never from the engine delta (which is `time_scale`-scaled and capped at about 0.133 s). No system uses `_physics_process`.
+
+```
+GameRoot._process(engine_delta)
+ 1  TiltInput.poll()                       sensor -> steer, valid
+ 2  TiltRunAdapter.flush()                 valid false in Running/Resuming -> pause_requested(sensor_lost)
+ 3  RunState.tick(world_dt, real_dt)       -> dt_eff (0 in Hit, Paused, Resuming and on settling ticks)
+ 4  Ball.step(dt_eff, steer, valid, src)   -> theta, s (and the previous pair)
+ 5  TubeTrack.advance(s)   [Running only]  -> segment_left/entered -> Obstacle (calls Pattern.hazards_for_segment)
+ 6  Obstacle.test(prev -> current)         -> hit_reported (queued into Run State, level-triggered every tick)
+ 7  NearMiss.step()                        runs AFTER Obstacle so that hit_reported is applied before the exit-edge check
+ 8  Scoring.step()                         current_score = floori(s)
+ 9  Camera.step(theta, s, dt_eff)          pose; FOV ease on real time
+10  Environment.tick(speed)                fog end and chroma
+11  Juice.tick(real_dt) / HUD.tick / Menus.tick    pull seams, then draw
+```
+
+### 2. Event path
+
+Pinned subscriber order (owned by Run State, registered by the Composition Root, one list that every GDD cites):
+
+| Event | Order |
+|---|---|
+| `run_reset` | 1 Pattern & Difficulty; 2 Tube Track adapter and Obstacle (either order; Obstacle only captures `run_id`); 3 Ball Movement; 4 Camera; 5 everything else |
+| `run_ended` | 1 Juice; 2 Scoring (emits `personal_best_updated` inside its handler); 3 HUD; 4 everything else |
+| `run_abandoned` | 1 Juice (latches `Abandon`); 2 Scoring; 3 everything else |
+
+Death sequence: Obstacle `hit_reported` (tick N) -> Run State processes it at tick N+1 -> `run_ended` -> (Juice latch `Hit`) -> Scoring finalizes, writes the best, emits `personal_best_updated` -> HUD freezes the score -> `phase_changed` last.
+
+### 3. Save and load path
+
+`SaveService` is the only code that does file I/O. Boot: synchronous load of `user://save.cfg`, finished before Scoring and Settings are built; no "loaded" signal. Scoring writes `personal_best` synchronously inside its `run_ended`/`run_abandoned` handler (a file under 1 KB, temp file then rename); Settings writes on every change; `app_backgrounded` is a redundant safety flush. An in-progress run is never saved. Crash safety covers process kill only (spike SP-1), not power loss. The cost of the write on the death frame is an open risk (see Open Questions).
+
+### 4. Initialisation order
+
+1. `PlatformServices` (node and core; clock, display source, keep-screen-on, ProjectSettings check)
+2. `SaveService` (load; connect `app_backgrounded`)
+3. `SettingsCore` (read the 5 keys; push `haptics_*` to Platform Services)
+4. `RunStateCore` and `ScoreService` (construction emits nothing)
+5. every other system registers its handlers in the pinned order of section 2
+6. `MapLoader` calls Tube Track `load_map`; only on success it sends `map_ready` (Boot to Menu)
+7. `GameRoot._process` starts ticking
+
+### Decisions taken (user, 2026-10-02)
+
+- **Tick domain:** a single `_process` in `GameRoot` drives every system in the fixed order above; analytic collision needs no physics step.
+- **Presentation clock:** hit-stop is a 0.20 s hold of effects on **real time**, no `Engine.time_scale` and no tree pause; the world is already frozen by `dt_eff = 0`. FOV punch, shards and the flash ledger run on `real_dt`.
+- **Ink cut:** a cover layer driven by `phase_changed` (to or from Menu and Running): it turns opaque on the transition tick (hiding the seam jump) and fades out over about 180 ms. Every route into Menu or Running gets the cut, including HUD's Menu button and Back. **This differs from `design/ux/menus-screen-flow.md` (fade-in before the phase change) and `menus-screen-flow.md` Core Rule 9 wording; both need a follow-up edit.**
 
 ## API Boundaries
 
