@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006 and ADR-0007 stances added
+last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007 and ADR-0004 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -180,6 +180,18 @@ state_ownership:
     added: 2026-10-02
     revised: ""
 
+
+  - state: map_config
+    status: active
+    owner_system: map-loader
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    interface: "MapConfig (RefCounted, read-only after build): map_id, validated EnvConfig copy, shared chunk_library, rear_extent, camera_distance, visible_arc_half_width; built by MapLoaderCore from an authored MapDefinition (.tres) and CameraMath; consumers never call up"
+    write_access: map-loader-only
+    referenced_by:
+      - docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+    revised: ""
+
 # Example:
 #
 # state_ownership:
@@ -315,6 +327,37 @@ interfaces:
     signal_signature: "SaveFs: read_config(path) -> Dictionary, write_config(path, sections) -> bool, exists(path) -> bool, size(path) -> int, rename(from, to) -> bool, delete(path) -> bool, list_backups(dir, prefix) -> PackedStringArray; real implementation is an inner class of SaveService, tests extend SaveFs"
     referenced_by:
       - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - contract: map_load_sequence
+    status: active
+    pattern: direct_call
+    producer: map-loader
+    consumers:
+      - environment-theming
+      - obstacle-system
+      - pattern-difficulty
+      - tube-track
+      - run-state-restart
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    signal_signature: "MapLoaderCore.attempt(path) -> bool; Phase A validates everything with no side effects, Phase B applies in order Environment.apply_map, Obstacle.apply_map, Pattern.apply_map (each -> bool, configuration only), TubeTrack.load_map, then RunState.map_ready() only after load_map succeeded"
+    referenced_by:
+      - docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+    revised: ""
+
+  - contract: map_load_failed
+    status: active
+    pattern: signal
+    producer: map-loader
+    consumers:
+      - menus-screen-flow
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    signal_signature: "map_load_failed(codes: PackedStringArray), once per failed attempt, immediate; Retry through an injected request_map_retry Callable bound to MapLoader.retry() (FAILED only)"
+    referenced_by:
+      - docs/architecture/adr-0004-map-loader-and-mapconfig.md
     added: 2026-10-02
     revised: ""
 
@@ -473,6 +516,18 @@ performance_budgets:
     verification: "spike SP-3 (blocking, first playable)"
     referenced_by:
       - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - budget: map_boot_load
+    status: active
+    owner_system: map-loader
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    value: "load, validate, apply and Tube Track prime <= 100 ms on a mid-tier Android phone (boot, not part of the restart budget); fallback if missed: threaded load_definition seam only"
+    verification: "spike MS-1"
+    referenced_by:
+      - docs/architecture/adr-0004-map-loader-and-mapconfig.md
     added: 2026-10-02
     revised: ""
 
@@ -683,6 +738,29 @@ api_decisions:
     reason: "No cloud save in the MVP; avoids restoring a stale or other-schema file; accepted cost: the personal best does not follow the player to a new phone."
     referenced_by:
       - docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+    revised: ""
+
+
+  - purpose: map_resource_load
+    status: active
+    api: "ResourceLoader.load(path) of the authored .tres (exists() pre-check, is-type check, re-read cache mode on Retry), confined to map_loader.gd"
+    not: "FileAccess or DirAccess on a res:// content file; load_threaded_request in the MVP"
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    reason: "Exports convert .tres to binary behind a remap; a few KB loads synchronously in one boot frame."
+    referenced_by:
+      - docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+    revised: ""
+
+  - purpose: map_ready_gate
+    status: active
+    api: "RunState.map_ready() is sent by the map loader only after TubeTrack.load_map returned true"
+    not: "map_ready sent on partial success or by Tube Track or Menus"
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    reason: "Run State leaves Boot only on a fully loaded map; a failed load keeps Boot with no events."
+    referenced_by:
+      - docs/architecture/adr-0004-map-loader-and-mapconfig.md
     added: 2026-10-02
     revised: ""
 
@@ -902,6 +980,35 @@ forbidden_patterns:
     description: "SaveCore does not declare methods named load, preload or other global utility functions; the boot entry point is boot_load."
     why: "GDScript SHADOWED_GLOBAL_IDENTIFIER: a later load(\"res://...\") inside the class would call the method."
     adr: docs/architecture/adr-0007-persistence-implementation.md
+    added: 2026-10-02
+
+
+  - pattern: apply_map_with_side_effects
+    status: active
+    description: "Environment.apply_map, Obstacle.apply_map and Pattern.apply_map are configuration only: no signal, no generation, no visible change before the Menu exists."
+    why: "A failed attempt must leave only inert, idempotent state that Retry overwrites."
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+
+  - pattern: map_content_file_io
+    status: active
+    description: "A res:// map or content resource is never opened with FileAccess or listed with DirAccess; ResourceLoader appears only in map_loader.gd."
+    why: "Export converts text resources to binary behind a remap."
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+
+  - pattern: mutate_cached_map_resource
+    status: active
+    description: "Loaded MapDefinition, EnvConfig and the chunk library are never written; validated() returns a copy, MapConfig keeps the copy, never def.env."
+    why: "ResourceLoader may cache and share the instance."
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
+    added: 2026-10-02
+
+  - pattern: non_scalar_tube_config_field
+    status: active
+    description: "TubeConfig and EnvConfig hold only scalars, enums and Colors; no Resource, Array or Dictionary field; no EnvConfig back-reference to MapDefinition or MapConfig."
+    why: "Shallow Resource.duplicate() would share state; circular references."
+    adr: docs/architecture/adr-0004-map-loader-and-mapconfig.md
     added: 2026-10-02
 
 # Example:
