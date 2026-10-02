@@ -261,7 +261,7 @@ var rear_extent: float; var camera_distance: float; var visible_arc_half_width: 
 ### Decisions taken (user, 2026-10-02)
 
 - **`HazardSpec` and `HazardPiece` are immutable Resources shared by reference.** They are never mutated at run time, so no per-hazard copy and **no `duplicate_deep()`** (a HIGH risk API) is needed. Per-hazard state (`hazard_id`, `home_segment`) lives in `ObstacleCore` records, not in the spec. The chunk library is `.tres` content authored in the editor.
-- **Touch input and `press_us`.** The view stamps `Time.get_ticks_usec()` in the handler, from `InputEventScreenTouch` `pressed` only. `input_devices/pointing/emulate_mouse_from_touch` is turned **off** (a tap would otherwise arrive as touch and mouse) and `emulate_touch_from_mouse` **on** for the editor only. Both settings are **NEEDS VERIFICATION on 4.7.2** (spike).
+- **Touch input and `press_us`.** The view stamps `Time.get_ticks_usec()` in the handler, from `InputEventScreenTouch` `pressed` only. `input_devices/pointing/emulate_mouse_from_touch` stays **on** (the default; stock Buttons handle mouse events, not `InputEventScreenTouch`, so emulation off would leave them dead on a phone) and `emulate_touch_from_mouse` is on. The Hit tap catcher stamps from `ScreenTouch` pressed on any index; stock Buttons stamp in `button_down`; one stamp per tap. **Revised 2026-10-02 by ADR-0005** (the first version turned emulation off and was rejected in specialist review). Both settings are **NEEDS VERIFICATION on 4.7.2** (spike).
 - **`get_value` type check** uses `typeof(default)`; a stored int is accepted for a float default (for example `tilt_sensitivity` 1 against 1.0) and coerced.
 
 ## ADR Audit
