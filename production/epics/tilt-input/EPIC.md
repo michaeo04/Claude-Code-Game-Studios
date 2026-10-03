@@ -71,7 +71,7 @@ This epic is complete when:
 | 001 | [Tilt Input CI lint gate (AC-37)](story-001-tilt-lint-gate.md) | Integration | Ready | ADR-0009, ADR-0005 |
 | 002 | [TiltMath pure functions](story-002-tilt-math.md) | Logic | Complete | ADR-0002 |
 | 003 | [TiltConfig, validation, sensitivity](story-003-tilt-config.md) | Logic | Complete | ADR-0009 |
-| 004 | [TiltCore poll, stamps, ring buffer](story-004-tilt-core-poll-buffer.md) | Logic | Ready | ADR-0002 |
+| 004 | [TiltCore poll, stamps, ring buffer](story-004-tilt-core-poll-buffer.md) | Logic | Complete | ADR-0002 |
 | 005 | [Neutral capture mechanics](story-005-neutral-capture.md) | Logic | Ready | ADR-0002 |
 | 006 | [Pipeline order and output contract](story-006-pipeline-output-contract.md) | Logic | Ready | ADR-0005 |
 | 007 | [Capture policy and re-anchor](story-007-capture-policy-reanchor.md) | Logic | Ready | ADR-0002 |

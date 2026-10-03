@@ -47,6 +47,7 @@
 | E6 | Settings Core Rule 5 now says a slider commits on `drag_ended`; Save F2/AC-10 now log a file-level failure once per load | `settings-accessibility.md`, `save-persistence.md` | ADR-0007 said so; GDD edited to match |
 | E7 | Sprint capacity assumption of 6 focused hours per day (see C4) | sprint plans | Weekly hours were never stated |
 | E8 | `BallMath.wrap_angle` (`x - TAU * floor((x + PI) / TAU)`) duplicates the canonical `TubeMath.wrap_angle` (`fposmod` form with a `>= PI` guard). Delegating Ball to Tube Track breaks the Ball test `test_steer_negative_half_is_exact_negation` (the two forms differ in the last bit), so the duplicate stays. The GDD wants one canonical wrap; decide which form wins and update the other GDD and tests together | `src/core/ball_movement/ball_math.gd`, `tube_track/tube_math.gd` | Not a safe mechanical refactor |
+| E9 | `TubeWindow.load_map(cfg, v_max, d)` returns the failure-code array (the story and ADR-0004's validate-first design), while `architecture.md` API Boundaries and the Map Loader seam `tube_load(tube_cfg)` say `-> bool`. The Map Loader stories will wrap it (empty array = true); `architecture.md` section 2 should be edited to match when those land | `src/core/tube_track/tube_window.gd`, `architecture.md` | Story needs the codes |
 
 ## D. Resolved (kept so the history is visible)
 

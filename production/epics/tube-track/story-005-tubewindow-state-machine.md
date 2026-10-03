@@ -1,12 +1,12 @@
 # Story 005: TubeWindow state machine, priming and load_map
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -22,9 +22,9 @@
 - Guardrail: no persistent state; per-run state is `s`, `s_idle` and the window.
 
 ## Acceptance Criteria
-- [ ] **AC-19** A table-driven test over all 40 (state, event) pairs: exactly the 16 listed pairs succeed with the listed next state; the other 24 are rejected with no state change, no signal and one logged error (`resume()` and `pause()` in Ended and `advance` in Idle, Paused, Ended among them). Every accepted transition that changes state emits `state_changed(new, old)` exactly once after its effects are complete; none when the state does not change (`begin_run()` from Running emits `window_primed` only); a `state_changed` handler sees the new state and final window; a `window_primed` handler from `begin_run()` sees the final window and the old state.
-- [ ] **AC-20a** `load_map(valid)` from Uninitialized: 12 binder calls (`segment_index` -2..9, `slot_index = posmod(segment_index, 12)`), one `window_primed(-2, 9)` then one `state_changed(Idle, Uninitialized)`, no `segment_*`; invalid config (F = NaN): no binder call, no signal, state stays Uninitialized. From Running, Paused and Ended at s = 1234.5 (window 100..111), `to_idle()` gives 12 binder calls, one `window_primed(-2, 9)`, then `state_changed(Idle, old)`, `s_idle` 0, window -2..9. In Idle, 60 s of `tick_idle(1/64)` emits no `window_primed` or `segment_*` and the window stays -2..9.
-- [ ] **AC-20b** Invalid config at `load_map`: no binder call or signal, state Uninitialized, one `NOT_FINITE` returned, a following `begin_run()` rejected with one error; then `load_map(valid)` (Retry) is accepted (12 binder calls, `window_primed(-2, 9)`, `state_changed(Idle, Uninitialized)`); `load_map(valid)` from Idle, Running, Paused, Ended is rejected with one error, no signal, state and window unchanged.
+- [x] **AC-19** A table-driven test over all 40 (state, event) pairs: exactly the 16 listed pairs succeed with the listed next state; the other 24 are rejected with no state change, no signal and one logged error (`resume()` and `pause()` in Ended and `advance` in Idle, Paused, Ended among them). Every accepted transition that changes state emits `state_changed(new, old)` exactly once after its effects are complete; none when the state does not change (`begin_run()` from Running emits `window_primed` only); a `state_changed` handler sees the new state and final window; a `window_primed` handler from `begin_run()` sees the final window and the old state.
+- [x] **AC-20a** `load_map(valid)` from Uninitialized: 12 binder calls (`segment_index` -2..9, `slot_index = posmod(segment_index, 12)`), one `window_primed(-2, 9)` then one `state_changed(Idle, Uninitialized)`, no `segment_*`; invalid config (F = NaN): no binder call, no signal, state stays Uninitialized. From Running, Paused and Ended at s = 1234.5 (window 100..111), `to_idle()` gives 12 binder calls, one `window_primed(-2, 9)`, then `state_changed(Idle, old)`, `s_idle` 0, window -2..9. In Idle, 60 s of `tick_idle(1/64)` emits no `window_primed` or `segment_*` and the window stays -2..9.
+- [x] **AC-20b** Invalid config at `load_map`: no binder call or signal, state Uninitialized, one `NOT_FINITE` returned, a following `begin_run()` rejected with one error; then `load_map(valid)` (Retry) is accepted (12 binder calls, `window_primed(-2, 9)`, `state_changed(Idle, Uninitialized)`); `load_map(valid)` from Idle, Running, Paused, Ended is rejected with one error, no signal, state and window unchanged.
 
 ## Implementation Notes
 `src/core/tube_track/tube_window.gd`. Events: `load_map`, `unload_map`, `begin_run`, `advance`, `pause`, `resume`, `end_run`, `to_idle`; accepted transitions per the GDD table. `begin_run()` resets `s` to 0 and primes `-B .. A`; `to_idle()` and `load_map()` prime at `s_idle = 0`. `unload_map` releases slot bindings and emits `state_changed`. Expose getters `s`, `first_index`, `last_index`, `far_end_s`, state. Test support in `tests/support/` (plain `RefCounted`, no GUT): a state factory, a counting log sink, a binder spy and an ordered signal recorder (`tests/unit/tube_track/test-plan.md` may be written alongside, as the GDD names it).
@@ -46,7 +46,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_window_states_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/tube_track/tube_window_states_test.gd` (10 tests: `test_all_40_pairs_follow_the_table` for AC-19; `test_load_map_valid_binds_12_slots_and_emits_primed_then_state`, `test_to_idle_from_run_states_reprimes_at_zero`, `test_idle_scroll_for_60_seconds_emits_nothing_and_keeps_window` for AC-20a; `test_retry_after_invalid_config_is_accepted`, `test_load_map_with_nan_fog_binds_nothing_and_stays_uninitialized`, `test_load_map_from_every_non_uninitialized_state_is_rejected` for AC-20b). Support: `tests/support/tube_window_spy.gd`.
 
 ## Dependencies
 - Depends on: Story 002 (indices), Story 003 (`validate`), test-harness-ci

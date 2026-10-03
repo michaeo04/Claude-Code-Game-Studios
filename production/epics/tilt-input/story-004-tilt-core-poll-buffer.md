@@ -1,12 +1,12 @@
 # Story 004: TiltCore poll, clock stamps and sample ring buffer
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -22,8 +22,8 @@
 - Guardrail: ring buffer about 4 KB; `poll()` p95 at most 0.1 ms.
 
 ## Acceptance Criteria
-- [ ] **AC-3 [C]**: for each of zero, NaN, INF, (0,-2.99,0) and (0,-1,0), a fresh core in Acquiring given that vector keeps `sample_count` 0 and stays Acquiring; (0,-3,0) is accepted (`sample_count` 1, state Live).
-- [ ] **AC-47c [C]**: one row per Callable (`sample_source`, `clock`, `log_sink`, `fallback_source`): an invalid Callable logs one error and leaves the core Unavailable.
+- [x] **AC-3 [C]**: for each of zero, NaN, INF, (0,-2.99,0) and (0,-1,0), a fresh core in Acquiring given that vector keeps `sample_count` 0 and stays Acquiring; (0,-3,0) is accepted (`sample_count` 1, state Live).
+- [x] **AC-47c [C]**: one row per Callable (`sample_source`, `clock`, `log_sink`, `fallback_source`): an invalid Callable logs one error and leaves the core Unavailable.
 
 ## Implementation Notes
 `poll()` takes no argument. `dt = clamp((now - previous_now) / 1e6, 0, DT_MAX)` with `DT_MAX` 0.1 s; `previous_now` is the stamp of the last accepted poll (stamp greater than it, whether its sample was valid or not), starts as "none", so the first poll even at stamp 0 is accepted with `dt = 0`. An equal or backwards stamp appends no sample, uses `dt = 0` and leaves `previous_now` unchanged. A sample is valid if the vector is finite and `|g| >= G_MIN`. Samples older than `BUFFER_AGE` (1.0 s) are dropped at every append; the buffer uses the real clock (true time), while `dt` is clamped. All durations are integer microseconds. Do not derive `dt` from the engine delta. Ring-buffer capacity 256 and the overwrite order are exercised through captures in Story 005 (AC-26); the stamp-rule and dt oracles are asserted in Story 006 (AC-25) where the filter exists.
@@ -42,7 +42,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_poll_buffer_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/tilt_input/tilt_core_poll_buffer_test.gd` (10 tests: `test_rejected_vectors_keep_acquiring_and_no_sample`, `test_vector_at_g_min_is_accepted_and_goes_live` for AC-3; `test_each_invalid_seam_logs_one_error_and_core_is_unavailable`, `test_invalid_log_sink_leaves_core_unavailable_without_crash` for AC-47c; stamp, dt, buffer age and capacity tests). Note: the `log_sink` row cannot log through itself, so it asserts Unavailable and no crash only.
 
 ## Dependencies
 - Depends on: Story 003; test-harness-ci
