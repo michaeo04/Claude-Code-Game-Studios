@@ -14,7 +14,7 @@ goal: "Prove the test harness on Godot 4.7.2 and build the Foundation spine: Gam
 start: "2026-10-05"
 end: "2026-10-16"
 generated: "2026-10-03"
-updated: "2026-10-03"
+updated: "2026-10-04"
 
 stories:
   - id: "TH-001"
@@ -57,11 +57,11 @@ stories:
     name: "Harden the GDScript comment and string stripper"
     file: "production/epics/test-harness-ci/story-005-harden-gdscript-stripper.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-001"
     name: "GameRoot clock injection and single tick driver"
     file: "production/epics/composition-root/story-001-game-root-clock-and-tick-driver.md"
@@ -93,29 +93,29 @@ stories:
     name: "RunStateCore skeleton, public API, signals and purity"
     file: "production/epics/run-state-restart/story-001-core-skeleton-api.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-002"
     name: "Phase machine, request queue and validation by phase"
     file: "production/epics/run-state-restart/story-002-phase-machine-validation.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-003"
     name: "Event emission order, two-step start and re-entrancy guard"
     file: "production/epics/run-state-restart/story-003-events-two-step-start.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-004"
     name: "tick(), run clock F1 and settling tick"
     file: "production/epics/run-state-restart/story-004-tick-run-clock.md"
@@ -183,11 +183,11 @@ stories:
     name: "Harden lint rule kinds and the registered rule table"
     file: "production/epics/test-harness-ci/story-006-harden-lint-rule-kinds.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.67
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-001"
     name: "PlatformMath pure functions (haptic gate, effective, interval, fps)"
     file: "production/epics/platform-services/story-001-platform-math.md"
@@ -201,8 +201,8 @@ stories:
     name: "Per-rule pass/fail fixtures and runner self-check"
     file: "production/epics/test-harness-ci/story-007-per-rule-fixtures-and-self-check.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.67
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"

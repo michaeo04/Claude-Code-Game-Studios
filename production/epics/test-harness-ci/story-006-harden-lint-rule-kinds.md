@@ -1,12 +1,12 @@
 # Story 006: Harden lint rule kinds and the registered rule table
 
 > **Epic**: Test Harness & CI
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0009
@@ -50,7 +50,8 @@ Globs use forward slashes and are matched on repo-relative paths so Windows and 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/test_lint_rule_kinds.py` (Python `unittest`); Logic gate BLOCKING
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: `tools/ci/tests/test_lint_rule_kinds.py` (RegisteredRulesTest, CliTest, OnlyInTest, ProjectSettingTest, SceneConnectionTest, ManifestAndSecretTest, SeverityExitCodeTest, CustomRuleTest); 149 Python tests pass.
 
 ## Dependencies
 - Depends on: Story 005

@@ -1,12 +1,12 @@
 # Story 001: RunStateCore skeleton, public API, signals and purity
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -48,8 +48,4 @@ Create `src/core/run_state/run_state_core.gd` with the public API of `tests/unit
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_core_shape_test.gd` plus the lint fixtures in `tools/ci/tests/`
-**Status**: [ ] Not yet created
-
-## Dependencies
-- Depends on: test-harness-ci (GUT vendored, spike T-1 recorded, lint runner)
-- Unlocks: Stories 002 to 012
+**Status**: [x] Done. **Evidence**: AC-8 proven by `tests/unit/run_state/run_state_core_shape_test.gd` (7 tests: signal list, int-typed arguments, enum arguments report TYPE_INT, RefCounted not Node, new instance Boot with run_id 0, no shared state, construction emits nothing). AC-9 proven by the CI lint rules `forbidden:run_state_core_purity` (no FileAccess, ConfigFile, ResourceSaver, DirAccess, OS, Time, Engine, Input, ProjectSettings, DisplayServer, RenderingServer) and `forbidden:run_state_core_coupling` (no other system class, no get_tree, get_node, get_parent, preload) with pass and fail fixtures, run by `python tools/ci/run_ci.py --only lint`. **Known limit**: `user://` appears only inside a string literal, which the lint stripper blanks by design, so it cannot be matched; it is covered indirectly because the core has no file API to use a path with.

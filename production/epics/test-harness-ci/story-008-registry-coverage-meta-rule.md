@@ -1,12 +1,12 @@
 # Story 008: Registry coverage meta-rule
 
 > **Epic**: Test Harness & CI
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0009
@@ -44,7 +44,8 @@ Parse only the keys needed (`forbidden_patterns` list names). Do not edit the re
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/test_lint_registry_coverage.py`; Logic gate BLOCKING
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: `tools/ci/tests/test_lint_registry_coverage.py` (RunnerReportTest, MissingOrMalformedRegistryTest, CoverageOptionTest, RealRegistryTest); 149 Python tests pass.
 
 ## Dependencies
 - Depends on: Story 006

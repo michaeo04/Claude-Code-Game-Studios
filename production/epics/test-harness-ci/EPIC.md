@@ -40,10 +40,10 @@ This epic is complete when:
 | 002 | Spike T-1: GUT on Godot 4.7.2 | Integration | Complete | ADR-0009 |
 | 003 | Vendor GUT, .gutconfig.json, tests/support skeleton | Config/Data | Complete | ADR-0009 |
 | 004 | Verify and harden run_ci.py | Integration | Complete | ADR-0009 |
-| 005 | Harden the GDScript comment and string stripper | Logic | Ready | ADR-0009 |
-| 006 | Harden lint rule kinds and registered rule table | Logic | Ready | ADR-0009 |
-| 007 | Per-rule pass/fail fixtures and self-check | Logic | Ready | ADR-0009 |
-| 008 | Registry coverage meta-rule | Logic | Ready | ADR-0009 |
+| 005 | Harden the GDScript comment and string stripper | Logic | Complete | ADR-0009 |
+| 006 | Harden lint rule kinds and registered rule table | Logic | Complete | ADR-0009 |
+| 007 | Per-rule pass/fail fixtures and self-check | Logic | Complete | ADR-0009 |
+| 008 | Registry coverage meta-rule | Logic | Complete | ADR-0009 |
 | 009 | GitHub Actions workflow ci.yml and triggers | Config/Data | Ready | ADR-0009 |
 | 010 | Spike T-2: first green CI run and negative controls | Integration | Ready | ADR-0009 |
 | 011 | Document and skill synchronization (Decision 8) | Config/Data | Ready | ADR-0009 |

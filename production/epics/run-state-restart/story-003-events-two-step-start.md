@@ -1,12 +1,12 @@
 # Story 003: Event emission order, two-step start and re-entrancy guard
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -59,7 +59,7 @@ A re-entrancy flag set around the whole tick and around each `emit()` rejects an
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_events_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created. **Evidence**: `run_state_events_test.gd`: AC-3 `test_*_emits_*` rows (14 sequences), AC-4 `test_run_reset_handlers_all_return_before_run_started_with_the_same_id`, `test_phase_reads_new_phase_inside_every_handler`, `test_run_resumed_is_emitted_before_the_first_tick_of_the_resumed_run`; AC-5 `test_request_sent_from_a_handler_of_each_of_the_nine_events_is_rejected_with_one_error`, `test_rejected_nested_requests_change_nothing_and_leave_the_queue_empty`, `test_same_request_after_the_handler_returns_gives_the_ac1_outcome`, `test_request_sent_from_the_injected_clock_during_a_tick_is_rejected`; AC-17 `test_clock_advanced_5s_in_run_reset_handler_still_yields_run_started_and_a_settling_next_tick`.
 
 ## Dependencies
 - Depends on: Story 002

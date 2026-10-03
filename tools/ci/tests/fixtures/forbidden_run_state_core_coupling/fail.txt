@@ -1,0 +1,8 @@
+#@path: src/core/run_state/run_state_core.gd
+extends RefCounted
+
+var _save: SaveService
+
+
+func request_start() -> void:
+	_save.flush()

@@ -1,12 +1,12 @@
 # Story 002: Phase machine, request queue and validation by phase
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -48,7 +48,7 @@ Requests are queued when sent and processed at the next `tick` (the one exceptio
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_transitions_test.gd`, support `tests/support/run_state_factory.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created. **Evidence**: AC-1 `test_acceptance_matrix_accepts_ten_pairs_and_rejects_36_with_no_trace`, `test_matrix_has_46_cases_with_10_accepted_10_debug_26_warning`, `test_lock_boundary_one_microsecond_before_is_rejected_at_limit_is_accepted`, `test_guard_boundary_in_paused_applies_to_menu_the_same_way`; AC-6 `test_run_id_*`, `test_double_tap_restart_increases_run_id_once`, `test_run_time_is_zero_after_reset_and_advances_only_in_running` in `run_state_transitions_test.gd`; support `tests/support/run_state_factory.gd`.
 
 ## Dependencies
 - Depends on: Story 001
