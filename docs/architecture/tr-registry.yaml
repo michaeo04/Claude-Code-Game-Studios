@@ -14,43 +14,3151 @@
 #     the new TR-ID(s).
 #
 # WRITTEN BY: /architecture-review (appends new entries, never overwrites)
-# READ BY:    /create-stories (embed IDs in stories)
-#             /story-done (look up current requirement text at review time)
-#             /story-readiness (validate TR-ID exists and is active)
+# READ BY:    /create-stories, /story-done, /story-readiness
 #
-# ID FORMAT: TR-[system-slug]-[NNN]
-#   system-slug = short slug matching the GDD system name
-#   NNN = three-digit zero-padded sequence per system, starting at 001
-#
+# ID FORMAT: TR-[system-slug]-[NNN]   (a trailing letter, as in TR-juice-feedback-013b, marks a
+#   requirement split out of 013 during extraction; it is a distinct permanent ID)
 # STATUS VALUES: active | deprecated | superseded-by: TR-[system]-NNN
+#
+# SEEDED 2026-10-03 from docs/architecture/tr-baseline/ (348 requirements, 16 GDDs).
+# `requirement` is the baseline wording (a compressed restatement of the GDD rule); the GDD
+# section it came from is in `source`. Coverage by ADR is in
+# docs/architecture/architecture-traceability.md, not in this file.
 
 version: 1
-last_updated: ""
+last_updated: "2026-10-03"
 
-requirements: []
-
-# --- EXAMPLE ENTRIES (remove when first real entries are added) ---
-#
-# - id: TR-combat-001
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Player takes damage from enemies based on attack power minus defence"
-#   created: 2026-03-10
-#   revised: ""
-#   status: active
-#
-# - id: TR-combat-002
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Combo window timing is 0.4 seconds between hits"
-#   created: 2026-03-10
-#   revised: "2026-04-01"
-#   status: active
-#
-# - id: TR-combat-003
-#   system: combat
-#   gdd: design/gdd/combat-system.md
-#   requirement: "Old damage formula using raw stats"
-#   created: 2026-03-10
-#   revised: ""
-#   status: superseded-by: TR-combat-001
+requirements:
+  - id: TR-tube-track-001
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "Define the frame: theta=0 at top (+Y), theta grows clockwise from behind, s grows along -Z, P(theta,s,h)=((R+h)sin t,(R+h)cos t,-s); only Tube Track converts to world space"
+    source: "Core Rules/Coordinate frame R1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-002
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "TubeMath static RefCounted functions: wrap_angle (fposmod(a+PI,TAU)-PI plus a guard returning [-PI,PI)), delta_theta, F2-F9, idle_step, P (rename to_world suggested in OQ18); non-finite input returns 0 and logs"
+    source: "F1, R2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-003
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "TubeConfig (Resource) holds every knob plus the MapConfig fields it reads; validate() returns a SET of stable failure codes"
+    source: "EC Map validation"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-004
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "TubeWindow (RefCounted, not an autoload) is the state machine: it owns the window, emits the signals, and takes TubeConfig, a log_sink Callable and slot_binder Callable(slot_index:int, segment_index:int)"
+    source: "Structure"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-005
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "State machine of 5 states and 8 events: exactly 16 of 40 (state,event) pairs are accepted; the rest give no state change, no signal and one logged error; load_map is accepted only from Uninitialized and a failed validation keeps Uninitialized (Retry allowed)"
+    source: "States and Transitions"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-006
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Timing"
+    requirement: "advance(s) has exactly one caller, once per frame, valid only in Running; s never decreases (max(s,prev)); equal s is a silent no-op; NaN/INF s is ignored with an error"
+    source: "R4, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-007
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Timing"
+    requirement: "Recycling is synchronous inside advance: left(rearmost) then entered(new far) per boundary, in increasing index order; a jump of >=N segments re-primes with window_primed and no segment_* signals"
+    source: "R6, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-008
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "Signals carry integers only and re-entrancy is guarded: a mutating call from any handler is rejected with an error; immediate connections only (CONNECT_DEFERRED bypasses the guard)"
+    source: "Interactions, OQ18"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-009
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "Signal order: load_map, to_idle and begin_run emit window_primed, then state_changed (only if the state changed); begin_run from Running re-primes and emits window_primed only; every prime calls the binder N times"
+    source: "R11, AC-8, AC-20a"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-010
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "Window sizing validated at load: A>=ceil((F+v_max*t_lat)/L)+1, B>=ceil((C_b+M_cam)/L); the far edge stays >= F+v_max*t_lat ahead after any call; a slot is recycled only when it is entirely out of view"
+    source: "F3, R6"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-011
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Rendering"
+    requirement: "Visibility budget at load: T_vis=(F_read-d_cam)/v_max>=T_VIS_MIN; an empty F range reports only NO_VALID_F"
+    source: "F9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-012
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Rendering"
+    requirement: "Fog must be depth mode with fog_density=1.0 and fog_depth_begin<fog_depth_end=F; F and F_read are radial distances from the eye"
+    source: "R7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-013
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Rendering"
+    requirement: "Tube is a 32-facet flat-shaded cylinder with vertex radius R, a shared Mesh+Material per slot, no CollisionObject3D; the render route (node per slot, MultiMesh with custom_aabb, or a scrolling shader) is left to an ADR"
+    source: "R3, F7, OQ3, AC-24"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-014
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Rendering"
+    requirement: "SeamPattern resource (n_seams per segment) drives a flat shading band with no geometric relief; seams at (j+0.5)*SP, SP=L/n_seams; f_seam=v_max/SP<=3 Hz; L>=ceil(v_max/3)"
+    source: "R9, F5, OQ17"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-015
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Rendering"
+    requirement: "seam_contrast_scale in [0,1] is sampled EVERY frame in every state (and on setting_changed); a mutation that samples only at load/begin_run must fail"
+    source: "R9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-016
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Timing"
+    requirement: "Idle scroll is the internal step idle_step(dt) driven by the view node's own dt, clamped to t_lat; s_idle=fposmod(...,L) stays in [0,L); no segment_* or window_primed signals in Idle"
+    source: "R11, F8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-017
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "Precision: s is 64-bit; z=-s is cast to 32-bit only when the Vector3 is built; no rebase; one debug warning per run at s>=S_PRECISION_LIMIT, re-armed by begin_run; the treadmill is the fallback"
+    source: "R8, F4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-018
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Determinism"
+    requirement: "Segment content is a pure function of (config, absolute index); no randomness; compare by absolute index in segment-local space"
+    source: "R10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-019
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Testing"
+    requirement: "Core is headless and GUT-testable with test doubles for Camera/Ball/Obstacle; the log sink counts warnings; getters s, first_index, last_index, far_end_s and an ordered signal recorder are needed; the production sink rate-limits to 1 per second"
+    source: "AC preamble"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-020
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Testing"
+    requirement: "A 300 s deterministic simulation at dt=1/64 asserts the far-edge bound, exactly one left+entered pair per boundary (625 total) and slot_index range"
+    source: "AC-21..23"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-021
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Rendering"
+    requirement: "Performance budget: total draw calls<=150, the tube sharing one Mesh+Material"
+    source: "AC-28"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-022
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Core"
+    requirement: "Memory and allocation: nothing is allocated or freed during a run (slots re-targeted); object/node/resource counts differ by 0 after warm-up; recycle p99 provisionally <=0.2 ms, begin_run <=2 ms"
+    source: "R5, AC-29/30"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-023
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "SaveLoad"
+    requirement: "No persistent state; per-run state is s, s_idle and the window"
+    source: "Overview"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tube-track-024
+    system: tube-track
+    gdd: design/gdd/tube-track.md
+    category: "Platform"
+    requirement: "Run State events map through a Tube Track-owned thin adapter to begin_run/pause/resume/end_run/to_idle; the map loader calls load_map and sends map_ready only on success"
+    source: "Interactions"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-001
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "BallMath static class holds F1 step, F2 speed and S, wrap_angle (shared verbatim with Tube Track) and F5 T(X,eps); the token wrapf( is forbidden in its file"
+    source: "R13, AC-25"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-002
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "BallCore (RefCounted, no engine calls) takes a validated BallConfig, injected dt_max and a log_sink Callable(level,code,message); events reset(), on_resumed(), step(dt_eff,steer,valid,input_source)"
+    source: "R13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-003
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Data"
+    requirement: "BallConfig (Resource) holds every knob; validated(log_sink) returns a clamped copy and leaves the shipped resource untouched; NaN/INF takes the default; one KNOB_CLAMPED per change"
+    source: "Tuning Knobs, AC-19"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-004
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "validated() also runs a derived check: if T(PI,0.05)>1.14 s it lowers BALL_LAG_TAU by bisection (|err|<=1e-9 or 60 iterations), never OMEGA_MAX, and logs one KNOB_CLAMPED"
+    source: "R13, AC-19b/c"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-005
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Timing"
+    requirement: "step() is called once per rendered frame, after Run State tick() and Tilt poll/flush, in every phase; dt_eff<=0 or non-finite is a no-op (prev=current, omega=0); dt_eff>dt_max is clamped with DT_OVER_MAX"
+    source: "R2, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-006
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Physics"
+    requirement: "Position mapping (POSITION default): phi_target=phi_anchor+STEER_ARC*clamp(steer); e=wrap_angle(target-phi); alpha=1-exp(-dt/tau) (1 if tau<1e-4); step clamped to +-OMEGA_MAX*dt; snap when |e-step|<1e-6"
+    source: "F1, R4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-007
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Physics"
+    requirement: "Anchor rules: phi_anchor=0 at reset; the first moving step after on_resumed re-bases phi_anchor=phi-STEER_ARC*steer; phi and anchor shift together by multiples of 2PI when |phi|>2PI"
+    source: "R5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-008
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Physics"
+    requirement: "Speed is the exact integral S(t) of the ramp, s+=S(t_new)-S(t_old), with the T_RAMP<=0 sentinel checked first; t_run is integrated internally and must equal Run State run_time"
+    source: "F2, R7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-009
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "Published read-only state after each step: theta, theta_prev, s, s_prev, speed, omega, radius (D/2); omega=(phi_new-phi_old)/dt taken before the 2PI shift; consumers read after the step"
+    source: "R8, F4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-010
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "Held-steer semantics: valid=false or non-finite steer holds the last accepted steer (BAD_STEER for non-finite only); steer is clamped to [-1,1]; a no-op step never updates the held value"
+    source: "EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-011
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "reset() is synchronous with no loop, allocation or .new()/load() in the body; it zeroes everything, clears the mode latch and held steer, and sets speed=speed(0)"
+    source: "R9, AC-27"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-012
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "RATE mode and the FALLBACK latch stay in BallCore (latched on the first dt>0 step after reset) but the MVP driver never passes FALLBACK; a no-sensor device is blocked at HUD/Menus"
+    source: "R6, AC-15/16"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-013
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "Contact is not detected here: no collider, CharacterBody3D or hit_reported; Obstacle System owns swept overlap using (theta_prev,s_prev)->(theta,s) and must derive bounds from the loaded config"
+    source: "R11, OQ4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-014
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "Ball placement is by the driver using Tube Track P(theta,s,h) with h=D/2 (ring radius R+D/2); Ball Movement never reads raw world Z (lint: position.z, global_position.z, global_transform.origin)"
+    source: "R1, AC-25"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-015
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Determinism"
+    requirement: "Same input sequence gives the same output, bit-identical; no randomness, no shared static state; no const container or top-level subscript assignment in BallMath"
+    source: "R12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-016
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Timing"
+    requirement: "Phase-free inertness: dt_eff=0 on settling ticks (after run_started and run_resumed), Hit, Paused and Resuming freezes everything bit-identically"
+    source: "R10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-017
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Timing"
+    requirement: "dt and angle are 64-bit; |s-S(t_run)|<=1e-6 after 100,000 frames"
+    source: "F6, AC-22"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-018
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Timing"
+    requirement: "The 60 Hz fairness contract: software response<=0.13 s and end-to-end<=0.20 s at 60 Hz; 30 Hz is recorded but not fairness-gated; latency stack is 0.11 s on top of T_DODGE_180"
+    source: "F5b, B10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-019
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Rendering"
+    requirement: "Ball view is a smooth-shaded sphere with a cool-white rim; cosmetic roll rate speed/radius and a capped lean from omega are derived in the view layer (no state in core); no speed VFX on the ball"
+    source: "Visual/Audio"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-020
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Testing"
+    requirement: "Oracles come from tools/reference-sim/ball_movement.js; fixture make_ball_fixture(), make_core(cfg,dt_max=0.1), make_sink(); steer tables in one constants file; LCG for pseudo-random tables; each row is its own test with a fresh core"
+    source: "AC preamble"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-021
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Testing"
+    requirement: "Device gates need a measurable harness: per-frame theta logging, a 240 fps jig, evidence files under production/qa/evidence/ball-movement/bm-N.md; BM-1a, BM-1b, BM-3 BLOCK the first playable"
+    source: "Gate policy"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-022
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "SaveLoad"
+    requirement: "No persisted state; per-run state only (reset each run)"
+    source: "R9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-ball-movement-023
+    system: ball-movement
+    gdd: design/gdd/ball-movement.md
+    category: "Core"
+    requirement: "Reset glide: segment(s) covering s=0..>=11 u must be hazard-free because reset glide is up to T(PI,0.05)=1.064 s"
+    source: "R5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-001
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Only the TiltInput node reads motion sensors (Input.get_gravity and siblings); CI lint enforces it on src/"
+    source: "R1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-002
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Publish by pull (no per-frame signal): steer finite in [-1,1], valid bool, input_source (SENSOR/FALLBACK); steer>0 when the right edge is lowered; NaN/INF becomes 0 with one BAD_OUTPUT; reading twice without poll gives the same value"
+    source: "R2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-003
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "TiltMath static holds F1-F4, should_reanchor and sensor_lost_pause_needed; TiltCore (RefCounted, no Node, no Input) takes sample_source Callable()->Vector3, clock Callable()->int (us), log_sink Callable(level,code,detail), fallback_source Callable()->int, is_debug, sensors_enabled, is_portrait, TiltConfig"
+    source: "R12, AC-47c"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-004
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "TiltRunAdapter (RefCounted) glues Run State: injected request_pause Callable(source) and phase_source Callable()->phase; caches the previous phase for run_reset; exposes flush()"
+    source: "R12, AC-39"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-005
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Data"
+    requirement: "TiltConfig (Resource) with validated() applying the rule 14 order; test-only unvalidated() not referenced from src/; PHI_MAX, FS_EFF_MAX, F_MIN, BUFFER_AGE, TAU_FLOOR, DROPOUT_MIN_POLLS and REANCHOR_FS_CAP are constants"
+    source: "R12, R14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-006
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Timing"
+    requirement: "poll() takes no argument, is called once per rendered frame in every phase by one caller, before ball step; polling from _physics_process is unsupported; the driver needs PROCESS_MODE_ALWAYS to poll while Paused"
+    source: "R6, OQ4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-007
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Timing"
+    requirement: "Time comes from the injected microsecond clock (Time.get_ticks_usec, not engine delta); dt=clamp((now-prev)/1e6,0,0.1); an equal or backwards stamp appends no sample and uses dt=0; the first poll (even stamp 0) is accepted"
+    source: "R6, R8, AC-25"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-008
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Pipeline order: validity, roll F1, subtract neutral, low-pass F3, then dead zone+scale+clamp+curve F4"
+    source: "R5, F1-F4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-009
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Data"
+    requirement: "Ring buffer: PackedFloat64Array of angles plus PackedInt64Array of stamps with a head index, capacity 256, BUFFER_AGE 1.0 s, oldest overwritten, no getters exposing it (copies only)"
+    source: "R8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-010
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Neutral capture is the median of samples in the closed window [t-G-W, t-G]; fewer than N_min sets neutral_pending (median of the first N_min valid samples after the event); a new capture while pending restarts the accumulator; filter starts at 0 after a capture"
+    source: "R8, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-011
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Capture policy: always capture on run_reset from Boot/Menu/unknown and on run_resumed; restart from Hit/Paused uses conditional re-anchor (should_reanchor needs N>=N_min, spread<=RA_S, known phi_stop, median differs from phi0 AND phi_stop by >RA_eff); else inherit"
+    source: "R7, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-012
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Availability states Acquiring/Live/Unavailable with availability_changed(available:bool) emitted whenever valid changes (none at construction); SENSOR_START_TIMEOUT leads to FALLBACK only if sensor_ever_live is false, else Unavailable"
+    source: "States, AC-29/38/49"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-013
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Dropout hold counts clamped poll time and consecutive invalid polls: held while invalid_us<=HOLD OR invalid_polls<3; then Unavailable (valid false, steer 0, neutral_stale set)"
+    source: "R10, F6"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-014
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Timing"
+    requirement: "Level-triggered pause evaluated by adapter.flush() once per frame, AFTER tilt.poll and BEFORE Run State tick (never inside a Run State handler): request pause_requested(sensor_lost) iff valid false and phase in {Running,Resuming}; at most one request per frame"
+    source: "R10, R6"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-015
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Platform"
+    requirement: "App lifecycle comes from Platform Services signals app_backgrounded/app_foregrounded (provisional names), which on Android derive from FOCUS_OUT/IN (NOTIFICATION_APPLICATION_PAUSED/_RESUMED may never fire under Vulkan); on background: clear buffer, set neutral_stale, go Acquiring; on foreground discard samples for SENSOR_RESUME_SETTLE"
+    source: "R9, AC-24"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-016
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Platform"
+    requirement: "ProjectSettings required: input_devices/sensors/enable_gravity (and enable_accelerometer if the accelerometer fallback is kept), both default false and need a restart; display/window/handheld/orientation=1 (portrait; default 0 is landscape); read with explicit get_setting default; steer_left/steer_right InputMap actions"
+    source: "R3, R9, AC-37d"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-017
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Platform"
+    requirement: "Gravity is screen-relative on Android in every orientation (x,y swapped/negated for ROTATION_90/180/270), so no axis remap and no sign flip in reverse portrait; NOT_PORTRAIT is diagnostic only; SENSOR_SIGN expected -1 (confirm by V-1)"
+    source: "R3, R4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-018
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Platform"
+    requirement: "Vector3 is float32: a (1e30,0,0) vector must give finite steer and (1e200,0,0) becomes INF and is rejected as invalid before F1"
+    source: "EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-019
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Fallback input (key+touch via fallback_source) is built and unit-tested in TiltCore but NOT wired by any MVP driver (no-sensor device is blocked \"device not supported\"); FALLBACK is terminal for the session; capture events are no-ops there"
+    source: "R11, R13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-020
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Settings sensitivity hook: FS_eff=min(FS/sensitivity,50); sensitivity NaN/INF/<=0 becomes 1, finite clamps to [0.5,2.0] with one KNOB_CLAMPED each"
+    source: "F4, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-021
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Core"
+    requirement: "Log codes SENSORS_DISABLED, SENSOR_TIMEOUT, NOT_PORTRAIT, KNOB_CLAMPED, BAD_OUTPUT, POSTURE_UNSUPPORTED; core logs every rejection; production sink allows <=1 message per code per 1.0 s of injected clock"
+    source: "R12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-022
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Performance"
+    requirement: "poll() cost on-device p95<=0.1 ms over >=1000 frames; end-to-end latency p95<=100 ms (P-1, P-2)"
+    source: "Spike"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-023
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Testing"
+    requirement: "Pure fixtures: live_core(pose, step_us) helper; ticks of +16667 us (not 1/60); loss tests at 50 Hz (+20000 us); tolerance 1e-3 deg, 1e-4 steer; no test steps 60 Hz to reach a round second; GDScript seams: lambdas capture by value, self-capturing lambdas in RefCounted leak (use bound methods or dispose()), preload to avoid class_name cache collisions in headless"
+    source: "AC preamble, R12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-024
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Testing"
+    requirement: "CI lint script (tools/ci/, not yet written) is a blocking gate before the first Tilt story is Done: 37a-37f cover Input. calls, no Engine/Time/OS in core, no touch events, project.godot, unvalidated() use, poll() only in the driver"
+    source: "AC-37, Gate policy"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-025
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "SaveLoad"
+    requirement: "No persistence: phi0, phi_f, phi_stop and neutral_pending/stale are in-session only; neutral resets each launch"
+    source: "R7, R8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-tilt-input-026
+    system: tilt-input
+    gdd: design/gdd/tilt-input.md
+    category: "Testing"
+    requirement: "Device evidence V-1 (sensor sign, signed by qa-lead and technical-director) BLOCKS the first playable; AC-40 (end-to-end sign) is owned by a Ball Movement epic story"
+    source: "Gate policy"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-001
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Core"
+    requirement: "CameraMath static holds F1 lag step, F2 d_cam, F3 VISIBLE_ARC_HALF_WIDTH, F4 position/look-at, F5 FOV ease; wrap_angle reused verbatim, never reimplemented"
+    source: "R11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-002
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Core"
+    requirement: "CameraCore (RefCounted, no engine calls) holds phi_cam and FOV-punch state; driven by injected read-only doubles for Ball Movement (theta,s), Tube Track (R), Run State (run_reset/run_paused/run_ended) plus a log_sink"
+    source: "R11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-003
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Data"
+    requirement: "CameraConfig (Resource) holds all knobs; validated(log_sink) returns a clamped copy and enforces CAMERA_RADIUS>TUBE_RADIUS and CAMERA_RADIUS>=TUBE_RADIUS+MARGIN_MIN (CAMERA_RADIUS_TOO_CLOSE naming both values)"
+    source: "R10, AC-10, AC-17"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-004
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Physics"
+    requirement: "First-order lag on the orbit angle: e_cam=wrap_angle(theta-phi_cam); alpha=1-exp(-dt/tau) (alpha=1 if tau<1e-4); phi_cam=wrap_angle(phi_cam+e_cam*alpha); NO rate cap"
+    source: "F1, R1, AC-1..4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-005
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Rendering"
+    requirement: "Camera up vector points radially outward at its own lagged angle phi_cam, so the camera rolls with its orbit and the tube stays static and centred"
+    source: "R1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-006
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Rendering"
+    requirement: "camera_position=P(phi_cam, s_ball-CAMERA_BACK_DISTANCE, CAMERA_RADIUS-R) and look_at_point=P(any, s_ball+CAMERA_LOOK_AHEAD, -R) (on axis), both through Tube Track's P; Camera never computes world coordinates itself"
+    source: "F4, R3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-007
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Core"
+    requirement: "d_cam is derived only (no setter): sqrt(r_ball^2+CAMERA_RADIUS^2-2*r_ball*CAMERA_RADIUS*cos(delta)+BACK^2)"
+    source: "F2, R2, AC-6/7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-008
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Core"
+    requirement: "VISIBLE_ARC_HALF_WIDTH=acos(TUBE_RADIUS/CAMERA_RADIUS), a pure function of those two values only, bit-identical regardless of BACK_DISTANCE and phi_cam (mutation test)"
+    source: "F3, R4, AC-8/9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-009
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Timing"
+    requirement: "dt_eff<=0 or non-finite is a frozen no-op (phi_cam, position, d_cam bit-identical; BAD_DT logged for non-zero invalid); non-finite theta is a no-op with one error"
+    source: "R5, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-010
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Timing"
+    requirement: "run_reset snaps phi_cam to the ball's start angle (0.0 bit-identical) with no lag carryover; handler must run after Ball Movement's reset (subscriber order pinned by Run State)"
+    source: "R5, AC-11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-011
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Timing"
+    requirement: "Camera is inert on dt_eff=0 exactly as Ball Movement is (Hit, Paused, Resuming, settling tick), with no phase logic of its own"
+    source: "R5, States"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-012
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Rendering"
+    requirement: "apply_fov_punch(amount,duration) additively widens fov and eases linearly back; a new call REPLACES the in-progress ease (no stacking); fov_offset(t)=amount*max(0,1-t/duration)"
+    source: "F5, R7, AC-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-013
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Rendering"
+    requirement: "No screen shake ever; the only camera-owned transform change besides orbit is the FOV punch"
+    source: "Visual/Audio"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-014
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Physics"
+    requirement: "No collision body; camera is outside the tube by construction (CAMERA_RADIUS>TUBE_RADIUS+0.5); static lint forbids CollisionObject3D, Area3D, PhysicsServer, RayCast3D"
+    source: "R6, R10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-015
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Core"
+    requirement: "Camera is read-only and side-effect-free: no requests to Ball Movement, Tube Track or Run State; lint tokens include request_, hit_reported, Input., Engine., Time., OS., DisplayServer., get_tree, _process, randi/randf"
+    source: "R8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-016
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Data"
+    requirement: "Publish rear_extent=C_b=CAMERA_BACK_DISTANCE=6.0 and camera_distance (worst-case 7.84, shipped 8) as map-load configuration values to Tube Track, and VISIBLE_ARC_HALF_WIDTH to Obstacle System"
+    source: "Interactions, Dependencies"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-017
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Determinism"
+    requirement: "Identical (theta,dt_eff) sequences incl. resets, freezes and non-finite inputs give bit-identical phi_cam, position and d_cam"
+    source: "R9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-018
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Testing"
+    requirement: "make_camera_fixture(): tau=1.0/3.0 full precision, radius 6, back 6, look-ahead 12, margin 0.5; doubles supply TUBE_RADIUS 3.0, D 0.8, OMEGA_MAX 3.0; make_core(cfg), make_sink(); tests in tests/unit/camera/camera_[feature]_test.gd; exact == for logs and snapped poses, 1e-6 otherwise"
+    source: "AC preamble"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-019
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Platform"
+    requirement: "Safe area is read from Platform Services (soft, provisional)"
+    source: "Interactions, OQ4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-020
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "Rendering"
+    requirement: "Perf: one Camera3D, per-frame transform update only; no draw cost of its own"
+    source: "n/a"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-camera-021
+    system: camera
+    gdd: design/gdd/camera.md
+    category: "SaveLoad"
+    requirement: "No persisted state; per-run state is phi_cam and the FOV ease"
+    source: "n/a"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-001
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "Logic is split into static pure `ObstacleMath` (F1 expansion, F2 swept overlap + `arc_overlap`, F3 gap sweep-line, F4 `hidden()`, F5 spacing), `RefCounted` `ObstacleCore` and a data-driven `ObstacleConfig` Resource with `validated(log_sink)`."
+    source: "Acceptance Criteria Targets, Tuning Knobs"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-002
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "A hazard is `{hazard_id:int>=0, footprint_pieces:[(theta_min,theta_max,s_start,s_end)], home_segment}`. Pieces of one hazard share one id. Raw `s`-range of every piece lies inside `[i*L,(i+1)*L)`. No height dimension."
+    source: "CR1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-003
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Physics"
+    requirement: "The hit test is analytic (no `CollisionObject3D`/`Area3D`/`PhysicsServer3D`). It is a swept AABB: `s_hit = s_prev<=s_eff_end and s>=s_eff_start`, and `theta_hit = arc_overlap(...)` using a single `fposmod`. Bounds are expanded by `BALL_HALF_ANGLE = asin(D/(2(R+D/2)))` and `D/2`."
+    source: "CR2, F1, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-004
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Timing"
+    requirement: "The test runs exactly once per published `(theta_prev,theta,s_prev,s)` pair, in the same tick domain as Ball Movement's publish. A driver node owns this guarantee. A render-frame-only callback is forbidden because of physics catch-up."
+    source: "CR2, OQ16, AC-25"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-005
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "Reporting is level-triggered. One `hit_reported(hazard_id:int, run_id:int)` is sent per overlapped hazard per tick, in every phase, with no phase awareness (a no-op frame degenerates to a point-in-footprint test)."
+    source: "CR3, CR4, AC-16, AC-17, AC-18"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-006
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "Lifecycle follows Tube Track's signals. `segment_entered_window(i)` calls the provider once and spawns hazards. `segment_left_window(i)` releases them. `window_primed(first,last)` releases everything, then populates `[first,last]` in increasing order and restarts the `hazard_id` counter at 0."
+    source: "CR5, AC-19, AC-20, AC-21"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-007
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "Obstacle System emits `hazard_bound(hazard_id, footprint_pieces)` on spawn and `hazard_released(hazard_id, released_by_reset: bool)` on release. The flag is true for any `window_primed`-caused release (reset, re-prime, to-idle) and false for a `segment_left_window` recycle. No release event exists for `unload_map`."
+    source: "CR5, Interactions, AC-40"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-008
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "The `run_reset(run_id)` handler only stores `run_id`. It must not clear, reseed or reset the id counter, so either order within rank 2 is safe."
+    source: "CR5, AC-41"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-009
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Data"
+    requirement: "The content seam is `HazardContentProvider.hazards_for_segment(segment_index:int) -> Array[HazardSpec]`. It is called once per entering segment and never re-queried (a second call gives `DUPLICATE_SEGMENT_QUERY`, binding untouched). The provider may be stateful. Swapping providers needs no core change."
+    source: "CR7, EC, AC-14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-010
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Data"
+    requirement: "If `HazardSpec` is a Resource, each spawned hazard gets an owned deep copy. Plain `duplicate()` is shallow."
+    source: "CR7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+    note: "ADR-0008 (Proposed) changes the mechanism: HazardSpec is a shared immutable RefCounted, no per-hazard copy and no duplicate_deep(). Requirement text stays until the Obstacle GDD is revised; do not deprecate before ADR-0008 is Accepted."
+  - id: TR-obstacle-system-011
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Data"
+    requirement: "Footprint bounds are unwrapped reals with `theta_min<=theta_max` and width `<2*PI`. A seam-crossing piece is authored with `theta_max>PI` or `theta_min<-PI`. Bounds are wrapped only when compared to the ball."
+    source: "F1, F2, AC-4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-012
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "An offline preflight runs over the whole library, exhaustively (not fail-fast), in deterministic order. It emits stable codes and structured records: `FOOTPRINT_NOT_FINITE`, `FOOTPRINT_INVALID_ORDER`, `FOOTPRINT_TOO_WIDE`, `FOOTPRINT_EFF_TOO_WIDE`, `HOME_SEGMENT_MISMATCH`, `NO_SAFE_GAP` (record: s0 + active piece set), `TOO_MANY_PIECES`, `TOO_DENSE`, `HAZARD_OVERLAP`, `HIDDEN_CONTENT_FORBIDDEN`, `EXIT_BEYOND_VISIBLE_ARC`, `HIDDEN_UNFAIR`, `GRACE_ZONE_VIOLATION`, `SWEEP_INVARIANT_VIOLATED`. A failing segment is never partially applied."
+    source: "EC, F3, F5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-013
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "The live `hazards_for_segment` call may re-run the checks only as a debug-build assertion. It never rejects mid-run."
+    source: "EC \"When validation runs\""
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-014
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "`hidden(piece)` uses `d_min>VISIBLE_ARC_HALF_WIDTH` with `fposmod` (never `wrapf`) and strict `>`. The hidden ban stays active until OQ2/OQ15 resolve. The exit rule requires a type with `theta_solution` and `d_exit>VISIBLE_ARC_HALF_WIDTH` to be PI-symmetric (1e-6 tolerance)."
+    source: "CR8, F4, AC-34, AC-36, AC-42"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-015
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "A non-finite published `theta` or `s` is a no-op frame (last good swept endpoint held) with one error logged, and never reaches a comparison."
+    source: "EC, AC-22"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-016
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "The cross-system invariant `OMEGA_MAX*DT_MAX<PI` is validated at load with `OMEGA_MAX` and `DT_MAX` injected (not owned)."
+    source: "EC, F2, AC-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-017
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Timing"
+    requirement: "Per-tick work is bounded by `MAX_PIECES_PER_SEGMENT`=12 (safe range 6-20) times at most `N_MAX`=16 window segments, which is at most 192 pieces tested every tick. The test is its own broad phase. No numeric ms budget is stated."
+    source: "CR2, EC, Tuning Knobs"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-018
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "No side effects: the only output is `hit_reported` (plus the two Near-Miss signals). Obstacle System reads only `theta`/`s` and their prev values (never raw world Z). It never calls mutating Ball Movement or Tube Track methods."
+    source: "CR9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-019
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Testing"
+    requirement: "A lint over ObstacleMath/Core/Config and their transitive dependencies bans `CollisionObject3D`, `CharacterBody3D`, `Area3D`, `RayCast3D`, `ShapeCast3D`, `PhysicsServer`, `Input.`, `Engine.`, `Time.`, `OS.`, `DisplayServer.`, `get_tree`, `_process`, `_physics_process`, `randi*`, `randf*`, `randomize`, `seed(`, `RandomNumberGenerator`, `position.z`, `global_position.z`, `global_transform.origin`. Code review sign-off is required evidence."
+    source: "AC-24"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-020
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Testing"
+    requirement: "Tests are driven by `make_obstacle_fixture()`, `make_ball_state_stub`, `make_content_provider(table)` and `make_core(cfg, provider, log_sink)`, using scripted ticks only. Exact `==` for ints and codes, 1e-6 for floats. Files are `tests/unit/obstacle_system/obstacle_system_[feature]_test.gd`. Fixture: R 3.0, D 0.8, L 12, v_max 25, OMEGA_MAX 3.0, DT_MAX 0.1."
+    source: "Acceptance Criteria"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-021
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Core"
+    requirement: "Determinism: no randomness; two instances fed the same 500-tick script give bit-identical `hit_reported` streams; no static shared state."
+    source: "CR6, AC-23"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-022
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Timing"
+    requirement: "A hazard that hit the ball stays bound through the Hit freeze. Recycling happens only inside `advance()` in Running."
+    source: "Visual/Audio, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-023
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "Rendering"
+    requirement: "Hazards render at full silhouette and chroma the instant they enter the visible arc (no fade, alpha ramp or LOD pop-in). A developer-only debug overlay drawing every effective footprint is required before chunk authoring. Draw calls are at most 150 total (art bible: about 60 tris per family)."
+    source: "Visual/Audio, UI Requirements"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-obstacle-system-024
+    system: obstacle-system
+    gdd: design/gdd/obstacle-system.md
+    category: "SaveLoad"
+    requirement: "No persisted state. Config lives in `ObstacleConfig.tres`: `GAP_MARGIN` 2.5 (2.0-3.5), `T_REVEAL_MIN` 1.5, `HIDDEN_SPAN_MIN_TIME` 1.44, `MAX_PIECES_PER_SEGMENT` 12."
+    source: "Tuning Knobs, AC-30"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-001
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "Logic is split into static `PatternMath` (F1 tier, F2 opposing/spacing, F3 cost ratio, F4 bag bounds), `PatternCore` (RefCounted: provider impl, seeded RNG, bags, read history, padding), and `PatternConfig.validated(log_sink)` (library preflight)."
+    source: "Acceptance Criteria Targets"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-002
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Data"
+    requirement: "Chunk record: `{chunk_id, tier, segment_count 1-3, hazard_placements:[(local_segment_index, hazard_type, footprint_pieces)]}` in chunk-local coordinates. At `base`, pieces are translated by `base*L` in `s`. Whole-segment alignment is forced by Obstacle's `HOME_SEGMENT_MISMATCH`. MVP types: Wall, Spike, Double Gate, Near-Ring."
+    source: "CR1, CR4, AC-2, AC-7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-003
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Data"
+    requirement: "PatternCore is the `HazardContentProvider`: `hazards_for_segment(index)` returns empty for `index<0`, the next local segment's translated pieces mid-chunk, empty while padding, else it draws a new chunk."
+    source: "CR5, States table, AC-8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-004
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "Tier is a pure function of `run_time`: INTRO `<TIER_INTRO_DURATION`, RAMP `<TIER_RAMP_DURATION`, FULL after, with the upper boundary inclusive. Pools are supersets (RAMP includes INTRO, FULL includes all). Tier changes lazily at the next chunk draw and never truncates a chunk."
+    source: "CR2, F1, AC-1, AC-3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-005
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "Per tier, a bag is shuffled with a PRNG seeded from `run_id`, drawn without replacement, and reshuffled on empty. The reshuffled first draw must differ from the previous last draw (waived at N=1). `min_gap`=2, `max_gap`=2N-1 for N>=3, fixed 2 at N=2."
+    source: "CR3, F4, AC-4, AC-5, AC-6, AC-15, AC-31"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-006
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "The PRNG is a `RandomNumberGenerator` with an explicit `seed` set from `run_id` before the first draw, never `randomize()`. Fisher-Yates is implemented by the module itself (the shuffle must use this RNG instance)."
+    source: "CR3, CR11, AC-24"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-007
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "On `run_reset(run_id)` Pattern reseeds, reshuffles all three bags, discards in-progress chunk state and clears the read history. It must run first among `run_reset` subscribers."
+    source: "States table, AC-20"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-008
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "The first chunk draw of a run is restricted to grace-compliant INTRO chunks (translated `s_start>=11` at base 0). Later draws are unrestricted. `GRACE_POOL_TOO_SMALL` requires at least 2 compliant chunks."
+    source: "CR6, AC-9, AC-9b"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-009
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "The preflight inherits Obstacle's gates. Every authored piece must pass `HIDDEN_CONTENT_FORBIDDEN` (per piece) and `EXIT_BEYOND_VISIBLE_ARC` (per `theta_solution`)."
+    source: "CR7, AC-10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-010
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "Solution angles: Wall and Near-Ring have one (gap midpoint), Double Gate has two, Spike has none (exempt). Two reads are opposing if any angle pair has `abs(delta_theta)>ANGULAR_REVERSAL_THRESHOLD` (strict `>`). Opposing pairs need `s_start` distance `>=DODGE_RECOVERY_S = T_DODGE_180*v_max`. A within-chunk violation gives `DODGE_RECOVERY_VIOLATION`."
+    source: "CR8, F2, AC-11, AC-12b, AC-12c"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-011
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "Cross-chunk spacing is enforced by sequencer padding. A pruned read history holds `(s_start, theta_solution_set)` for non-Spike reads (pruned to `s_start >= frontier - DODGE_RECOVERY_S`). Every non-Spike read of a drawn chunk is checked against every history entry. `padding_segments = ceil(max_shortfall/L)` empty segments are inserted before the chunk. It never redraws, reorders or rejects."
+    source: "CR9, F2c, AC-12, AC-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-012
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "F3 must delegate to Ball Movement's `BallMath.T` (three-branch F5a), not restate the middle branch (NaN/wrong value when `BALL_LAG_TAU<=eps/OMEGA_MAX`)."
+    source: "F3, AC-30"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-013
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "The pool clustering statistic `opposing_pair_fraction` is computed per tier. A value above `MAX_OPPOSING_FRACTION` logs an ADVISORY `EXCESSIVE_ANGULAR_CLUSTERING` (load still succeeds). It is 0.0 (no NaN) when fewer than 2 non-Spike chunks."
+    source: "CR12, F5, AC-28, AC-29, AC-29b"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-014
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Data"
+    requirement: "Config guards: `TIER_ORDER_INVALID`, `TIER_DURATION_OUT_OF_RANGE` (intro 8-20, ramp 45-240, checked first), `ANGULAR_THRESHOLD_OUT_OF_RANGE`. `t_dodge_worst` = `T_DODGE_180` is supplied to Tube Track as a config value, never derived per chunk."
+    source: "F1, CR10, AC-1b, AC-1c, AC-16"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-015
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Core"
+    requirement: "Determinism: the same `run_id` and the same call script give bit-identical chunk sequences. A different `run_id` changes the first draw. No side effects; Run State and Tube Track are read-only."
+    source: "CR11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-016
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Timing"
+    requirement: "Obstacle must call `hazards_for_segment` in increasing index order, once each. PatternCore state (mid-chunk, mid-padding) depends on call order. Tier is sampled at window-entry time (ahead of the ball)."
+    source: "States table, F2c"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-017
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Timing"
+    requirement: "Per-call cost is small (bag draw plus history check against a short pruned history). No explicit budget is given."
+    source: "F2c"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-018
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Testing"
+    requirement: "Lint bans the engine-coupling tokens except `RandomNumberGenerator` with an explicit seed (the lint must verify seed-before-first-draw). The 8-chunk fixture with INTRO={W1-W4}, RAMP=+{SP1,DG1}, FULL=+{NR1,REV2} drives the tests, plus micro-fixtures TWOHOP, TOO_CLOSE, TWIN_WALL and CLUSTERED. Files are `pattern_difficulty_[feature]_test.gd`."
+    source: "Acceptance Criteria"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-019
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Testing"
+    requirement: "The statistical shuffle-fairness test is ADVISORY: chi-square over 500 `run_id`s, N=8, p>0.01. Use a fixed hardcoded seed list, not generated seeds."
+    source: "F4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-020
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "SaveLoad"
+    requirement: "No persistence. All chunk and sequence state is per-run and in-memory."
+    source: "CR11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-pattern-difficulty-021
+    system: pattern-difficulty
+    gdd: design/gdd/pattern-difficulty.md
+    category: "Data"
+    requirement: "The chunk-library data format is only logically specified (the record in TR-002). The on-disk format and the `PatternConfig.tres` fields beyond the three knobs are not fixed."
+    source: "CR1, Provisional assumptions"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-001
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Logic is split into static `NearMissMath` (F1-NM, a two-call wrapper that calls `ObstacleMath` F2, and the F3-NM validator), `NearMissCore` (RefCounted with `log_sink` and read-only accessors), and `NearMissConfig.validated(log_sink)`."
+    source: "Acceptance Criteria Targets"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-002
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Per-hazard state is `{hit_ever_true, was_in_near_zone}` keyed by `hazard_id`, created on `hazard_bound` and discarded on `hazard_released`."
+    source: "CR1, States table"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-003
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Physics"
+    requirement: "`near_zone = hit_zone expanded by NEAR_MISS_ANGLE_MARGIN = COEFF*BALL_HALF_ANGLE` and `NEAR_MISS_S_MARGIN = COEFF*D/2`. `NEAR_MISS_CANDIDATE = NEAR_ZONE and not HIT_ZONE`. The swept values `dtheta/swept_start/swept_width` are computed once per frame and shared. `ObstacleMath` is reused, never reimplemented."
+    source: "CR2, CR3, F1-NM, F2, AC-22"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-004
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Output is edge-triggered: exactly one `near_miss_detected(hazard_id:int, run_id:int)` on the near-zone true->false edge, or on a release with `released_by_reset==false`. Never fires while merely inside the zone (no output across stationary ticks)."
+    source: "CR5, CR8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-005
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "A hit overrides: `hit_reported` sets `hit_ever_true`, and the hazard never emits a near-miss. Within a tick, `hit_reported` is applied before the exit-edge check, regardless of driver delivery order."
+    source: "CR4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-006
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "A release with `released_by_reset==true` emits nothing (reset, re-prime, to-idle, Paused to Restart/Menu). Suppression is at the source."
+    source: "CR5, EC, AC-28"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-007
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "One report per hazard, not per piece (multi-piece hazards share one state entry)."
+    source: "CR6, AC-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-008
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Data"
+    requirement: "The `near_miss_detected` payload is exactly `{hazard_id, run_id}` (strict allowlist, no closeness value). `run_id` is read from the last `run_reset` seen."
+    source: "CR7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-009
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Config guard: `NEAR_MISS_ANGLE_COEFF` or `NEAR_MISS_S_COEFF` <= 0 gives `NEAR_MISS_MARGIN_NONPOSITIVE`. Strict containment of the hit zone in the near zone is the invariant."
+    source: "F1-NM, EC, AC-7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-010
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Preflight `NEAR_ZONE_OVERLAP` covers the 3+ pieces sharing a critical `s0` case. It is checked on angularly adjacent neighbors, including the wraparound pair, over the whole library, using near zones. It must not fire for non-adjacent pieces. The two-piece proof is `fraction_consumed = k/GAP_MARGIN < 1`."
+    source: "F3-NM, AC-8, AC-9, AC-10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-011
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Timing"
+    requirement: "The test runs every tick in every phase (stationary degenerate case). A non-finite `theta` or `s` is a no-op frame (hold last good, log one error)."
+    source: "CR8, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-012
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Timing"
+    requirement: "Along-track margin time budget is `S_MARGIN/v_max`: 16 ms at defaults, about 5 ms at the worst legal corner, so near-zone detection can be lost to a dropped frame."
+    source: "F1-NM note, NM-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-013
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Same-tick `hazard_bound` plus `hazard_released` creates then tears down with no emit. A release on the same tick as a natural exit emits exactly once."
+    source: "EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-014
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "No side effects. Nothing is sent to Ball Movement, Obstacle or Run State. Inputs: `theta`, `theta_prev`, `s`, `s_prev`, the three Obstacle signals, `run_id`."
+    source: "CR9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-015
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Core"
+    requirement: "Determinism: no randomness; bit-identical streams over a 500-tick script; no shared static state."
+    source: "CR8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-016
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Testing"
+    requirement: "Lint (engine-coupling regex family, as Obstacle) plus a reuse-not-reimplement guard (no second `arc_overlap`, and a behavioral parity check against `ObstacleMath` on the AC-3..AC-6 poses). Fixtures `make_near_miss_fixture`, `make_hazard_bound_stub`, `make_core`."
+    source: "Acceptance Criteria"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-017
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Testing"
+    requirement: "NM-1 on-device check, BLOCKING at first-playable: near-miss-to-hazard-passed ratio within +/-20% between early (<20 s) and late (>T_RAMP) bands, at least 30 hazards passed per band. Failure response: adjust the coefficients inside 0.5-1.5, never `GAP_MARGIN`/`GAP_MIN`."
+    source: "NM-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-018
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "SaveLoad"
+    requirement: "None. Tuning in `NearMissConfig.tres` (AC-27 advisory)."
+    source: "Tuning Knobs"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-near-miss-detection-019
+    system: near-miss-detection
+    gdd: design/gdd/near-miss-detection.md
+    category: "Rendering"
+    requirement: "None owned. Juice owns the VFX/audio/haptic. A coalescing requirement is handed to Juice (two near-misses within a short window must merge into one cue)."
+    source: "Visual/Audio, OQ8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-001
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "Logic is split into static `ScoreMath` (`score(s)`, `is_new_best`), `ScoreCore` (RefCounted), and the `ScoreService` driver node (no autoload)."
+    source: "CR7, CR11, Targets"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-002
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`ScoreCore.new(s_seam, get_value_seam, set_value_seam, milestone_distances: Array[int])` takes three Callable seams plus one data array. The static `validate_seams(s,g,s2)->bool` uses `Callable.is_valid()`; `_init` asserts it (debug builds only). Release safety comes from the composition root binding statically typed method references, never string-built Callables."
+    source: "CR7, AC-11a"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-003
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "The public surface is exactly six non-underscore methods: `step()`, `on_run_reset()`, `on_run_ended(run_id,hazard_id,run_time_ms)`, `on_run_abandoned(run_id,run_time_ms)`, `get_current_score()`, `get_personal_best()`. Getters are methods, not computed properties. Signals: `personal_best_updated(int)`, `personal_best_passed(int)`, `milestone_crossed(int)`."
+    source: "CR7, CR11, AC-11b"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-004
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`current_score = floori(s)` (an int), recomputed from `s` each `step()`, never accumulated. It is monotone non-decreasing and frozen automatically when `s` is frozen (no phase argument)."
+    source: "CR1, CR2, CR4, F1, AC-4, AC-5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-005
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`step()` guard order is `is_finite(s) and s>=0.0 and s<=9.2e18`, then `floori(s)`, then hold if `floori(s) < current_score`. Check before converting, never after. A violation holds `current_score`. There is no separate `last_s` tracker."
+    source: "F1, EC, AC-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-006
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`on_run_reset()` zeroes `current_score`, the `has_passed_this_run` latch and `next_milestone_index` synchronously. It is non-deferred and runs before `run_started`."
+    source: "CR3, CR11, AC-6, AC-19"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-007
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`run_ended` and `run_abandoned` finalize identically, from the stored `current_score` (not re-read `s`; `hazard_id` and `run_time_ms` ignored). `is_new_best = final_score > personal_best` (strict, tie is false). A duplicate ending call is idempotent for free."
+    source: "CR5, CR6, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-008
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "SaveLoad"
+    requirement: "The only persistence is `[scoring].personal_best` in `save.cfg` via Save & Persistence. It is read once at construction (`get_value(\"scoring\",\"personal_best\",0)`, coerced to int, clamped `max(0,...)`, an oversized value deliberately not clamped). It is written immediately via `set_value(\"scoring\",\"personal_best\",final_score)` only on a new best. In-memory is updated and the event fires even on `WRITE_FAILED`. `get_value` is called exactly once per session."
+    source: "CR6, CR7, EC, AC-9, AC-14, AC-18"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-009
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`personal_best_updated(final_score)` fires once, after the in-memory best is updated and synchronously inside the `run_ended`/`run_abandoned` handler."
+    source: "CR6, CR11, AC-8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-010
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`personal_best_passed(personal_best)` fires once per run on the first tick `current_score > personal_best` (strict), never while in-memory `personal_best==0`, and re-arms on reset."
+    source: "CR12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-011
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`milestone_crossed(threshold)` uses an index latch with a `while` loop, so several thresholds can fire in one `step()` in ascending order. An empty array disables it."
+    source: "CR13, AC-23, AC-24"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-012
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Data"
+    requirement: "`ScoringConfig` Resource (`@export var milestone_distances: Array[int]`). A pure `validate_milestones(Array)->Array[String]` rejects non-ascending, duplicate, non-positive and non-integer entries. The composition root refuses to construct `ScoreCore` on a non-empty result."
+    source: "Tuning Knobs, AC-25"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-013
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Timing"
+    requirement: "`ScoreService.step()` runs once per tick strictly after Ball Movement's step, using the same callback type (`_physics_process` vs `_process` must match). Run State emits the ending and forces that tick's `dt_eff` to 0. `final_score == floori(ball.s)` at ending time."
+    source: "CR5, CR11, AC-22"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-014
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "`ScoreService` connects at composition-root construction, before Run State's first emit (Godot drops signals emitted before `connect()`), and is registered per Run State's pinned order."
+    source: "CR11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-015
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "Scoring never reads `near_miss_detected`. There is no near-miss-shaped constructor parameter, method or identifier."
+    source: "CR8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-016
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "No side effects beyond the one `set_value`. The only seam calls are one `s_seam` read per `step()` (none from reset or ending handlers), one `get_value` at construction, and `set_value` on a new best."
+    source: "CR9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-017
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Core"
+    requirement: "Determinism: no randomness; identical scripts and starting best give bit-identical sequences and verdicts."
+    source: "CR10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-018
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Testing"
+    requirement: "Fixtures: `PERSONAL_BEST_FIXTURE_DEFAULT`=500, `make_s_stub` (index in a member, because GDScript closures capture primitives by value), `make_save_stub(initial_best, write_succeeds)`, `make_signal_log`, `make_fake_run_state`, `make_score_service`. Exact `==` for ints and bools. Files `scoring_personal_best_[feature]_test.gd`."
+    source: "Acceptance Criteria"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-019
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Testing"
+    requirement: "CI lints. BLOCKING: no `[autoload]` entry for `ScoreService`/`ScoreCore`. ADVISORY: identifier-only near-miss scan (skips comments and strings), deny-list scan (`Engine.`, `OS.`, `ProjectSettings`, `FileAccess`, `get_tree`, `get_node`, autoload names), no `static var` self-type or `Engine.register_singleton()`, and typed-binding scan of the composition root."
+    source: "Gate policy"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-scoring-personal-best-020
+    system: scoring-personal-best
+    gdd: design/gdd/scoring-personal-best.md
+    category: "Testing"
+    requirement: "Integration, BLOCKING at first-playable (owner user): AC-21 real SaveCore round trip including cold-boot-reverts-a-failed-write, AC-22 real Ball Movement + Run State, AC-26 pinned `run_ended` order (Juice handler, then Scoring, then `personal_best_updated`, then HUD)."
+    source: "Integration"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-001
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "RunStateCore is a RefCounted with no SceneTree, no Node, no autoload, no FileAccess/ConfigFile/user://, no Time./Engine. calls (clock injected); no references to other systems' classes"
+    source: "CR2, AC-8, AC-9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-002
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Exactly 6 phases (Boot, Menu, Running, Paused, Resuming, Hit); RunState is the sole owner of the phase; starts in Boot, run_id 0"
+    source: "CR1, States"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-003
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Requests are queued when sent and processed at the next tick; a request invalid for the current phase is ignored with one log line at a fixed level class (silent/debug/warning/error) via injected log_sink(level, message)"
+    source: "CR3, AC-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-004
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "tick(world_dt, real_dt) -> dt_eff runs in this order with one now_us snapshot: stall guard, step candidate, requests in class priority (hit, pause, resume, menu, restart, map_ready, start), timers, commit"
+    source: "CR3 frame model, AC-11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-005
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Same-tick hit selection: drop stale run_id first, then lowest non-negative hazard_id wins, -1 only if no known id; other negative ids treated as -1 with one warning"
+    source: "CR3, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-006
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "pause_requested(app_interrupted) is the only non-queued request: applied at send time (between ticks) in Running or Resuming; queued hits then meet Paused and are ignored"
+    source: "CR3, CR11, AC-18/28"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-007
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Requests sent from inside a RunState handler or tick are rejected with an Error log (no nesting); handlers must be connected directly (no CONNECT_DEFERRED) and must not await in run_reset"
+    source: "CR3, Events out, AC-5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-008
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Two-step start: run_reset(run_id) then run_started(run_id) in the same tick; every run_reset handler returns before run_started; run_id +1 per run_reset, never reused; run_time resets to 0"
+    source: "CR4, CR5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-009
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Run clock F1: step=min(dt,DT_MAX) if finite>0 else 0; dt_eff nonzero only if tick began and ended in Running, not settling, no stall; run_time is 64-bit float; run_time_ms=round(t*1000)"
+    source: "F1, AC-10/11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-010
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Settling tick: first tick after run_started and after run_resumed has dt_eff=0, no stall guard, all hit_reported ignored"
+    source: "CR3, EC"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-011
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Stall guard: real_dt >= STALL_PAUSE_THRESHOLD in Running/Resuming pauses with source app_interrupted and discards the tick's hits; real_dt NaN/inf/negative counts as 0 (warning max 1/s)"
+    source: "CR3 step 1, AC-16"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-012
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "real_dt is computed by the driver from the injected monotonic clock (Time.get_ticks_usec), never from the engine delta (engine delta is time_scale-scaled and capped ~0.133 s)"
+    source: "CR3 frame model, OQ4/5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-013
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Restart lock: restart/menu accepted in Hit only if press_us - hit_us >= RESTART_LOCK_us; press_us missing/non-positive replaced by now_us, future clamped to now_us, each with one error; restart_unlocked(run_id) emitted once per Hit at timer step"
+    source: "CR8, F3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-014
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Input"
+    requirement: "press_us is stamped with Time.get_ticks_usec() in the input handler, from InputEventScreenTouch pressed only (never also the emulated mouse event); no buffering of presses; resting-thumb press never counts"
+    source: "CR8, D2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-015
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Pause guard: restart/menu from Paused accepted only if press_us - paused_us >= PAUSE_INPUT_GUARD_us; guard restarts at each entry to Paused; resume never guarded and wins same-tick ties; abandon emits run_abandoned(run_id, run_time_ms) before run_reset/menu"
+    source: "CR10, F3, AC-28"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-016
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Resume countdown measured with timestamps (not deltas): remaining = max(0, RESUME_COUNTDOWN-(now_us-resume_us)/1e6); static helper progress_for(duration, elapsed) returns 1 if duration <= 0; run_resuming(duration_ms) emitted once per entry"
+    source: "F5, AC-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-017
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Events (script signal list exactly 9): run_reset, run_started, run_paused(source), run_resuming(duration_ms), run_resumed(run_id), run_ended(run_id,hazard_id,run_time_ms), run_abandoned(run_id,run_time_ms), restart_unlocked(run_id), phase_changed(new,old); int/enum args only; specific event first, phase_changed last; phase already new inside handlers"
+    source: "Events out, AC-8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-018
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Pinned subscriber order registered by the composition root: run_reset = Pattern, then (Tube Track adapter, Obstacle), then Ball Movement, then Camera, then rest; run_ended = Juice, Scoring, HUD, rest; run_abandoned = Juice, Scoring, rest"
+    source: "Subscriber order, AC-30"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-019
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Construction of RunState emits nothing; first possible emission is Boot->Menu on external map_ready, which arrives only after composition root finished construction"
+    source: "CR15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-020
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Boot->Menu only on map_ready, which the map loader sends only after a successful Tube Track load_map; failure keeps Boot with no events; Hit->Menu and Boot->Menu emit phase_changed only"
+    source: "Requests table, OQ8, D9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-021
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Data"
+    requirement: "RunConfig (config resource, validated at startup): NaN/inf -> default, then clamp to safe range with one error each; RESTART_LOCK clamped to [LOCK_MIN, LOCK_MAX] (LOCK_MIN wins on conflict) and raised to hitstop_actual + T_READ (capped LOCK_MAX); hitstop_actual injected as a plain number"
+    source: "TK, F4, AC-14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-022
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Timing"
+    requirement: "Restart budget: touch to first presented frame after run_started <= 1.0 s; sum t_in 0.050 + t_disp 0.001 + t_track 0.002 + t_reset 0.013 + N_present(3) x frame + t_var 0.100 = 0.216 s at 60 fps; engineering gate p95 <= 0.4 s"
+    source: "CR9, F2, AC-27"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-023
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Testing"
+    requirement: "Hit contact reports must be level-triggered by the collision owner (keep reporting an overlap every tick until accepted or overlap ends); hit_reported carries run_id captured at last run_reset"
+    source: "CR7, OQ3, D4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-024
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Core"
+    requirement: "Tick driver contract: owner calls tick() in _process (not _physics_process) with process_mode ALWAYS and early process_priority, steps Ball Movement by returned dt_eff, calls Tube Track advance(s) only when phase reads Running"
+    source: "CR3 owner contract, OQ4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-run-state-restart-025
+    system: run-state-restart
+    gdd: design/gdd/run-state-restart.md
+    category: "Testing"
+    requirement: "GUT unit tests with injected clock starting well above 0, state factory core_in(phase), signal recorder; flash-bound bot test: at most 2 run_ended per closed 1.0 s window at default lock (3 at 0.45)"
+    source: "AC intro, AC-24"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-001
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "Only the PlatformServices node handles lifecycle notifications, WM_GO_BACK_REQUEST, Input.vibrate_handheld, DisplayServer display calls and ProjectSettings reads; enforced by a CI lint allowlist"
+    source: "CR1, AC-12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-002
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Core"
+    requirement: "Shape: PlatformCore (RefCounted, no engine calls), PlatformMath (static: haptic_gate, effective, interval_us, fps_eff, frame_time, fis_for_platform), RateLimitedLog (RefCounted), PlatformServices node, HapticsConfig (Resource), PlatformSettings manifest with mismatches(manifest, read); no autoload"
+    source: "CR2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-003
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "Lifecycle model: flags focused (true at start) and paused (false); FIS=focus_implies_suspend true on Android; under FIS, PAUSED/RESUMED are ignored; attentive = focused and not paused; suspended = paused or (FIS and not focused)"
+    source: "CR3, F1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-004
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Core"
+    requirement: "Signals emitted on edges only, synchronously in the handler, order app_interrupted, app_backgrounded, app_foregrounded, app_returned; repeated events log one LIFECYCLE_NOOP debug and emit nothing; nothing emitted at construction"
+    source: "CR4, F1, AC-1/2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-005
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Threading"
+    requirement: "Lifecycle callbacks may originate on another thread on Android; handlers must run on main thread outside a tick, otherwise node defers with call_deferred"
+    source: "CR4, PS-12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-006
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "Android Back: NOTIFICATION_WM_GO_BACK_REQUEST -> back_pressed, one per notification, decides nothing; application/config/quit_on_go_back = false (manifest lint plus node sets get_tree().quit_on_go_back = false at boot); quit() exposed for Menus"
+    source: "CR5, PS-4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-007
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "haptic(kind) with NEAR_MISS, HIT, UI_TAP; drop causes in fixed order UNKNOWN_KIND, DISABLED, NOT_ATTENTIVE, ZERO_DURATION, THROTTLED, each with a counter haptic_drops(cause); otherwise calls Input.vibrate_handheld(duration_ms, amplitude)"
+    source: "CR6, F2, AC-4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-008
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Core"
+    requirement: "Haptic gate: plays if enabled, attentive, dur_eff>0 and (gate_open or prio > last_prio); gate_open = none played, or clock anomaly, or (elapsed >= MIN_INTERVAL_us and now >= last_end_us); HIT outranks NEAR_MISS and UI_TAP; dropped call changes no stamps"
+    source: "F2, AC-3/4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-009
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Core"
+    requirement: "effective(): dur_eff = clamp(duration_ms,0,HAPTIC_MAX_MS); amp_eff = -1 if amplitude<0 else clamp(amp,0,1) x haptics_intensity; Android level clamp(int(amp x 255),1,255)"
+    source: "F3, AC-5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-010
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Data"
+    requirement: "HapticsConfig validated at load in order HAPTIC_MAX_MS first then per-kind; clamp to safe range with one KNOB_CLAMPED error per value; NaN/inf take default; shipped defaults must equal TK table; MIN_INTERVAL converted once with roundi(x*1e6)"
+    source: "TK, F3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-011
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "SaveLoad"
+    requirement: "Lifecycle hook for saving: app_backgrounded is the only flush signal; PS does no saving and never waits"
+    source: "CR10, PS-10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-012
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "Display facts read through injected display_source Callable (Dictionary keys safe_area, screen_size, viewport_size, refresh_rate) at construction and once per regaining edge before signals; empty safe area replaced by Rect2i(Vector2i.ZERO, screen size) in pixels; viewport stays in stretch units"
+    source: "CR7, AC-10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-013
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "Keep screen on: DisplayServer.screen_set_keep_on(true) called once at boot, never turned off"
+    source: "CR12, AC-20, PS-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-014
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Platform"
+    requirement: "Project settings manifest (data: section, key, expected, owner tag) linted in CI and checked at boot via read_setting: orientation=1, quit_on_go_back=false, max_fps=60, input_devices/sensors/enable_gravity=true (enable_accelerometer if ADR keeps), plus per Android preset VIBRATE=true, immersive on, PiP off; mismatch logs SETTINGS_MISMATCH per key and repairs only quit_on_go_back"
+    source: "CR8, AC-11, AC-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-015
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Timing"
+    requirement: "Frame cap application/run/max_fps = 60 for MVP; fps_eff = min(max_fps, refresh) with fallbacks (refresh unknown -> max_fps, max_fps<=0 -> refresh, neither -> 0); 60 cap on 120 Hz UNVERIFIED"
+    source: "CR9, F4, PS-9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-016
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Core"
+    requirement: "RateLimitedLog passes one message per (code, key) per 1.0 s on injected real-time clock (window from last passed message); codes UNKNOWN_HAPTIC_KIND, KNOB_CLAMPED, SETTINGS_MISMATCH (error) and LIFECYCLE_NOOP (debug); backwards clock passes and re-bases"
+    source: "TK fixed constants"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-017
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Testing"
+    requirement: "PlatformCore takes injected focus_implies_suspend, clock (int microseconds, real-time monotonic), log_sink(level,code,key,message), vibrate(duration_ms,amplitude), display_source, validated HapticsConfig; use method Callables not self-capturing lambdas in RefCounted (cycle); tests use named factory, no .tres"
+    source: "CR11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-018
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Testing"
+    requirement: "Device spike PS-1..PS-12 (PS-3, PS-7 removed): PS-1 lifecycle sequences, PS-2 Vulkan PAUSED/RESUMED, PS-4 Back on Android 16 are BLOCKING for first playable; others advisory (PS-10 blocks Save epic); 10/10 trials per scenario"
+    source: "AC device checks, gate policy"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-019
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Testing"
+    requirement: "Integration harness uses Run State's real SceneTree-free core plus a test-only adapter (INT -> pause_requested(app_interrupted), BACK -> pause_requested(back)); 340 sequences of 1-4 events give zero RS Error logs"
+    source: "AC-14/15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-platform-services-020
+    system: platform-services
+    gdd: design/gdd/platform-services.md
+    category: "Testing"
+    requirement: "Node tested via node.notification(X) against a spy core: each of the 5 notifications calls exactly its on_* method once; fis_for_platform(\"Android\") true, others false"
+    source: "AC-19"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-001
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Single file user://save.cfg, ConfigFile format, sections [scoring] (personal_best int only), [settings], reserved [cosmetics] (not created early), and [_meta].schema_version int"
+    source: "CR1, CR3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-002
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "SaveCore (RefCounted) with 8 injected seams: config_reader(path)->{status:\"OK\"|\"MISSING\"|\"PARSE_ERROR\", sections}, config_writer(path,sections)->bool, path_exists, path_rename, path_delete, clock(), wall_clock()->int, log_sink(level,code,key,message); real I/O only in SaveService"
+    source: "CR2, AC intro"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-003
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "PersistMath static functions: schema_compatible (F1), read_valid and read_error_code (F2), is_serializable_type"
+    source: "CR2, F1, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-004
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "API get_value(section, key, default) and set_value(section, key, value)->bool; getters return exactly stored value or the caller's own default, never a SaveCore-invented one"
+    source: "CR1, CR4, AC-4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-005
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Boot read is synchronous and complete before Scoring, Settings, Cosmetics are constructed; no \"loaded\" signal"
+    source: "CR4, AC-5, AC-19"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-006
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "set_value writes immediately: in-memory update, then config_writer(TMP_PATH, complete sections map), then path_rename(TMP, REAL), both before return; no batching"
+    source: "CR5, CR6, AC-6"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-007
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Every write serializes the complete in-memory section map (including untouched sections, [_meta], and still-wrong-typed keys carried forward byte-for-byte)"
+    source: "CR6, AC-6b"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-008
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Real seams: rename via DirAccess.rename_absolute(), delete via DirAccess.remove_absolute(), save via ConfigFile.save() with Error return checked; failure of writer or rename logs one WRITE_FAILED, returns false to caller, in-memory value still updated"
+    source: "CR6, AC-8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-009
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Orphaned user://save.cfg.tmp is deleted (path_exists then path_delete) before the next temp write"
+    source: "Edge Cases, AC-9"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-010
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Crash guarantee scoped to app-termination (kill) only, not power loss (no fsync available from GDScript); SP-1 device kill test: 3 kill points x >= 20 reps, zero corrupted save.cfg"
+    source: "CR6, SP-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-011
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "F1 schema_compatible: is_int type guard first; non-int treated as 0; compatible iff 0 < v <= CURRENT_SCHEMA_VERSION (past versions compatible with no migration; newer = incompatible)"
+    source: "F1, AC-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-012
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "F2 per-key validity: parsed_ok and compatible and has_key and type_matches; error precedence FILE_UNREADABLE > SCHEMA_INCOMPATIBLE > TYPE_MISMATCH; absent key logs nothing; file-level errors logged once per requested key per AC-10"
+    source: "F2, AC-2/3/10/11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-013
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Corrupt or schema-incompatible file: whole file invalid (all defaults), old file renamed to save.cfg.corrupt-<wall_clock()>-<n> (n increments on same-second collision); CORRUPT_BACKUP_RETENTION caps backups, oldest deleted"
+    source: "CR7, AC-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-014
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "Oversized file guard: files over SAVE_FILE_SIZE_MAX are rejected before config_reader, handled like PARSE_ERROR (backed up, never parsed)"
+    source: "Edge Cases, TK"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-015
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "SaveLoad"
+    requirement: "First launch (status MISSING): all defaults, one INFO log (not error), first set_value creates the file"
+    source: "Edge Cases, AC-12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-016
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Data"
+    requirement: "set_value rejects non-serializable values (raw Object/RefCounted) before any seam call: no memory update, one UNSERIALIZABLE_VALUE error, returns failure"
+    source: "Edge Cases, AC-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-017
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "Write-failure logging rate limited per section+key via reused PlatformServices RateLimitedLog on injected real-time clock"
+    source: "CR2, AC-14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-018
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Platform"
+    requirement: "SaveService node listens to PlatformServices app_backgrounded and calls the persist path once (redundant safety flush, no-op when nothing pending); app_foregrounded/interrupted/returned never call it"
+    source: "CR5, AC-7, AC-18"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-019
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "SaveCore and PersistMath contain no ConfigFile, FileAccess, DirAccess, Input., DisplayServer., Engine., Time., OS., get_tree and no Run State symbols; SaveService is the sole file using ConfigFile/FileAccess/DirAccess; no autoload"
+    source: "AC-16, AC-17"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-020
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Testing"
+    requirement: "SP-2 real-parser sweep on device or editor: hand-crafted files (non-int schema_version, typed-constructor value, at/over SAVE_FILE_SIZE_MAX, truncated/garbage) must not crash/hang; pre-parse content sniff pre-committed if VariantParser side effects found"
+    source: "SP-2, OQ1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-021
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Core"
+    requirement: "No mid-run persistence and no interface to Run State; no signing/encryption (deliberate: single-player, no server truth); revisit only with leaderboard/cloud"
+    source: "CR8, CR10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-save-persistence-022
+    system: save-persistence
+    gdd: design/gdd/save-persistence.md
+    category: "Testing"
+    requirement: "Fixture uses distinct non-shipped values (schema 3, rate limit 0.05, retention 3) with a shipped-defaults smoke check AC-23; tests in tests/unit/save_persistence/ named save_persistence_[feature]_test.gd"
+    source: "AC intro, AC-23"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-001
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Data"
+    requirement: "Exactly five settings in Save [settings]: haptics_enabled bool true, haptics_intensity float 1.0, tilt_sensitivity float 1.0, reduced_motion_enabled bool false, colorblind_safe_enabled bool false; unknown keys rejected with one UNKNOWN_SETTING_KEY warning and no write"
+    source: "CR1, CR2, EC, AC-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-002
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "SettingsCore (RefCounted, no Node) built through three injected Callables get_value_seam(section,key,default)->Variant, set_value_seam(section,key,value)->bool, log_sink(level,code,key,message) plus constructor params sensitivity_min, sensitivity_max, default_sensitivity"
+    source: "CR3, CR4, AC intro"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-003
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "SaveLoad"
+    requirement: "Boot read: exactly five get_value_seam calls (one per key, each with its own default), no batching, constructed immediately after Save loads and before consumers"
+    source: "CR3, AC-4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-004
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "F2 tilt_sensitivity_validate: valid iff finite and > 0; clamp to [min,max] if valid else default; was_corrected logged once as SETTING_CLAMPED (WARNING, key tilt_sensitivity); applied at boot and on every runtime set_value; corrected value is what is written and exposed"
+    source: "F2, CR4, AC-2/3/7/12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-005
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "set_value(key,value): no-op if equal to current (no write, no event); else update memory, call set_value_seam immediately, emit setting_changed(key, new_value) once; returns failure for unknown key"
+    source: "CR5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-006
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "SaveLoad"
+    requirement: "If set_value_seam returns false the in-memory value still updates and setting_changed still fires (no rollback, no retry)"
+    source: "EC, AC-14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-007
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "Six typed getters get_haptics_enabled, get_haptics_intensity, get_tilt_sensitivity, get_reduced_motion_enabled, get_colorblind_safe_enabled, get_seam_contrast_scale; none touches a seam after construction"
+    source: "CR6, AC-8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-008
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Data"
+    requirement: "seam_contrast_scale = 0.0 if reduced_motion_enabled else 1.0 (SettingsMath static, binary, never intermediate); derived, not stored"
+    source: "CR7, F1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-009
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "setting_changed(key, value) signal plus getter are both REQUIRED for the two live consumers (Tube Track seam scale, Environment ball luminance); both consumers also read the getter at construction/map load (no reliance on signal alone, first frame correct)"
+    source: "CR6, CR8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-010
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "Settings sends no requests to Platform Services/Tilt Input/Tube Track and has no run-phase awareness; constructor accepts no consumer-shaped seams; deterministic (no randomness)"
+    source: "CR9, AC-15/16/17"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-011
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Core"
+    requirement: "SettingsCore/SettingsMath contain no ConfigFile, FileAccess, DirAccess, Input., DisplayServer., Engine., Time., OS., get_tree and no autoload entry"
+    source: "AC-18"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-012
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Platform"
+    requirement: "haptics_enabled and haptics_intensity are supplied to PlatformCore (set_haptics_enabled setter; intensity setter unnamed); Platform Services clamps haptics_intensity itself, so Settings does not validate it"
+    source: "Interactions, TK"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-013
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Data"
+    requirement: "Shipped defaults and SENSITIVITY_MIN/MAX referenced as 0.5/2.0 are checked only by an ADVISORY smoke test; fixture uses 0.4/2.6/1.3 and stored values differing from defaults"
+    source: "AC-21, fixture"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-014
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "UI"
+    requirement: "Settings screen owned by Menus & Screen Flow (Menu-only reachability); Menus reads all getters and calls set_value on each toggle/slider change"
+    source: "Interactions, UI Requirements"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-settings-accessibility-015
+    system: settings-accessibility
+    gdd: design/gdd/settings-accessibility.md
+    category: "Testing"
+    requirement: "Fixture factories make_settings_fixture, make_get_value_stub, make_set_value_stub(succeeds), make_log_spy, make_settings_core; tests in tests/unit/settings_accessibility/ named settings_accessibility_[feature]_test.gd; no [N] or [K] tier"
+    source: "AC intro"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-001
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "`JuiceCore` is a RefCounted with no engine calls. It takes injected read-only doubles for Near-Miss, Run State, Scoring, Obstacle lookup, Camera, Platform Services, Settings and Tube Track, plus a log_sink. It has push handlers on_near_miss_detected, on_run_ended, on_run_abandoned, on_run_reset, on_personal_best_updated and a tick(dt_eff)"
+    source: "Core Rules 1,13; AC Targets"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-002
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "`JuiceMath` is a static pure class: flash_budget(f_seam, restart_lock, t_restart, s_first, v_max, f_global_max), near_miss_flash_min_interval(f_headroom), ledger_allows_flash(ts, now, 1.0, 3), fov_punch_amount(pct, fov)"
+    source: "Formulas F1-F3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-003
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Data"
+    requirement: "`JuiceConfig` is a Resource holding the 7 knobs. `validated(log_sink)` clamps (KNOB_CLAMPED); `validate_flash_budget` (FLASH_BUDGET_EXCEEDED) and `validate_hitstop` (HITSTOP_EXCEEDS_MAX) run in composition-root preflight after Tube Track and Run State validation"
+    source: "Formulas, Tuning Knobs"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-004
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "Two independent tracks. Hazard-reaction: Idle/NearMiss/Hit, where a hit cuts a near-miss at once and a near-miss during Hit is dropped. Milestone: Off/PersonalBestOverlay. `run_reset` forces Idle/Off unconditionally"
+    source: "States, Rules 6-8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-005
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "A one-shot latch (none/Hit/Abandon) is set by run_ended or run_abandoned and cleared by run_reset. personal_best_updated plays the PB presentation only for Hit. Abandon is silent, with no log. A missing latch logs one JUICE_PB_CONTRACT_VIOLATION. The latch is never read from track state"
+    source: "Rule 5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-006
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Timing"
+    requirement: "The run_ended handler order is Juice, then Scoring, then HUD. The run_abandoned handler order is Juice before Scoring. The composition root registers them in that order, and a mis-ordered build must fail loudly"
+    source: "Rule 5, AC-30"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-007
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Timing"
+    requirement: "Hitstop is a fixed 0.20 s in every mode and never scaled by reduced motion. The composition root injects `hitstop_actual` into Run State config. The sequence must tolerate an early cut by run_reset"
+    source: "Rules 3,8,10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-008
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Rendering"
+    requirement: "Hit grey-out multiplies chroma toward 0 on all world elements with luminance preserved. The killer hazard (looked up by hazard_id) is exempt. Crossfade takes 1-2 frames"
+    source: "Rule 3, V/A table"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-009
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Rendering"
+    requirement: "Hit flash is a full-screen Rim White overlay, peak opacity at most 0.30, at most 2 frames, at hitstop onset. Reduced motion scales it by 0.5"
+    source: "Rules 3,10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-010
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Rendering"
+    requirement: "Near-miss ring pulse and PB ring sweep are a shader term on the tube material, additive, Rim White core with Lagoon edge. The near-miss ring expands radially at the ball position via Tube Track P(theta,s,h). The PB sweep travels along s. The near-miss ring is clipped from hazard footprints"
+    source: "V/A, Perf note"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-011
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Rendering"
+    requirement: "Shard burst is one GPUParticles3D with one mesh and one material. It is visual-only with no physics and no per-shard nodes. Shards have rounded corners, start as hitstop ends, and travel at SHARD_BURST_SPEED"
+    source: "Tuning, Perf note"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-012
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Rendering"
+    requirement: "Ball rim glow is a fresnel treatment layered on the ball's base material. Silhouette and scale are unchanged. It has a Lagoon edge"
+    source: "V/A table"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-013
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "The only Camera call is apply_fov_punch(amount, duration), with amount = 0.015*CAMERA_FOV and duration = NEAR_MISS_WINDOW. There is no shake and no transform change"
+    source: "Rule 9, F3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-013b
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Timing"
+    requirement: "The flash throttle applies only to the ring flash pop. Rim, whoosh, haptic and FOV punch always fire. A shared rolling ledger holds the last 1.0 s of seam, hit and ring flash timestamps, and a 4th flash in the window is held under the luminance threshold. Seam timestamps are derived from Tube Track s, L and n_seams. The ledger and cooldown are NOT cleared by run_reset"
+    source: "Rule 11, F2, Edge Cases"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-014
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Platform"
+    requirement: "Juice calls haptic(NEAR_MISS) and haptic(HIT) unconditionally, with no haptics_enabled check. There is no PB haptic and one call per hit. Reduced motion never scales amplitude"
+    source: "Rule 12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-015
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "reduced_motion_enabled is read at presentation start only. It scales flash opacity, shard intensity and PB bloom by 0.5, never hitstop. A mid-flight toggle has no effect"
+    source: "Rule 10, Edge Cases"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-016
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Audio"
+    requirement: "Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most 300-400 ms, synced to the flash. The PB sting is one short rising gesture layered over the hit sting. None is intensity-scaled"
+    source: "V/A Audio"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-017
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Rendering"
+    requirement: "Presentation fits the budget. Rings add zero draw calls and shards are batched, so Juice adds at most a few draw calls. PB bloom eases in and out with no hard step"
+    source: "Perf note"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-018
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Core"
+    requirement: "Only one near-miss is retriggered per event, and the latest replaces. Same-tick near-misses each play fully. A stale-run_id filter is not needed because the source suppresses"
+    source: "Edge Cases"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-019
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Data"
+    requirement: "Persistent state: none. Session-only wall-clock state is the cooldown timer and the ledger"
+    source: "Edge Cases"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-020
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Testing"
+    requirement: "Tests live in tests/unit/juice_feedback/ as juice_[feature]_test.gd. They use make_juice_fixture, make_core and make_sink, 1e-6 float tolerance and exact log codes. Two identical scripted cores must be bit-identical. A lint bans Input., Engine., Time., OS., DisplayServer., get_tree, _process, randi, randf and PhysicsServer in JuiceMath/Core/Config. A second scan restricts outbound calls to apply_fov_punch, haptic and an allowlist of render/audio stubs"
+    source: "AC section"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-juice-feedback-021
+    system: juice-feedback
+    gdd: design/gdd/juice-feedback.md
+    category: "Testing"
+    requirement: "Device evidence: the 3 flashes/s cap under real frame jitter, Lagoon-edge contrast on a real device, and shard count and speed via profiling. All are ADVISORY"
+    source: "AC section"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-001
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Data"
+    requirement: "`EnvConfig` is a Resource holding every MapConfig field it owns (seam_pattern_id, fog_mode, fog_depth_begin, fog_end_distance, fog_depth_curve, fog_density, fog_color, readable_distance, tube_color, sky_top_color, sky_bottom_color, prop_set_id) plus the knobs. `validated(log_sink)` returns a clamped copy"
+    source: "Rules 1,13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-002
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Core"
+    requirement: "`EnvMath` is a static class: factor, luminance blend, contrast, an F_read bisection search, F2 fog_end_distance(speed) and F3 L_ball_adjusted. All are parametric in MapConfig and never hardcoded to Map 1"
+    source: "Rule 13, F1-F3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-003
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Core"
+    requirement: "`EnvCore` is a RefCounted with no engine calls. It takes injected speed and colorblind_safe_enabled doubles and a log_sink, and holds the MapConfig and the last L_ball_adjusted. It is deterministic"
+    source: "Rules 12-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-004
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "Fog uses a depth ramp with factor = smoothstep(begin, end, d)^curve * density. Density must be 1.0, because exponential mode never reaches 100%. d is radial from the camera eye"
+    source: "Rules 3-4, F1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-005
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Core"
+    requirement: "Map load computes F_read from the 4:1 contrast crossing. It rejects with MAP_VISIBILITY_UNSAFE if F_read < T_VIS_MIN*v_max + d_cam, evaluating the speed-pulled F at v_max. A bad range gives FOG_RANGE_INVALID"
+    source: "Rules 3,4,11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-006
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "Speed-driven fog pull moves only fog_depth_end (written each frame while Running). u = clamp((speed-10)/15, 0, 1) and F = F_base - FOG_PULL_MAX*u. fog_depth_begin is never pulled, because F_read is about 17x more sensitive to it. F stays above F_read"
+    source: "Rule 5, F2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-007
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "A world chroma multiplier of 0.88 at v_max applies to tube, sky and prop materials only. It is a separate parameter from any hazard/ball/pickup parameter, never a shared uniform gated by an object flag"
+    source: "Rule 5, V/A"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-008
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "The Menu state evaluates no speed formula and shows resting fog values. The preview hazard holds a fixed screen position independent of s_idle"
+    source: "Rule 6, V/A table"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-009
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "colorblind_safe_enabled applies L_ball_adjusted to the ball material itself. It is read from the getter at construction/map load AND on setting_changed, in any phase, with no wait for run_reset. Only the lightness axis changes"
+    source: "Rule 9, F3, AC-19,23,24,25"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-010
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Core"
+    requirement: "The F3 clamp is L_ball_adjusted = max(min(L_base, L_target), L_floor). It is bit-identical to base when the toggle is off, and it re-derives from the map's own L_hazard and L_ember"
+    source: "F3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-011
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Core"
+    requirement: "The only ball-related output is the single l_ball_adjusted value. Environment makes no request to any other system, and Ball Movement has no consumer"
+    source: "Rules 7,12, AC-13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-012
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "The Double Gate plinth is environment-owned geometry. Height is 0.15D, the span is the gate arc plus a 0.5D margin each end, the edge is filleted, chroma is at most 0.05, and it never uses the Signal Red or Ember hex. It is subject to the 0.88 chroma shift"
+    source: "Rule 10, V/A"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-013
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "Background props are MultiMesh-instanced, 3-6 meshes. A palette-swap map is retinted material parameters only, with zero new draw calls. New geometry needs its own budget"
+    source: "V/A footprint"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-014
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "The tube, sky and prop materials use a sky gradient of 2 stops. Sky hue is constant across states. Mood is carried by fog, chroma and light key only"
+    source: "V/A table"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-015
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Rendering"
+    requirement: "Glow and tonemap behaviour on Forward+ (glow before tonemapping since 4.6) must not disturb the contrast numbers. The F1 derivation assumes Forward+ fog. The Mobile renderer is unverified"
+    source: "Open Question 5, AC-22"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-016
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Timing"
+    requirement: "Per-frame order is Ball speed read, then F2 evaluation, then the fog write and chroma uniform write. The toggle is event-driven and not per-frame"
+    source: "Interactions, States"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-017
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Data"
+    requirement: "Persistent state: none. colorblind_safe_enabled is persisted by Settings and only read here. EnvCore holds the last L_ball_adjusted in memory"
+    source: "Rule 13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-018
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Testing"
+    requirement: "Tests live in tests/unit/environment_theming/ as environment_theming_[feature]_test.gd. make_env_fixture returns Map 1 data. Bisection oracles are computed from the formula. A lint bans request_, Input., Engine., Time., OS., DisplayServer., get_tree, _process and randi in EnvMath/Core/Config"
+    source: "AC section"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-environment-theming-019
+    system: environment-theming
+    gdd: design/gdd/environment-theming.md
+    category: "Testing"
+    requirement: "Deferred checks: the integration driver with a real BallCore, and on-device Mobile-renderer contrast sampling. ENV-1 is a mood screenshot, ADVISORY"
+    source: "AC section"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-001
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "`HudCore` is a RefCounted with no engine calls and no HudMath. Per-tick pull seams: get_current_score() int, get_resume_countdown() {remaining,digit,progress}, get_valid(), get_state(). It also pulls get_personal_best() once at construction"
+    source: "Rule 14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-002
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "Push handlers: on_phase_changed(new, old), on_run_paused(source), on_run_ended(run_id, hazard_id, run_time_ms), on_run_resuming(duration_ms), on_restart_unlocked(run_id), on_run_reset(run_id), on_personal_best_updated(int), on_personal_best_passed(int), on_tap(press_us), on_pause_tapped(), on_menu_tapped(press_us). There is no milestone_crossed handler"
+    source: "Rule 14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-003
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "There are exactly three outbound sinks (pause_requested(button), restart_requested(press_us), menu_requested(press_us)) plus a log_sink. The constructor accepts exactly those seams and sinks"
+    source: "Rule 11"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-004
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "`snapshot() -> Dictionary` of display state, plus banner_shown and banner_cleared signals. The view never polls transients"
+    source: "Rule 14"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-005
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "Score is displayed exactly each tick with no smoothing, as an int. BEST is hidden while the stored best is 0. personal_best_passed enters a persistent NEW BEST state (label, live value, Lagoon outline) until run_reset"
+    source: "Rule 2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-006
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "The banner shows on personal_best_updated and clears on run_reset or on phase_changed to Menu. It holds across app_interrupted/app_returned"
+    source: "Rule 3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-007
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "The restart lock is cosmetic. While valid is true, EVERY tap in Hit is forwarded once with its press_us, with no debounce or buffering. While valid is false the tap is swallowed and the cue `Sensor not ready` shows. valid is read when the tap is handled"
+    source: "Rule 6"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-008
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "Sensor cues are re-derived each tick: `Reconnecting…` (Acquiring), `No motion sensor` (Unavailable, or defensively with no prior Live). HUD keeps its own session-long was-Live latch. The Menu button shows in Hit while valid is false"
+    source: "Rule 7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-009
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "The sensor-lost pause screen latches the pause source for the whole Paused phase. HUD handles run_paused first and phase_changed last. The screen hides in the same tick valid becomes true"
+    source: "Rule 8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-010
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "The resume countdown is displayed from the pulled F5 values only, never accumulated from dt. Hitches must not diverge it"
+    source: "Rule 5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-011
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Timing"
+    requirement: "run_reset completes synchronously within a 2 ms share of t_reset. There is no async work and any banner tween is killed. The restart prompt re-locks"
+    source: "Rule 12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-012
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "The pause button is visible only in Running. It is sent on release inside, with no HUD debounce"
+    source: "Rule 4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-013
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Input"
+    requirement: "The view owns a full-screen tap catcher enabled only in Hit. Pause and Menu sit above it with mouse_filter so they win. An inactive Menu (Hit, before restart_unlocked, valid false) consumes the tap and sends nothing. press_us is stamped on press-down only"
+    source: "Rule 14; UX Layering"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-014
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "UI"
+    requirement: "(UX) Layout is dp-based inside Platform Services safe_area. Zones: Z1 top-left, Z2 pause top-right (at least 40 dp from the right edge, 16 dp from the top), Z3 banner, Z4 shared status slot at min(0.70H, H-264), Z5 Menu. The bottom 96 dp is clear. Minimum safe area is 360x560 dp"
+    source: "UX Layout Zones"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-015
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "UI"
+    requirement: "(UX) dp to viewport units: viewport_units_per_dp = (viewport_size.x/screen_size.x)*(screen_dpi/160). The dpi source and stretch mode need an ADR. The fallback is 1 with one log. sp equals dp"
+    source: "UX Platform"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-016
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "UI"
+    requirement: "(UX) The HUD canvas sits above the world and below Menus screens. The Menu/Running Ink cut layer sits ABOVE the HUD canvas. The HUD adds no fades and phase changes are instant"
+    source: "UX Layering"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-017
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Rendering"
+    requirement: "(UX) Every element is a Rim White 85% pill with Ink text. Colours are Ink, Rim White and Lagoon only. Pill coverage is at most 17% of safe area (21% localized)"
+    source: "UX Visual budget"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-018
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Rendering"
+    requirement: "(UX) HUD performance: at most 20 draw calls and 1.0 ms per tick in the worst-case Hit state. No dropped frame at 60 FPS over 60 s"
+    source: "UX-16"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-019
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "UI"
+    requirement: "(UX) Touch targets are at least 48 dp and activate on release inside. Press feedback scales to 0.94 while held. The countdown ring runs 0-1 clockwise, and the final partial digit shows ring only"
+    source: "UX Elements; P2, P3"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-020
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "UI"
+    requirement: "(UX) The sensor-lost Menu readying fill runs over an injected PAUSE_INPUT_GUARD value via a view-owned timer started at the phase change into Paused, including Resuming to Paused. A tap in the window is still forwarded"
+    source: "UX Elements 7; UX-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-021
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Platform"
+    requirement: "(UX) AccessKit names and reading order are proposals only until verified on 4.7.2. Live score is not announced per tick. OS text scaling is not honoured"
+    source: "UX Accessibility"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-022
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Core"
+    requirement: "HUD is deterministic with no randomness. Persistent state: none. Only the was-Live latch persists, session-only"
+    source: "Rule 13"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-hud-023
+    system: hud
+    gdd: design/gdd/hud.md
+    category: "Testing"
+    requirement: "Tests live in tests/unit/hud/ and tests/integration/hud/ as hud_[feature]_test.gd. Fixtures are make_hud_fixture, make_pull_stub (a closure-safe container) and make_sink_spy. An advisory lint bans Time., Engine., OS., DisplayServer., get_tree and ConfigFile. Device and screenshot evidence goes to production/qa/evidence/hud/"
+    source: "AC section"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-001
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "`MenuCore` is a RefCounted with no engine calls and no MenuMath. It holds the top-level screen (Menu, ordinary Paused, map-load-failure) plus the overlay flags settings_open and confirm_quit_open"
+    source: "Rules 1,12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-002
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "Pull seams (every tick): Tilt valid, state and input_source, and elapsed Boot time. personal_best is pulled at construction and again on every on_phase_changed(MENU). The 5 Settings getters are pulled when Settings opens"
+    source: "Rule 12; AC Targets"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-003
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "Push and tap handlers: on_phase_changed, on_run_paused(source), on_back_pressed, on_play/resume/settings/settings_back/quit_confirm/quit_cancel/retry/failure_quit_tapped, on_restart_tapped(press_us), on_menu_tapped(press_us), on_setting_changed(key, value)"
+    source: "Rule 12"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-004
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "There are exactly 7 outbound Callables: start_requested, resume_requested, restart_requested(press_us), menu_requested(press_us), quit, set_value(key, value), haptic(UI_TAP), plus a log_sink. No other outbound call may exist"
+    source: "Rule 10"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-005
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "The sensor-ready gate is valid == true AND input_source == SENSOR. It is genuinely enforced for Play, Resume, Paused Restart and Back-in-Paused: no request, no haptic, no press feedback. Menu is never gated"
+    source: "Rules 2-3, 5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-006
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "Back routing per phase: Boot loading is a no-op; Boot failure opens confirm-quit; Menu opens confirm-quit; Settings closes first; Paused routes through the Resume gate; Hit goes to Menu, ungated; confirm-quit open cancels. Rapid Back in Paused is not debounced"
+    source: "Rule 5"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-007
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "quit() is called exactly once, only from on_quit_confirm_tapped while confirm_quit_open. The dialog is one implementation reachable from Menu and from Boot-failure. Cancel returns to the caller"
+    source: "Rule 6"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-008
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Platform"
+    requirement: "haptic(UI_TAP) fires on every forwarded or committed on-screen tap. It does not fire on a gated tap or on a hardware Back"
+    source: "Rule 7"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-009
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Timing"
+    requirement: "The map-load-failure screen shows when elapsed Boot time >= MAP_LOAD_TIMEOUT (comparison is >=). It disappears by itself when phase becomes Menu. Retry's loader contract is provisional (the loader retries Tube Track load_map and sends map_ready only on success)"
+    source: "Rule 8"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-010
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Data"
+    requirement: "`MenuConfig` is a Resource holding MAP_LOAD_TIMEOUT. A smoke test asserts the shipped default 10.0 s"
+    source: "Tuning Knobs"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-011
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Core"
+    requirement: "Settings is reachable only from Menu-base. Each change calls set_value at once. There is no revert, batching or debounce and no Save/Cancel UI. Slider commits once on release; toggles commit on tap"
+    source: "Rule 4; UX Interaction Map"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-012
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Timing"
+    requirement: "`transition_covering` is true for at least one tick spanning Menu to Running and Running to Menu, and false elsewhere. The Ink cover runs about 150-250 ms (80-100 ms in, hold, 80-100 ms out). There is no cut on Restart or Hit to Running"
+    source: "Rule 9; UX Transitions"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-013
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Input"
+    requirement: "Restart and Menu stamp press_us on press-down. The readying fill (PAUSE_INPUT_GUARD) is cosmetic and never gates a tap. Run State's timestamp guard is the real backstop"
+    source: "Rule 3; UX Interaction Map"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-014
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "UI"
+    requirement: "(UX) Gated controls are shown dimmed (about 45%) with a reason label, never hidden. The Lagoon outline pulses at 1.2 s period only while Acquiring. Gating uses an own state flag, not Button.disabled"
+    source: "UX States; Rule 2"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-015
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "UI"
+    requirement: "(UX) Layout is dp-based and thumb-low. Play is 240x72 with centre at min(0.70H, H-232). The Paused Restart/Menu row is 128x48 pills at 45% H, at least 80 dp (pill to pill) from Resume. No interactive element is within 40 dp of the side edges. The bottom 96 dp is clear. Minimum safe area is 360x560"
+    source: "UX Layout Zones"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-016
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "UI"
+    requirement: "(UX) Settings is a vertical scroll list with fixed header and Back. A drag starting on a slider thumb moves the slider, and any other drag scrolls. Rows are at least 56 dp (72 dp for sliders) and all 5 are reachable at 360x560"
+    source: "UX Layout, P14-15"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-017
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "UI"
+    requirement: "(UX) The confirm-quit and failure cards sit on an Ink scrim at about 60%. A scrim tap does nothing. QUIT is solid Ink on top, Cancel below, and Cancel is nearest the thumb. Entrance is about 240 ms ease-out with instant leave"
+    source: "UX Interaction Map"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-018
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Rendering"
+    requirement: "(UX) Menus add at most 25 draw calls and 1.0 ms per tick. Menu shows within 100 ms of phase Menu. Settings opens within 1 frame. The Boot background is Ink with no spinner"
+    source: "MN-1"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-019
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "UI"
+    requirement: "(UX) The Ink cover sits above the HUD canvas. Menus screens sit above the HUD canvas. The ordinary Paused screen keeps its content below the top 92 dp, clear of HUD Z1"
+    source: "UX Layering; UX hud.md"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-020
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Platform"
+    requirement: "Android Back is delivered as back_pressed. Platform Services sets quit_on_go_back=false. Android-only, portrait, edge-to-edge insets via safe area"
+    source: "Rule 5; UX Platform"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-021
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Platform"
+    requirement: "(UX) AccessKit names, roles and reading order are non-binding proposals. The dialog and failure message are announced as alerts. Toggles are switches and sliders announce a percentage. OS text scaling is not honoured"
+    source: "UX Accessibility"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-022
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "SaveLoad"
+    requirement: "Persistent state: none owned. Setting values persist only through Settings.set_value into Save & Persistence"
+    source: "Rule 4"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-023
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Testing"
+    requirement: "Tests live in tests/unit/menus_screen_flow/ as menu_[feature]_test.gd. A fresh core per case. make_menu_fixture and make_pull_stub are used. Phase, source and input_source constants are reused from the owning systems"
+    source: "AC section"
+    created: 2026-10-03
+    revised: ""
+    status: active
+  - id: TR-menus-screen-flow-024
+    system: menus-screen-flow
+    gdd: design/gdd/menus-screen-flow.md
+    category: "Testing"
+    requirement: "Mutation-catching priority: AC-2, 3, 4 (Back bypassing Resume's gate), 5 and 27 are the highest priority, plus a lint banning Time., Engine., OS., DisplayServer., get_tree and ConfigFile in MenuCore"
+    source: "Gate policy"
+    created: 2026-10-03
+    revised: ""
+    status: active
