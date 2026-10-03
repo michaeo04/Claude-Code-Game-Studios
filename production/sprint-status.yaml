@@ -120,29 +120,29 @@ stories:
     name: "tick(), run clock F1 and settling tick"
     file: "production/epics/run-state-restart/story-004-tick-run-clock.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-005"
     name: "Hit acceptance, stale run_id and same-tick tie-break"
     file: "production/epics/run-state-restart/story-005-hit-handling.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-006"
     name: "Restart lock, press_us handling and restart_unlocked"
     file: "production/epics/run-state-restart/story-006-hit-lock-press-us.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-001"
     name: "SettingsMath (seam contrast derivation and tilt sensitivity validation)"
     file: "production/epics/settings-accessibility/story-001-settings-math.md"

@@ -1,12 +1,12 @@
 # Story 005: Hit acceptance, stale run_id and same-tick tie-break
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -48,7 +48,8 @@ All `hit_reported` of a tick are taken together: drop stale `run_id` first, then
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_hit_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/run_state/run_state_hit_test.gd` (14 tests, passing): AC-7 (single, later, same-tick, next-run, stale, settling after start and after resume, run_time_ms asserted) and AC-20 (every tie-break row, stale-first, -5 warning).
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 002, 003, 004

@@ -1,12 +1,12 @@
 # Story 004: tick(), run clock F1 and settling tick
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -48,7 +48,8 @@ F1: `step = min(dt, DT_MAX)` if finite and positive else 0; commit at the end of
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_clock_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/run_state/run_state_clock_test.gd` (18 tests, passing). AC-10 and AC-11 are proven except one clause.
+**Status**: [x] Done (scope refined 2026-10-04). The "stall pause" clause of AC-11 (a tick with a stall pause returns 0) is tested by story 008 AC-16, which owns the stall guard; every other clause of AC-10 and AC-11 is proven by `tests/unit/run_state/run_state_clock_test.gd` (18 tests). Story 008 must not close without that stall test.
 
 ## Dependencies
 - Depends on: Story 002

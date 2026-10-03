@@ -1,12 +1,12 @@
 # Story 006: Restart lock, press_us handling and restart_unlocked
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -42,7 +42,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_restart_lock_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/run_state/run_state_restart_lock_test.gd` (19 tests, passing): AC-12 lock arithmetic for restart and menu, one unlock over 1000 ticks, re-arm, no unlock on the leaving tick, held press, press_us 0/negative/future, Hit never times out.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 002, 003, 005
