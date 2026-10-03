@@ -2,12 +2,12 @@
 
 ## Document Status
 
-- Version: 1.0
-- Last Updated: 2026-10-02
+- Version: 1.1 (2026-10-03: module tables, frame order, subscriber order, initialisation order and ADR audit brought up to date with ADR-0002 to ADR-0014; no new decision)
+- Last Updated: 2026-10-03
 - Engine: Godot 4.7.2, GDScript; Android only (ADR-0001); review mode `lean`
 - GDDs covered: tube-track, run-state-restart, tilt-input, platform-services, ball-movement, obstacle-system, pattern-difficulty, near-miss-detection, scoring-personal-best, save-persistence, settings-accessibility, camera, juice-feedback, environment-theming, hud, menus-screen-flow (16 system GDDs) plus `design/ux/hud.md`, `design/ux/menus-screen-flow.md`, `design/ux/interaction-patterns.md`
 - Technical Requirements Baseline: about 348 requirements (`TR-[slug]-[NNN]`) in `docs/architecture/tr-baseline/` (world-movement, gameplay, foundation, presentation-ui)
-- ADRs referenced: ADR-0001 (Android only)
+- ADRs referenced: ADR-0001 (Android only, Accepted); ADR-0002 to ADR-0014 (all Proposed, see ADR Audit)
 - Technical Director Sign-Off: 2026-10-02 APPROVED WITH CONDITIONS. Condition: no implementation starts until ADR-0002 to ADR-0009 are Accepted (Foundation and Core ADR gaps are not yet resolved)
 - **Condition amended 2026-10-03 (P-1, project-owner decision; the technical-director agent was not invoked, so this is not a TD ratification):** throwaway spike builds under `prototypes/` (isolated from `src/`) are allowed before any ADR is Accepted. An ADR is Accepted on a technical-director review, and each device spike it lists (R-1, T-1, PS-*, SP-*, PT-*, HV-1, UI-*) becomes a **validation gate on the first dependent story**: that story cannot be Done until the spike passes. The condition "no implementation starts until ADR-0002 to ADR-0009 are Accepted" applies to `src/`, not to `prototypes/`.
 - Lead Programmer Feasibility: skipped (lean mode)
@@ -74,13 +74,14 @@ Approved 2026-10-02. Engine risk tags: **H** = post-cutoff, HIGH risk; M = mediu
 | **Platform Services** | every OS call, lifecycle state, ProjectSettings manifest | 5 signals, `haptic(kind)`, `quit()`, safe area and refresh getters | `haptics_*` settings | `_notification` FOCUS_IN/OUT, PAUSED/RESUMED, `WM_GO_BACK_REQUEST` (H); `DisplayServer` safe area, refresh, keep_on (H); `Input.vibrate_handheld` (M) |
 | **Save & Persistence** | `user://save.cfg`, schema, atomic write | `get_value`, `set_value` | `app_backgrounded` | `ConfigFile` (M), `FileAccess` (H, 4.4), `DirAccess` (M) |
 | **Settings & Accessibility** | the 5 settings in memory | 6 getters, `set_value`, `setting_changed` | Save | none |
-| **Map Loader** | the load and retry sequence | `retry()` | MapConfig, Tube Track | `ResourceLoader` (not chosen yet) |
+| **Map Loader** (ADR-0004) | the load and retry sequence: Phase A (read, validate, build `MapConfig`), Phase B apply steps B1 Environment, B2 Obstacle, B3 Pattern, B4 Hazard View, B5 Tube Track `load_map`, B6 `map_ready` | `attempt(path)`, `retry()` | `MapDefinition`, base `TubeConfig`, the apply seams | `ResourceLoader` (H, Android remap unverified) |
+| **World Geometry and World Frame** (no GDD; ADR-0004, ADR-0013) | the immutable `WorldGeometry` value (`R`, `D`, `N_F`, `L`, built once at composition from `TubeConfig` and `BallConfig`; `D` stays Ball Movement's); `WorldFrame` (`origin_s`, a float64 multiple of `L`) | `render_z(s)`, `maybe_rebase(s)`, `on_run_reset`, `reset()` | `WorldFrameConfig` (`REBASE_SEGMENTS` 84, `Z_RENDER_MAX` 2048) | none (RefCounted) |
 
 ### Core
 
 | Module | Owns | Exposes | Consumes | Engine APIs |
 |---|---|---|---|---|
-| **Tube Track** | frame `(theta, s, h)`, segment window, seam, map validation | `advance(s)`, `load_map`, `begin_run`, `P`, `delta_theta`; signals `window_primed`, `segment_entered/left_window` | `s`, MapConfig, `seam_contrast_scale` (every frame), Run State events via its adapter | `Node3D`, `MeshInstance3D`/MultiMesh, ShaderMaterial, Environment fog (H) |
+| **Tube Track** | frame `(theta, s, h)`, segment window, seam, map validation | `advance(s)`, `load_map`, `begin_run`, `local_point(theta, h)` (x and y of the GDD's `P`; z comes only from `WorldFrame.render_z`), `delta_theta`, `TubeView` (12 slots, `bind_slot`, `idle_step`, `rebase`); signals `window_primed`, `segment_entered/left_window` | `s`, MapConfig, `seam_contrast_scale` (every frame), Run State events via its adapter | `Node3D`, `MeshInstance3D`/MultiMesh, ShaderMaterial, Environment fog (H) |
 | **Tilt Input** | sensor reading, neutral, `steer`, `valid` | `steer`/`valid`/`input_source` getters, `poll()` | Run State events, lifecycle, sensitivity | `Input.get_gravity()` (H), ProjectSettings sensor flags (H) |
 | **Ball Movement** | ball state, speed curve | `step()`, `theta/theta_prev/s/s_prev/speed/omega` | steer, `dt_eff`, `wrap_angle` | view only: `Node3D` |
 | **Obstacle System** | hazard instances, analytic collision, preflight | `hit_reported`, `hazard_bound`, `hazard_released(id, released_by_reset)` | ball state, Tube Track window signals, `VISIBLE_ARC_HALF_WIDTH` (config), Pattern provider | `Resource` HazardSpec, `duplicate_deep` (H) |
@@ -97,11 +98,18 @@ Approved 2026-10-02. Engine risk tags: **H** = post-cutoff, HIGH risk; M = mediu
 
 | Module | Owns | Exposes | Consumes | Engine APIs |
 |---|---|---|---|---|
-| **Camera** | camera pose, `d_cam`, `VISIBLE_ARC_HALF_WIDTH`, FOV punch | `step`, `apply_fov_punch`; config `rear_extent`, `camera_distance`, visible arc | `theta`, `s`, `R`, `P`, Run State events | `Camera3D` fov, look_at (M) |
+| **Camera** | camera pose, `d_cam`, `VISIBLE_ARC_HALF_WIDTH`, FOV punch | `step`, `apply_fov_punch`; config `rear_extent`, `camera_distance`, visible arc | `theta`, `s`, `R`, `local_point` and `WorldFrame.render_z` (in the view), Run State events | `Camera3D` fov, look_at (M) |
 | **Environment & Theming** | palette, fog, ball material, plinth, `L_ball_adjusted` | fog and colour fields in MapConfig (at load) | `speed`, `colorblind_safe_enabled` + `setting_changed`, `R` | `WorldEnvironment` fog and glow (H), spatial shader (H), MultiMesh |
 | **Juice & Feedback** | the two presentation tracks, run-end latch, flash ledger | none (calls Camera and Platform) | `near_miss_detected`, `run_ended/abandoned/reset`, `personal_best_updated`, hazard lookup | `GPUParticles3D` (H), shader (H), CanvasLayer, AudioStreamPlayer |
 | **HUD** | display state, was-Live latch, banner | `snapshot()`, 3 requests to Run State | score pull, Run State events, `valid`/`state`, safe area | CanvasLayer, Control, `InputEventScreenTouch` (H, emulation), AccessKit (H) |
 | **Menus & Screen Flow** | active screen, overlay flags, `transition_covering` | display-state snapshot, 7 outbound calls | phase, `valid`/`state`/`input_source`, `personal_best`, Settings getters, `back_pressed` | CanvasLayer, Control, ScrollContainer, AccessKit (H) |
+| **Presentation time and Ink cover** (ADR-0010) | one presentation-time rule (stamp from `clock_us`, derive elapsed seconds), the 0.20 s hit-stop hold, FOV ease, the Ink cover state | `PresentationMath` (`elapsed_s`, `hold_released`, `fade_out`, `ease_out_linear`), `InkCoverCore` (`on_phase_changed`, `is_cut_route`), `InkCoverConfig` | `clock_us`, `phase_changed`, reduced motion | `CanvasLayer` 30 (view only) |
+| **Ball View** (ADR-0012) | the ball node at the riding radius `R + D/2`, stateless roll and lean, unshaded body plus fresnel rim, `L_ball_adjusted` | `build`, `tick(snapshot)`, `base_luminance`, `set_luminance_target` (Environment only), `set_rim_glow` and `set_ball_visible` (Juice only) | Ball snapshot, `WorldGeometry`, `WorldFrame` | `Node3D`, `ShaderMaterial` (H) |
+| **World Chroma** (ADR-0012) | the two global shader parameters `world_chroma` and `hit_grey`, and `fog_light_color` written in the same call | `set_base_fog_color`, `set_world_chroma` (Environment only), `set_hit_grey` (Juice only); `ChromaMath` | globals sink, fog sink | `RenderingServer.global_shader_parameter_set` (H), `Environment.fog_light_color` (H) |
+| **Hazard View** (ADR-0014) | a pool of hazard nodes, one merged `ArrayMesh` per `HazardSpec`, the plinth surface, the killer isolate | `apply_map` (Phase B step B4), `bind`, `release`, `release_all`, `rebase`; `HazardMeshBuilder` | `hazard_bound/released`, `spec_of`, `s_offset_of`, `WorldGeometry`, `WorldFrame` | `MeshInstance3D`, `ArrayMesh` (H) |
+| **UI scaffolding** (ADR-0011) | dp scale (`canvas_items` stretch), the layer stack, the safe-area frame, inert-control rules, the AccessKit wrapper | `UiMetrics`, `UiLayers`, `UiScaler`, `UiSlider`, `UiAccess` | Platform display facts | `CanvasLayer`, Control, AccessKit (H) |
+
+**CanvasLayer stack (ADR-0011, ADR-0010):** 3D viewport (world); 5 Juice Hit flash; 10 HUD (pills and the Hit tap catcher); 20 Menus; 30 Ink cover; 100 editor-only tools.
 
 ### Dependency diagram
 
@@ -135,21 +143,26 @@ GameRoot._process(engine_delta)
  3  RunState.tick(world_dt, real_dt)       -> dt_eff (0 in Hit, Paused, Resuming and on settling ticks)
  4  Ball.step(dt_eff, steer, valid, src)   -> theta, s (and the previous pair)
  5  TubeTrack.advance(s)   [Running only]  -> segment_left/entered -> Obstacle (calls Pattern.hazards_for_segment)
- 6  Obstacle.test(prev -> current)         -> hit_reported (queued into Run State, level-triggered every tick)
- 7  NearMiss.step()                        runs AFTER Obstacle so that hit_reported is applied before the exit-edge check
- 8  Scoring.step()                         current_score = floori(s)
- 9  Camera.step(theta, s, dt_eff)          pose; FOV ease on the presentation clock (stamp from clock_us, ADR-0010; step keeps its signature)
-10  Environment.tick(speed)                fog end and chroma
-11  Juice.tick(real_dt) / HUD.tick / Menus.tick    pull seams, then draw
+ 6  WorldFrame step        [Running only]  maybe_rebase(s); when true: TubeView.rebase(), HazardView.rebase() (ADR-0013)
+ 7  Obstacle.test(prev -> current)         -> hit_reported (queued into Run State, level-triggered every tick)
+ 8  NearMiss.step()                        runs AFTER Obstacle so that hit_reported is applied before the exit-edge check
+ 9  Scoring.step()                         current_score = floori(s)
+10  TubeView.idle_step(real_dt)  [Menu only; Paused, Hit and Resuming keep the tube still]
+11  Camera.step(theta, s, dt_eff)          pose as ball-relative offsets; FOV ease on the presentation clock (ADR-0010)
+12  BallView.tick(snapshot)                places the ball through TubeMath.local_point and WorldFrame.render_z (ADR-0012)
+13  Environment.tick(speed)                fog end and chroma (Idle and Menu resting values included)
+14  Juice.tick(real_dt) / HUD.tick / Menus.tick    pull seams, then draw (Menus ticks the Ink cover)
 ```
+
+Other documents cite these steps by name, not by number (ADR-0002 Decision 6: numbers shift when a step is inserted). No node position is built from a raw `s`: every view places through `WorldFrame.render_z` (ADR-0013).
 
 ### 2. Event path
 
-Pinned subscriber order (owned by Run State, registered by the Composition Root, one list that every GDD cites):
+Pinned subscriber order (owned by Run State, registered by the Composition Root from one table of `[signal, handler, rank]` rows in `GameRoot._wire()`, ADR-0002 Decision 7; one list that every GDD cites):
 
 | Event | Order |
 |---|---|
-| `run_reset` | 1 Pattern & Difficulty; 2 Tube Track adapter and Obstacle (either order; Obstacle only captures `run_id`); 3 Ball Movement; 4 Camera; 5 everything else |
+| `run_reset` | 1 Pattern & Difficulty and `WorldFrame` (independent; ties broken by row order, ADR-0002 Decision 7); 2 Tube Track adapter and Obstacle (either order; Obstacle only captures `run_id`); 3 Ball Movement; 4 Camera; 5 everything else |
 | `run_ended` | 1 Juice; 2 Scoring (emits `personal_best_updated` inside its handler); 3 HUD; 4 everything else |
 | `run_abandoned` | 1 Juice (latches `Abandon`); 2 Scoring; 3 everything else |
 
@@ -165,9 +178,11 @@ Death sequence: Obstacle `hit_reported` (tick N) -> Run State processes it at ti
 2. `SaveService` (load; connect `app_backgrounded`)
 3. `SettingsCore` (read the 5 keys; push `haptics_*` to Platform Services)
 4. `RunStateCore` and `ScoreService` (construction emits nothing)
-5. every other system registers its handlers in the pinned order of section 2
-6. `MapLoader` calls Tube Track `load_map`; only on success it sends `map_ready` (Boot to Menu)
-7. `GameRoot._process` starts ticking
+5. the immutable `WorldGeometry` and `WorldFrame`, validated together before any view is built (`REBASE_Z_EXCEEDS_BUDGET` is fatal)
+6. every other system and view in the order of ADR-0002 Decision 5 (the Environment view that owns `WorldEnvironment`, `WorldChroma`, `BallView`, `HazardView`, Environment, Juice, then the HUD and Menus views)
+7. `_wire()`: every handler registered in the pinned order of section 2
+8. `MapLoader.attempt`: Phase A (read and validate), Phase B apply steps B1 Environment, B2 Obstacle, B3 Pattern, B4 Hazard View, B5 Tube Track `load_map`; only on success `map_ready` (Boot to Menu)
+9. `GameRoot._process` starts ticking
 
 ### Decisions taken (user, 2026-10-02)
 
@@ -267,17 +282,30 @@ var rear_extent: float; var camera_distance: float; var visible_arc_half_width: 
 
 ## ADR Audit
 
-Approved 2026-10-02. One ADR exists.
+Updated 2026-10-03 (v1.1). Fourteen ADRs exist. Run 5 (`architecture-review-2026-10-03-run5.md`): no blocking conflict, no dependency cycle, 14 of 14 carry an Engine Compatibility section.
 
-| ADR | Engine Compat | Version | GDD linkage | Conflicts | Valid |
-|-----|--------------|---------|-------------|-----------|-------|
-| ADR-0001 Android only | upgraded to the template 2026-10-02 | Godot 4.7.2 | upgraded (7 GDDs listed) | none | yes |
+| ADR | Title | Status | Depends on |
+|---|---|---|---|
+| ADR-0001 | Android only | Accepted | none |
+| ADR-0002 | Game loop, Composition Root, tick order | Proposed | 0001 |
+| ADR-0003 | Renderer and tube render route | Proposed | 0001, 0002 |
+| ADR-0004 | Map Loader and MapConfig | Proposed | 0002, 0003 |
+| ADR-0005 | Sensor source and input pipeline | Proposed | 0001, 0002 |
+| ADR-0006 | Android platform integration | Proposed | 0001, 0002, 0003, 0005 |
+| ADR-0007 | Persistence implementation | Proposed | 0001, 0002, 0006 |
+| ADR-0008 | Hazard, collision and content format | Proposed | 0002, 0003, 0004 |
+| ADR-0009 | Test framework and CI | Proposed | 0002, 0004, 0007, 0008 |
+| ADR-0010 | Presentation time, hit-stop, Ink cover | Proposed | 0002, 0011 |
+| ADR-0011 | UI architecture | Proposed | 0002, 0003, 0005, 0006 |
+| ADR-0012 | Ball material and world chroma | Proposed | 0002, 0003, 0004, 0014 |
+| ADR-0013 | Distance precision and render origin | Proposed | 0002, 0003, 0004, 0012, 0014 |
+| ADR-0014 | Hazard render route | Proposed | 0002, 0003, 0004, 0008 |
 
-**Traceability.** The Technical Requirements Baseline holds about 348 requirements (`docs/architecture/tr-baseline/`). ADR-0001 covers only the platform-scope requirements; the GDDs carry most of their internal decisions, so the real gaps are the **cross-system and engine-dependent decisions that no GDD owns**, listed below. `/architecture-review` turns the baseline into `docs/architecture/tr-registry.yaml` and the full requirement-to-ADR matrix once these ADRs exist.
+**Traceability.** The Technical Requirements Baseline holds 348 requirements (`docs/architecture/tr-baseline/`, registered in `tr-registry.yaml`); 191 are architecture-relevant, of which 179 are covered, 11 partial and 1 gap (audio, deferrable). The full matrix is `docs/architecture/architecture-traceability.md`.
 
 ## Required ADRs
 
-Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to settle: renderer **Forward+** (technical preferences) versus **Mobile** (Environment Open Question 5); test framework **GUT** (CLAUDE.md, technical preferences) versus **gdUnit4** (some GDDs, CI line).
+Approved 2026-10-02; **all ADRs below are written as of 2026-10-03** (status in the ADR Audit); only the audio policy is outstanding. Write with `/architecture-decision`. Document conflicts to settle: renderer **Forward+** (technical preferences) versus **Mobile** (Environment Open Question 5); test framework **GUT** (CLAUDE.md, technical preferences) versus **gdUnit4** (some GDDs, CI line).
 
 **Must have before coding starts (Foundation and Core):**
 
@@ -301,7 +329,7 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 | ADR-0012 Ball material and world chroma | one owner for `L_ball_adjusted`, how Juice's rim glow layers on it, one chroma uniform |
 | ADR-0013 Distance precision and render origin | written (Proposed): `s` stays float64, `WorldFrame.render_z` shifts the render origin by whole segments |
 
-**Can defer to implementation:** OS audio policy owner, AccessKit names and reading order, specific shader techniques.
+**Can defer to implementation:** the audio policy ADR (three Juice cues, bus layout), OS audio policy owner, AccessKit names and reading order, specific shader techniques.
 
 ## Architecture Principles
 
@@ -316,14 +344,14 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 
 | # | Question | Resolves in |
 |---|---|---|
-| 1 | Renderer: Forward+ (technical preferences) or Mobile (Environment Open Question 5)? The F_read derivation was verified on Forward+ only | ADR-0003 |
-| 2 | Test framework: GUT (CLAUDE.md, technical preferences) or gdUnit4 (some GDDs, CI line)? | ADR-0009 |
-| 3 | Do Android lifecycle callbacks arrive on another thread (PS-12), and is `back_pressed` delivered on Android 16 / SDK 36 (PS-4)? | ADR-0006 |
-| 4 | Cost of the synchronous personal-best write on the death frame (SP-1); fallback A/B-slot scheme | ADR-0007 |
+| 1 | Renderer: Forward+ (technical preferences) or Mobile (Environment Open Question 5)? The F_read derivation was verified on Forward+ only | Decided in ADR-0003 (Proposed): Mobile, gate R-1 on two Android makers, Forward+ as the fallback |
+| 2 | Test framework: GUT (CLAUDE.md, technical preferences) or gdUnit4 (some GDDs, CI line)? | Decided in ADR-0009 (Proposed): GUT |
+| 3 | Do Android lifecycle callbacks arrive on another thread (PS-12), and is `back_pressed` delivered on Android 16 / SDK 36 (PS-4)? | Decided in ADR-0006 (Proposed); spikes PS-12 and PS-4 still validate it |
+| 4 | Cost of the synchronous personal-best write on the death frame (SP-1); fallback A/B-slot scheme | Decided in ADR-0007 (Proposed); spike SP-1 measures it |
 | 5 | Run cap or rebase of `s` at 16384 (t = 682 s) | RESOLVED in ADR-0013 (Proposed): render-origin shift, no run cap |
-| 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | ADR-0003 |
-| 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | ADR-0005 |
-| 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | ADR-0008, then a Pattern GDD revision |
+| 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | Decided in ADR-0003 (Proposed): 12 slots, about 81 concurrent draws against 150, measured in R-1 |
+| 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | Decided in ADR-0005 (Proposed); still a device spike |
+| 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | Decided in ADR-0008 (Proposed, section 6); Pattern GDD revision flagged |
 | 9 | ~~The Ink cover driven by `phase_changed` differs from the UX spec and Core Rule 9~~ **Resolved 2026-10-03**: ADR-0010 written; both documents edited | ADR-0010 |
 | 10 | `Composition Root` and `Map Loader` have no row in `design/gdd/systems-index.md` | edit the index |
 | 11 | Platform Services GDD names no `haptics_intensity` setter (API Boundaries adds `set_haptics_intensity`) | edit `platform-services.md` |
