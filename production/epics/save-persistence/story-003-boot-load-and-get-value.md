@@ -1,12 +1,12 @@
 # Story 003: SaveCore boot load, get_value and first launch
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -22,9 +22,9 @@
 - Guardrail: construction order puts `SaveService` second, before Scoring/Settings.
 
 ## Acceptance Criteria
-- [ ] **AC-4 [C]** `get_value`/`set_value` round-trip for `[scoring]` and `[settings]` returns exactly what was stored; on any read failure the returned value is exactly the caller's `default`, never a `SaveCore`-supplied one. `[cosmetics]` is not exercised.
-- [ ] **AC-5 [C]** Constructing `SaveCore` with a `read_config` returning a populated fixture and calling `boot_load()`: immediately, with no signal and no frame, `get_value` for every fixture key returns the loaded value.
-- [ ] **AC-12 [C]** `read_config` status `MISSING` (via `exists` false): every `get_value` returns its default, exactly one INFO log (not ERROR); the first `set_value` afterwards runs the orphan-`.tmp` check (finds nothing) then the normal write sequence, creating the file (write sequence verified in Story 004).
+- [x] **AC-4 [C]** `get_value`/`set_value` round-trip for `[scoring]` and `[settings]` returns exactly what was stored; on any read failure the returned value is exactly the caller's `default`, never a `SaveCore`-supplied one. `[cosmetics]` is not exercised.
+- [x] **AC-5 [C]** Constructing `SaveCore` with a `read_config` returning a populated fixture and calling `boot_load()`: immediately, with no signal and no frame, `get_value` for every fixture key returns the loaded value.
+- [x] **AC-12 [C]** `read_config` status `MISSING` (via `exists` false): every `get_value` returns its default, exactly one INFO log (not ERROR); the first `set_value` afterwards runs the orphan-`.tmp` check (finds nothing) then the normal write sequence, creating the file (write sequence verified in Story 004).
 
 ## Implementation Notes
 Create `src/core/persistence/save_core.gd`. Boot order per ADR-0007 Decision 3: `exists(REAL)` false -> `MISSING` and one INFO `FILE_MISSING`; else `read_config(REAL)`; parsed sections become memory, schema read through `PersistMath.schema_compatible` (an unreadable or incompatible file is handled in Stories 006-007; here the happy path and MISSING). `get_value(section, key, default)` returns the stored value when present and typeof-equal, else `default`; it adds nothing of its own. First-launch memory is empty; `[_meta].schema_version` is written by the first `set_value` (Story 004) at `CURRENT_SCHEMA_VERSION`.
@@ -46,7 +46,8 @@ Create `src/core/persistence/save_core.gd`. Boot order per ADR-0007 Decision 3: 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_boot_load_test.gd`
-**Status**: [ ] Not yet created
+**Status**: Passing
+**Evidence**: save_persistence_boot_load_test.gd: test_get_value_returns_stored_values_after_boot_load, test_get_value_returns_caller_default_on_parse_error, test_boot_load_is_synchronous_and_every_fixture_key_is_readable, test_missing_file_gives_defaults_and_one_info_file_missing, test_missing_file_first_set_value_checks_tmp_then_writes (7 tests)
 
 ## Dependencies
 - Depends on: Story 001, Story 002

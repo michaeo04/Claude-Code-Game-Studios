@@ -1,12 +1,12 @@
 # Story 005: Write failure handling and rate-limited logging
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -22,8 +22,8 @@
 - Guardrail: `SAVE_LOG_RATE_LIMIT` default 1.0 s, test value 0.05 s.
 
 ## Acceptance Criteria
-- [ ] **AC-8 [C]** `write_config` returning false stops the sequence (`rename` never called), `set_value` returns false, one `WRITE_FAILED` is logged, and the in-memory value is still updated; `rename` returning false likewise reports `WRITE_FAILED` without corrupting in-memory state.
-- [ ] **AC-14 [C]** With `write_config`/`rename` returning false on every call, ten consecutive `set_value` calls for the same section+key within 0.05 s of the injected clock produce exactly one `WRITE_FAILED` for that key; all ten update memory (the tenth value is read back) and report failure; an eleventh call for a different key at the same stamp logs its own line.
+- [x] **AC-8 [C]** `write_config` returning false stops the sequence (`rename` never called), `set_value` returns false, one `WRITE_FAILED` is logged, and the in-memory value is still updated; `rename` returning false likewise reports `WRITE_FAILED` without corrupting in-memory state.
+- [x] **AC-14 [C]** With `write_config`/`rename` returning false on every call, ten consecutive `set_value` calls for the same section+key within 0.05 s of the injected clock produce exactly one `WRITE_FAILED` for that key; all ten update memory (the tenth value is read back) and report failure; an eleventh call for a different key at the same stamp logs its own line.
 
 ## Implementation Notes
 Wire `RateLimitedLog` (from the platform-services epic) around `log_sink` inside `SaveCore`'s constructor; the key for the limiter is `section + "/" + key`. A `size(TMP) <= 0` after a "successful" write is treated as a write failure (ADR-0007 Decision 4 step 4). If `RateLimitedLog` is not yet implemented, this story waits for it rather than duplicating it.
@@ -40,7 +40,8 @@ Wire `RateLimitedLog` (from the platform-services epic) around `log_sink` inside
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_write_failure_test.gd`
-**Status**: [ ] Not yet created
+**Status**: Passing
+**Evidence**: save_persistence_write_failure_test.gd (6 tests): write_config/rename/size failures, ten-failure rate limit, relog after window
 
 ## Dependencies
 - Depends on: Story 004; cross-epic: platform-services (`RateLimitedLog` story)

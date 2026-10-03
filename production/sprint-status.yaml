@@ -21,29 +21,29 @@ stories:
     name: "SaveCore boot load, get_value and first launch"
     file: "production/epics/save-persistence/story-003-boot-load-and-get-value.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-004"
     name: "set_value write path (temp, complete map, rename)"
     file: "production/epics/save-persistence/story-004-write-path.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-005"
     name: "Write failure handling and rate-limited logging"
     file: "production/epics/save-persistence/story-005-write-failure-and-rate-limit.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-006"
     name: "Read validity, per-key fallback and error logging"
     file: "production/epics/save-persistence/story-006-read-validity-and-error-logging.md"

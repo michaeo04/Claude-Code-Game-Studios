@@ -25,14 +25,18 @@ const LIFECYCLE_NOOP: StringName = &"LIFECYCLE_NOOP"
 
 var _sink: Callable
 var _clock_us: Callable
+var _window_us: int = RATE_LIMIT_US
 ## `"<code>|<key>"` to the stamp (us) of the last message that passed.
 var _last_passed_us: Dictionary = {}
 
 
 ## `log_sink` receives passed messages; `clock_us` returns the current time as integer microseconds.
-func _init(log_sink: Callable, clock_us: Callable) -> void:
+## `window_us` overrides the window (Save & Persistence passes its `SAVE_LOG_RATE_LIMIT`); a value
+## below 0 falls back to `RATE_LIMIT_US`.
+func _init(log_sink: Callable, clock_us: Callable, window_us: int = RATE_LIMIT_US) -> void:
 	_sink = log_sink
 	_clock_us = clock_us
+	_window_us = window_us if window_us >= 0 else RATE_LIMIT_US
 
 
 ## Sends the message to the sink if its (code, key) is not rate limited. Returns true when it passed.
@@ -41,7 +45,7 @@ func emit(level: int, code: StringName, key: String, message: String) -> bool:
 	var slot: String = "%s|%s" % [code, key]
 	if _last_passed_us.has(slot):
 		var last: int = _last_passed_us[slot]
-		if now >= last and now - last < RATE_LIMIT_US:
+		if now >= last and now - last < _window_us:
 			return false
 	_last_passed_us[slot] = now
 	_sink.call(level, code, key, message)

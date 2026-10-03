@@ -1,12 +1,12 @@
 # Story 004: set_value write path (temp, complete map, rename)
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -22,10 +22,10 @@
 - Guardrail: a file of a few hundred bytes; one write per `set_value`.
 
 ## Acceptance Criteria
-- [ ] **AC-6 [C]** One `set_value` synchronously calls `write_config(TMP_PATH, sections)` then `rename(TMP_PATH, REAL_PATH)` before returning; `sections` equals the complete in-memory map (every section and key, including `[_meta].schema_version`); no timer or frame mechanism. A mutation passing only the changed section must fail.
-- [ ] **AC-6b [C]** After loading `personal_best` 500 and `haptics_enabled` true, `set_value("settings","haptics_enabled",false)` then `get_value("scoring","personal_best",-1)` returns 500; the second `write_config` call's `sections` still contains `[scoring].personal_best` = 500.
-- [ ] **AC-9 [C]** If `exists(TMP_PATH)` is true the next `set_value` calls `delete(TMP_PATH)` before `write_config`; if false, `delete` is never called.
-- [ ] **AC-13 [C]** `set_value` with an unserializable value calls no seam, leaves the in-memory value unchanged, logs exactly one `UNSERIALIZABLE_VALUE` naming section/key, returns false. (The `PersistMath` half is Story 001.)
+- [x] **AC-6 [C]** One `set_value` synchronously calls `write_config(TMP_PATH, sections)` then `rename(TMP_PATH, REAL_PATH)` before returning; `sections` equals the complete in-memory map (every section and key, including `[_meta].schema_version`); no timer or frame mechanism. A mutation passing only the changed section must fail.
+- [x] **AC-6b [C]** After loading `personal_best` 500 and `haptics_enabled` true, `set_value("settings","haptics_enabled",false)` then `get_value("scoring","personal_best",-1)` returns 500; the second `write_config` call's `sections` still contains `[scoring].personal_best` = 500.
+- [x] **AC-9 [C]** If `exists(TMP_PATH)` is true the next `set_value` calls `delete(TMP_PATH)` before `write_config`; if false, `delete` is never called.
+- [x] **AC-13 [C]** `set_value` with an unserializable value calls no seam, leaves the in-memory value unchanged, logs exactly one `UNSERIALIZABLE_VALUE` naming section/key, returns false. (The `PersistMath` half is Story 001.)
 
 ## Implementation Notes
 Add `set_value` to `save_core.gd` per ADR-0007 Decision 4 steps 1-6; keep the call order exact (`exists`, `delete`, `write_config`, `size`, `rename`) so the fake's log can assert it. The `size(TMP) > 0` check guards a short write on a full disk; its failure takes the same path as a failed write (Story 005). Write `[_meta].schema_version = CURRENT_SCHEMA_VERSION` into the map on the first write of a fresh core. Never drop a key that failed `type_matches` at load: carry it into the map.
@@ -44,7 +44,8 @@ Add `set_value` to `save_core.gd` per ADR-0007 Decision 4 steps 1-6; keep the ca
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_write_path_test.gd`
-**Status**: [ ] Not yet created
+**Status**: Passing
+**Evidence**: save_persistence_write_path_test.gd (8 tests): call order, complete map, settings write keeps personal_best, tmp delete once, unserializable and NaN rejected
 
 ## Dependencies
 - Depends on: Story 001, Story 003

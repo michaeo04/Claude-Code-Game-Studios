@@ -66,9 +66,9 @@ This epic is complete when:
 |---|-------|------|--------|-----|
 | 001 | [PersistMath pure functions](story-001-persist-math.md) | Logic | Complete | ADR-0007 |
 | 002 | [SaveFs facade, SaveConfig and test fixture](story-002-save-fs-config-fixture.md) | Config/Data | Complete | ADR-0007 |
-| 003 | [SaveCore boot load, get_value and first launch](story-003-boot-load-and-get-value.md) | Logic | Ready | ADR-0007 |
-| 004 | [set_value write path (temp, complete map, rename)](story-004-write-path.md) | Logic | Ready | ADR-0007 |
-| 005 | [Write failure handling and rate-limited logging](story-005-write-failure-and-rate-limit.md) | Logic | Ready | ADR-0007 |
+| 003 | [SaveCore boot load, get_value and first launch](story-003-boot-load-and-get-value.md) | Logic | Complete | ADR-0007 |
+| 004 | [set_value write path (temp, complete map, rename)](story-004-write-path.md) | Logic | Complete | ADR-0007 |
+| 005 | [Write failure handling and rate-limited logging](story-005-write-failure-and-rate-limit.md) | Logic | Complete | ADR-0007 |
 | 006 | [Read validity, per-key fallback and error logging](story-006-read-validity-and-error-logging.md) | Logic | Ready (GDD F2 and AC-10 amended 2026-10-03) | ADR-0007 |
 | 007 | [Corrupt-file backup, rotation and oversize guard](story-007-corrupt-backup-and-oversize-guard.md) | Logic | Ready | ADR-0007 |
 | 008 | [Flush no-op and SaveService node wiring](story-008-flush-and-save-service-node.md) | Logic | Ready | ADR-0007 |
