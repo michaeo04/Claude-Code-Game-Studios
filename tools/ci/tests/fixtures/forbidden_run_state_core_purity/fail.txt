@@ -1,0 +1,6 @@
+#@path: src/core/run_state/run_state_core.gd
+extends RefCounted
+
+
+func stamp() -> int:
+	return Time.get_ticks_usec()

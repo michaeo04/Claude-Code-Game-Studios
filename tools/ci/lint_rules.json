@@ -876,6 +876,28 @@
     "src/**/*scor*.gd"
    ],
    "message": "Scoring reflection check (stub: not yet specified)"
+  },
+  {
+   "id": "forbidden:run_state_core_purity",
+   "source": "ADR-0002; run-state-restart.md R2/R12 (story RS-001 AC-9)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/run_state/run_state_core.gd"
+   ],
+   "pattern": "\\b(?:FileAccess|ConfigFile|ResourceSaver|DirAccess|OS|Time|Engine|Input|ProjectSettings|DisplayServer|RenderingServer)\\s*\\.",
+   "message": "RunStateCore has no engine call: no file, OS, Time, Engine, Input or server access (time comes from the injected clock or the tick arguments)"
+  },
+  {
+   "id": "forbidden:run_state_core_coupling",
+   "source": "ADR-0002; run-state-restart.md R2 (story RS-001 AC-9)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/run_state/run_state_core.gd"
+   ],
+   "pattern": "\\b(?:PlatformServices|PlatformCore|SaveService|SaveCore|ScoreService|SettingsCore|TiltInput|TiltCore|TubeWindow|BallCore|ObstacleCore|PatternCore|NearMissCore|JuiceCore|CameraCore|HudCore|MenusCore|GameRoot)\\b|\\bget_tree\\b|\\bget_node\\b|\\bget_parent\\b|\\bpreload\\b",
+   "message": "RunStateCore references no other system, no autoload and no node tree: dependencies enter only through signals, tick arguments and injected callables"
   }
  ]
 }

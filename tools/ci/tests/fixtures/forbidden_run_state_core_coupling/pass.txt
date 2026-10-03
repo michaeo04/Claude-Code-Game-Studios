@@ -1,0 +1,8 @@
+#@path: src/core/run_state/run_state_core.gd
+extends RefCounted
+
+signal phase_changed(new_phase: int, old_phase: int)
+
+
+func request_start() -> void:
+	phase_changed.emit(2, 1)

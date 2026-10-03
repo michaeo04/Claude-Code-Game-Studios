@@ -1,12 +1,12 @@
 # Story 005: Harden the GDScript comment and string stripper
 
 > **Epic**: Test Harness & CI
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0009
@@ -48,7 +48,8 @@ Single pass state machine with states code / line-comment / single / double / tr
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/test_lint_stripper.py` (Python `unittest`, run as step 4a of `run_ci.py`); Logic gate BLOCKING
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: `tools/ci/tests/test_lint_stripper.py` (StripperExactOutputTest, StripperLineStructureTest, StripperRuleLevelTest incl. `test_the_registered_process_rule_distinguishes_calls`, StripperTruncatedInputTest); 149 Python tests pass.
 
 ## Dependencies
 - Depends on: None (Python only)

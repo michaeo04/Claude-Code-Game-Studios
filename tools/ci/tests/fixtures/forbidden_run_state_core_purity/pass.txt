@@ -1,0 +1,8 @@
+#@path: src/core/run_state/run_state_core.gd
+extends RefCounted
+
+var _clock_us: Callable
+
+
+func stamp() -> int:
+	return _clock_us.call()  # Time. is only a comment here
