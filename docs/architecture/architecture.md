@@ -137,7 +137,7 @@ GameRoot._process(engine_delta)
  6  Obstacle.test(prev -> current)         -> hit_reported (queued into Run State, level-triggered every tick)
  7  NearMiss.step()                        runs AFTER Obstacle so that hit_reported is applied before the exit-edge check
  8  Scoring.step()                         current_score = floori(s)
- 9  Camera.step(theta, s, dt_eff)          pose; FOV ease on real time
+ 9  Camera.step(theta, s, dt_eff)          pose; FOV ease on the presentation clock (stamp from clock_us, ADR-0010; step keeps its signature)
 10  Environment.tick(speed)                fog end and chroma
 11  Juice.tick(real_dt) / HUD.tick / Menus.tick    pull seams, then draw
 ```
@@ -172,7 +172,7 @@ Death sequence: Obstacle `hit_reported` (tick N) -> Run State processes it at ti
 
 - **Tick domain:** a single `_process` in `GameRoot` drives every system in the fixed order above; analytic collision needs no physics step.
 - **Presentation clock:** hit-stop is a 0.20 s hold of effects on **real time**, no `Engine.time_scale` and no tree pause; the world is already frozen by `dt_eff = 0`. FOV punch, shards and the flash ledger run on `real_dt`.
-- **Ink cut:** a cover layer driven by `phase_changed` (to or from Menu and Running): it turns opaque on the transition tick (hiding the seam jump) and fades out over about 180 ms. Every route into Menu or Running gets the cut, including HUD's Menu button and Back. **This differs from `design/ux/menus-screen-flow.md` (fade-in before the phase change) and `menus-screen-flow.md` Core Rule 9 wording; both need a follow-up edit.**
+- **Ink cut:** a cover layer driven by `phase_changed` (to or from Menu and Running): it turns opaque on the transition tick (hiding the seam jump) and fades out over about 180 ms. Every route into or out of Menu gets the cut, including HUD's Menu button and Back; Restart (Hit to Running) does not (ADR-0010, 2026-10-03). The UX spec and Menus Core Rule 9 were edited to match.
 
 ## API Boundaries
 
@@ -323,7 +323,7 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 | 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | ADR-0003 |
 | 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | ADR-0005 |
 | 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | ADR-0008, then a Pattern GDD revision |
-| 9 | The Ink cover driven by `phase_changed` (Data Flow decision) differs from `design/ux/menus-screen-flow.md` (fade-in first) and `menus-screen-flow.md` Core Rule 9 | edit both documents |
+| 9 | ~~The Ink cover driven by `phase_changed` differs from the UX spec and Core Rule 9~~ **Resolved 2026-10-03**: ADR-0010 written; both documents edited | ADR-0010 |
 | 10 | `Composition Root` and `Map Loader` have no row in `design/gdd/systems-index.md` | edit the index |
 | 11 | Platform Services GDD names no `haptics_intensity` setter (API Boundaries adds `set_haptics_intensity`) | edit `platform-services.md` |
 | 12 | The tick order Obstacle then Near-Miss (Data Flow) is not written in any GDD | cross-reference in `obstacle-system.md` and `near-miss-detection.md` |

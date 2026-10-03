@@ -245,7 +245,7 @@ Greenfield. Create the `project.godot` stretch settings, `UiMetrics`, `UiLayers`
 
 1. **Focus on Menus controls.** ADR-0005 sets `FOCUS_NONE` on every Button. That removes keyboard, switch and D-pad navigation and is the hardest accessibility decision to retrofit (every Menus scene, the theme focus style, the dialog's "focus on Cancel", the tests). Options: keep `FOCUS_NONE` everywhere (current), or `FOCUS_CLICK` on Menus and Settings controls only with a pill-styled focus StyleBox, the HUD staying `FOCUS_NONE`. Needs a decision before the Menus views are built, and an ADR-0005 amendment if changed.
 1b. `UI_MAX_CONTENT_WIDTH_DP` default (proposal 480): the foldable letterbox width; ux-designer confirms.
-2. Whether the Ink cover's owner is Menus or a small shared presentation node (ADR-0010 decides behaviour; layer 30 is fixed here).
+2. ~~Whether the Ink cover's owner is Menus or a small shared presentation node~~ **Resolved by ADR-0010 (2026-10-03)**: `InkCoverCore` lives in the Menus module and is ticked unconditionally by `Menus.tick`; layer 30 is fixed here. One extra assertion for the ADR-0011 integration test: `CanvasLayer.visible = false` blocks GUI input.
 3. Screen-reader support on Android (UI-A1) and the resulting accessibility requirements scope.
 
 ## Related Decisions

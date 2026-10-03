@@ -290,8 +290,8 @@ Same principle as the HUD: a screen shows on the tick its phase begins. Every mo
 
 | Transition | Treatment | Duration |
 |---|---|---|
-| **Menu → Running** (Play) | Ink cut: fade to Ink, hold across the seam-phase jump, fade from Ink. The cover layer sits **above** the HUD canvas | 80-100 ms + hold + 80-100 ms, about 150-250 ms in all |
-| **Running / Paused / Hit → Menu** | The same cut, symmetric (the GDD's Running → Menu boundary) | as above |
+| **Menu → Running** (Play) | Ink cut (ADR-0010): the cover is **opaque on the tick of the phase change** (no fade-in, so the seam-phase jump is never seen), holds 0.05 s, then fades out. The cover layer sits **above** the HUD canvas | hold 50 ms + fade-out 180 ms = 230 ms; with `reduced_motion_enabled` the fade-out is 300 ms (350 ms in all) |
+| **Paused / Hit → Menu** (Menu button, Back) | The same cut, driven by `phase_changed`, so every route gets it. **Restart (Hit → Running) and Resume get no cut** | as above |
 | **Paused → Running** (Restart), **Hit → Running** | **No cut** (`run_reset` snaps the camera; Core Rule 9 only covers the two Menu boundaries) | instant |
 | **Entering or leaving ordinary Paused, Settings, failure** | **Instant**, no fade or slide (user decision 2026-10-01) | 0 |
 | **Confirm-quit** enter | Gentle scale-up plus fade, ease-out, no bounce | about 240 ms |

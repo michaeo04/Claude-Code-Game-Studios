@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-03"  # ADR-0002 to ADR-0009, ADR-0011, ADR-0012 and ADR-0014 stances added
+last_updated: "2026-10-03"  # ADR-0002 to ADR-0010, ADR-0011, ADR-0012 and ADR-0014 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -270,6 +270,7 @@ state_ownership:
     write_access: ui-layers-constants-only
     referenced_by:
       - docs/architecture/adr-0011-ui-architecture.md
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
     added: 2026-10-03
     revised: ""
 
@@ -304,6 +305,28 @@ state_ownership:
     write_access: hazard-view-only
     referenced_by:
       - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - state: ink_cover
+    status: active
+    owner_system: menus-screen-flow
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    interface: "InkCoverCore (RefCounted, in the Menus module): on_phase_changed(new, old) stamps cut_us from clock_us only on a cut route; alpha() = fade_out(elapsed, INK_HOLD_S 0.05, INK_FADE_S 0.18 | INK_FADE_REDUCED_S 0.30); covering() = alpha() > 0; InkCover.tscn on UiLayers.INK_COVER, ticked unconditionally by Menus.tick; run_reset never clears it"
+    write_access: ink-cover-core-only
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+    revised: ""
+
+  - state: hit_stop_hold
+    status: active
+    owner_system: juice-feedback
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    interface: "JuiceCore.on_run_ended stamps hit_us; tick() sets the shards_release edge once at hit_us + hitstop_actual (0.20 s); consume_shards_release() -> bool; run_reset clears stamp, edge, shards and ball visibility; hit-stop delays only the shard burst, the world freeze is the Hit phase (dt_eff = 0)"
+    write_access: juice-core-only
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
     added: 2026-10-03
     revised: ""
 
@@ -619,6 +642,32 @@ interfaces:
     added: 2026-10-03
     revised: ""
 
+  - contract: ink_cover_trigger
+    status: active
+    pattern: signal
+    producer: run-state
+    consumers:
+      - menus-screen-flow
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    signal_signature: "phase_changed(new_phase: int, old_phase: int) -> InkCoverCore.on_phase_changed, a _wire() row with rank 5, immediate; InkCoverCore.is_cut_route: (new == MENU and old != BOOT) or (old == MENU and new == RUNNING); flash_sink: Callable(now_us) -> JuiceCore.register_flash"
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+    revised: ""
+
+  - contract: camera_fov_ease
+    status: active
+    pattern: direct_call
+    producer: juice-feedback
+    consumers:
+      - camera
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    signal_signature: "CameraCore.apply_fov_punch(amount: float, duration: float) stamps punch_us; CameraCore.fov_offset_deg() -> float (PresentationMath.ease_out_linear at the injected clock); on_run_reset clears; Camera.step(theta, s, dt_eff) is unchanged and stays a frozen no-op at dt_eff <= 0"
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+    revised: ""
+
 # Example:
 #
 # interfaces:
@@ -821,6 +870,16 @@ performance_budgets:
     notes: "Derived inside the 40 of draw_calls_hazards: 17 bodies + 17 plinth surfaces, from floor((camera_far + max hazard s length) / S_MIN_SPACING) + 1 on Mobile; about double on Forward+ (depth pre-pass). Typical 10 to 14. Measured in R-1."
     referenced_by:
       - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+    revised: ""
+
+  - system: draw_calls_ink_cover
+    status: active
+    budget_draw_calls: 1
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    notes: "One full-screen blended ColorRect while visible (0.23 s, 0.35 s with reduced motion); hidden otherwise. Inside the Menus 25 / HUD 20 allocations, never with a scrim. Measured in R-1."
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
     added: 2026-10-03
     revised: ""
 
@@ -1191,6 +1250,28 @@ api_decisions:
     reason: "The fully fogged tube end must equal the sky behind it at every chroma and grey value."
     referenced_by:
       - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: presentation_time
+    status: active
+    api: "stamp from the injected clock_us in the event handler; elapsed_s = PresentationMath.elapsed_s(start_us, now_us) evaluated in the owning core; event shaders get a progress uniform in [0, 1]"
+    not: "presentation timers that add real_dt, shader TIME, Tween or AnimationPlayer for hit, near-miss, FOV or cover effects"
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    reason: "Exact, stall-proof, refresh-rate independent and testable with a fake clock; the world freeze (dt_eff = 0) must not stop presentation."
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: ink_cut_routes
+    status: active
+    api: "cut on Menu to Running and on Paused or Hit to Menu, decided only by InkCoverCore.is_cut_route from phase_changed; opaque on the tick of the change, hold 0.05 s (and at least 3 ticks), then fade out"
+    not: "a cover fade-in before the phase change, a cut on Restart (Hit to Running), Resume or Boot to Menu, a request-driven cut"
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    reason: "Presentation never gates the phase change; every route is covered without route knowledge; Restart stays the instant-retry path."
+    referenced_by:
+      - docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
     added: 2026-10-03
     revised: ""
 
@@ -1619,6 +1700,34 @@ forbidden_patterns:
     description: "No system other than BallView writes the ball material; Environment and Juice use the two setters through Callable sinks."
     why: "One owner and one writer per material."
     adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+
+  - pattern: shader_time_for_effects
+    status: active
+    description: "No shader (assets/shaders/** or a particle process material) reads TIME for an effect; event effects use a progress uniform written by their core."
+    why: "TIME keeps advancing while dt_eff = 0 and cannot be driven by a fake clock."
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+
+  - pattern: presentation_timer_accumulates_dt
+    status: active
+    description: "No presentation effect adds real_dt or an engine delta to a timer; effects use stamps from clock_us."
+    why: "Accumulation drifts with dropped frames and breaks on a stall."
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+
+  - pattern: ink_cover_cleared_by_run_reset
+    status: active
+    description: "run_reset never clears or re-stamps InkCoverCore."
+    why: "Play fires run_reset, run_started and phase_changed in one tick; the cover must survive the reset."
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
+    added: 2026-10-03
+
+  - pattern: world_change_outside_tick
+    status: active
+    description: "No call_deferred, Tween callback or await moves the tube or changes the seam phase; every world change happens inside GameRoot._tick."
+    why: "The first presented frame after phase_changed is covered only if the jump and the cover write land in the same draw."
+    adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
     added: 2026-10-03
 
 # Example:
