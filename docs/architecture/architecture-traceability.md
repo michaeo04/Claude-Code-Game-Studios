@@ -1,8 +1,8 @@
 # Architecture Traceability Index
 
-Last Updated: 2026-10-03 (run 4, after the amendment pass, P-1 and ADR-0013)
+Last Updated: 2026-10-03 (run 5, after the run 4 amendment pass 226c97c)
 Engine: Godot 4.7.2 (Android only, ADR-0001)
-Source: `/architecture-review` full mode, 2026-10-03, four runs (`architecture-review-2026-10-03.md`, `-rerun.md`, `-run3.md`, `-run4.md`). Registry: `docs/architecture/tr-registry.yaml` (run 4: no new IDs; TR-tube-track-017 text was revised by ADR-0013).
+Source: `/architecture-review` full mode, 2026-10-03, five runs (`architecture-review-2026-10-03.md`, `-rerun.md`, `-run3.md`, `-run4.md`, `-run5.md`). Registry: `docs/architecture/tr-registry.yaml` (runs 4 and 5: no new IDs; TR-tube-track-017 was revised by ADR-0013; TR-tube-track-002 needs a text revision once run 5 C-21 is decided).
 
 ## How to read this
 
