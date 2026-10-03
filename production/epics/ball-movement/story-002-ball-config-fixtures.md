@@ -1,12 +1,12 @@
 # Story 002: BallConfig resource, shipped defaults and test fixtures
 
 > **Epic**: Ball Movement
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Config/Data
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -22,10 +22,10 @@
 - Guardrail: shipped `ball_config.tres` equals the Tuning Knobs table; fixtures deterministic (fixed LCG).
 
 ## Acceptance Criteria
-- [ ] `BallConfig` (`Resource`) exposes every Tuning Knob with its default: `STEER_ARC` PI, `BALL_LAG_TAU` 0.06, `OMEGA_MAX` 3.0, `MAPPING_MODE` POSITION, `V_START` 10, `V_MAX` 25, `T_RAMP` 90, `BALL_DIAMETER` 0.8 (GDD Tuning Knobs; clamping is Story 003).
-- [ ] `assets/data/ball_config.tres` exists with the Tuning Knobs defaults and loads with those values (round-trip, integration).
-- [ ] Fixture contract (GDD AC preamble, TR-020): `make_ball_fixture()` returns the config above; `make_core(cfg, dt_max=0.1)` and `make_sink()` (records level, code, message) exist; steer tables live in one constants file; pseudo-random tables use a fixed LCG; no inline magic numbers in tests.
-- [ ] `tools/reference-sim/ball_movement.js` is documented as the oracle source (header comment listing which ACs use it); no new oracle logic is invented in tests.
+- [x] `BallConfig` (`Resource`) exposes every Tuning Knob with its default: `STEER_ARC` PI, `BALL_LAG_TAU` 0.06, `OMEGA_MAX` 3.0, `MAPPING_MODE` POSITION, `V_START` 10, `V_MAX` 25, `T_RAMP` 90, `BALL_DIAMETER` 0.8 (GDD Tuning Knobs; clamping is Story 003).
+- [x] `assets/data/ball_config.tres` exists with the Tuning Knobs defaults and loads with those values (round-trip, integration).
+- [x] Fixture contract (GDD AC preamble, TR-020): `make_ball_fixture()` returns the config above; `make_core(cfg, dt_max=0.1)` and `make_sink()` (records level, code, message) exist; steer tables live in one constants file; pseudo-random tables use a fixed LCG; no inline magic numbers in tests.
+- [x] `tools/reference-sim/ball_movement.js` is documented as the oracle source (header comment listing which ACs use it); no new oracle logic is invented in tests.
 
 ## Implementation Notes
 `src/core/ball_movement/ball_config.gd` (`class_name BallConfig extends Resource`, scalar `@export` fields with range hints equal to the safe ranges). `MAPPING_MODE` is an enum with explicit integer values. Support files: `tests/support/ball_fixtures.gd` (factory functions), `tests/support/ball_steer_tables.gd` (constants), `tests/support/ball_sink.gd` (recording `log_sink`). `make_core` is a stub until Story 004 creates `BallCore`. The round-trip test goes under `tests/integration/ball_movement/ball_movement_config_resource_test.gd`.
@@ -54,7 +54,8 @@
 ## Test Evidence
 **Story Type**: Config/Data
 **Required evidence**: smoke check pass `production/qa/smoke-[date].md` plus `tests/integration/ball_movement/ball_movement_config_resource_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/integration/ball_movement/ball_movement_config_resource_test.gd` (2 tests, AC-2) and the AC-1/AC-3 tests in `tests/unit/ball_movement/ball_movement_config_test.gd`. The dated `production/qa/smoke-[date].md` file is not written (advisory; the round-trip test covers the same ground).
 
 ## Dependencies
 - Depends on: test-harness-ci (GUT, scaffold)

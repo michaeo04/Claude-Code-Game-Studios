@@ -21,29 +21,29 @@ stories:
     name: "BallMath pure functions (wrap_angle, F1 step, F2 speed and S, F5 T)"
     file: "production/epics/ball-movement/story-001-ball-math.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-002"
     name: "BallConfig resource, shipped defaults and test fixtures"
     file: "production/epics/ball-movement/story-002-ball-config-fixtures.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-003"
     name: "BallConfig.validated() clamps and the derived T_DODGE_180 check"
     file: "production/epics/ball-movement/story-003-ball-config-validated.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-004"
     name: "BallCore shell, reset and forward speed/distance integration"
     file: "production/epics/ball-movement/story-004-ballcore-speed-distance.md"

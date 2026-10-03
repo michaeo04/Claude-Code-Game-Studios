@@ -18,6 +18,10 @@
  * at STEER_ARC = 3.0 rad (the B3-era default, now historical), it is noted
  * inline but not asserted as current.
  *
+ * Oracle source for the GDScript tests (tests/unit/ball_movement/ and tests/integration/ball_movement/):
+ * AC-5 (F1 step), AC-5b (F5a T), AC-7 to AC-11 (F1 trajectories), AC-19b and AC-19c (Rule 13 bisection),
+ * AC-20 (F2 speed and S). Tests never invent oracle logic of their own.
+ *
  * Run: node ball_movement.js
  * Exit code 0 = every assertion matched; non-zero = a mismatch was printed.
  */
