@@ -85,7 +85,7 @@ HUD and Menus layouts are in dp (touch targets of at least 48 dp, minimum safe a
 
 ### 3. View and core split
 
-Each presentation system is `XCore` (RefCounted, no engine calls, already decided) plus a **scene-based view**: `HudView.tscn` (root `CanvasLayer`, layer 10), `MenusView.tscn` (layer 20), `InkCover.tscn` (layer 30), `HitFlash.tscn` (layer 5). The view script has no `_process`; `GameRoot` calls `view.tick(real_dt)` at step 11, the view pulls a display snapshot from its core and writes a property **only when the value changed** (dirty compare, so an idle HUD redraws nothing). Views create no nodes while a run is going (all elements exist in the scene and toggle `visible`). One `Theme` resource (`assets/ui/ui_theme.tres`) holds the pill `StyleBoxFlat` (Rim White at 85%, Ink text, rounded), the Lagoon outline and the dimmed state; it is assigned at each view root, and a test asserts the theme uses only the three palette colours. Layouts are written in dp.
+Each presentation system is `XCore` (RefCounted, no engine calls, already decided) plus a **scene-based view**: `HudView.tscn` (root `CanvasLayer`, layer 10), `MenusView.tscn` (layer 20), `InkCover.tscn` (layer 30), `HitFlash.tscn` (layer 5). The view script has no `_process`; `GameRoot` calls `view.tick(real_dt)` at the Juice, HUD and Menus tick steps (cited by name; ADR-0002 Decision 6), the view pulls a display snapshot from its core and writes a property **only when the value changed** (dirty compare, so an idle HUD redraws nothing). Views create no nodes while a run is going (all elements exist in the scene and toggle `visible`). One `Theme` resource (`assets/ui/ui_theme.tres`) holds the pill `StyleBoxFlat` (Rim White at 85%, Ink text, rounded), the Lagoon outline and the dimmed state; it is assigned at each view root, and a test asserts the theme uses only the three palette colours. Layouts are written in dp.
 
 ### 4. Safe area frame
 
@@ -133,7 +133,7 @@ CanvasLayer 5  HitFlash          (Juice)
 CanvasLayer 10 HudView           SafeAreaFrame { pills } + full-bleed tap catcher (first child)
 CanvasLayer 20 MenusView         SafeAreaFrame { screens, ScrollContainer { UiSlider } } + modal scrim
 CanvasLayer 30 InkCover          (behaviour: ADR-0010)
-GameRoot._tick step 11: Juice.tick, HUD.tick, Menus.tick -> view.tick(real_dt) pulls core snapshot, writes changed properties
+GameRoot._tick, Juice/HUD/Menus tick steps: Juice.tick, HUD.tick, Menus.tick -> view.tick(real_dt) pulls core snapshot, writes changed properties
 UiAccess: sets accessibility_* once at build (no AC depends on it)
 ```
 
@@ -250,5 +250,5 @@ Greenfield. Create the `project.godot` stretch settings, `UiMetrics`, `UiLayers`
 
 ## Related Decisions
 
-- ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007 (slider commit); future ADR-0010 (Ink cover behaviour), ADR-0012 (Hit grey-out).
+- ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007 (slider commit); ADR-0010 (Ink cover behaviour), ADR-0012 (Hit grey-out).
 - `design/ux/hud.md`, `design/ux/menus-screen-flow.md`, `design/ux/interaction-patterns.md`

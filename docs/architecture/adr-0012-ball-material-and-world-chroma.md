@@ -38,7 +38,7 @@ Five GDDs assume the same four things without anyone owning them: who builds the
 | **Depends On** | ADR-0002 (per-frame order: `Camera.step` 9, `Environment.tick` 10, `Juice.tick` 11; views have no `_process`; this ADR adds `BallView.tick` after `Camera.step`), ADR-0003 (fog depth mode and background colour, no glow, no Compositor, linear tonemapper, ball and rim draw allocation 4), ADR-0014 (`HazardView.node_of`, hazard body shader, no instance uniforms), ADR-0004 (`MapConfig.env` fog and palette) |
 | **Enables** | the Ball Movement view stories, Juice stories (rim glow, grey-out), Environment stories (chroma, `L_ball_adjusted`), pickups later |
 | **Blocks** | Juice & Feedback epic (grey-out, rim), Environment & Theming epic (chroma, colourblind), Ball view stories |
-| **Ordering Note** | ADR-0014 gains two additive `HazardView` methods (`isolate_killer`, `clear_isolation`) once this is Accepted; ADR-0003's "fog colour equals the background" gets the chroma rule below |
+| **Ordering Note** | ADR-0014 already lists the two `HazardView` methods (`isolate_killer`, `clear_isolation`); ADR-0003's "fog colour equals the background" gets the chroma rule below |
 
 ## Context
 
@@ -69,6 +69,7 @@ Environment F3 changes only the lightness of the ball ("applied by this system t
 
 - `set_luminance_target(l: float)`: Environment only (F3), any phase, applied at once; the body albedo is recomputed by `BallMath.albedo_for_luminance(base_color, l_base, l)` and written to the material **only when it changed**.
 - `set_rim_glow(v: float)`: Juice only; `v` in `[0, 1]`, 0 at rest; written only when changed.
+- `set_ball_visible(v: bool)`: Juice only (ADR-0010 Decision 3: `JuiceView` hides the ball at shard release through its `ball_visible_sink` Callable). It writes the node's `visible` property only when it changed. The name avoids `set_visible`, which already exists on `Node3D`. `BallView.tick` and Environment never write visibility. `run_reset` restores `true` through the same sink (so the ball is visible at every run start and after a Restart); a test asserts visibility is `true` after `run_reset` and that no other call path writes it.
 
 Environment never calls `BallView` at construction (construction emits nothing, ADR-0002): its first `set_luminance_target` is in `Environment.apply_map` and in the `setting_changed` handler, using the injected `base_luminance` value (`BallView.base_luminance()` read once by `GameRoot` at composition and passed in, so there is one source for `L_ball_base`).
 
@@ -150,11 +151,12 @@ func set_hit_grey(g: float) -> void                            # Juice only
 var world_chroma: float; var hit_grey: float                   # read-only getters
 
 class_name BallView extends Node3D                             # no _process
-func build(style: BallStyle, tube: TubeConfig) -> void
+func build(style: BallStyle, geometry: WorldGeometry) -> void   # D from the one immutable WorldGeometry (R, D, N_F, L)
 func tick(snapshot: BallSnapshot) -> void
 func base_luminance() -> float
 func set_luminance_target(l: float) -> void                    # Environment only
 func set_rim_glow(v: float) -> void                            # Juice only
+func set_ball_visible(v: bool) -> void                         # Juice only (ADR-0010 shard release; restored by run_reset)
 
 # HazardView additions (ADR-0014)
 func isolate_killer(hazard_id: int) -> void                    # idempotent, owns the isolation state, finds the node itself
@@ -227,10 +229,10 @@ Greenfield. Add `[shader_globals]` to `project.godot`, `ChromaMath`, `BallMath`,
 
 ## Validation Criteria
 
-- [ ] Unit (pure): `ChromaMath.apply` preserves `luma` to 1e-6 for chroma 0, 0.88, 1.0 and random colours; `effective`; `BallMath.albedo_for_luminance` hits the target luminance and is bit-identical when `l_target == l_base`; Environment F3 fixtures (0.0421 and the toggle-off identity) pass through `BallView.set_luminance_target` with a fake material sink.
+- [ ] Unit (pure): `ChromaMath.apply` preserves `luma` to 1e-6 for chroma 0, 0.88, 1.0 over a fixed fixture table of colours (not random colours; tests are deterministic); `effective`; `BallMath.albedo_for_luminance` hits the target luminance and is bit-identical when `l_target == l_base`; Environment F3 fixtures (0.0421 and the toggle-off identity) pass through `BallView.set_luminance_target` with a fake material sink.
 - [ ] Unit: `WorldChroma` writes only on change, never from the wrong setter, and the fog sink value equals `ChromaMath.apply(base, effective)` after every setter in the same call.
 - [ ] Integration (real nodes, headless): `isolate_killer` / `clear_isolation` change only surface 0; a reset clears it; the ball view has no `CollisionObject3D` and holds one material.
-- [ ] Lint: every shader under `assets/shaders/world/` declares both globals; hazard shaders only `hit_grey`; ball, particle and UI shaders neither; no `RenderingServer.global_shader_parameter_set` outside `world_chroma.gd`'s sink; no `#include`.
+- [ ] Lint: every shader under `assets/shaders/world/` declares both globals; hazard shaders only `hit_grey`; ball, particle and UI shaders neither; no `RenderingServer.global_shader_parameter_set` outside `render_globals.gd`; no `#include`.
 - [ ] R-1 (device): checks 1 to 6 above; screenshot evidence of the grey-out frame with the killer hazard isolated, the resting rim and the near-miss rim in `production/qa/evidence/` (coding standards).
 
 ## GDD Requirements Addressed
@@ -252,5 +254,5 @@ Greenfield. Add `[shader_globals]` to `project.godot`, `ChromaMath`, `BallMath`,
 
 ## Related Decisions
 
-- ADR-0002, ADR-0003, ADR-0004, ADR-0011 (Hit flash overlay), ADR-0014 (hazard view and shader); future ADR-0010 (presentation time: the grey-out crossfade runs on real time)
+- ADR-0002, ADR-0003, ADR-0004, ADR-0011 (Hit flash overlay), ADR-0014 (hazard view and shader); ADR-0010 (presentation time: the grey-out crossfade runs on real time)
 - `docs/architecture/architecture-review-2026-10-03.md`

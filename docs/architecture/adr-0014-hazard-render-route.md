@@ -38,7 +38,7 @@ The Obstacle GDD owns no height ("height is a rendering concern") and the art bi
 | **Depends On** | ADR-0002 (view has no `_process`; `_wire()` rows), ADR-0003 (draw-call allocation, shared materials, warm-up scene, fog and tonemapper), ADR-0004 (`MapDefinition`, `MapConfig`, Phase B), ADR-0008 (`HazardSpec`, `hazard_bound`, `hazard_released`) |
 | **Enables** | ADR-0012 (chroma exemption needs one node and one body material per hazard), the Obstacle view stories, the Environment plinth and preview stories, the Obstacle debug overlay |
 | **Blocks** | Obstacle epic (view stories), Environment & Theming epic (plinth, Menu preview) |
-| **Ordering Note** | Gate R-1 (ADR-0003) gains the hazard rows below; ADR-0004 gains one Phase B step and a `HazardStyle` field (follow-ups after Accepted) |
+| **Ordering Note** | Gate R-1 (ADR-0003) gains the hazard rows below; ADR-0004 now carries the Phase B step (B4, amended 2026-10-03); the `HazardStyle` field is a follow-up after Accepted |
 
 ## Context
 
@@ -66,7 +66,7 @@ A hazard is a set of pieces `(theta_min, theta_max, s_start, s_end)` with arbitr
 
 ### 1. Route: one node per hazard, one merged mesh per `HazardSpec`
 
-`HazardMeshBuilder` (pure `RefCounted`, no `Node`, no `ArrayMesh`) turns one compiled `HazardSpec` plus a `HazardStyle` and the tube constants into `HazardMeshData`: raw arrays (`PackedVector3Array` positions and normals, `PackedColorArray` colours) for surface 0 (body) and, for a DOUBLE_GATE, surface 1 (plinth). Coordinates are **chunk-local** (the spec's own `s` values, tube axis along Z, `z = -s`); the node transform supplies the world offset `z = -s_offset`, so one mesh serves every segment the chunk is ever bound to. `HazardView` creates the `ArrayMesh` from the arrays once and caches it in `Dictionary[HazardSpec, ArrayMesh]` keyed by spec identity.
+`HazardMeshBuilder` (pure `RefCounted`, no `Node`, no `ArrayMesh`) turns one compiled `HazardSpec` plus a `HazardStyle` and the `WorldGeometry` constants into `HazardMeshData`: raw arrays (`PackedVector3Array` positions and normals, `PackedColorArray` colours) for surface 0 (body) and, for a DOUBLE_GATE, surface 1 (plinth). Coordinates are **chunk-local** (the spec's own `s` values, tube axis along Z, `z = -s`); the node transform supplies the world offset `z = -s_offset`, so one mesh serves every segment the chunk is ever bound to. `HazardView` creates the `ArrayMesh` from the arrays once and caches it in `Dictionary[HazardSpec, ArrayMesh]` keyed by spec identity.
 
 All pieces of one hazard (Double Gate: two blocks; Spike cluster: two or three needles) are merged into the same surface, so the draw cost is **per hazard, not per piece**. No `MultiMesh`, no vertex-shader deformation, no `custom_aabb` (the mesh AABB follows the node transform because no vertex is displaced in a shader).
 
@@ -115,7 +115,7 @@ WorldRoot (Node3D)
   BallView, ...
 ```
 
-- **Build and prewarm** are a new **Phase B step** (ADR-0004 follow-up): `HazardView.apply_map(cfg: MapConfig, tube: TubeConfig, library: CompiledLibrary, plinth_material: ShaderMaterial) -> bool`, after `Pattern.apply_map` and before `TubeTrack.load_map` (`MapLoaderSeams` gains `apply_hazard_view`; steps renumber). `tube` supplies `R`, `D`, `N_F`, `L` (the validated `TubeConfig` of Phase A step A5; `MapConfig` carries none of them); `plinth_material` and the plinth height come from Environment, whose `apply_map` (B1) creates the material first, so surface 1 is never null. **Environment mutates that material's uniforms and never replaces the object**, or the shared meshes would go stale. It creates the pool (first call only), builds every mesh of the library, sets the per-surface materials on each `ArrayMesh`, and returns `false` on failure (the seam is bool-only, so the codes such as `HAZARD_MESH_FAILED`: non-finite value, triangle cap, bad style go to the log sink and the loader reports `MAP_APPLY_FAILED`). It creates only inert hidden nodes and resources: no signal, no visible change, no tick effect, idempotent (Retry clears the cache and rebuilds, because Pattern recompiles and the spec identities change). **ADR-0004 wording follow-up:** apply steps may "build inert hidden nodes and resources". Pattern gains a read-only `compiled_library()` getter. **Boot budget:** the prewarm shares ADR-0004's MS-1 boot budget (100 ms for load, validate, apply and Tube Track prime); HV-1 measures it and, if the sum misses 100 ms, the MS-1 number is re-derived with the prewarm included (the earlier 250 ms proposal is dropped).
+- **Build and prewarm** are a new **Phase B step** (ADR-0004 follow-up): `HazardView.apply_map(cfg: MapConfig, geometry: WorldGeometry, library: CompiledLibrary, plinth_material: ShaderMaterial) -> bool`, after `Pattern.apply_map` and before `TubeTrack.load_map` (step B4 of the amended ADR-0004; `MapLoaderSeams` gains `apply_hazard_view`). `geometry` is the one immutable `WorldGeometry` value (`R`, `D`, `N_F`, `L`) that `GameRoot` builds at composition from the base `TubeConfig` and `BallConfig` and validates before the first `MapLoader.attempt`; it is the same value passed to `BallView.build` and `CameraMath.published`, so `D` has one owner (Ball Movement) and `TubeConfig` holds no copy; `MapConfig` carries none of them; `plinth_material` and the plinth height come from Environment, whose `apply_map` (B1) creates the material first, so surface 1 is never null. **Environment mutates that material's uniforms and never replaces the object**, or the shared meshes would go stale. It creates the pool (first call only), builds every mesh of the library, sets the per-surface materials on each `ArrayMesh`, and returns `false` on failure (the seam is bool-only, so the codes such as `HAZARD_MESH_FAILED`: non-finite value, triangle cap, bad style go to the log sink and the loader reports `MAP_APPLY_FAILED`). It creates only inert hidden nodes and resources: no signal, no visible change, no tick effect, idempotent (Retry clears the cache and rebuilds, because Pattern recompiles and the spec identities change). **ADR-0004 wording follow-up:** apply steps may "build inert hidden nodes and resources". Pattern gains a read-only `compiled_library()` getter. **Boot budget:** the prewarm shares ADR-0004's MS-1 boot budget (100 ms for load, validate, apply and Tube Track prime); HV-1 measures it and, if the sum misses 100 ms, the MS-1 number is re-derived with the prewarm included (the earlier 250 ms proposal is dropped).
 - **Bind:** `ObstacleCore` still emits `hazard_bound(hazard_id, footprint)` (ADR-0008 unchanged) and gains two read accessors next to `footprint_of`: `spec_of(hazard_id) -> HazardSpec` and `s_offset_of(hazard_id) -> float`, valid **during** the emission (Obstacle records state before it emits; tested). Extending the signal payload was rejected to keep ADR-0008's contract. `HazardView._on_hazard_bound` takes a free node, looks up `cache.get(spec)` (asserted non-null), sets `position = Vector3(0.0, 0.0, -s_offset)` (a float64 value cast to float32 only here, same rule as Tube Track), clears any surface override (ADR-0012), calls `reset_physics_interpolation()` (belt and braces, interpolation is off), and sets `visible = true` **last**, so no stale transform is ever drawn. Nothing is allocated.
 - **Release:** `hazard_released(hazard_id, released_by_reset)` hides the node, clears any surface override and returns it to the free list; the mesh stays assigned (the cache holds it anyway). `release_all()` is explicit and used by `window_primed`, Retry and reset before rebinding in the same tick.
 - **Menu and the primed window:** `load_map` primes the window at boot, so hazards may bind behind the Menu. `HazardView` hides the whole pool (`pool_root.visible = false`, one flag) outside the phases that show gameplay and shows it when a run begins (the Menu shows only the `preview` node, Environment's Menu row). The phase rule is wired from `phase_changed` in `_wire()`. NEEDS CONFIRMATION in the Environment and Run State review (Open Question 3).
@@ -157,7 +157,7 @@ Camera: far = fog_end + L (frustum culls fully fogged hazards)
 
 ```gdscript
 class_name HazardMeshBuilder extends RefCounted          # pure, unit-testable
-static func build(spec: HazardSpec, style: HazardStyle, tube: TubeConfig, plinth_height_d: float) -> HazardMeshData
+static func build(spec: HazardSpec, style: HazardStyle, geometry: WorldGeometry, plinth_height_d: float) -> HazardMeshData
 
 class_name HazardMeshData extends RefCounted
 var body_vertices: PackedVector3Array; var body_normals: PackedVector3Array; var body_colors: PackedColorArray
@@ -165,7 +165,7 @@ var plinth_vertices: PackedVector3Array; var plinth_normals: PackedVector3Array 
 var triangle_count: int
 
 class_name HazardView extends Node3D                     # no _process (ADR-0002)
-func apply_map(cfg: MapConfig, tube: TubeConfig, library: CompiledLibrary, plinth_material: ShaderMaterial) -> bool   # Phase B step; codes to the log sink
+func apply_map(cfg: MapConfig, geometry: WorldGeometry, library: CompiledLibrary, plinth_material: ShaderMaterial) -> bool   # Phase B step; codes to the log sink
 func release_all() -> void
 func bind(hazard_id: int, spec: HazardSpec, s_offset: float) -> void   # called by the hazard_bound handler
 func release(hazard_id: int) -> void
@@ -186,7 +186,7 @@ func s_offset_of(hazard_id: int) -> float
 - **Description**: one unit mesh per family, instance transform per hazard.
 - **Pros**: 3 to 5 draw calls.
 - **Cons**: a linear transform cannot give a variable angular width on a cylinder; a vertex shader that bends a unit mesh from per-instance custom data needs `custom_aabb`, analytic flat normals in the shader, and an unverified Mobile path, and any mismatch with the collision footprint is a Pillar 2 bug.
-- **Rejection Reason**: the savings are not needed (32 worst case against 40) and the risk is on the fairness-critical silhouette.
+- **Rejection Reason**: the savings are not needed (34 worst case against 40) and the risk is on the fairness-critical silhouette.
 
 ### Alternative 2: One `MeshInstance3D` per piece
 - **Description**: a node and a mesh per `HazardPiece`.
@@ -209,7 +209,7 @@ func s_offset_of(hazard_id: int) -> float
 ## Consequences
 
 ### Positive
-- Draw cost follows the number of hazards, bounded at 32 by content rules already enforced elsewhere.
+- Draw cost follows the number of hazards, bounded at 34 by content rules already enforced elsewhere.
 - Collision and visuals agree by construction, with a unit-testable invariant.
 - One node and one body material per hazard give ADR-0012 a clean isolate hook.
 - A bad style or mesh fails at map load, not mid-run.
@@ -224,7 +224,7 @@ func s_offset_of(hazard_id: int) -> float
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|-----------|
 | Unshaded hazard material loses depth fog on Mobile | Low | High | R-1 check 2; fall back to a lit material with fixed lights and re-derive the luminances |
-| Hazard draw calls exceed 40 on device | Low | Medium | worst case 32 by construction; escalate to route B |
+| Hazard draw calls exceed 40 on device | Low | Medium | worst case 34 by construction; escalate to route B |
 | `camera_far` culls a hazard that fog has not fully hidden | Low | High | far is `F + L`, and the R-1 pop check; Camera validates `far >= F` |
 | Plinth span clips the ball in a gap (see Open Question 1) | Medium | High | decided before the Environment epic; Environment GDD revision |
 | Prewarm too slow at boot | Low | Low | spike HV-1; threaded build is not possible for `ArrayMesh` on the main thread, so reduce triangles or lazy-build in a loading frame |
@@ -241,7 +241,7 @@ func s_offset_of(hazard_id: int) -> float
 
 ## Migration Plan
 
-Greenfield. Add `HazardStyle` to `MapDefinition`, the Phase B step to ADR-0004, accessors to `ObstacleCore`, and the Camera `camera_far` value. Update the art bible 3b line ("one MultiMesh per family") and ADR-0003 draw-call text (hazards: node per hazard, 32 worst case) once Accepted.
+Greenfield. Add `HazardStyle` to `MapDefinition`, the Phase B step to ADR-0004, accessors to `ObstacleCore`, and the Camera `camera_far` value. Update the art bible 3b line ("one MultiMesh per family") and ADR-0003 draw-call text (hazards: node per hazard, 34 worst case) once Accepted.
 
 ## Validation Criteria
 
@@ -254,7 +254,7 @@ Greenfield. Add `HazardStyle` to `MapDefinition`, the Phase B step to ADR-0004, 
 
 | GDD Document | System | Requirement | How This ADR Satisfies It |
 |---|---|---|---|
-| `design/gdd/obstacle-system.md` | Obstacle System | TR-obstacle-system-023: full silhouette and chroma the instant a hazard enters view, no fade or LOD; draw calls within 150 | node per hazard, fully fogged hazards culled by the far plane, 32 worst case against the 40 allocation |
+| `design/gdd/obstacle-system.md` | Obstacle System | TR-obstacle-system-023: full silhouette and chroma the instant a hazard enters view, no fade or LOD; draw calls within 150 | node per hazard, fully fogged hazards culled by the far plane, 34 worst case against the 40 allocation |
 | `design/gdd/obstacle-system.md` | Obstacle System | CR1 "height is a rendering concern", hazard reaches at least `R + D/2`; hit equals visible silhouette | `HazardStyle` heights, invariants I1 to I3 |
 | `design/gdd/environment-theming.md` | Environment & Theming | TR-environment-theming-012 and Rule 10: Double Gate plinth, environment-owned, 0.15 D, chroma at most 0.05, world chroma shift | plinth as surface 1 with an Environment-owned material (span: Open Question 1) |
 | `design/gdd/environment-theming.md` | Environment & Theming | Rule 6: Menu preview hazard holds a screen position | reserved `preview` node, `show_preview` |
@@ -270,5 +270,5 @@ Greenfield. Add `HazardStyle` to `MapDefinition`, the Phase B step to ADR-0004, 
 
 ## Related Decisions
 
-- ADR-0002, ADR-0003, ADR-0004, ADR-0008; future ADR-0012 (chroma and killer isolate), ADR-0013 (distance precision at large `s`, affects the node translation)
+- ADR-0002, ADR-0003, ADR-0004, ADR-0008; ADR-0012 (chroma and killer isolate), future ADR-0013 (distance precision at large `s`, affects the node translation)
 - `docs/architecture/architecture-review-2026-10-03.md` (G-1)

@@ -102,7 +102,7 @@ var pieces: PackedFloat64Array          # 4 per piece: theta_min, theta_max, s_s
 var solution_angles: PackedFloat64Array # empty for SPIKE
 ```
 
-`PatternCore` is the `HazardContentProvider`: `hazards_for_segment(segment_index: int) -> Array[HazardSpec]` returns the **shared** specs of the chunk placed at that segment (no copy, no allocation of pieces). It also exposes, for the same call, the chunk's base segment so the caller can translate (see 3). The `HazardContentProvider` base class is a plain `RefCounted` returning an empty array (no `@abstract`), faked in tests.
+`PatternCore` is the `HazardContentProvider`: `hazards_for_segment(segment_index: int) -> Array[HazardSpec]` returns the **shared** specs of the chunk placed at that segment (no copy, no allocation of pieces). The `HazardContentProvider` base class is a plain `RefCounted` returning an empty array (no `@abstract`), faked in tests.
 
 **Structural checks at compile (cheap, O(pieces), always run):** finite values, `theta_min <= theta_max` with width `< 2*PI`, `s_start <= s_end` inside the owning segment, `segment_count` in 1 to 3, `local_segment_index` in range, at most `MAX_PIECES_PER_SEGMENT` pieces per segment, a non-empty pool per tier and at least `GRACE_POOL_MIN_SIZE` grace-compliant INTRO chunks. A failure returns the code set and `Pattern.apply_map` returns false (ADR-0004: `MAP_APPLY_FAILED`). In **debug builds** the full preflight (below) also runs at map load as an assertion; in release builds it never runs on the device.
 

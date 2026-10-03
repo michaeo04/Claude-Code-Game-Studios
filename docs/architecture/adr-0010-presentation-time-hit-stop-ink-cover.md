@@ -38,7 +38,7 @@ ADR-0002 froze the world with `dt_eff = 0` and left open which presentation effe
 | **Depends On** | ADR-0002 (tick order, `clock_us`, `dt_eff`), ADR-0011 (layer 30, inert-control rules, view and core split) |
 | **Enables** | the Juice & Feedback hit sequence, Menus Ink cut, Camera FOV ease and HUD banner stories; closes TR-juice-feedback-007 and TR-menus-screen-flow-012 |
 | **Blocks** | Juice & Feedback epic (hit sequence), Menus & Screen Flow epic (Ink cut), Camera epic (FOV punch) |
-| **Ordering Note** | Refines ADR-0012 (the grey-out crossfade of 1 to 2 frames runs on this clock); no interface of ADR-0012 changes. Resolves ADR-0011 Open Question 2 (the Ink cover's owner) |
+| **Ordering Note** | Refines ADR-0012 (the grey-out crossfade, now `GREY_CROSSFADE_S` in seconds, runs on this clock); no interface of ADR-0012 changes. Resolves ADR-0011 Open Question 2 (the Ink cover's owner) |
 
 ## Context
 
@@ -51,7 +51,7 @@ ADR-0002 decision 10 says Tween, AnimationPlayer, GPUParticles3D and shader time
 - `dt_eff = 0` in Hit, Paused, Resuming and on settling ticks; `Camera.step` at `dt_eff <= 0` must leave `phi_cam`, position and `d_cam` bit-identical (TR-camera-009).
 - `Engine.time_scale` and `SceneTree.paused` are forbidden (ADR-0002). View nodes have no `_process` (ADR-0002); cores hold no engine calls and receive `clock_us` by injection.
 - Hit-stop `HITSTOP_ACTUAL` = 0.20 s, at most `HITSTOP_MAX` (Run State F4); reduced motion never changes it (Juice Rule 10). Run State never calls Juice.
-- At most 3 flashes per second system-wide (Juice Rule 11); the Hit flash is at most 30% opacity and at most 2 frames.
+- At most 3 flashes per second system-wide (Juice Rule 11); the Hit flash is at most 30% opacity and lasts `HIT_FLASH_S` (about 2 frames at 60 Hz).
 - Menus Core Rule 9: at least one presented frame hides the seam jump at both Menu to Running and Running to Menu. UX envelope for the cut: about 150 to 250 ms.
 - No stacked full-screen translucent layers other than one Hit flash or one modal scrim, never together with the Ink cover (ADR-0011).
 - Draw calls: Menus 25 and HUD 20 are not concurrent (ADR-0003).
@@ -99,14 +99,14 @@ static func ease_out_linear(amount: float, duration_s: float, elapsed_s: float) 
 
 Hit-stop is **not a freeze mechanism**. The world is frozen by the Hit phase (`dt_eff = 0`, ADR-0002) for as long as the phase lasts; hit-stop is a **0.20 s presentation hold** that delays the shard burst so the frozen impact frame reads before the ball breaks (Juice sequencing). On `run_ended` (rank 1, ADR-0002):
 
-- `JuiceCore.on_run_ended` stamps `hit_us = clock_us.call()` and the killer `hazard_id`. At that same tick it requests the Hit flash (at most 2 frames, `HIT_FLASH_OPACITY` 0.30, scaled by reduced motion) and sets `hit_grey` to its crossfade (1 to 2 frames, ADR-0012). Both therefore appear at t = 0.
-- `JuiceCore.tick()` (step 11) sets a one-shot edge `shards_release` the first time `hold_released(hit_us, now, hitstop_actual)` is true. `JuiceView` consumes the edge: it hides the ball (`ball_visible_sink(false)`, a Juice-only Callable into `BallView`) and calls `shards.restart()` at the ball's pose (Tube Track's `P`). Release is at t = 0.20 s, or at the first tick back after a stall.
+- `JuiceCore.on_run_ended` stamps `hit_us = clock_us.call()` and the killer `hazard_id`. At that same tick it requests the Hit flash (`HIT_FLASH_S` ≈ 0.033 s, `HIT_FLASH_OPACITY` 0.30, scaled by reduced motion) and sets `hit_grey` to its crossfade (`GREY_CROSSFADE_S` ≈ 0.033 s, ADR-0012); both durations are seconds on the stamp clock, so they are the same at 60 and 120 Hz and after a stall (they replace the Juice GDD's "2 frames" and "1 to 2 frames"). Both therefore appear at t = 0.
+- `JuiceCore.tick()` (the Juice tick step) sets a one-shot edge `shards_release` the first time `hold_released(hit_us, now, hitstop_actual)` is true. `JuiceView` consumes the edge: it hides the ball (`ball_visible_sink(false)`, a Juice-only Callable into `BallView.set_ball_visible`, ADR-0012) and calls `shards.restart()` at the ball's pose (Tube Track's `P`). Release is at t = 0.20 s, or at the first tick back after a stall.
 - `run_reset` (rank 5) clears `hit_us`, the edge, the shards and the ball visibility, unconditionally (Juice Rules 7 and 8). A restart tap cannot arrive before `RESTART_LOCK` >= 0.45 s, so release always precedes it; Rule 8 covers the case anyway.
 - `hitstop_actual` is `JuiceConfig` data, validated by `validate_hitstop` (at most `HITSTOP_MAX`); `RESTART_LOCK - hitstop_actual >= T_READ` stays Run State's check. Reduced motion never changes it. The personal-best bloom and sweep are **not** gated by the hold (Juice GDD timing applies).
 
 ### 4. FOV ease on the presentation clock
 
-`CameraCore.apply_fov_punch(amount, duration)` stamps `punch_us`; `CameraCore.fov_offset_deg()` returns `PresentationMath.ease_out_linear(amount, duration, elapsed)` at the injected clock (a new call replaces the previous punch, as Camera F5). `CameraCore.step(theta, s, dt_eff)` is **unchanged** and stays a frozen no-op at `dt_eff <= 0` (TR-camera-009 holds: FOV state is not in its bit-identical set). `CameraView` writes `Camera3D.fov = CAMERA_FOV + fov_offset_deg()` at step 9, only when changed. `CameraCore.on_run_reset` clears the punch. `CameraCore` gains an injected `clock_us`.
+`CameraCore.apply_fov_punch(amount, duration)` stamps `punch_us`; `CameraCore.fov_offset_deg()` returns `PresentationMath.ease_out_linear(amount, duration, elapsed)` at the injected clock (a new call replaces the previous punch, as Camera F5). `CameraCore.step(theta, s, dt_eff)` is **unchanged** and stays a frozen no-op at `dt_eff <= 0` (TR-camera-009 holds: FOV state is not in its bit-identical set). `CameraView` writes `Camera3D.fov = CAMERA_FOV + fov_offset_deg()` in the Camera step, only when changed. `CameraCore.on_run_reset` clears the punch. `CameraCore` gains an injected `clock_us`.
 
 ### 5. Ink cover
 
@@ -124,9 +124,9 @@ So Menu to Running (Play) and Hit or Paused to Menu get the cut. **Restart (Hit 
 
 **Timeline** (`InkCoverConfig`, data-driven): on a cut route, `on_phase_changed` (rank 5, same tick as the phase change, inside `RunState.tick`) stamps `cut_us`, samples `reduced_motion_enabled` once, and calls `flash_sink(now_us)` (Juice's ledger, see 7). `alpha()` = `fade_out(elapsed, INK_HOLD_S, fade_s)` with `INK_HOLD_S` = 0.05 s (three presented frames at 60 Hz, Run State F2 `N_present`), `fade_s` = `INK_FADE_S` 0.18 s, or `INK_FADE_REDUCED_S` 0.30 s when reduced motion was on at the trigger. Totals: 0.23 s (within the UX envelope of 150 to 250 ms) and 0.35 s. A new cut route during a cut re-stamps (alpha returns to 1; no stacking). `covering()` = `alpha() > 0` is Menus AC-13's `transition_covering`.
 
-**Hold counts ticks too.** The hold ends at the later of `INK_HOLD_S` and `INK_HOLD_TICKS` = 3 ticks after the stamp, so a stall cannot collapse it to one presented frame.
+**Hold is time only.** The hold ends `INK_HOLD_S` after the stamp on the injected clock; there is no tick-count rule (decided 2026-10-03: `InkCoverCore` has no `tick()` and `PresentationMath.fade_out` takes seconds only). The cover is written opaque in the tick that stamps it, so the first presented frame is always covered (PT-1); after a long stall the hold may already have elapsed on the next presented frame, and that is accepted because the fairness constraint below bounds `INK_HOLD_S`, not the frame count.
 
-**Same-frame guarantee** (verified against Godot's frame model: input, then `SceneTree.process`, then the message-queue flush, then `RenderingServer.draw`; `visible` and `modulate` reach the server immediately). It holds only if every world change happens inside `GameRoot._tick`: **no `call_deferred`, Tween callback or `await` may move the tube or change the seam phase** (lint and review rule). The stamp is taken in step 3; the world changes in steps 5 and later; `InkCoverView.tick` runs at step 11 and writes alpha 1 before the frame is drawn, so the first presented frame after the seam jump is covered. The cover is **not delayed behind the phase change** and does not delay it.
+**Same-frame guarantee** (verified against Godot's frame model: input, then `SceneTree.process`, then the message-queue flush, then `RenderingServer.draw`; `visible` and `modulate` reach the server immediately). It holds only if every world change happens inside `GameRoot._tick`: **no `call_deferred`, Tween callback or `await` may move the tube or change the seam phase** (lint and review rule). The stamp is taken inside `RunState.tick`; the world changes at `TubeTrack.advance` and later; `InkCoverView.tick` runs in the Menus tick step and writes alpha 1 before the frame is drawn, so the first presented frame after the seam jump is covered. The cover is **not delayed behind the phase change** and does not delay it.
 
 **View:** `CanvasLayer` layer `UiLayers.INK_COVER` (30) with one full-rect `ColorRect` in Ink (a palette colour of `ui_theme.tres`), `mouse_filter = STOP`. It is `visible = false` when `alpha() == 0` (no input, no draw) and writes `modulate.a` (one RenderingServer property set; `color.a` would re-record the item) only when changed. `Menus.tick` ticks the cover **unconditionally**, also when no Menus screen is visible (Hit to Menu, Paused to Menu). Hiding a pressed Control in the screen swap drops its pending release (the `pressed` signal does not fire), which is the wanted behaviour. Taps are blocked while visible (the ADR-0011 blocker rule). In the same tick as the cut, Menus swaps its screens, so a Paused backdrop or a modal scrim is hidden before the fade begins and never stacks translucently with the cover.
 
@@ -143,7 +143,7 @@ So Menu to Running (Play) and Hit or Paused to Menu get the cut. **Restart (Hit 
 # construction: _ink_core = InkCoverCore.new(clock_us, ink_config, settings.reduced_motion_getter, _juice.register_flash)
 ```
 
-`GameRoot._tick` is unchanged (steps 9 and 11 already exist); `Camera` view applies FOV at 9, `Juice.tick`, `HUD.tick` and `Menus.tick` (which ticks the Ink cover) at 11.
+`GameRoot._tick` is unchanged (the Camera step and the Juice, HUD and Menus tick steps already exist, cited by name because ADR-0002 Decision 6 inserts steps); the Camera view applies FOV in the Camera step, and `Juice.tick`, `HUD.tick` and `Menus.tick` (which ticks the Ink cover) run after it.
 
 ### 7. Flash accounting
 
@@ -157,7 +157,7 @@ Each Ink cut registers one entry in the shared flash ledger (Juice Rule 11) thro
  RunState.tick (3) --phase_changed--> InkCoverCore.on_phase_changed  (stamp cut_us, flash_sink)
         |--run_ended (rank 1)--> JuiceCore.on_run_ended (stamp hit_us)   --run_reset--> clears Juice + Camera punch (NOT the cover)
  Camera view (9):  fov = CAMERA_FOV + CameraCore.fov_offset_deg()          [stamp punch_us, ease_out_linear]
- step 11:  Juice.tick -> shards_release edge at hit_us + 0.20 s -> JuiceView: ball hidden, shards.restart()
+ Juice tick:  Juice.tick -> shards_release edge at hit_us + 0.20 s -> JuiceView: ball hidden, shards.restart()
            Menus.tick -> InkCoverView.tick: alpha = fade_out(elapsed, 0.05, 0.18|0.30) -> CanvasLayer 30 ColorRect
  World (dt_eff): Ball, Tube, Hazards   <- frozen in Hit/Paused/Resuming; presentation above is not
 ```
@@ -173,7 +173,10 @@ func covering() -> bool                                             # alpha() > 
 static func is_cut_route(new_phase: int, old_phase: int) -> bool
 
 class_name InkCoverConfig extends Resource      # validated(log_sink) -> copy; clamps
-# INK_HOLD_S 0.05 [0.034, 0.10]; INK_FADE_S 0.18 [0.10, 0.30]; INK_FADE_REDUCED_S 0.30 [INK_FADE_S, 0.40]
+# INK_HOLD_S 0.05 [0.034, 0.10] (time only, no tick rule); INK_FADE_S 0.18 [0.10, 0.30]; INK_FADE_REDUCED_S 0.30 [INK_FADE_S, 0.40]
+
+# JuiceConfig additions (seconds on the stamp clock; validated, clamped)
+# HIT_FLASH_S 0.033 [0.016, 0.050]; GREY_CROSSFADE_S 0.033 [0.016, 0.050]
 
 # JuiceCore additions
 func on_run_ended(run_id: int, hazard_id: int, run_time_ms: int) -> void
@@ -238,7 +241,7 @@ func register_flash(now_us: int) -> void                            # ledger ent
 | Three cuts plus a Hit flash exceed 3 per second by tap spam | Low | High | PT-4; `INK_MIN_INTERVAL_S` debounce (pre-committed) |
 | `GPUParticles3D.restart()` pops or changes look in 4.7 | Medium | Low | PT-2; shards are cosmetic and reduced-motion scaled |
 | `run_reset` handler order clears the cover by mistake | Low | Medium | explicit rule and test: `run_reset` does not touch `InkCoverCore` |
-| The first presented frame after `phase_changed` is not opaque (late write) | Low | Medium | cover written at step 11 before draw; PT-1 |
+| The first presented frame after `phase_changed` is not opaque (late write) | Low | Medium | cover written in the Menus tick step before draw; PT-1 |
 
 ## GDD Requirements Addressed
 

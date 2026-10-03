@@ -104,7 +104,7 @@ func _on_button_down() -> void:
 - `poll()` guards non-finite and oversized vectors (Tilt F1: `G_MIN` 3 m/s^2).
 - Do not smooth or filter in the node; `TiltCore` owns the pipeline.
 - A press that starts outside a button and slides in does not activate it (release-inside rule); a cancelled touch gives no activation.
-- Hidden HUD subtrees disable input with `mouse_behavior_recursive` (4.5), decided in ADR-0011.
+- Hidden HUD subtrees do not use `mouse_behavior_recursive` (4.5) in the MVP: ADR-0011 Decision 5 uses `visible = false` plus full-screen STOP blockers.
 - `TiltInput` and the touch Controls receive `clock_us` by injection; they never call `Time.` themselves.
 
 ## Alternatives Considered

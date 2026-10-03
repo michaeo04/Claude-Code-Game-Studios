@@ -79,7 +79,7 @@ MapConfig (RefCounted, built at load, read-only after build)
 ```
 
 - Per-run and per-build knobs (`TubeConfig` A, N, B and the rest, `CameraConfig`, `PatternConfig`) stay in their own `.tres` files; a map contributes only what varies per map.
-- **Camera values** (`rear_extent`, `camera_distance`, `visible_arc_half_width`) are pure functions of `CameraConfig` and `TubeConfig.R` (`CameraMath`, static). `GameRoot` calls them at composition and passes the result to the loader, so no Camera node or instance is consulted and nothing flows up. They are published "at map load" in the sense that `MapConfig` carries them.
+- **Camera values** (`rear_extent`, `camera_distance`, `visible_arc_half_width`) are pure functions of `CameraConfig` and the immutable `WorldGeometry` value (`R`, `D`, `N_F`, `L`, plus `OMEGA_MAX` from `BallConfig`; `CameraMath.published`, static). `WorldGeometry` is built once by `GameRoot` at composition from the base `TubeConfig` and `BallConfig` (so `D` has one owner, Ball Movement, and `TubeConfig` gains no copy of it) and is validated before the first `MapLoader.attempt`. `camera_distance` is the derived worst case (about 7.84), not a hand-copied 8, so a retune of `D` or `OMEGA_MAX` cannot silently invert Camera F9. `GameRoot` calls `CameraMath.published` at composition and passes the result to the loader, so no Camera node or instance is consulted and nothing flows up. They are published "at map load" in the sense that `MapConfig` carries them.
 - `TubeConfig.from_map(base: TubeConfig, map: MapConfig) -> TubeConfig` returns a `base.duplicate()` (shallow; the config holds scalars only) with the map-supplied fields set (the fog, seam and `readable_distance` fields from `map.env`, `rear_extent`, `camera_distance`). The cached resources are never mutated.
 - `EnvConfig.validated(log_sink)` returns a clamped **copy**; the loaded resource, which `ResourceLoader` may cache and share, is never written.
 - **Dependency rules:** the graph is `MapDefinition -> EnvConfig` with no back-edge (`EnvConfig` never references `MapDefinition` or `MapConfig`); `MapConfig` is never an `@export` type; every `@export` field of `EnvConfig` and `TubeConfig` is a scalar, an enum or a `Color`. A unit test fails if a `Resource`, `Array` or `Dictionary` field is added to `TubeConfig` (a shallow `duplicate()` would then share state). `EnvConfig.validated()` copies with `duplicate()` of a scalar-only resource and never reassigns fields on the loaded instance; Phase B keeps only the validated copy, never `def.env`. Keep `env` and the library inline in `map_01.tres`, or load with the deep-ignore cache mode, so a Retry sees fresh sub-resources.
@@ -104,13 +104,14 @@ Phase B: apply (fixed order)
   B1  apply_env(map)         Environment.apply_map           (bool)
   B2  apply_obstacle(map)    Obstacle.apply_map              visible_arc_half_width (bool)
   B3  apply_pattern(map)     Pattern.apply_map               chunk_library (bool)
-  B4  tube_load(tube_cfg)     TubeTrack.load_map              primes the window; emits window_primed, state_changed
-  B5  send_map_ready()        RunState.map_ready()            Boot -> Menu
+  B4  apply_hazard_view(map)  HazardView.apply_map            builds inert hidden nodes and meshes (ADR-0014; bool)
+  B5  tube_load(tube_cfg)     TubeTrack.load_map              primes the window; emits window_primed, state_changed
+  B6  send_map_ready()        RunState.map_ready()            Boot -> Menu
 ```
 
-- Tube Track is **last** because `load_map` primes the window and emits `window_primed`, to which Obstacle and the view react; Environment, Obstacle and Pattern must already hold their values. B1 to B3 are idempotent setters, so a failed attempt leaves nothing that a Retry cannot overwrite.
+- Tube Track is **last** because `load_map` primes the window and emits `window_primed`, to which Obstacle and the view react; Environment, Obstacle, Pattern and the hazard view must already hold their values. B1 to B4 are idempotent: B1 to B3 are setters, and B4 may build inert hidden nodes and resources (no signal, no visible change, no tick effect; Retry clears the cache and rebuilds), so a failed attempt leaves nothing that a Retry cannot overwrite.
 - `apply_map` on Environment, Obstacle and Pattern is **configuration only**: it emits no signal and starts nothing (Pattern does not begin generating, Environment makes no visible change before the Menu exists), so what a failed attempt leaves behind is inert.
-- A false from B1 to B4 gives `MAP_APPLY_FAILED` plus the system name, or `TUBE_LOAD_REJECTED` for B4 (a rejected `load_map` after a passing `validate()` means a state problem, not a data problem). `map_ready` is sent **only** after B4 returned true; on any failure nothing is sent and Run State stays in Boot with no events.
+- A false from B1 to B5 gives `MAP_APPLY_FAILED` plus the system name, or `TUBE_LOAD_REJECTED` for B5 (a rejected `load_map` after a passing `validate()` means a state problem, not a data problem). `map_ready` is sent **only** after B5 returned true; on any failure nothing is sent and Run State stays in Boot with no events.
 - The sequence runs synchronously in one frame: the first time in `GameRoot` after `_wire()` and before the first `_process` (ADR-0002 step 5), and again inside `retry()`.
 
 ### 3. Failure and Retry
@@ -128,7 +129,7 @@ Phase B: apply (fixed order)
 
 ```text
 GameRoot (composition)
-  CameraMath.published(CameraConfig, R) ──┐
+  CameraMath.published(CameraConfig, WorldGeometry) ──┐
   base TubeConfig, appliers, clock, log   │
                                           v
 MapLoader (driver) ── ResourceLoader.load(map_01.tres) ──> MapDefinition {env, chunk_library}
@@ -137,7 +138,7 @@ MapLoader (driver) ── ResourceLoader.load(map_01.tres) ──> MapDefinition
 MapLoaderCore.attempt(path)        Phase A  validate ──fail──> map_load_failed(codes) ──> Menus failure screen
    │ ok                                                                                       │ Retry
    v                                                                                          v
-Phase B  Environment.apply_map -> Obstacle.apply_map -> Pattern.apply_map -> TubeTrack.load_map   retry() re-runs all
+Phase B  Environment.apply_map -> Obstacle.apply_map -> Pattern.apply_map -> HazardView.apply_map -> TubeTrack.load_map   retry() re-runs all
    │ ok
    v
 RunState.map_ready()   (Boot -> Menu)
@@ -181,7 +182,7 @@ func attempt(path: String) -> bool
 func retry() -> bool                  # FAILED only; READY is ignored with one log line
 
 # MapLoaderSeams: load_definition(path) -> Variant, camera_geometry() -> Dictionary,
-# apply_env/apply_obstacle/apply_pattern(map: MapConfig) -> bool, tube_load(cfg: TubeConfig) -> bool,
+# apply_env/apply_obstacle/apply_pattern/apply_hazard_view(map: MapConfig) -> bool, tube_load(cfg: TubeConfig) -> bool,
 # send_map_ready() -> void, base_tube_config() -> TubeConfig, log_sink(level, code, key, message)
 ```
 
@@ -223,7 +224,7 @@ func retry() -> bool                  # FAILED only; READY is ignored with one l
 - New types (`MapDefinition`, `MapConfig`, `MapLoaderCore`, seams, `MapLoaderConfig`) and three new `apply_map` entry points on Environment, Obstacle and Pattern.
 - Menus Rule 8 and TR-menus-009 change (failure shown on the signal; the timeout becomes a backup); a new `request_map_retry` Callable and a `map_load_failed` row in `_wire()`.
 - `architecture.md` section 6 (the `MapConfig` sketch with `tube` and `env`) is replaced; Camera's "published at map load" wording changes to "derived by `CameraMath` at composition".
-- Phase B has no rollback of the Environment, Obstacle and Pattern setters after a Tube Track failure; this is acceptable because they are idempotent and Retry overwrites them.
+- Phase B has no rollback of the Environment, Obstacle, Pattern and hazard view steps after a Tube Track failure; this is acceptable because they are idempotent and Retry overwrites them.
 
 ### Risks
 
@@ -242,14 +243,14 @@ func retry() -> bool                  # FAILED only; READY is ignored with one l
 | run-state-restart.md | Boot to Menu only on `map_ready`, sent only after a successful load; failure keeps Boot with no events (D9, OQ8, AC-22) | Decisions 2 and 3: validate first, `map_ready` only after B4, nothing sent on failure |
 | tube-track.md | `load_map` accepted only from Uninitialized; a failed validation keeps it and allows Retry; the loader owns the call and `map_ready`; Tube Track owns validation | Decisions 2 and 3 (A6 reuses `validate()`; B4 is last; Retry re-runs the sequence) |
 | menus-screen-flow.md | Rule 8 failure screen, Retry, `MAP_LOAD_TIMEOUT` (TR-menus-009) | Decision 3 (`map_load_failed` signal, `request_map_retry`, timeout as backup) |
-| camera.md | `rear_extent`, `camera_distance`, `VISIBLE_ARC_HALF_WIDTH` published at map load | Decision 1 (derived by `CameraMath`, carried in `MapConfig`) |
+| camera.md | `rear_extent`, `camera_distance`, `VISIBLE_ARC_HALF_WIDTH` published at map load | Decision 1 (derived by `CameraMath` from `WorldGeometry` and `OMEGA_MAX`, carried in `MapConfig`) |
 | environment-theming.md | `MapConfig` fields it owns, validated at map load | Decision 1 (`MapDefinition.env`, `EnvConfig.validated` copy) |
 | pattern-difficulty.md | OQ4: the `MapConfig` field that selects the chunk library | Decision 1 (`chunk_library`, typed by ADR-0008) |
 | obstacle-system.md | OQ7: `VISIBLE_ARC_HALF_WIDTH` supplied from outside | Decision 1 and B2 |
 
 ## Performance Implications
 
-- **CPU**: one `ResourceLoader.load`, a few validations, 12 slot binds at `load_map`; expected tens of milliseconds, once per boot (and per Retry); to be measured (MS-1).
+- **CPU**: one `ResourceLoader.load`, a few validations, 12 slot binds at `load_map`; expected tens of milliseconds, once per boot (and per Retry); to be measured (MS-1). The hazard view prewarm (ADR-0014 HV-1) shares the MS-1 budget.
 - **Memory**: a `MapDefinition`, `EnvConfig` and the chunk library resident for the session; small.
 - **Load Time**: part of cold start; not part of the restart budget.
 - **Network**: none.
@@ -260,7 +261,7 @@ New code. After this ADR is Accepted: Menus GDD Rule 8 and TR-menus-009 (signal 
 
 ## Validation Criteria
 
-- [ ] Unit tests with fake seams: success sends `map_ready` once and applies in the order B1..B4; each Phase A failure sends nothing, applies nothing and emits `map_load_failed` once with the right code; a B-step failure sends nothing; `retry()` in `FAILED` re-runs including the re-read; in `READY` it is a logged no-op.
+- [ ] Unit tests with fake seams: success sends `map_ready` once and applies in the order B1..B5 (env, obstacle, pattern, hazard view, tube load) before B6; each Phase A failure sends nothing, applies nothing and emits `map_load_failed` once with the right code; a B-step failure sends nothing; `retry()` in `FAILED` re-runs including the re-read; in `READY` it is a logged no-op.
 - [ ] Tests build resources with `MapDefinition.new()` and `EnvConfig.new()`, not by loading `.tres` (headless GUT needs `godot --headless --import` first, or `class_name` types do not resolve); one round-trip test loads `map_01.tres` and asserts `env` and the library are non-null; a null `env` yields `MAP_ENV_INVALID`.
 - [ ] A spy test: `map_load_failed` reaches Menus because the loader runs after `_wire()`.
 - [ ] Android export smoke test: `map_01.tres` loads, and a corrupted copy gives the failure screen and not a crash.

@@ -279,7 +279,7 @@ state_ownership:
     status: active
     owner_system: ball-view
     adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
-    interface: "BallView builds and owns the ball ShaderMaterial (unshaded body, fresnel rim); the only writes are set_luminance_target(l) (Environment F3) and set_rim_glow(v) (Juice), reached through injected Callable sinks; written only when changed"
+    interface: "BallView builds and owns the ball ShaderMaterial (unshaded body, fresnel rim); the only writes are set_luminance_target(l) (Environment F3), set_rim_glow(v) and set_ball_visible(v) (Juice; visibility restored by run_reset), reached through injected Callable sinks; written only when changed"
     write_access: ball-view-only
     referenced_by:
       - docs/architecture/adr-0012-ball-material-and-world-chroma.md
@@ -609,7 +609,7 @@ interfaces:
     consumers:
       - ball-view
     adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
-    signal_signature: "ball_luminance_sink(l: float) -> BallView.set_luminance_target (Environment only); rim_glow_sink(v: float) -> BallView.set_rim_glow (Juice only); Callable seams, never a BallView reference in the cores; Camera reads the Ball snapshot, never BallView's transform"
+    signal_signature: "ball_luminance_sink(l: float) -> BallView.set_luminance_target (Environment only); rim_glow_sink(v: float) -> BallView.set_rim_glow (Juice only); ball_visible_sink(v: bool) -> BallView.set_ball_visible (Juice only, restored true by run_reset); Callable seams, never a BallView reference in the cores; Camera reads the Ball snapshot, never BallView's transform"
     referenced_by:
       - docs/architecture/adr-0012-ball-material-and-world-chroma.md
     added: 2026-10-03
@@ -1697,7 +1697,7 @@ forbidden_patterns:
 
   - pattern: ball_material_second_writer
     status: active
-    description: "No system other than BallView writes the ball material; Environment and Juice use the two setters through Callable sinks."
+    description: "No system other than BallView writes the ball material; Environment uses set_luminance_target and Juice uses set_rim_glow and set_ball_visible, through Callable sinks."
     why: "One owner and one writer per material."
     adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
     added: 2026-10-03

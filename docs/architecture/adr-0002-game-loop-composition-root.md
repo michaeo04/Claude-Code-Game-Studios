@@ -70,8 +70,8 @@ Run State, Tilt Input, Ball Movement, Obstacle System, Scoring, Save & Persisten
 2. **No autoloads.** Systems are constructed and owned by `GameRoot`.
 3. **No `_physics_process`** in any game-logic code.
 4. **Clock.** One `clock_us: Callable` wrapping `Time.get_ticks_usec()` is injected into every system that needs time. Cores never call `Time.`.
-5. **Construction order** (each step finishes before the next): `PlatformServices`, `SaveService` (synchronous load, connect `app_backgrounded`), `SettingsCore` (push `haptics_*` to Platform Services), `RunStateCore` and `ScoreService` (construction emits nothing), every other system, then `wire()`, then `MapLoader` calls `load_map` and sends `map_ready` on success, then the loop starts.
-6. **Per-frame order** (fixed): `TiltInput.poll`, `TiltRunAdapter.flush`, `RunState.tick`, `Ball.step`, `TubeTrack.advance` (Running only), `Obstacle.test`, `NearMiss.step`, `Scoring.step`, `Camera.step`, `Environment.tick`, then `Juice.tick`, `HUD.tick`, `Menus.tick` (pull seams, then draw).
+5. **Construction order** (each step finishes before the next): `PlatformServices`, `SaveService` (synchronous load, connect `app_backgrounded`), `SettingsCore` (push `haptics_*` to Platform Services), `RunStateCore` and `ScoreService` (construction emits nothing), every other system in this order (ADR-0012 Decision 4, ADR-0014 Decision 5: the Environment view, `WorldChroma`, `BallView`, `HazardView`, Environment, Juice, then the HUD and Menus views), then `wire()`, then `MapLoader` calls `load_map` and sends `map_ready` on success, then the loop starts.
+6. **Per-frame order** (fixed): `TiltInput.poll`, `TiltRunAdapter.flush`, `RunState.tick`, `Ball.step`, `TubeTrack.advance` (Running only), `Obstacle.test`, `NearMiss.step`, `Scoring.step`, `TubeView.idle_step(real_dt)` (only when the phase is not Running, so the menu tube idles without a view `_process`), `Camera.step`, `BallView.tick` (ADR-0012 Decision 1), `Environment.tick` (Idle and Menu resting values included), then `Juice.tick`, `HUD.tick`, `Menus.tick` (pull seams, then draw). Other documents cite these steps by name, not by number, because the numbers shift when a step is inserted (ADR-0010, ADR-0011).
 7. **Pinned subscriber order from one table of Callables.** `GameRoot._wire()` builds an array of rows `[signal: Signal, handler: Callable, rank: int]` (typed handlers are mandatory, because signal arguments are coerced to the handler's declared types), sorts by rank with the row index as the tie-break (the sort is not stable), and calls `signal.connect(handler)` in that order. Immediate connections only; `CONNECT_ONE_SHOT` is allowed only on connections outside the table. The signals are declared on the owning core (`RunStateCore` declares `run_reset`, `run_ended`, `run_abandoned`); `GameRoot` holds a strong reference to every core for the whole session (a connection does not keep a RefCounted alive). The ranks are the ones Run State owns: `run_reset` (Pattern; Tube Track adapter and Obstacle, tie broken by row order; Ball; Camera; the rest), `run_ended` (Juice; Scoring; HUD; the rest), `run_abandoned` (Juice; Scoring; the rest).
 8. **Pause model.** `GameRoot` keeps ticking in every phase; Run State returns `dt_eff = 0` outside Running. `SceneTree.paused` is never used.
 9. **Android focus and resume gap.** Platform Services turns `NOTIFICATION_APPLICATION_FOCUS_OUT` into `app_interrupted`, applied by Run State when sent: this is the **primary** pause signal (which PAUSED/RESUMED notifications Platform Services also reads is ADR-0006's decision). Run State's stall guard is only the **backup**: if the engine stops calling `_process` while unfocused, the first tick after return produces a large `real_dt` and the guard pauses the run. Because `CLOCK_MONOTONIC` may stand still during deep sleep, the gap can read as small and the guard then does not fire; the focus notification is what protects that case.
@@ -85,7 +85,7 @@ Run State, Tilt Input, Ball Movement, Obstacle System, Scoring, Save & Persisten
    ┌───────────────────┼─────────────────────────────────────────────────────────┐
    | construct:  Platform -> Save -> Settings -> RunState+Score -> others -> _wire() -> MapLoader
    | per frame:  Tilt.poll -> flush -> RunState.tick -> Ball.step -> Tube.advance -> Obstacle.test
-   |             -> NearMiss.step -> Scoring.step -> Camera.step -> Env.tick -> Juice/HUD/Menus.tick
+   |             -> NearMiss.step -> Scoring.step -> Tube.idle_step -> Camera.step -> BallView.tick -> Env.tick -> Juice/HUD/Menus.tick
    └─────────────────────────────────────────────────────────────────────────────┘
    view Nodes: set_process(false); engine-driven Tween/particles/shaders read no game state
 ```
@@ -193,7 +193,7 @@ Greenfield: no code exists. Create `GameRoot` first; each system story adds its 
 ## Validation Criteria
 
 - [ ] Run State AC-30 passes against the real `GameRoot._wire()` table.
-- [ ] A spy test asserts the per-frame order of section 6.
+- [ ] A spy test asserts the per-frame order of section 6, including `TubeView.idle_step` (called only when not Running) and `BallView.tick` right after `Camera.step`, and the construction order of section 5.
 - [ ] CI lint finds no `_process`/`_physics_process` outside `GameRoot`, no autoload entry, no `CONNECT_DEFERRED`, no `Engine.time_scale` write.
 - [ ] A 10-minute run on a mid-tier Android phone shows no dropped frames attributable to orchestration, at 60 Hz and on a 120 Hz device (vsync mode and refresh rate recorded).
 - [ ] `godot --headless --import` runs before the GUT run (the class cache for `class_name GameRoot` and the cores).
@@ -216,4 +216,4 @@ Greenfield: no code exists. Create `GameRoot` first; each system story adds its 
 ## Related
 
 - `docs/architecture/architecture.md` (Data Flow, Module Ownership)
-- ADR-0001 (Android only); future ADR-0004, ADR-0005, ADR-0010
+- ADR-0001 (Android only); ADR-0004, ADR-0005, ADR-0010
