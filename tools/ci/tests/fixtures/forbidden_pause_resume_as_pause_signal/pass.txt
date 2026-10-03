@@ -1,0 +1,3 @@
+#@path: src/sub/x.gd
+if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+	pass

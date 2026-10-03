@@ -1,0 +1,2 @@
+#@path: src/sub/map_loader.gd
+var r = ResourceLoader.load("res://a.tres")

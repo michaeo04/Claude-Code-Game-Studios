@@ -1,0 +1,2 @@
+#@path: src/sub/x.gd
+ctl.accessibility_name = "x"

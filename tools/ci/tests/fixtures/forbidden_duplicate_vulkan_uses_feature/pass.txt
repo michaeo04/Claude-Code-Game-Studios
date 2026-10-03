@@ -1,0 +1,2 @@
+#@path: export_presets.cfg
+a=android.hardware.vulkan.version 1

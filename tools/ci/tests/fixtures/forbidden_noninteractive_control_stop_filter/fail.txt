@@ -1,0 +1,3 @@
+#@path: sub/x.tscn
+[node name="Pill" type="Panel" parent="."]
+layout_mode = 1

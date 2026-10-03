@@ -1,0 +1,2 @@
+#@path: assets/shaders/sub/xballx.gdshader
+uniform float rim;

@@ -1,0 +1,3 @@
+#@path: tests/sub/x_test.gd
+func test_a():
+	pending("later")

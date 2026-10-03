@@ -1,0 +1,2 @@
+#@path: export_presets.cfg
+exclude_filter="tests/*"

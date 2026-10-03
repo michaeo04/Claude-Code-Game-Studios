@@ -1,0 +1,5 @@
+#@path: project.godot
+[application]
+config/name="x"
+
+[autoload]

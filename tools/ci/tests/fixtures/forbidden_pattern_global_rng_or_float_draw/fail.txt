@@ -1,0 +1,2 @@
+#@path: src/sub/xpatternx.gd
+var x = randi()

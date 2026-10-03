@@ -1,0 +1,58 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+;
+; Written by hand from ADR-0003, 0005, 0006, 0011, 0012 and 0013 (2026-10-03), NOT yet
+; opened in Godot 4.7.2: open it once in the editor and commit what the editor rewrites.
+; Every key below is a decision of an Accepted ADR; the `project_setting` lint rules in
+; tools/ci/lint_rules.json (ADR-0009) check the ones that must never drift.
+
+config_version=5
+
+[application]
+
+config/name="Tube Rush"
+config/features=PackedStringArray("4.7", "Mobile")
+config/quit_on_go_back=false
+run/max_fps=60
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/scale_mode="fractional"
+window/stretch/scale=2.625
+window/handheld/orientation=1
+
+[input_devices]
+
+pointing/emulate_mouse_from_touch=true
+pointing/emulate_touch_from_mouse=true
+sensors/enable_gravity=true
+
+[physics]
+
+common/physics_interpolation=false
+
+[rendering]
+
+renderer/rendering_method="mobile"
+renderer/rendering_method.mobile="mobile"
+rendering_device/fallback_to_opengl3=false
+rendering_device/driver.windows="vulkan"
+anti_aliasing/quality/msaa_3d=1
+anti_aliasing/quality/use_debanding=true
+
+[shader_globals]
+
+world_chroma={
+"type": "float",
+"value": 1.0
+}
+hit_grey={
+"type": "float",
+"value": 0.0
+}

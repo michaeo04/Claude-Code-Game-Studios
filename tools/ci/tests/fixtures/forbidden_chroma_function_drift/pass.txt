@@ -1,0 +1,3 @@
+#@path: assets/shaders/sub/x.gdshader
+// #include is not used
+void fragment() {}

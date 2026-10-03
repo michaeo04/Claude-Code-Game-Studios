@@ -1,0 +1,2 @@
+#@path: src/sub/xplatformx.gd
+call_deferred("flush")

@@ -1,0 +1,3 @@
+#@path: .github/workflows/x.yml
+env:
+  K: ${{ secrets.KEY }}

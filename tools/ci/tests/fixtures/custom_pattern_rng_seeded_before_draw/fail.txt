@@ -1,0 +1,6 @@
+#@path: src/sub/xpatternx.gd
+var rng := RandomNumberGenerator.new()
+func go():
+	return rng.randi()
+func init(s):
+	rng.seed = s

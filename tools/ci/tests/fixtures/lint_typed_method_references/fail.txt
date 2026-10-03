@@ -1,0 +1,2 @@
+#@path: src/sub/game_root.gd
+sig.connect("changed", cb)

@@ -1,0 +1,3 @@
+#@path: src/sub/x.gd
+# no Compositor here
+var s := "Compositor"

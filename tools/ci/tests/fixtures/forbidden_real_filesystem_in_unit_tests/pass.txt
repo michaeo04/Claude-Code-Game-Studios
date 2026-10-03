@@ -1,0 +1,3 @@
+#@path: tests/unit/sub/x.gd
+var fs := FakeSaveFs.new()
+# FileAccess is not used here

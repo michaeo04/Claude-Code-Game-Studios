@@ -1,0 +1,3 @@
+#@path: tests/support/sub/x.gd
+extends RefCounted
+# assert_eq( is in a comment

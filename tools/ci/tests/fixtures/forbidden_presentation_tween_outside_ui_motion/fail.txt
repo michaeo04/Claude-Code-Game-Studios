@@ -1,0 +1,2 @@
+#@path: src/sub/x.gd
+var t = create_tween()

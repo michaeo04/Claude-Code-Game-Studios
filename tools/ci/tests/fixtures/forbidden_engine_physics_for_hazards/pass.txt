@@ -1,0 +1,2 @@
+#@path: src/sub/xhazardx.gd
+# Area3D is not used

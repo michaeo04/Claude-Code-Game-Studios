@@ -1,0 +1,2 @@
+#@path: src/sub/render_globals.gd
+RenderingServer.global_shader_parameter_set("a", 1.0)

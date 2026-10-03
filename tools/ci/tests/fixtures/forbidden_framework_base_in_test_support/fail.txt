@@ -1,0 +1,2 @@
+#@path: tests/support/sub/x.gd
+extends GutTest

@@ -1,0 +1,2 @@
+#@path: src/sub/xhazardx.gd
+node.material_override = m

@@ -1,0 +1,2 @@
+#@path: src/sub/xviewx.gd
+n.position = Vector3(0.0, 0.0, snapshot.s)

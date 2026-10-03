@@ -1,0 +1,2 @@
+#@path: src/sub/x.gd
+var a = 1  # lint: ignore

@@ -1,0 +1,3 @@
+#@path: src/sub/x.gd
+# a lintel is fine
+var a = 1

@@ -1,0 +1,2 @@
+#@path: assets/shaders/sub/xballx.gdshader
+global uniform float hit_grey;

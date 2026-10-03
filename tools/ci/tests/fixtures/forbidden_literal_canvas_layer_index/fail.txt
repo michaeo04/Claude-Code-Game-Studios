@@ -1,0 +1,2 @@
+#@path: src/sub/x.gd
+canvas.layer = 5

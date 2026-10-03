@@ -1,0 +1,3 @@
+#@path: project.godot
+[display]
+window/handheld/orientation=1

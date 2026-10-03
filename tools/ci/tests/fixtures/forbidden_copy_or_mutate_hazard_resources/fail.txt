@@ -1,0 +1,2 @@
+#@path: src/sub/xhazardx.gd
+var c = chunk.duplicate_deep()

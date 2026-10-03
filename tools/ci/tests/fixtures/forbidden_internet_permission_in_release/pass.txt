@@ -1,0 +1,3 @@
+#@path: export_presets.cfg
+permissions/vibrate=true
+permissions/internet=false

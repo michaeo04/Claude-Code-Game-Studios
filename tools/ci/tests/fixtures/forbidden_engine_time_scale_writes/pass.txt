@@ -1,0 +1,4 @@
+#@path: src/sub/x.gd
+# Engine.time_scale = 1
+var a := Engine.time_scale == 1.0
+var s := "Engine.time_scale = 2"

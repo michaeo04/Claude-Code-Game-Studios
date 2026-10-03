@@ -1,0 +1,2 @@
+#@path: src/sub/xui_motionx.gd
+var t = create_tween()

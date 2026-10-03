@@ -1,0 +1,2 @@
+#@path: assets/shaders/sub/x.gdshader
+ALBEDO = vec3(sin(TIME));

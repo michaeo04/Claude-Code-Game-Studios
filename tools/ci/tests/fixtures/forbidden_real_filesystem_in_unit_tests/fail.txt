@@ -1,0 +1,2 @@
+#@path: tests/unit/sub/x.gd
+var t := Time.get_ticks_msec()

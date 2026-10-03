@@ -1,0 +1,2 @@
+#@path: src/sub/tilt_input.gd
+var g := Input.get_gravity()

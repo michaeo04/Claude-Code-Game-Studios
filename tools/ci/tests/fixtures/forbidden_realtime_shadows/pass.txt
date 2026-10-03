@@ -1,0 +1,2 @@
+#@path: src/sub/x.gd
+light.shadow_enabled = false

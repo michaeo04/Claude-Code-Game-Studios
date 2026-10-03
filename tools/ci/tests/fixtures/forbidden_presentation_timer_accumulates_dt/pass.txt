@@ -1,0 +1,2 @@
+#@path: src/sub/xviewx.gd
+var t := clock_us - start_us

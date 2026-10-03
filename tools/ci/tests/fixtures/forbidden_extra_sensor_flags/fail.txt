@@ -1,0 +1,4 @@
+#@path: project.godot
+[input_devices]
+sensors/enable_gravity=true
+sensors/enable_gyroscope=true

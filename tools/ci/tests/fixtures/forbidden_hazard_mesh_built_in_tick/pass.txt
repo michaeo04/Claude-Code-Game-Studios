@@ -1,0 +1,2 @@
+#@path: src/sub/xhazard_viewx.gd
+var m := ArrayMesh.new()

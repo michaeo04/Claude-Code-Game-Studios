@@ -1,0 +1,2 @@
+#@path: src/sub/xtubex.gd
+call_deferred("move")

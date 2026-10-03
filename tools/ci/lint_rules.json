@@ -1,0 +1,881 @@
+{
+ "version": 1,
+ "comment": "ADR-0009 Decision 5 rule table. Silence a rule only through allow/exclude, never an inline comment. Fixtures: tools/ci/tests/fixtures/<safe_id>/{pass,fail}.txt (first line '#@path: <virtual path>').",
+ "review_only": [
+  {
+   "pattern": "unique_mesh_or_material_per_tube_slot",
+   "reason": "needs scene-graph reasoning; covered by the tube render integration test"
+  },
+  {
+   "pattern": "set_value_per_drag_event",
+   "reason": "signal wiring between value_changed and set_value; covered by Settings UI review and test"
+  },
+  {
+   "pattern": "apply_map_with_side_effects",
+   "reason": "behavioural (no signal, no generation); covered by unit tests of apply_map"
+  },
+  {
+   "pattern": "mutate_cached_map_resource",
+   "reason": "write-through-reference semantics; covered by unit tests and code review"
+  },
+  {
+   "pattern": "spacing_history_without_spikes",
+   "reason": "algorithmic property of the sequencer; covered by golden sequence tests"
+  },
+  {
+   "pattern": "trust_godot_exit_code",
+   "reason": "enforced by the mandatory result checks in tools/ci/run_ci.py"
+  },
+  {
+   "pattern": "hazard_node_per_piece",
+   "reason": "scene structure; covered by the hazard render draw-call integration test"
+  },
+  {
+   "pattern": "hazard_mesh_winding_untested",
+   "reason": "test-existence requirement; covered by the HazardMeshBuilder winding test (ADR-0014)"
+  },
+  {
+   "pattern": "ink_cover_cleared_by_run_reset",
+   "reason": "behavioural; covered by the InkCoverCore unit test"
+  }
+ ],
+ "rules": [
+  {
+   "id": "forbidden:view_node_own_process",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bfunc\\s+_(?:physics_)?process\\b",
+   "allow": [
+    "src/**/game_root.gd"
+   ],
+   "message": "_process/_physics_process only in game_root.gd; GameRoot calls views and drivers"
+  },
+  {
+   "id": "forbidden:connect_deferred_control_signals",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bCONNECT_DEFERRED\\b",
+   "message": "Control signals must not use CONNECT_DEFERRED"
+  },
+  {
+   "id": "forbidden:connect_deferred_control_signals_scene",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "custom",
+   "function": "tscn_connection_deferred",
+   "scope": [
+    "**/*.tscn"
+   ],
+   "signal_pattern": "^(run_\\w+|hit_reported|window_\\w+)$",
+   "message": "Scene [connection] on a control signal carries the deferred flag"
+  },
+  {
+   "id": "forbidden:engine_time_scale_writes",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bEngine\\.time_scale\\s*[-+*/]?=(?!=)",
+   "message": "No code writes Engine.time_scale"
+  },
+  {
+   "id": "forbidden:scene_tree_paused_for_pause",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\.paused\\s*=(?!=)",
+   "message": "Freeze the world through dt_eff = 0, never SceneTree.paused"
+  },
+  {
+   "id": "forbidden:physics_process_game_logic",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bfunc\\s+_physics_process\\b",
+   "message": "No game logic in _physics_process"
+  },
+  {
+   "id": "lint:typed_method_references",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/game_root.gd"
+   ],
+   "pattern": "\\bCallable\\s*\\([^()\\n]*,\\s*\\\"\\\"\\s*\\)|\\.connect\\s*\\(\\s*\\\"\\\"",
+   "message": "Typed method references at the composition root: no string-built Callable, no string connect"
+  },
+  {
+   "id": "forbidden:engine_glow_for_gameplay_effects",
+   "source": "ADR-0003",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd",
+    "src/**/*.tscn",
+    "src/**/*.tres",
+    "assets/**/*.tscn",
+    "assets/**/*.tres"
+   ],
+   "pattern": "\\bglow_enabled\\s*=\\s*true",
+   "message": "WorldEnvironment glow stays off in the MVP"
+  },
+  {
+   "id": "forbidden:realtime_shadows",
+   "source": "ADR-0003",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd",
+    "src/**/*.tscn",
+    "src/**/*.tres",
+    "assets/**/*.tscn",
+    "assets/**/*.tres"
+   ],
+   "pattern": "\\bshadow_enabled\\s*=\\s*true",
+   "message": "No light casts shadows"
+  },
+  {
+   "id": "forbidden:compositor_effects_mvp",
+   "source": "ADR-0003",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd",
+    "src/**/*.tscn",
+    "src/**/*.tres",
+    "assets/**/*.tscn",
+    "assets/**/*.tres"
+   ],
+   "pattern": "\\bCompositor(?:Effect)?\\b",
+   "message": "No Compositor / CompositorEffect in the MVP"
+  },
+  {
+   "id": "forbidden:map_content_file_io",
+   "source": "ADR-0004",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bResourceLoader\\b|\\b(?:FileAccess|DirAccess)\\s*\\.\\s*\\w+\\s*\\(\\s*\\\"res://",
+   "allow": [
+    "src/**/map_loader.gd"
+   ],
+   "keep_strings": true,
+   "message": "res:// content is loaded only through ResourceLoader in map_loader.gd, never FileAccess/DirAccess"
+  },
+  {
+   "id": "forbidden:non_scalar_tube_config_field",
+   "source": "ADR-0004",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*tube_config*.gd",
+    "src/**/*env_config*.gd"
+   ],
+   "pattern": "\\bvar\\s+\\w+\\s*(?::\\s*(?:Array|Dictionary|Resource|Packed\\w*Array|MapDefinition|MapConfig)\\b|=\\s*[\\[{])",
+   "message": "TubeConfig and EnvConfig hold only scalars, enums and Colors"
+  },
+  {
+   "id": "forbidden:sensor_reads_outside_tilt_input",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bInput\\.(?:get_gravity|get_accelerometer|get_gyroscope|get_magnetometer)\\s*\\(",
+   "allow": [
+    "src/**/tilt_input.gd"
+   ],
+   "message": "Only tilt_input.gd reads the motion sensors"
+  },
+  {
+   "id": "forbidden:mouse_event_in_tap_catcher",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*tap_catcher*.gd"
+   ],
+   "pattern": "\\bInputEventMouse(?:Button|Motion)?\\b",
+   "message": "The tap catcher never reads mouse events (emulated duplicate of touch)"
+  },
+  {
+   "id": "forbidden:input_actions_for_gameplay",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bInput\\.(?:is_action_\\w+|get_action_strength|get_axis|get_vector)\\s*\\(",
+   "allow": [
+    "src/**/tilt_input.gd"
+   ],
+   "message": "Gameplay never reads Input actions; use TiltInput and the Controls"
+  },
+  {
+   "id": "forbidden:touch_index_filter",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*tap_catcher*.gd"
+   ],
+   "pattern": "\\.index\\s*(?:==|!=)\\s*0\\b",
+   "message": "Do not filter the tap catcher on touch index 0"
+  },
+  {
+   "id": "forbidden:debug_build_gate_for_dev_input",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*tilt_input*.gd",
+    "src/**/*dev_input*.gd"
+   ],
+   "pattern": "\\bOS\\.is_debug_build\\s*\\(",
+   "message": "Gate the synthetic sensor on OS.has_feature(\"editor\"), never is_debug_build"
+  },
+  {
+   "id": "forbidden:pause_resume_as_pause_signal",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bNOTIFICATION_APPLICATION_(?:PAUSED|RESUMED)\\b",
+   "message": "Use FOCUS_OUT / FOCUS_IN, not APPLICATION_PAUSED / RESUMED"
+  },
+  {
+   "id": "forbidden:always_deferred_lifecycle_flush",
+   "source": "ADR-0006",
+   "severity": "ADVISORY",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*platform*.gd"
+   ],
+   "pattern": "\\bcall_deferred\\s*\\(",
+   "message": "Do not marshal the app_backgrounded flush with call_deferred on the main thread (heuristic)"
+  },
+  {
+   "id": "forbidden:ui_cancel_for_back",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bKEY_BACK\\b",
+   "message": "Back is handled only through WM_GO_BACK_REQUEST, not KEY_BACK"
+  },
+  {
+   "id": "forbidden:save_io_outside_save_service",
+   "source": "ADR-0007",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\b(?:ConfigFile|FileAccess|DirAccess)\\b",
+   "allow": [
+    "src/**/save_service.gd"
+   ],
+   "message": "Real file I/O belongs to SaveService only"
+  },
+  {
+   "id": "forbidden:real_filesystem_in_unit_tests",
+   "source": "ADR-0007",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "tests/unit/**/*.gd"
+   ],
+   "pattern": "\\b(?:FileAccess|DirAccess|ConfigFile|ResourceLoader)\\b|\\bTime\\.\\w+",
+   "message": "Unit tests use fakes: no real file system, ResourceLoader or Time"
+  },
+  {
+   "id": "forbidden:global_name_shadowing_in_save_core",
+   "source": "ADR-0007",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*save_core*.gd"
+   ],
+   "pattern": "\\bfunc\\s+(?:load|preload|print|printerr|str|min|max|abs|clamp|lerp|floor|ceil|round|sign|len|range|hash|assert|push_error|push_warning|typeof)\\s*\\(",
+   "message": "SaveCore must not declare methods that shadow global functions (use boot_load)"
+  },
+  {
+   "id": "forbidden:engine_physics_for_hazards",
+   "source": "ADR-0008",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*hazard*.gd",
+    "src/**/*obstacle*.gd",
+    "src/**/*near_miss*.gd",
+    "src/**/*pattern*.gd"
+   ],
+   "pattern": "\\b(?:CollisionObject3D|Area3D|RayCast3D|ShapeCast3D|PhysicsServer[23]D|PhysicsDirectSpaceState3D|PhysicsRayQueryParameters3D|CollisionShape3D|StaticBody3D|RigidBody3D|CharacterBody3D|PhysicsBody3D)\\b",
+   "message": "The hit test is analytic: no engine physics in hazard, obstacle, near-miss or pattern code"
+  },
+  {
+   "id": "forbidden:copy_or_mutate_hazard_resources",
+   "source": "ADR-0008",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*hazard*.gd",
+    "src/**/*obstacle*.gd",
+    "src/**/*near_miss*.gd",
+    "src/**/*pattern*.gd"
+   ],
+   "pattern": "\\.duplicate(?:_deep)?\\s*\\(",
+   "message": "Never duplicate loaded hazard resources or compiled specs"
+  },
+  {
+   "id": "forbidden:float32_footprints",
+   "source": "ADR-0008",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*footprint*.gd"
+   ],
+   "pattern": "\\bVector[234]i?\\b",
+   "message": "Footprints use float and PackedFloat64Array, never Vector2/3/4 (single precision)"
+  },
+  {
+   "id": "forbidden:pattern_global_rng_or_float_draw",
+   "source": "ADR-0008",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*pattern*.gd"
+   ],
+   "pattern": "(?<![\\w.])(?:randomize|randf|randf_range|randi|randi_range)\\s*\\(|\\.(?:shuffle|randf|randf_range)\\s*\\(",
+   "message": "Pattern uses the seeded generator's integer draws only: no global RNG, no float draw, no Array.shuffle()"
+  },
+  {
+   "id": "custom:pattern_rng_seeded_before_draw",
+   "source": "ADR-0008",
+   "severity": "ADVISORY",
+   "kind": "custom",
+   "function": "rng_seeded_before_draw",
+   "scope": [
+    "src/**/*pattern*.gd"
+   ],
+   "message": "Seed the RandomNumberGenerator before its first draw (textual-order heuristic)"
+  },
+  {
+   "id": "forbidden:skip_or_retry_failing_tests",
+   "source": "ADR-0009",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "tests/**/*_test.gd"
+   ],
+   "pattern": "\\b(?:pending|should_skip_script)\\s*\\(",
+   "message": "No pending or skip to obtain a green run"
+  },
+  {
+   "id": "forbidden:unpinned_ci_dependency",
+   "source": "ADR-0009",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    ".github/workflows/*.yml",
+    ".github/workflows/*.yaml"
+   ],
+   "pattern": "^[ \\t]*-?[ \\t]*uses:[ \\t]*\\S+@(?![0-9a-f]{40}(?:\\s|$))|^[ \\t]*(?:container|image):",
+   "message": "Pin GitHub Actions to a 40-character commit SHA; no third-party container image"
+  },
+  {
+   "id": "forbidden:secrets_in_ci",
+   "source": "ADR-0009",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    ".github/workflows/*.yml",
+    ".github/workflows/*.yaml"
+   ],
+   "pattern": "\\$\\{\\{\\s*secrets\\.|^[ \\t]+[\\w-]+:[ \\t]*write[ \\t]*$",
+   "allow": [
+    ".github/workflows/export*.yml"
+   ],
+   "message": "The CI workflow uses no secrets and only read permissions; export lives in a separate reviewed workflow"
+  },
+  {
+   "id": "forbidden:framework_base_in_test_support",
+   "source": "ADR-0009",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "tests/support/**/*.gd"
+   ],
+   "pattern": "\\bextends\\s+Gut\\w*|\\bassert_\\w+\\s*\\(|\\b(?:add_child_autofree|autofree|autoqfree|watch_signals|double|partial_double|stub)\\s*\\(|\\bclass_name\\s+(?:Double|Spy)\\b",
+   "message": "tests/support code must not depend on GUT"
+  },
+  {
+   "id": "forbidden:lint_ignore_comment",
+   "source": "ADR-0009",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd",
+    "tests/**/*.gd"
+   ],
+   "pattern": "(?i)#[^\\n]*\\b(?:lint[:\\s-]*(?:ignore|disable)|nolint|noqa)\\b",
+   "pattern_on": "raw",
+   "message": "Silence a lint only with an allowlist field in lint_rules.json, never an inline comment"
+  },
+  {
+   "id": "forbidden:shader_time_for_effects",
+   "source": "ADR-0010",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "assets/shaders/**/*.gdshader"
+   ],
+   "pattern": "\\bTIME\\b",
+   "message": "Shaders never read TIME for an effect; use a progress uniform written by the core"
+  },
+  {
+   "id": "forbidden:presentation_timer_accumulates_dt",
+   "source": "ADR-0010",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*view*.gd",
+    "src/**/*juice*.gd",
+    "src/**/*ink_cover*.gd",
+    "src/**/*hit_stop*.gd"
+   ],
+   "pattern": "\\+=\\s*(?:real_dt|delta)\\b",
+   "message": "Presentation effects use clock_us stamps, never an accumulated dt"
+  },
+  {
+   "id": "forbidden:world_change_outside_tick",
+   "source": "ADR-0010",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*tube*.gd",
+    "src/**/*world*.gd",
+    "src/**/*seam*.gd"
+   ],
+   "pattern": "\\bcall_deferred\\s*\\(|\\bawait\\b|\\btween_callback\\s*\\(|\\bcreate_tween\\s*\\(",
+   "message": "No deferred call, Tween callback or await may move the tube; world changes happen in GameRoot._tick"
+  },
+  {
+   "id": "forbidden:presentation_tween_outside_ui_motion",
+   "source": "ADR-0010",
+   "severity": "ADVISORY",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bcreate_tween\\s*\\(|\\bAnimationPlayer\\b|\\bTween\\.new\\s*\\(",
+   "allow": [
+    "src/**/*ui_motion*.gd",
+    "src/**/ui/**/*_view.gd"
+   ],
+   "message": "Tweens and AnimationPlayer only in the ADR-0011 UI motion views"
+  },
+  {
+   "id": "forbidden:mouse_behavior_recursive_in_mvp",
+   "source": "ADR-0011",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd",
+    "src/**/*.tscn"
+   ],
+   "pattern": "\\bmouse_behavior_recursive\\b",
+   "message": "mouse_behavior_recursive is not used in the MVP"
+  },
+  {
+   "id": "forbidden:button_disabled_for_gating",
+   "source": "ADR-0011",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*view*.gd",
+    "src/**/*menu*.gd",
+    "src/**/ui/**/*.gd"
+   ],
+   "pattern": "\\.disabled\\s*=(?!=)|\\bset_disabled\\s*\\(",
+   "message": "Gate with is_gated, dimming and the reason label, not Button.disabled"
+  },
+  {
+   "id": "forbidden:literal_canvas_layer_index",
+   "source": "ADR-0011",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\.layer\\s*=\\s*-?\\d+",
+   "message": "Assign CanvasLayer.layer from UiLayers constants, never a literal"
+  },
+  {
+   "id": "forbidden:accessibility_properties_outside_ui_access",
+   "source": "ADR-0011",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\baccessibility_\\w+",
+   "allow": [
+    "src/**/ui_access.gd"
+   ],
+   "message": "accessibility_* appear only in ui_access.gd"
+  },
+  {
+   "id": "forbidden:noninteractive_control_stop_filter",
+   "source": "ADR-0011",
+   "severity": "ADVISORY",
+   "kind": "custom",
+   "function": "noninteractive_mouse_filter",
+   "scope": [
+    "**/*.tscn"
+   ],
+   "types": [
+    "Panel",
+    "PanelContainer",
+    "ColorRect"
+   ],
+   "interactive_names": "(?i)(scrim|tap_?catcher|ink_?cover)",
+   "message": "Non-interactive Panel/PanelContainer/ColorRect must set mouse_filter to PASS or IGNORE"
+  },
+  {
+   "id": "forbidden:global_param_write_outside_render_globals",
+   "source": "ADR-0012",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bglobal_shader_parameter_(?:set|add)\\b",
+   "allow": [
+    "src/**/render_globals.gd"
+   ],
+   "message": "RenderingServer.global_shader_parameter_set appears only in render_globals.gd"
+  },
+  {
+   "id": "forbidden:world_chroma_uniform_in_exempt_shader",
+   "source": "ADR-0012",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "assets/shaders/**/*hazard*.gdshader",
+    "assets/shaders/**/*ball*.gdshader",
+    "assets/shaders/**/*shard*.gdshader",
+    "assets/shaders/**/*ui*.gdshader"
+   ],
+   "pattern": "\\buniform\\s+\\w+\\s+world_chroma\\b",
+   "message": "Hazard body, ball, shard and UI shaders never declare world_chroma (exemption must be structural)"
+  },
+  {
+   "id": "shader:hit_grey_in_exempt_shader",
+   "source": "ADR-0012",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "assets/shaders/**/*ball*.gdshader",
+    "assets/shaders/**/*shard*.gdshader",
+    "assets/shaders/**/*ui*.gdshader"
+   ],
+   "pattern": "\\buniform\\s+\\w+\\s+hit_grey\\b",
+   "message": "Ball, shard and UI shaders never declare hit_grey"
+  },
+  {
+   "id": "forbidden:chroma_function_drift",
+   "source": "ADR-0012",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "assets/shaders/**/*.gdshader"
+   ],
+   "pattern": "^[ \\t]*#include\\b",
+   "message": "No #include in shaders (4.7 preprocessor restrictions); the chroma block is copied per shader (text-identity check pending the canonical snippet)"
+  },
+  {
+   "id": "forbidden:ball_material_second_writer",
+   "source": "ADR-0012",
+   "severity": "ADVISORY",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\b(?:ball_material|ball_mat)\\b",
+   "allow": [
+    "src/**/ball_view.gd"
+   ],
+   "message": "Only BallView touches the ball material (heuristic)"
+  },
+  {
+   "id": "forbidden:raw_s_in_vector3",
+   "source": "ADR-0013",
+   "severity": "ADVISORY",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*view*.gd"
+   ],
+   "pattern": "\\bVector3\\s*\\([^()\\n]*(?:(?<![\\w.])(?:s|s_offset)|\\b\\w+\\.s(?:_offset)?)(?![\\w(])[^()\\n]*\\)",
+   "exclude": [
+    "src/**/world_frame.gd"
+   ],
+   "message": "Build node positions from s only through WorldFrame.render_z"
+  },
+  {
+   "id": "forbidden:hazard_multimesh_arc_deform",
+   "source": "ADR-0014",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*hazard*.gd",
+    "src/**/*hazard*.tscn"
+   ],
+   "pattern": "\\bMultiMesh(?:Instance3D)?\\b",
+   "message": "No MultiMesh for hazards"
+  },
+  {
+   "id": "forbidden:hazard_mesh_built_in_tick",
+   "source": "ADR-0014",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*hazard*.gd"
+   ],
+   "pattern": "\\bArrayMesh\\.new\\s*\\(|\\badd_surface_from_arrays\\b",
+   "allow": [
+    "src/**/*hazard_view*.gd",
+    "src/**/*hazard_mesh_builder*.gd"
+   ],
+   "message": "ArrayMesh for hazards is created only in HazardView.apply_map (file-level check)"
+  },
+  {
+   "id": "forbidden:hazard_material_override_whole",
+   "source": "ADR-0014",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*hazard*.gd",
+    "src/**/*hazard*.tscn"
+   ],
+   "pattern": "\\bmaterial_override\\b",
+   "message": "No material_override on a hazard node; use set_surface_override_material(0, ...)"
+  },
+  {
+   "id": "forbidden:autoload_singletons",
+   "source": "ADR-0002",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "section_empty",
+   "section": "autoload",
+   "allow_keys": [],
+   "message": "No [autoload] entries for game systems; GameRoot owns them"
+  },
+  {
+   "id": "project_setting:emulate_mouse_from_touch",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "input_devices/pointing/emulate_mouse_from_touch",
+   "value": "true",
+   "required": false,
+   "message": "emulate_mouse_from_touch must stay true"
+  },
+  {
+   "id": "project_setting:emulate_touch_from_mouse",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "input_devices/pointing/emulate_touch_from_mouse",
+   "value": "true",
+   "required": true,
+   "message": "emulate_touch_from_mouse must be true (desktop testing path)"
+  },
+  {
+   "id": "forbidden:extra_sensor_flags",
+   "source": "ADR-0005",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "only_true",
+   "prefix": "input_devices/sensors/",
+   "allow_keys": [
+    "input_devices/sensors/enable_gravity"
+   ],
+   "message": "Only input_devices/sensors/enable_gravity may be true among the sensor flags"
+  },
+  {
+   "id": "project_setting:quit_on_go_back",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "application/config/quit_on_go_back",
+   "value": "false",
+   "required": true,
+   "message": "application/config/quit_on_go_back must be false (WM_GO_BACK_REQUEST is the single back hook)"
+  },
+  {
+   "id": "project_setting:handheld_orientation",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "display/window/handheld/orientation",
+   "value": "1",
+   "required": true,
+   "message": "display/window/handheld/orientation must be 1 (portrait)"
+  },
+  {
+   "id": "project_setting:physics_interpolation",
+   "source": "ADR-0013",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "physics/common/physics_interpolation",
+   "value": "false",
+   "required": false,
+   "message": "physics/common/physics_interpolation must be false (ADR-0013)"
+  },
+  {
+   "id": "forbidden:opengl_renderer_fallback",
+   "source": "ADR-0003",
+   "severity": "ADVISORY",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "rendering/rendering_device/fallback_to_opengl3",
+   "value": "false",
+   "required": true,
+   "message": "rendering/rendering_device/fallback_to_opengl3 must be false (key name unverified on 4.7.2)"
+  },
+  {
+   "id": "manifest:exclude_filter",
+   "source": "ADR-0009",
+   "severity": "BLOCKING",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "lines_require": [
+    {
+     "line_pattern": "^exclude_filter=",
+     "contains": [
+      "tests/*",
+      "addons/gut/*",
+      "tools/*",
+      "build/*"
+     ]
+    }
+   ],
+   "message": "exclude_filter must cover tests/*, addons/gut/*, tools/* and build/*"
+  },
+  {
+   "id": "forbidden:duplicate_vulkan_uses_feature",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "max_matches": [
+    {
+     "pattern": "android\\.hardware\\.vulkan\\.version",
+     "max": 1
+    }
+   ],
+   "message": "Exactly one Vulkan uses-feature entry (1.1)"
+  },
+  {
+   "id": "forbidden:internet_permission_in_release",
+   "source": "ADR-0006",
+   "severity": "ADVISORY",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "forbid": [
+    "^permissions/(?!vibrate\\b)\\w+\\s*=\\s*true"
+   ],
+   "message": "Release builds declare VIBRATE only (debug presets may add INTERNET)"
+  },
+  {
+   "id": "manifest:allow_backup",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "forbid": [
+    "^user_data_backup/allow\\s*=\\s*true"
+   ],
+   "message": "Auto backup must stay off (allowBackup=false)"
+  },
+  {
+   "id": "forbidden:keystore_in_repository",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "secret",
+   "names_only": true,
+   "scope": [
+    "**/*.keystore",
+    "**/*.jks"
+   ],
+   "vacuous_pass_ok": true,
+   "message": "No keystore file may be committed"
+  },
+  {
+   "id": "secret:preset_credentials",
+   "source": "ADR-0006",
+   "severity": "BLOCKING",
+   "kind": "secret",
+   "scope": [
+    "export_presets.cfg",
+    "**/export_presets.cfg",
+    ".github/workflows/*.yml",
+    ".github/workflows/*.yaml"
+   ],
+   "pattern_on": "raw",
+   "pattern": "(?i)(?:password|storepass|keypass)\\w*\\s*[=:]\\s*[\\\"'][^\\\"'$\\s][^\\\"']*[\\\"']",
+   "message": "No keystore alias or password in presets or workflows"
+  },
+  {
+   "id": "custom:scoring_reflection_check",
+   "source": "scoring-personal-best GDD",
+   "severity": "ADVISORY",
+   "kind": "custom",
+   "function": "scoring_reflection_check",
+   "stub": true,
+   "scope": [
+    "src/**/*scor*.gd"
+   ],
+   "message": "Scoring reflection check (stub: not yet specified)"
+  }
+ ]
+}

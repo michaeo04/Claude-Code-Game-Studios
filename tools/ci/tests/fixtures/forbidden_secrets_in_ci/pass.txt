@@ -1,0 +1,3 @@
+#@path: .github/workflows/exportx.yml
+env:
+  K: ${{ secrets.KEY }}

@@ -1,0 +1,3 @@
+#@path: src/sub/xviewx.gd
+n.position = Vector3(0.0, 0.0, WorldFrame.render_z(snapshot.s))
+var v := Vector3(x, y, z)

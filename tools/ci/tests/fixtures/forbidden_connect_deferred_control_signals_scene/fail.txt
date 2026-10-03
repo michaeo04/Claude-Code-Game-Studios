@@ -1,0 +1,2 @@
+#@path: sub/x.tscn
+[connection signal="run_started" from="A" to="B" method="m" flags=3]

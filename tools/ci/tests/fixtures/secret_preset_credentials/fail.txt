@@ -1,0 +1,2 @@
+#@path: export_presets.cfg
+keystore/release_password="hunter2"

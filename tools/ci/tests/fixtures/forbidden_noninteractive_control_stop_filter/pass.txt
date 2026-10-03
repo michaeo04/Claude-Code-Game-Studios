@@ -1,0 +1,5 @@
+#@path: sub/x.tscn
+[node name="Pill" type="Panel" parent="."]
+mouse_filter = 2
+[node name="Scrim" type="ColorRect" parent="."]
+color = Color(0, 0, 0, 1)

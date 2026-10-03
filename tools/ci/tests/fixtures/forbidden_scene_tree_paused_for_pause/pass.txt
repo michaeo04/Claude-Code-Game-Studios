@@ -1,0 +1,3 @@
+#@path: src/sub/x.gd
+var p := get_tree().paused == false
+# get_tree().paused = true

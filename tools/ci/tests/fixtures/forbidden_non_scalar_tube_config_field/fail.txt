@@ -1,0 +1,2 @@
+#@path: src/sub/xtube_configx.gd
+@export var points: Array = []

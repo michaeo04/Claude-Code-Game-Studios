@@ -1,0 +1,3 @@
+#@path: src/sub/xtubex.gd
+# await is banned
+move()

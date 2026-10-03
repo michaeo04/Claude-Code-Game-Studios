@@ -1,0 +1,3 @@
+#@path: project.godot
+[autoload]
+GameState="*res://src/game_state.gd"

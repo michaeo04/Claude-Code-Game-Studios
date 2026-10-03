@@ -1,0 +1,3 @@
+#@path: src/sub/xsave_corex.gd
+func boot_load(path):
+	pass

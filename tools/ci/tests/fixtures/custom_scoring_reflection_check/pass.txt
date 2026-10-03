@@ -1,0 +1,2 @@
+#@path: src/sub/xscorx.gd
+var a = 1

@@ -1,0 +1,2 @@
+#@path: docs/readme.txt
+no keystore here

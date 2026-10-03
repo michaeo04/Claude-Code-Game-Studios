@@ -1,0 +1,2 @@
+#@path: src/sub/ball_view.gd
+ball_material.set_shader_parameter("a", 1)

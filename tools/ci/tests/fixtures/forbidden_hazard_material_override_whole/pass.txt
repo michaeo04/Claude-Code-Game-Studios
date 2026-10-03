@@ -1,0 +1,2 @@
+#@path: src/sub/xhazardx.gd
+node.set_surface_override_material(0, m)

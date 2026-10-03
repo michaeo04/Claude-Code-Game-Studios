@@ -1,0 +1,2 @@
+#@path: assets/shaders/sub/xhazardx.gdshader
+global uniform float world_chroma;

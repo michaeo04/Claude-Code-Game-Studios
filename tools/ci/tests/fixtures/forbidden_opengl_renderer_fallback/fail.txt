@@ -1,0 +1,3 @@
+#@path: project.godot
+[rendering]
+rendering_device/fallback_to_opengl3=true

@@ -1,0 +1,2 @@
+#@path: src/sub/x.gd
+env.glow_enabled = true

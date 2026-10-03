@@ -1,0 +1,3 @@
+#@path: project.godot
+[application]
+config/quit_on_go_back=true

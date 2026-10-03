@@ -1,0 +1,2 @@
+#@path: assets/shaders/sub/x.gdshader
+#include "res://a.gdshaderinc"

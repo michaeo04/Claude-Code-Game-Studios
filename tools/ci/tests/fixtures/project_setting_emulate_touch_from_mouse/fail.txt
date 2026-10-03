@@ -1,0 +1,3 @@
+#@path: project.godot
+[input_devices]
+pointing/emulate_mouse_from_touch=true
