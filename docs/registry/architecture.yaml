@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-03"  # ADR-0002 to ADR-0009, ADR-0011 and ADR-0014 stances added
+last_updated: "2026-10-03"  # ADR-0002 to ADR-0009, ADR-0011, ADR-0012 and ADR-0014 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -270,6 +270,40 @@ state_ownership:
     write_access: ui-layers-constants-only
     referenced_by:
       - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
+
+  - state: ball_material
+    status: active
+    owner_system: ball-view
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    interface: "BallView builds and owns the ball ShaderMaterial (unshaded body, fresnel rim); the only writes are set_luminance_target(l) (Environment F3) and set_rim_glow(v) (Juice), reached through injected Callable sinks; written only when changed"
+    write_access: ball-view-only
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - state: world_chroma_state
+    status: active
+    owner_system: world-chroma
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    interface: "WorldChroma (RefCounted) holds world_chroma (set_world_chroma, Environment only) and hit_grey (set_hit_grey, Juice only); writes the two global shader parameters through render_globals.gd and the effective fog colour through a fog sink in the same call"
+    write_access: environment-world-chroma-juice-hit-grey
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - state: killer_isolation
+    status: active
+    owner_system: hazard-view
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    interface: "HazardView.isolate_killer(hazard_id) sets surface 0 override to killer_material on the bound node; clear_isolation(); release, release_all and bind also clear the override; idempotent, no-op with a log if the hazard has no node"
+    write_access: hazard-view-only
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
     added: 2026-10-03
     revised: ""
 
@@ -541,6 +575,47 @@ interfaces:
     signal_signature: "UiAccess.name_control(c, name), set_gated(c, reason), announce(text), set_live(c, mode); the only file that touches accessibility_* properties; no acceptance criterion depends on it until spike UI-A1"
     referenced_by:
       - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
+
+  - contract: ball_view_setters
+    status: active
+    pattern: direct_call
+    producer: environment-theming
+    consumers:
+      - ball-view
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    signal_signature: "ball_luminance_sink(l: float) -> BallView.set_luminance_target (Environment only); rim_glow_sink(v: float) -> BallView.set_rim_glow (Juice only); Callable seams, never a BallView reference in the cores; Camera reads the Ball snapshot, never BallView's transform"
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - contract: world_chroma_setters
+    status: active
+    pattern: direct_call
+    producer: world-chroma
+    consumers:
+      - environment-theming
+      - juice-feedback
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    signal_signature: "WorldChroma.set_world_chroma(c: float) (Environment), set_hit_grey(g: float) (Juice), set_base_fog_color(c: Color) (Environment.apply_map); write only on change"
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - contract: killer_isolation_calls
+    status: active
+    pattern: direct_call
+    producer: juice-feedback
+    consumers:
+      - hazard-view
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    signal_signature: "HazardView.isolate_killer(hazard_id: int) at run_ended, HazardView.clear_isolation() at run_reset; Juice passes only the id"
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
     added: 2026-10-03
     revised: ""
 
@@ -1085,6 +1160,40 @@ api_decisions:
     added: 2026-10-03
     revised: ""
 
+
+  - purpose: world_chroma_transport
+    status: active
+    api: "two global shader parameters (shader_globals world_chroma default 1.0, hit_grey default 0.0) declared in project.godot, read only in fragment() or the sky shader; tube, sky, prop, plinth declare both, hazard bodies only hit_grey, ball, shards and pickups neither"
+    not: "per-material world_chroma uniforms (fallback only), an object flag gating a shared uniform, a post-process desaturation, Compositor"
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    reason: "Exemption by construction; luminance is preserved so Environment F1 and the fairness numbers hold."
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: chroma_color_space
+    status: active
+    api: "chroma = luma + (c - luma) * k on LINEAR colour, luma weights 0.2126 0.7152 0.0722; CPU copies use ChromaMath.apply_srgb (srgb_to_linear, apply, linear_to_srgb) for fog_light_color and source_color uniforms"
+    not: "applying the operation to sRGB colours, additive terms in EMISSION on unshaded materials"
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    reason: "Authored colours are sRGB and shaders are linear; a mismatch makes fog and tube disagree (horizon line)."
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: fog_sky_settings
+    status: active
+    api: "fog_sky_affect 0, fog_aerial_perspective 0, fog_sun_scatter 0, fog_light_energy 1.0, ambient and reflected light sources disabled; fog_color equals the sky horizon colour (EnvConfig.validated)"
+    not: "fog_sky_affect 1 (flattens the sky gradient), chroma applied twice to the sky"
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    reason: "The fully fogged tube end must equal the sky behind it at every chroma and grey value."
+    referenced_by:
+      - docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+    revised: ""
+
 # Example:
 #
 # api_decisions:
@@ -1481,6 +1590,35 @@ forbidden_patterns:
     description: "A non-interactive Control (pill background, row, container, Hit flash ColorRect) never keeps mouse_filter STOP; only buttons, sliders, scrims, the tap catcher and the Ink cover are STOP."
     why: "Panel, PanelContainer and ColorRect default to STOP and would swallow taps and scroll drags."
     adr: docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+
+
+  - pattern: global_param_write_outside_render_globals
+    status: active
+    description: "RenderingServer.global_shader_parameter_set appears only in render_globals.gd; no global_shader_parameter_add for names declared in project.godot."
+    why: "One call site, on the engine-call allowlist; an undeclared or duplicate name errors every frame."
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+
+  - pattern: world_chroma_uniform_in_exempt_shader
+    status: active
+    description: "The hazard body, ball, shard and UI shaders never declare world_chroma; ball, shard and UI shaders never declare hit_grey either."
+    why: "Exemption must be structural, not an object flag."
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+
+  - pattern: chroma_function_drift
+    status: active
+    description: "The chroma function block is copied per shader and must be textually identical to the canonical snippet (lint); no #include in shaders."
+    why: "4.7 preprocessor restrictions; the CPU fixture test cannot catch a drifted shader copy."
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
+    added: 2026-10-03
+
+  - pattern: ball_material_second_writer
+    status: active
+    description: "No system other than BallView writes the ball material; Environment and Juice use the two setters through Callable sinks."
+    why: "One owner and one writer per material."
+    adr: docs/architecture/adr-0012-ball-material-and-world-chroma.md
     added: 2026-10-03
 
 # Example:
