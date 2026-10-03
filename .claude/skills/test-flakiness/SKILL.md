@@ -47,8 +47,8 @@ ls -t .github/ 2>/dev/null
 ls -t test-results/ 2>/dev/null
 ```
 
-For Godot projects: GdUnit4 outputs XML results compatible with JUnit format.
-Check `test-results/` for `.xml` files.
+For Godot projects: `tools/ci/run_ci.py` makes GUT write JUnit XML to `build/test-reports/` (ADR-0009).
+Check `build/test-reports/` for `.xml` files (and the downloaded `test-reports` CI artifact).
 
 For Unity projects: game-ci test runner outputs NUnit XML to `test-results/`
 by default.
@@ -78,7 +78,7 @@ Stop and ask the user which option to pursue.
 
 For each CI log or result file found, parse:
 
-**JUnit XML format** (GdUnit4 / Unity):
+**JUnit XML format** (GUT / Unity):
 - Grep for `<testcase name=` to get test names
 - Grep for `<failure` or `<error` to identify failures
 - Parse `classname` and `name` attributes for full test identifiers
@@ -129,7 +129,7 @@ For each flaky test:
 
 **Quarantine (High flakiness):**
 > "Quarantine this test immediately. Disable it in CI by adding
-> `@pytest.mark.skip` / `[Ignore]` / `GdUnitSkip` annotation. Log it in
+> `@pytest.mark.skip` / `[Ignore]` annotation (Godot/GUT: ADR-0009 forbids skip, pending and retry to get a green run, so a flaky GUT test is fixed first, or deleted with a written reason). Log it in
 > `tests/regression-suite.md` quarantine section. The test is now opt-in only.
 > Fix the root cause before removing quarantine."
 

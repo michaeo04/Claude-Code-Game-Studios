@@ -78,16 +78,16 @@ Report findings before proceeding: "Environment: [engine]. Test directory:
 Attempt to run the test suite via Bash. Select the command based on the engine
 detected in Phase 1:
 
-**Godot 4:**
+**Godot 4 (GUT, ADR-0009):**
 ```bash
-godot --headless --script tests/gdunit4_runner.gd 2>&1
+python tools/ci/run_ci.py --only unit 2>&1
 ```
-If the GDUnit4 runner script does not exist at that path, try:
-```bash
-godot --headless -s addons/gdunit4/GdUnitRunner.gd 2>&1
-```
-If neither path exists, note: "GDUnit4 runner not found — confirm the runner
-path for your test framework."
+`run_ci.py` runs `godot --headless --path . --import`, then GUT over `tests/unit/`, and
+checks the JUnit XML (`build/test-reports/`) instead of trusting the exit code. If
+`tools/ci/run_ci.py` does not exist, note: "CI entry command not found - ADR-0009
+Migration Plan step 2 is not done" and treat the automated step as NOT RUN, never PASS.
+If the output says `project.godot`, `addons/gut` or the Godot binary is missing, report
+that exact message and mark the automated step NOT RUN.
 
 **Unity:**
 Unity tests require the editor and cannot be run headlessly via shell in most

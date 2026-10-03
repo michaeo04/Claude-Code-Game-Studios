@@ -2671,10 +2671,10 @@ requirements:
     system: environment-theming
     gdd: design/gdd/environment-theming.md
     category: "Rendering"
-    requirement: "The Double Gate plinth is environment-owned geometry. Height is 0.15D, the span is the gate arc plus a 0.5D margin each end, the edge is filleted, chroma is at most 0.05, and it never uses the Signal Red or Ember hex. It is subject to the 0.88 chroma shift"
+    requirement: "The Double Gate plinth is environment-owned geometry built as one footing per hazard piece, never one span across the gate gap. Height is 0.15D, the s extension beyond a piece is at most D/2 - sqrt(h*(D-h)) (0.114 u, default 0; ADR-0014 I4), the edge is filleted, chroma is at most 0.05, and it never uses the Signal Red or Ember hex. It is subject to the 0.88 chroma shift"
     source: "Rule 10, V/A"
     created: 2026-10-03
-    revised: ""
+    revised: 2026-10-03
     status: active
   - id: TR-environment-theming-013
     system: environment-theming

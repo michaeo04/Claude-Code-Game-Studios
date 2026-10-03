@@ -33,7 +33,7 @@ A test framework installed at sprint four costs 3 sprints.
    - Glob `tests/` — does the directory exist?
    - Glob `tests/unit/` and `tests/integration/` — do subdirectories exist?
    - Glob `.github/workflows/` — does a CI workflow file exist?
-   - Glob `tests/gdunit4_runner.gd` (Godot) or `tests/EditMode/` (Unity) or
+   - Glob `.gutconfig.json` and `tools/ci/run_ci.py` (Godot, GUT, ADR-0009) or `tests/EditMode/` (Unity) or
      `Source/Tests/` (Unreal) for engine-specific artifacts.
 
 3. **Report findings**:
@@ -88,7 +88,7 @@ After approval, create the following files:
 # Test Infrastructure
 
 **Engine**: [engine name + version]
-**Test Framework**: [GdUnit4 | Unity Test Framework | UE Automation]
+**Test Framework**: [GUT 9.x (Godot, ADR-0009) | Unity Test Framework | UE Automation]
 **CI**: `.github/workflows/tests.yml`
 **Setup date**: [date]
 
@@ -133,36 +133,19 @@ A failed test suite blocks merging.
 
 #### Godot 4 (`Engine: Godot`)
 
-Create `tests/gdunit4_runner.gd`:
+If the project already follows ADR-0009 (`.gutconfig.json`, `tools/ci/run_ci.py`,
+`tests/support/`), do not regenerate it: report what exists and stop. Otherwise create:
 
-```gdscript
-# GdUnit4 test runner — invoked by CI and /smoke-check
-# Usage: godot --headless --script tests/gdunit4_runner.gd
-extends SceneTree
+- `.gutconfig.json`: `{"dirs": ["res://tests/unit/", "res://tests/integration/"], "include_subdirs": true, "prefix": "", "suffix": "_test.gd", "should_exit": true, "junit_xml_file": "res://build/test-reports/gut.xml", "log_level": 1}` (GUT's default prefix `test_` would match none of the `[system]_[feature]_test.gd` files; option names are unverified on 4.7.2 until spike T-1)
+- `tests/unit/`, `tests/integration/`, `tests/advisory/`, `tests/support/` (one subdirectory per system; `support/` holds framework-free fixtures and fakes, ADR-0009 Decision 1)
+- `tools/ci/run_ci.py` (the one entry command, ADR-0009 Decision 3: `godot --headless --path . --import`, GUT over unit then integration, advisory as warning, then `lint_runner.py`; a green exit code is never trusted, the JUnit XML and the output are checked)
 
-func _init() -> void:
-    var runner := load("res://addons/gdunit4/GdUnitRunner.gd")
-    if runner == null:
-        push_error("GdUnit4 not found. Install via AssetLib or addons/.")
-        quit(1)
-        return
-    var instance = runner.new()
-    instance.run_tests()
-    quit(0)
+Note in the README: **Installing GUT**
 ```
-
-Create `tests/unit/.gdignore_placeholder` with content:
-`# Unit tests go here — one subdirectory per system (e.g., tests/unit/combat/)`
-
-Create `tests/integration/.gdignore_placeholder` with content:
-`# Integration tests go here — one subdirectory per system`
-
-Note in the README: **Installing GdUnit4**
-```
-1. Open Godot → AssetLib → search "GdUnit4" → Download & Install
-2. Enable the plugin: Project → Project Settings → Plugins → GdUnit4 ✓
-3. Restart the editor
-4. Verify: res://addons/gdunit4/ exists
+1. Vendor the pinned GUT release under res://addons/gut/ (release tag, upstream commit and licence recorded in tools/ci/versions.json by spike T-1)
+2. Do not add an [editor_plugins] entry unless the editor panel is wanted
+3. Run: python tools/ci/run_ci.py --only unit
+4. Verify: build/test-reports/gut.xml exists and reports more than zero tests
 ```
 
 #### Unity (`Engine: Unity`)
@@ -208,44 +191,12 @@ Test category naming: "MyGame.[System].[Feature]"
 
 ### Godot 4
 
-Create `.github/workflows/tests.yml`:
-
-```yaml
-name: Automated Tests
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  test:
-    name: Run GdUnit4 Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          lfs: true
-
-      - name: Run GdUnit4 Tests
-        uses: MikeSchulze/gdUnit4-action@v1
-        with:
-          godot-version: '[VERSION FROM docs/engine-reference/godot/VERSION.md]'
-          paths: |
-            tests/unit
-            tests/integration
-          report-name: test-results
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: reports/
-```
+If `.github/workflows/ci.yml` already exists (ADR-0009 Decision 4), keep it. Otherwise
+create `.github/workflows/ci.yml` as in ADR-0009: Linux runner, `permissions: contents: read`,
+`persist-credentials: false`, every action pinned to a commit SHA, the official Godot 4.7.2
+archive verified against a SHA-512 committed by hand in `tools/ci/versions.json`, then
+`python3 tools/ci/run_ci.py` and an upload of `build/test-reports/`. Do not use a third-party
+Godot action or container, and keep the trigger `workflow_dispatch` only until spike T-2 is green.
 
 ### Unity
 
@@ -396,7 +347,7 @@ Files created:
 - .github/workflows/tests.yml
 
 Next steps:
-1. [Engine-specific install step, e.g., "Install GdUnit4 via AssetLib"]
+1. [Engine-specific install step, e.g., "Vendor the pinned GUT release (spike T-1)"]
 2. Write your first test: create tests/unit/[first-system]/[system]_test.[ext]
 3. Run `/qa-plan sprint` before your first sprint to classify stories and set
    test evidence requirements

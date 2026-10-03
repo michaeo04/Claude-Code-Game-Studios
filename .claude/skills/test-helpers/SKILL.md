@@ -72,101 +72,45 @@ Also read:
 
 ## 4. Generate Engine-Specific Helpers
 
-### Godot 4 (GDUnit4 / GDScript)
+### Godot 4 (GUT / GDScript, ADR-0009)
 
-**Base helper** (`tests/helpers/game_assertions.gd`):
+Fixtures and fakes are **framework independent**: they live in `tests/support/` (not
+`tests/helpers/`) as plain `RefCounted` classes and functions with no GUT base class and
+no GUT call, so a switch of test framework is a mechanical port of the `*_test.gd` files
+only. Test files reference them with `const X = preload("res://tests/support/x.gd")`
+(no class cache needed headless). Do not use `assert()` in helpers (it is stripped in
+release builds and aborts the whole run when it fails): helpers return a value, a
+`bool`, or an error `String`, and the `*_test.gd` file asserts with GUT
+(`assert_true`, `assert_eq`, `assert_almost_eq(a, b, 1e-6)`).
+
+**Pure assertion helpers** (`tests/support/game_checks.gd`):
 
 ```gdscript
-## Game-specific assertion utilities for [Project Name] tests.
-## Extends GdUnitAssertions with domain-specific helpers.
-##
-## Usage:
-##   var assert = GameAssertions.new()
-##   assert.health_in_range(entity, 0, entity.max_health)
-
-class_name GameAssertions
+## Framework-free checks. Return "" when the check passes, otherwise a message.
+## Usage in a test: assert_eq(GameChecks.in_range(v, 0.0, 1.0, "speed"), "")
+class_name GameChecksSupport   # unique prefix; tests use preload(), not the class_name
 extends RefCounted
 
-## Assert a value is within the inclusive range [min_val, max_val].
-## Use for any formula output that has defined bounds in a GDD.
-static func assert_in_range(
-    value: float,
-    min_val: float,
-    max_val: float,
-    label: String = "value"
-) -> void:
-    assert(
-        value >= min_val and value <= max_val,
-        "%s %.2f is outside expected range [%.2f, %.2f]" % [label, value, min_val, max_val]
-    )
-
-## Assert a signal was emitted during a callable block.
-## Usage: assert_signal_emitted(entity, "health_changed", func(): entity.take_damage(10))
-static func assert_signal_emitted(
-    obj: Object,
-    signal_name: String,
-    action: Callable
-) -> void:
-    var emitted := false
-    obj.connect(signal_name, func(_args): emitted = true)
-    action.call()
-    assert(emitted, "Expected signal '%s' to be emitted, but it was not." % signal_name)
-
-## Assert that a callable does NOT emit a signal.
-static func assert_signal_not_emitted(
-    obj: Object,
-    signal_name: String,
-    action: Callable
-) -> void:
-    var emitted := false
-    obj.connect(signal_name, func(_args): emitted = true)
-    action.call()
-    assert(not emitted, "Expected signal '%s' NOT to be emitted, but it was." % signal_name)
-
-## Assert a node exists at path within a parent.
-static func assert_node_exists(parent: Node, path: NodePath) -> void:
-    assert(
-        parent.has_node(path),
-        "Expected node at path '%s' to exist." % str(path)
-    )
+static func in_range(value: float, min_val: float, max_val: float, label: String = "value") -> String:
+    if value >= min_val and value <= max_val:
+        return ""
+    return "%s %.6f is outside [%.6f, %.6f]" % [label, value, min_val, max_val]
 ```
 
-**Factory helper** (`tests/helpers/game_factory.gd`):
+**Signal recorder** (`tests/support/signal_log.gd`): connects to a signal with a typed
+handler and appends the arguments to an `Array` (a lambda captures a primitive by value,
+so count through an `Array` or a member). The test asserts on `log.size()` and the
+recorded arguments.
 
-```gdscript
-## Factory functions for creating test game objects.
-## Returns minimal objects configured for unit testing (no scene tree required).
-##
-## Usage: var player = GameFactory.make_player(health: 100)
+**Fakes** (`tests/support/`): `FakeSaveFs` (ADR-0007 `SaveFs`), `make_clock_stub()`
+(an injected `clock_us: Callable`), fixture factories such as `make_save_fixture()` and
+`make_obstacle_fixture()` that return plain objects built from constants, not random
+values. Do not name a fake `Double` or `Spy` (GUT reserves them).
 
-class_name GameFactory
-extends RefCounted
-
-## Create a minimal player-like object for testing.
-## Override fields as needed.
-static func make_player(health: int = 100) -> Node:
-    var player = Node.new()
-    player.set_meta("health", health)
-    player.set_meta("max_health", health)
-    return player
-```
-
-**Scene helper** (`tests/helpers/scene_runner_helper.gd`):
-
-```gdscript
-## Utilities for scene-based integration tests.
-## Wraps GdUnitSceneRunner for common patterns.
-
-class_name SceneRunnerHelper
-extends GdUnitTestSuite
-
-## Load a scene and wait one frame for _ready() to complete.
-func load_scene_and_wait(scene_path: String) -> Node:
-    var scene = load(scene_path).instantiate()
-    add_child(scene)
-    await get_tree().process_frame
-    return scene
-```
+**Node tests** (`[N]` in a GDD): the test file extends `GutTest`, creates the thin
+driver Node with `add_child_autofree(node)`, and awaits `get_tree().process_frame` once
+when `_ready()` must complete. Node tests assert structure only; rendering classes run
+under the dummy headless renderer and visual output is never asserted.
 
 ---
 

@@ -275,7 +275,7 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
 - **Pillar 5**: boosters are temporary and found in-run only; no permanent
   upgrades or purchasable advantages.
 - Unresolved from the gate: weekly available hours are still unstated;
-  GUT vs gdunit4 must be settled before Technical Setup.
+  GUT vs gdunit4: settled 2026-10-03 by ADR-0009 (GUT 9.x, pinned; gdUnit4 only as the fallback if spike T-1 fails).
 
 ---
 
