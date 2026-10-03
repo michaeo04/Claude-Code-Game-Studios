@@ -5,7 +5,7 @@
 > **Architecture Module**: Settings & Accessibility
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories settings-accessibility`
+> **Stories**: 12 stories (see table)
 
 ## Overview
 
@@ -57,6 +57,23 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [SettingsMath (seam contrast, sensitivity validation)](story-001-settings-math.md) | Logic | Ready | ADR-0002 |
+| 002 | [SettingsCore construction, fixtures, boot read](story-002-core-construction-boot-read.md) | Logic | Ready | ADR-0002 |
+| 003 | [Boot-time sensitivity validation and logging](story-003-boot-sensitivity-clamp.md) | Logic | Ready | ADR-0002 |
+| 004 | [Typed getters, no seam access after construction](story-004-getters.md) | Logic | Ready | ADR-0002 |
+| 005 | [set_value write, no-op, setting_changed](story-005-set-value-write-and-event.md) | Logic | Ready (GDD Core Rule 5 amended 2026-10-03) | ADR-0007 |
+| 006 | [Runtime sensitivity validation, unknown key](story-006-runtime-validation-unknown-key.md) | Logic | Ready | ADR-0002 |
+| 007 | [Failed write keeps in-memory value](story-007-write-failure.md) | Logic | Ready | ADR-0007 |
+| 008 | [No consumer seams, call surface, determinism](story-008-isolation-determinism.md) | Logic | Ready | ADR-0002 |
+| 009 | [Architecture and coupling lint](story-009-architecture-lint.md) | Logic | Ready | ADR-0009 |
+| 010 | [Shipped defaults smoke (advisory)](story-010-defaults-smoke.md) | Config/Data | Ready | ADR-0009 |
+| 011 | [Real Save round trip](story-011-save-roundtrip-integration.md) | Integration | Ready | ADR-0007 |
+| 012 | [Composition wiring, haptics push, live consumers](story-012-composition-and-consumers.md) | Integration | Ready | ADR-0002 |
+
 ## Next Step
 
-Run `/create-stories settings-accessibility` to break this epic into implementable stories.
+Run `/story-readiness production/epics/settings-accessibility/story-001-settings-math.md`, then `/dev-story`.

@@ -5,7 +5,7 @@
 > **Architecture Module**: Tube Track
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories tube-track`
+> **Stories**: 14 stories (see table)
 
 ## Overview
 
@@ -65,6 +65,25 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [TubeMath frame, angle wrap, lane/facet formulas](story-001-tubemath-frame-angles.md) | Logic | Ready | ADR-0013 |
+| 002 | [TubeMath segment index, window sizes, seam spacing](story-002-tubemath-segments-window-seams.md) | Logic | Ready | ADR-0009 |
+| 003 | [TubeConfig resource and validate() code set](story-003-tubeconfig-validation.md) | Logic | Ready | ADR-0004 |
+| 004 | [WorldFrame render origin and rebase lint](story-004-worldframe-render-origin.md) | Logic | Ready | ADR-0013 |
+| 005 | [TubeWindow state machine, priming, load_map](story-005-tubewindow-state-machine.md) | Logic | Ready | ADR-0002 |
+| 006 | [advance(s) and synchronous recycling](story-006-tubewindow-advance-recycling.md) | Logic | Ready | ADR-0002 |
+| 007 | [Re-entrancy guard, binder contract](story-007-tubewindow-reentrancy-guard.md) | Logic | Ready | ADR-0002 |
+| 008 | [Idle scroll step and deterministic content](story-008-idle-scroll-and-content-determinism.md) | Logic | Ready | ADR-0003 |
+| 009 | [300 s deterministic window simulation](story-009-window-simulation-300s.md) | Logic | Ready | ADR-0009 |
+| 010 | [Run State adapter and map-load integration](story-010-run-state-adapter.md) | Integration | Ready | ADR-0004 |
+| 011 | [TubeView mesh, shared material, slots, rebase](story-011-tubeview-mesh-slots.md) | Integration | Ready | ADR-0003 |
+| 012 | [Seam shader band and per-frame seam_contrast_scale](story-012-seam-shader-contrast-scale.md) | Logic | Ready | ADR-0003 |
+| 013 | [R-1 renderer gate and device performance evidence](story-013-r1-gate-device-performance.md) | Integration | Ready | ADR-0003 |
+| 014 | [Seam visual checks and speed-cue playtest](story-014-seam-visual-feel-evidence.md) | Visual/Feel | Ready | ADR-0003 |
+
 ## Next Step
 
-Run `/create-stories tube-track` to break this epic into implementable stories.
+Run `/story-readiness production/epics/tube-track/story-001-tubemath-frame-angles.md`, then `/dev-story`.

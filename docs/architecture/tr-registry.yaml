@@ -2143,7 +2143,7 @@ requirements:
     requirement: "F2 per-key validity: parsed_ok and compatible and has_key and type_matches; error precedence FILE_UNREADABLE > SCHEMA_INCOMPATIBLE > TYPE_MISMATCH; absent key logs nothing; file-level errors logged once per requested key per AC-10"
     source: "F2, AC-2/3/10/11"
     created: 2026-10-03
-    revised: ""
+    revised: 2026-10-03
     status: active
   - id: TR-save-persistence-013
     system: save-persistence

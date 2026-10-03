@@ -6,14 +6,14 @@ Control Manifest Version: 2026-10-03
 
 | Epic | Layer | System | GDD | Stories | Status |
 |------|-------|--------|-----|---------|--------|
-| Run State & Restart | Foundation | Run State & Restart | design/gdd/run-state-restart.md | Not yet created | Ready |
-| Platform Services | Foundation | Platform Services | design/gdd/platform-services.md | Not yet created | Ready |
-| Save & Persistence | Foundation | Save & Persistence | design/gdd/save-persistence.md | Not yet created | Ready |
-| Settings & Accessibility | Foundation | Settings & Accessibility | design/gdd/settings-accessibility.md | Not yet created | Ready |
-| Composition Root & Game Loop | Foundation | Composition Root (GameRoot) | none (ADRs) | Not yet created | Ready |
-| Map Loader & MapConfig | Foundation | Map Loader | none (ADRs) | Not yet created | Ready |
-| Test Harness & CI | Foundation | Test infrastructure (tools/ci, tests/) | none (ADRs) | Not yet created | Ready |
-| Tube Track | Core | Tube Track | design/gdd/tube-track.md | Not yet created | Ready |
-| Tilt Input | Core | Tilt Input | design/gdd/tilt-input.md | Not yet created | Ready |
-| Ball Movement | Core | Ball Movement | design/gdd/ball-movement.md | Not yet created | Ready |
-| Obstacle System | Core | Obstacle System | design/gdd/obstacle-system.md | Not yet created | Ready |
+| Run State & Restart | Foundation | Run State & Restart | design/gdd/run-state-restart.md | 14 stories | Ready |
+| Platform Services | Foundation | Platform Services | design/gdd/platform-services.md | 16 stories | Ready |
+| Save & Persistence | Foundation | Save & Persistence | design/gdd/save-persistence.md | 15 stories | Ready |
+| Settings & Accessibility | Foundation | Settings & Accessibility | design/gdd/settings-accessibility.md | 12 stories | Ready |
+| Composition Root & Game Loop | Foundation | Composition Root (GameRoot) | none (ADRs) | 12 stories | Ready |
+| Map Loader & MapConfig | Foundation | Map Loader | none (ADRs) | 11 stories | Ready |
+| Test Harness & CI | Foundation | Test infrastructure (tools/ci, tests/) | none (ADRs) | 11 stories | Ready |
+| Tube Track | Core | Tube Track | design/gdd/tube-track.md | 14 stories | Ready |
+| Tilt Input | Core | Tilt Input | design/gdd/tilt-input.md | 16 stories | Ready |
+| Ball Movement | Core | Ball Movement | design/gdd/ball-movement.md | 17 stories | Ready |
+| Obstacle System | Core | Obstacle System | design/gdd/obstacle-system.md | 17 stories | Ready |

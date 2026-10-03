@@ -5,7 +5,7 @@
 > **Architecture Module**: Test infrastructure (tools/ci, tests/)
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories test-harness-ci`
+> **Stories**: 11 stories (see table)
 
 ## Overview
 
@@ -32,6 +32,22 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | Verify project scaffold (project.godot, .gitattributes, .gdignore) | Config/Data | Ready | ADR-0009 |
+| 002 | Spike T-1: GUT on Godot 4.7.2 | Integration | Ready | ADR-0009 |
+| 003 | Vendor GUT, .gutconfig.json, tests/support skeleton | Config/Data | Ready | ADR-0009 |
+| 004 | Verify and harden run_ci.py | Integration | Ready | ADR-0009 |
+| 005 | Harden the GDScript comment and string stripper | Logic | Ready | ADR-0009 |
+| 006 | Harden lint rule kinds and registered rule table | Logic | Ready | ADR-0009 |
+| 007 | Per-rule pass/fail fixtures and self-check | Logic | Ready | ADR-0009 |
+| 008 | Registry coverage meta-rule | Logic | Ready | ADR-0009 |
+| 009 | GitHub Actions workflow ci.yml and triggers | Config/Data | Ready | ADR-0009 |
+| 010 | Spike T-2: first green CI run and negative controls | Integration | Ready | ADR-0009 |
+| 011 | Document and skill synchronization (Decision 8) | Config/Data | Ready | ADR-0009 |
+
 ## Next Step
 
-Run `/create-stories test-harness-ci` to break this epic into implementable stories.
+Run `/story-readiness production/epics/test-harness-ci/story-001-verify-scaffold.md`, then `/dev-story`.

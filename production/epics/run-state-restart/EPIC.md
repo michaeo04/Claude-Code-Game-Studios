@@ -5,7 +5,7 @@
 > **Architecture Module**: Run State & Restart
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories run-state-restart`
+> **Stories**: 14 stories (see table)
 
 ## Overview
 
@@ -67,6 +67,25 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [RunStateCore skeleton, public API, signals and purity](story-001-core-skeleton-api.md) | Logic | Ready | ADR-0002, ADR-0009 |
+| 002 | [Phase machine, request queue and validation by phase](story-002-phase-machine-validation.md) | Logic | Ready | ADR-0002, ADR-0004 |
+| 003 | [Event emission order, two-step start and re-entrancy guard](story-003-events-two-step-start.md) | Logic | Ready | ADR-0002, ADR-0006 |
+| 004 | [tick(), run clock F1 and settling tick](story-004-tick-run-clock.md) | Logic | Ready | ADR-0002 |
+| 005 | [Hit acceptance, stale run_id and same-tick tie-break](story-005-hit-handling.md) | Logic | Ready | ADR-0002 |
+| 006 | [Restart lock, press_us handling and restart_unlocked](story-006-hit-lock-press-us.md) | Logic | Ready | ADR-0005, ADR-0002 |
+| 007 | [Pause, resume countdown, Paused guard and abandon](story-007-pause-resume-abandon.md) | Logic | Ready | ADR-0006, ADR-0002 |
+| 008 | [Timers, stall guard and clock robustness](story-008-timers-stall-guard.md) | Logic | Ready | ADR-0002 |
+| 009 | [Same-tick request conflicts and order independence](story-009-same-tick-ordering.md) | Logic | Ready | ADR-0002 |
+| 010 | [RunConfig validation and lock bounds](story-010-config-validation-lock-bounds.md) | Config/Data | Ready | ADR-0002, ADR-0009 |
+| 011 | [Flash bound bot and contract doubles](story-011-flash-bound-contract-doubles.md) | Logic | Ready | ADR-0009, ADR-0002 |
+| 012 | [Subscriber order and tick driver contract in GameRoot](story-012-wiring-subscriber-order-driver.md) | Integration | Ready | ADR-0002, ADR-0004 |
+| 013 | [Restart budget measurement on device (AC-27)](story-013-restart-budget-device.md) | Integration | Blocked | ADR-0002, ADR-0005 |
+| 014 | [Hit-restart flash rate on device (AC-26)](story-014-flash-rate-visual.md) | Visual/Feel | Ready | ADR-0010, ADR-0009 |
+
 ## Next Step
 
-Run `/create-stories run-state-restart` to break this epic into implementable stories.
+Run `/story-readiness production/epics/run-state-restart/story-001-core-skeleton-api.md`, then `/dev-story`.

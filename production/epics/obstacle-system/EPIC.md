@@ -5,7 +5,7 @@
 > **Architecture Module**: Obstacle System
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories obstacle-system`
+> **Stories**: 17 stories (see table)
 
 ## Overview
 
@@ -64,6 +64,28 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [Authored content classes, HazardSpec and HazardContentProvider](story-001-authored-content-classes-hazard-spec.md) | Integration | Ready | ADR-0008 |
+| 002 | [ObstacleConfig, sweep-invariant validation and test fixtures](story-002-obstacle-config-and-test-fixtures.md) | Logic | Ready | ADR-0009 |
+| 003 | [Effective footprint (F1) and swept-rectangle overlap (F2)](story-003-footprint-expansion-and-swept-overlap.md) | Logic | Ready | ADR-0008 |
+| 004 | [Safe-gap sweep-line (F3) and hazard overlap validation](story-004-gap-sweep-line-and-hazard-overlap.md) | Logic | Ready | ADR-0008 |
+| 005 | [Footprint, grace-zone, piece-count and spacing validators](story-005-footprint-limit-density-validators.md) | Logic | Ready | ADR-0008 |
+| 006 | [hidden() classification, hidden-content gate and exit rule (F4)](story-006-hidden-classification-and-exit-rules.md) | Logic | Ready | ADR-0008 |
+| 007 | [ObstacleCore hazard bind and window lifecycle](story-007-hazard-bind-and-window-lifecycle.md) | Logic | Ready | ADR-0008 |
+| 008 | [Release flag, run_reset handler and read accessors](story-008-release-flag-run-reset-and-accessors.md) | Logic | Ready | ADR-0008, ADR-0014 |
+| 009 | [Level-triggered hit test with broad phase](story-009-level-triggered-hit-test.md) | Logic | Ready | ADR-0008, ADR-0002 |
+| 010 | [Determinism, no side effects and the engine-coupling lint](story-010-determinism-no-side-effects-and-lint.md) | Logic | Ready | ADR-0009, ADR-0008 |
+| 011 | [ContentPreflight P1, exhaustive and deterministic](story-011-content-preflight-p1-exhaustive.md) | Logic | Ready | ADR-0008 |
+| 012 | [ContentPreflight P2 pairs, P3 soak and the blocking CI test](story-012-content-preflight-p2-p3-sequencer-soak.md) | Integration | Ready | ADR-0008, ADR-0009 |
+| 013 | [GameRoot wiring and real-system integration](story-013-gameroot-wiring-integration.md) | Integration | Ready | ADR-0002, ADR-0008 |
+| 014 | [Spike OB-1, worst-case per-tick cost on a mid-tier phone](story-014-ob1-worst-case-cost-spike.md) | Integration | Ready | ADR-0008 |
+| 015 | [Developer-only effective-footprint debug overlay](story-015-footprint-debug-overlay.md) | Visual/Feel | Ready | ADR-0014 |
+| 016 | [OS-2 corner-cut legibility playtest](story-016-os2-corner-cut-legibility.md) | Visual/Feel | Ready | ADR-0008 |
+| 017 | [OS-1 hidden-side fairness playtest (deferred content gate)](story-017-os1-hidden-side-fairness.md) | Visual/Feel | Blocked | ADR-0008 |
+
 ## Next Step
 
-Run `/create-stories obstacle-system` to break this epic into implementable stories.
+Run `/story-readiness production/epics/obstacle-system/story-001-authored-content-classes-hazard-spec.md`, then `/dev-story`.

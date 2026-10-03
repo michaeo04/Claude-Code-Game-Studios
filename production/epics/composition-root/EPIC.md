@@ -5,7 +5,7 @@
 > **Architecture Module**: Composition Root (GameRoot)
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories composition-root`
+> **Stories**: 12 stories (see table)
 
 ## Overview
 
@@ -35,6 +35,23 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [GameRoot clock injection and single tick driver](story-001-game-root-clock-and-tick-driver.md) | Logic | Ready | ADR-0002 |
+| 002 | [Fixed per-frame order in `_tick()`](story-002-per-frame-tick-order.md) | Logic | Ready | ADR-0002, ADR-0013 |
+| 003 | [WorldFrame, WorldFrameConfig and render-origin math](story-003-world-frame-core.md) | Logic | Ready | ADR-0013 |
+| 004 | [`TubeMath.local_point` and logical-frame reference](story-004-tube-math-local-point.md) | Logic | Ready | ADR-0013 |
+| 005 | [Rebase contract for views, reset wiring and soak](story-005-world-frame-rebase-contract.md) | Integration | Ready | ADR-0013 |
+| 006 | [Construction order and WorldGeometry/WorldFrame preflight](story-006-construction-order-and-validation.md) | Integration | Ready | ADR-0002, ADR-0013 |
+| 007 | [`_wire()` row table and pinned subscriber order](story-007-wire-table-subscriber-order.md) | Integration | Ready | ADR-0002 |
+| 008 | [Boot rendering-method check through injected getter](story-008-boot-rendering-method-seam.md) | Integration | Ready | ADR-0003 |
+| 009 | [Composition-root lint rules and import-before-test](story-009-ci-lints-and-import-order.md) | Logic | Ready | ADR-0002, ADR-0013 |
+| 010 | [Map load hand-off and loop start](story-010-map-load-handoff-and-loop-start.md) | Integration | Ready | ADR-0002, ADR-0004 |
+| 011 | [Orchestration soak on device (60/120 Hz)](story-011-orchestration-device-soak.md) | Integration | Ready | ADR-0002 |
+| 012 | [PRC-1 rebase spike on device](story-012-rebase-device-spike-prc1.md) | Integration | Ready | ADR-0013 |
+
 ## Next Step
 
-Run `/create-stories composition-root` to break this epic into implementable stories.
+Run `/story-readiness production/epics/composition-root/story-001-game-root-clock-and-tick-driver.md`, then `/dev-story`.

@@ -5,7 +5,7 @@
 > **Architecture Module**: Tilt Input
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories tilt-input`
+> **Stories**: 16 stories (see table)
 
 ## Overview
 
@@ -64,6 +64,27 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [Tilt Input CI lint gate (AC-37)](story-001-tilt-lint-gate.md) | Integration | Ready | ADR-0009, ADR-0005 |
+| 002 | [TiltMath pure functions](story-002-tilt-math.md) | Logic | Ready | ADR-0002 |
+| 003 | [TiltConfig, validation, sensitivity](story-003-tilt-config.md) | Logic | Ready | ADR-0009 |
+| 004 | [TiltCore poll, stamps, ring buffer](story-004-tilt-core-poll-buffer.md) | Logic | Ready | ADR-0002 |
+| 005 | [Neutral capture mechanics](story-005-neutral-capture.md) | Logic | Ready | ADR-0002 |
+| 006 | [Pipeline order and output contract](story-006-pipeline-output-contract.md) | Logic | Ready | ADR-0005 |
+| 007 | [Capture policy and re-anchor](story-007-capture-policy-reanchor.md) | Logic | Ready | ADR-0002 |
+| 008 | [Availability states and timeout](story-008-availability-states.md) | Logic | Ready | ADR-0005 |
+| 009 | [Sensor-loss dropout hold](story-009-sensor-loss-hold.md) | Logic | Ready | ADR-0005 |
+| 010 | [App lifecycle handling](story-010-app-lifecycle.md) | Logic | Ready | ADR-0006 |
+| 011 | [Fallback input and transition table](story-011-fallback-input.md) | Logic | Ready | ADR-0005 |
+| 012 | [TiltRunAdapter and sensor-lost pause](story-012-tilt-run-adapter.md) | Integration | Ready | ADR-0002 |
+| 013 | [TiltInput node, settings, log sink](story-013-tilt-input-node.md) | Integration | Ready | ADR-0005 |
+| 014 | [Spike V-1 / V-5 on devices](story-014-v1-sensor-sign-device.md) | Integration | Ready | ADR-0005 |
+| 015 | [Spikes P-1 / P-2 / P-3](story-015-p1-p2-p3-device-performance.md) | Integration | Ready | ADR-0005 |
+| 016 | [Spikes V-2..V-9 and AC-41](story-016-feel-posture-tuning-spikes.md) | Visual/Feel | Ready | ADR-0005 |
+
 ## Next Step
 
-Run `/create-stories tilt-input` to break this epic into implementable stories.
+Run `/story-readiness production/epics/tilt-input/story-001-tilt-lint-gate.md`, then `/dev-story`.

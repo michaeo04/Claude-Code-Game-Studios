@@ -5,7 +5,7 @@
 > **Architecture Module**: Ball Movement
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories ball-movement`
+> **Stories**: 17 stories (see table)
 
 ## Overview
 
@@ -62,6 +62,28 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [BallMath pure functions](story-001-ball-math.md) | Logic | Ready | ADR-0009 |
+| 002 | [BallConfig resource and fixtures](story-002-ball-config-fixtures.md) | Config/Data | Ready | ADR-0009 |
+| 003 | [BallConfig.validated() and derived check](story-003-ball-config-validated.md) | Logic | Ready | ADR-0009 |
+| 004 | [BallCore shell, speed and distance](story-004-ballcore-speed-distance.md) | Logic | Ready | ADR-0002 |
+| 005 | [Position tracking, dt guards, held steer](story-005-position-tracking-dt-steer.md) | Logic | Ready | ADR-0002 |
+| 006 | [Anchor, resume, published state](story-006-anchor-resume-published-state.md) | Logic | Ready | ADR-0002 |
+| 007 | [RATE mapping and latch](story-007-rate-mode-latch.md) | Logic | Ready | ADR-0009 |
+| 008 | [Reset conformance, logs, determinism](story-008-reset-logs-determinism.md) | Logic | Ready | ADR-0009 |
+| 009 | [CI lint rules for the ball core](story-009-ball-lint-rules.md) | Logic | Ready | ADR-0009 |
+| 010 | [Sign and driver-order integration](story-010-sign-driver-order-integration.md) | Integration | Ready | ADR-0002 |
+| 011 | [BallView node and placement](story-011-ball-view-node-placement.md) | Integration | Ready | ADR-0012 |
+| 012 | [Ball material, rim, setters](story-012-ball-material-rim-setters.md) | Visual/Feel | Ready | ADR-0012 |
+| 013 | [Spike readiness harness](story-013-spike-readiness-harness.md) | Integration | Ready | ADR-0009 |
+| 014 | [BM-1a/1b latency evidence](story-014-bm1-latency-device-evidence.md) | Integration | Ready | ADR-0009 |
+| 015 | [BM-3 no jolt evidence](story-015-bm3-no-jolt-device-evidence.md) | Integration | Ready | ADR-0009 |
+| 016 | [BM-2 and BM-5 tuning lock](story-016-bm2-bm5-tuning-lock.md) | Integration | Ready | ADR-0009 |
+| 017 | [BM-4, BM-6 and rest traces (AC-32)](story-017-advisory-playtests-rest-traces.md) | Integration | Ready | ADR-0009 |
+
 ## Next Step
 
-Run `/create-stories ball-movement` to break this epic into implementable stories.
+Run `/story-readiness production/epics/ball-movement/story-001-ball-math.md`, then `/dev-story`.

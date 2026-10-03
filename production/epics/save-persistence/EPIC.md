@@ -5,7 +5,7 @@
 > **Architecture Module**: Save & Persistence
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories save-persistence`
+> **Stories**: 15 stories (see table)
 
 ## Overview
 
@@ -60,6 +60,26 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [PersistMath pure functions](story-001-persist-math.md) | Logic | Ready | ADR-0007 |
+| 002 | [SaveFs facade, SaveConfig and test fixture](story-002-save-fs-config-fixture.md) | Config/Data | Ready | ADR-0007 |
+| 003 | [SaveCore boot load, get_value and first launch](story-003-boot-load-and-get-value.md) | Logic | Ready | ADR-0007 |
+| 004 | [set_value write path (temp, complete map, rename)](story-004-write-path.md) | Logic | Ready | ADR-0007 |
+| 005 | [Write failure handling and rate-limited logging](story-005-write-failure-and-rate-limit.md) | Logic | Ready | ADR-0007 |
+| 006 | [Read validity, per-key fallback and error logging](story-006-read-validity-and-error-logging.md) | Logic | Ready (GDD F2 and AC-10 amended 2026-10-03) | ADR-0007 |
+| 007 | [Corrupt-file backup, rotation and oversize guard](story-007-corrupt-backup-and-oversize-guard.md) | Logic | Ready | ADR-0007 |
+| 008 | [Flush no-op and SaveService node wiring](story-008-flush-and-save-service-node.md) | Logic | Ready | ADR-0007 |
+| 009 | [Real SaveFs implementation and file round trip](story-009-real-save-fs.md) | Integration | Ready | ADR-0007 |
+| 010 | [Architecture and coupling lints](story-010-architecture-lints.md) | Logic | Ready | ADR-0009 |
+| 011 | [SP-2 real-parser sweep against hostile files](story-011-sp2-real-parser-sweep.md) | Integration | Ready | ADR-0007 |
+| 012 | [SP-1 write survives a kill (device)](story-012-sp1-write-survives-kill.md) | Integration | Ready | ADR-0007 |
+| 013 | [SP-3 death-frame write latency (device)](story-013-sp3-write-latency.md) | Integration | Ready | ADR-0007 |
+| 014 | [Android allowBackup disabled and manifest lint](story-014-android-allow-backup-off.md) | Integration | Ready | ADR-0007 |
+| 015 | [Real Platform Services wiring integration](story-015-platform-services-wiring.md) | Integration | Ready | ADR-0007 |
+
 ## Next Step
 
-Run `/create-stories save-persistence` to break this epic into implementable stories.
+Run `/story-readiness production/epics/save-persistence/story-001-persist-math.md`, then `/dev-story`.

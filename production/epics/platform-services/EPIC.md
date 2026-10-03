@@ -5,7 +5,7 @@
 > **Architecture Module**: Platform Services
 > **Status**: Ready
 > **Control Manifest Version**: 2026-10-03
-> **Stories**: Not yet created. Run `/create-stories platform-services`
+> **Stories**: 16 stories (see table)
 
 ## Overview
 
@@ -58,6 +58,29 @@ This epic is complete when:
 - All Visual/Feel and UI stories have evidence docs with sign-off in `production/qa/evidence/`
 - Every spike its ADRs name for this module has a recorded result in `production/qa/evidence/`
 
+## Stories
+
+| # | Story | Type | Status | ADR |
+|---|-------|------|--------|-----|
+| 001 | [PlatformMath pure functions](story-001-platform-math.md) | Logic | Ready | ADR-0006 |
+| 002 | [RateLimitedLog and log codes](story-002-rate-limited-log.md) | Logic | Ready | ADR-0006 |
+| 003 | [HapticsConfig validation and shipped defaults](story-003-haptics-config.md) | Logic | Ready | ADR-0006 |
+| 004 | [PlatformCore lifecycle model and edge signals](story-004-core-lifecycle.md) | Logic | Ready | ADR-0006 |
+| 005 | [PlatformCore haptic call flow and drop counters](story-005-core-haptics.md) | Logic | Ready | ADR-0006 |
+| 006 | [PlatformCore Back signal and display facts](story-006-core-back-display-facts.md) | Logic | Ready | ADR-0006 |
+| 007 | [PlatformSettings manifest and mismatches()](story-007-platform-settings.md) | Logic | Ready | ADR-0006, ADR-0005 |
+| 008 | [PlatformServices node, notification mapping, thread rule, boot](story-008-node-notifications-boot.md) | Logic | Ready | ADR-0006 |
+| 009 | [CI lint for OS-call ownership (AC-12)](story-009-lint-ownership.md) | Logic | Ready | ADR-0009, ADR-0006 |
+| 010 | [CI manifest lint for project.godot and preset (AC-13)](story-010-lint-manifest.md) | Logic | Ready | ADR-0006, ADR-0009 |
+| 011 | [First Android export preset and merged-manifest check](story-011-export-preset-manifest.md) | Config/Data | Ready | ADR-0006 |
+| 012 | [Integration with Run State core (340 sequences)](story-012-integration-run-state.md) | Integration | Blocked | ADR-0009, ADR-0006 |
+| 013 | [Device spike PS-1, PS-2, PS-12 (lifecycle, thread)](story-013-spike-ps1-ps2-ps12-lifecycle.md) | Integration | Ready | ADR-0006 |
+| 014 | [Device spike PS-4 (Back on Android 16 / SDK 36)](story-014-spike-ps4-back.md) | Integration | Blocked | ADR-0006 |
+| 015 | [Advisory device checks PS-5, PS-6, PS-11](story-015-device-haptics-pip-permissions.md) | Integration | Ready | ADR-0006 |
+| 016 | [Advisory device checks PS-8, PS-9, PS-10](story-016-device-display-fps-background.md) | Integration | Ready | ADR-0006 |
+
+Deferred GDD criteria with no story (never count toward Done): AC-16 (owner Run State, then the adapter story) and AC-17 (owner Story 013 fixtures plus the Tilt Input, Save and Menus epics).
+
 ## Next Step
 
-Run `/create-stories platform-services` to break this epic into implementable stories.
+Run `/story-readiness production/epics/platform-services/story-001-platform-math.md`, then `/dev-story`.
