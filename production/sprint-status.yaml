@@ -9,200 +9,173 @@
 #   done           <->  Complete
 #   blocked        <->  Blocked
 
-sprint: 1
-goal: "Prove the test harness on Godot 4.7.2 and build the Foundation spine: GameRoot, WorldFrame, Run State core"
-start: "2026-10-05"
-end: "2026-10-16"
-generated: "2026-10-03"
+sprint: 2
+goal: "Headless Core simulation: Ball Movement, Tilt Input math and config, Tube Track math and config, rest of the Run State phase machine"
+start: "2026-10-19"
+end: "2026-10-30"
+generated: "2026-10-04"
 updated: "2026-10-04"
 
 stories:
-  - id: "TH-001"
-    name: "Verify project scaffold (project.godot, .gitattributes, .gdignore)"
-    file: "production/epics/test-harness-ci/story-001-verify-scaffold.md"
+  - id: "BM-001"
+    name: "BallMath pure functions (wrap_angle, F1 step, F2 speed and S, F5 T)"
+    file: "production/epics/ball-movement/story-001-ball-math.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.33
-    blocker: ""
-    completed: "2026-10-03"
-  - id: "TH-002"
-    name: "Spike T-1 - GUT on Godot 4.7.2"
-    file: "production/epics/test-harness-ci/story-002-spike-t1-gut-on-4-7-2.md"
-    priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: "2026-10-03"
-  - id: "TH-003"
-    name: "Vendor GUT, .gutconfig.json, tests/support skeleton"
-    file: "production/epics/test-harness-ci/story-003-vendor-gut-and-support.md"
+    completed: ""
+  - id: "BM-002"
+    name: "BallConfig resource, shipped defaults and test fixtures"
+    file: "production/epics/ball-movement/story-002-ball-config-fixtures.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: "2026-10-03"
-  - id: "TH-004"
-    name: "Verify and harden run_ci.py (entry command and result checks)"
-    file: "production/epics/test-harness-ci/story-004-verify-run-ci.md"
+    completed: ""
+  - id: "BM-003"
+    name: "BallConfig.validated() clamps and the derived T_DODGE_180 check"
+    file: "production/epics/ball-movement/story-003-ball-config-validated.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "BM-004"
+    name: "BallCore shell, reset and forward speed/distance integration"
+    file: "production/epics/ball-movement/story-004-ballcore-speed-distance.md"
+    priority: must-have
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: "2026-10-03"
-  - id: "TH-005"
-    name: "Harden the GDScript comment and string stripper"
-    file: "production/epics/test-harness-ci/story-005-harden-gdscript-stripper.md"
+    completed: ""
+  - id: "BM-005"
+    name: "Position-mode tracking, dt_eff guards and held-steer semantics"
+    file: "production/epics/ball-movement/story-005-position-tracking-dt-steer.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.50
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "CR-001"
-    name: "GameRoot clock injection and single tick driver"
-    file: "production/epics/composition-root/story-001-game-root-clock-and-tick-driver.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "CR-002"
-    name: "Fixed per-frame order in `_tick()` (spy test)"
-    file: "production/epics/composition-root/story-002-per-frame-tick-order.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "CR-003"
-    name: "WorldFrame, WorldFrameConfig and the render-origin math"
-    file: "production/epics/composition-root/story-003-world-frame-core.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.58
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-001"
-    name: "RunStateCore skeleton, public API, signals and purity"
-    file: "production/epics/run-state-restart/story-001-core-skeleton-api.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-002"
-    name: "Phase machine, request queue and validation by phase"
-    file: "production/epics/run-state-restart/story-002-phase-machine-validation.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.58
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-003"
-    name: "Event emission order, two-step start and re-entrancy guard"
-    file: "production/epics/run-state-restart/story-003-events-two-step-start.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.58
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-004"
-    name: "tick(), run clock F1 and settling tick"
-    file: "production/epics/run-state-restart/story-004-tick-run-clock.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-005"
-    name: "Hit acceptance, stale run_id and same-tick tie-break"
-    file: "production/epics/run-state-restart/story-005-hit-handling.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-006"
-    name: "Restart lock, press_us handling and restart_unlocked"
-    file: "production/epics/run-state-restart/story-006-hit-lock-press-us.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-001"
-    name: "SettingsMath (seam contrast derivation and tilt sensitivity validation)"
-    file: "production/epics/settings-accessibility/story-001-settings-math.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-001"
-    name: "PersistMath pure functions"
-    file: "production/epics/save-persistence/story-001-persist-math.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.42
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "PS-002"
-    name: "RateLimitedLog and log codes"
-    file: "production/epics/platform-services/story-002-rate-limited-log.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.33
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "CR-004"
-    name: "`TubeMath.local_point` and the logical-frame reference"
-    file: "production/epics/composition-root/story-004-tube-math-local-point.md"
-    priority: nice-to-have
-    status: done
-    owner: ""
-    estimate_days: 0.33
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "TH-006"
-    name: "Harden lint rule kinds and the registered rule table"
-    file: "production/epics/test-harness-ci/story-006-harden-lint-rule-kinds.md"
-    priority: nice-to-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.67
     blocker: ""
-    completed: "2026-10-04"
-  - id: "PS-001"
-    name: "PlatformMath pure functions (haptic gate, effective, interval, fps)"
-    file: "production/epics/platform-services/story-001-platform-math.md"
-    priority: nice-to-have
-    status: done
+    completed: ""
+  - id: "TI-002"
+    name: "TiltMath pure functions (roll, filter, mapping, median)"
+    file: "production/epics/tilt-input/story-002-tilt-math.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "TI-003"
+    name: "TiltConfig resource, validation and sensitivity hook"
+    file: "production/epics/tilt-input/story-003-tilt-config.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.42
+    blocker: ""
+    completed: ""
+  - id: "TT-001"
+    name: "TubeMath frame, angle wrap and lane/facet formulas"
+    file: "production/epics/tube-track/story-001-tubemath-frame-angles.md"
+    priority: must-have
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TH-007"
-    name: "Per-rule pass/fail fixtures and runner self-check"
-    file: "production/epics/test-harness-ci/story-007-per-rule-fixtures-and-self-check.md"
-    priority: nice-to-have
-    status: done
+    completed: ""
+  - id: "TT-002"
+    name: "TubeMath segment index, window sizes and seam spacing"
+    file: "production/epics/tube-track/story-002-tubemath-segments-window-seams.md"
+    priority: must-have
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.67
+    estimate_days: 0.42
     blocker: ""
-    completed: "2026-10-04"
+    completed: ""
+  - id: "TT-003"
+    name: "TubeConfig resource and validate() failure-code set"
+    file: "production/epics/tube-track/story-003-tubeconfig-validation.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "RS-007"
+    name: "Pause, resume countdown, Paused guard and abandon"
+    file: "production/epics/run-state-restart/story-007-pause-resume-abandon.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "RS-008"
+    name: "Timers, stall guard and clock robustness"
+    file: "production/epics/run-state-restart/story-008-timers-stall-guard.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "ST-002"
+    name: "SettingsCore construction, fixture factories and boot read"
+    file: "production/epics/settings-accessibility/story-002-core-construction-boot-read.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "SP-002"
+    name: "SaveFs facade, SaveConfig and test fixture"
+    file: "production/epics/save-persistence/story-002-save-fs-config-fixture.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.42
+    blocker: ""
+    completed: ""
+  - id: "BM-006"
+    name: "Anchor, resume re-base, 2 PI shift, published previous values and inertness"
+    file: "production/epics/ball-movement/story-006-anchor-resume-published-state.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "TI-004"
+    name: "TiltCore poll, clock stamps and sample ring buffer"
+    file: "production/epics/tilt-input/story-004-tilt-core-poll-buffer.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "TT-005"
+    name: "TubeWindow state machine, priming and load_map"
+    file: "production/epics/tube-track/story-005-tubewindow-state-machine.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.58
+    blocker: ""
+    completed: ""
+  - id: "RS-009"
+    name: "Same-tick request conflicts and order independence"
+    file: "production/epics/run-state-restart/story-009-same-tick-ordering.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.42
+    blocker: ""
+    completed: ""

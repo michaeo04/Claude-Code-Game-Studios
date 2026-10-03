@@ -33,4 +33,4 @@
 13. (PASS 2026-10-04) `python tools/ci/run_ci.py --only lint` exits 0 and `python -m unittest discover -s tools/ci/tests` passes.
 14. (PASS 2026-10-04) `godot --headless --path . --import` runs with no `SCRIPT ERROR` or `Parse Error` (also proves `project.godot` loads on 4.7.2).
 15. (PASS 2026-10-04, 198 unit + 2 integration tests) `python tools/ci/run_ci.py --only unit` runs, the JUnit XML reports more than zero tests and zero failures.
-16. (pending) A `GameRoot` with fake systems runs the fixed per-frame order (spy test) and a `RunStateCore` runs start, hit, restart headless.
+16. (PASS 2026-10-04, spy tests of the tick order and RunStateCore sequences) A `GameRoot` with fake systems runs the fixed per-frame order (spy test) and a `RunStateCore` runs start, hit, restart headless.
