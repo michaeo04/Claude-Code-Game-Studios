@@ -143,3 +143,35 @@ Applied by the authoring session after this review; **not independently re-revie
 | Housekeeping | `systems-index.md` line 207 and `tr-baseline` line 45 mark `S_PRECISION_LIMIT` retired; `architecture.md` lines 302 and 323 mark ADR-0013 written (Proposed); the five accessibility passages in `hud.md`, `menus-screen-flow.md` and `interaction-patterns.md` now cite the committed tier and keep WCAG-AA contrast as the spec baseline. |
 
 **Still open:** `architecture.md` v1.1 module rows (ADR-0010 to ADR-0014 components, layer stack, Phase B step; only the stale lines were fixed), TD review and Acceptance of ADR-0002 to ADR-0014, ADR-0014 OQ1, the audio ADR, and the pre-gate items.
+
+---
+
+## Technical-director review of ADR-0002 to ADR-0014 (2026-10-03)
+
+Verified against `production/session-logs/agent-audit.log`: `technical-director` invocation completed 2026-10-03 14:29:23. Read-only review; the agent read run 4 and run 5, `architecture.md`, ADR-0002 to ADR-0014, `ci.yml`, the `tests/` tree and Environment GDD lines 222 and 261. It did **not** read ADR-0001, the GDDs in full, the TR registry, the traceability index or `agent-audit.log`. Verdict **CONCERNS**: no blocking architectural flaw, no dependency cycle. The verdict is advisory; **no ADR status has been changed** (moving to Accepted is the project owner's decision).
+
+| ADR | TD verdict | Conditions |
+|---|---|---|
+| 0002 | ACCEPT WITH CONDITIONS | The `_wire()` sketch lacks the `WorldFrame.on_run_reset` rank-1 row, the `map_load_failed` row and the `phase_changed` rows (ADR-0010, 0014): add or label partial. AC-30 spy on 4.7.2 gates the first Run State story; PS-1/PS-2 gate the first Platform story. |
+| 0003 | **REVISE FIRST** | Decision 1 says R-1 must pass "before this ADR is Accepted"; the P-1 ordering note says it gates the first dependent story. Reword. The boot guard (`get_current_rendering_method() != mobile` refuses to run) must be an injectable seam or skipped headless, or any CI test that builds `GameRoot` fails; confirm the headless return value in T-1. Update technical-preferences (Forward+ to Mobile) on Acceptance. |
+| 0004 | ACCEPT WITH CONDITIONS | Stale "`map_ready` only after B4" and "B4 is last" (should be B5). ADR-0014 needs `MapDefinition.hazard_style` with `HAZARD_STYLE_INVALID` in Phase A, and `camera_far`; `camera_far` depends on the map's fog end, so `CameraMath.published` (run at composition, before any map) cannot produce it: derive it in Phase A from `MapConfig.env`. MS-1 gates first playable. |
+| 0005 | ACCEPT WITH CONDITIONS | V-1 gates the first Tilt story and any tuning lock; verification item 4 (stock Buttons on a real phone) gates the first HUD/Menus story; fix the stale "future ADR-0006/0011" reference; ADR-0011 OQ1 may amend `FOCUS_NONE`. |
+| 0006 | ACCEPT WITH CONDITIONS | PS-1, PS-2, PS-4, PS-12 gate the first Platform story (PS-4 failing is a release blocker); clarify min SDK (item 14 says 24, the decision says 28); add `DisplayFacts.screen_dpi`. |
+| 0007 | ACCEPT WITH CONDITIONS | SP-1, SP-2, SP-3 gate the first Save story; cite "after `Menus.tick`" instead of "step 11"; GDD edits (AC-10, slider commit on drag end). |
+| 0008 | ACCEPT WITH CONDITIONS | Preflight test path is `tests/unit/...` but classed Integration: move to `tests/integration/`; keep P3 (500 seeds) out of the debug-build boot or measure it; Pattern/Obstacle design review before the Pattern epic; OB-1. |
+| 0009 | ACCEPT WITH CONDITIONS | T-1 before the first story; fix the ADR-0008 path; update the coding-standards CI line on Acceptance. |
+| 0010 | ACCEPT | PT-1 to PT-4 gate the Juice hit-sequence and Ink-cut stories; text nit "Five cores". |
+| 0011 | ACCEPT WITH CONDITIONS | UI-1 gates the first UI story; OQ1 (focus) decided before the Menus views; from memory, unverified: `canvas_items` with a zero base size may not be expressible, and a base size would double the dp maths; UI-1 should also test `stretch/mode = disabled` plus `content_scale_factor`. |
+| 0012 | ACCEPT WITH CONDITIONS | R-1 checks 1 to 15; art director signs off ball legibility (OQ1) before the Ball view story is Done; Juice wording (OQ2) in design review. |
+| 0013 | ACCEPT WITH CONDITIONS | `HazardView.rebase()` calls `s_offset_of(id)` but ADR-0014 guarantees that accessor only during the emission: store `s_offset` at bind, or guarantee it while bound. PRC-1 gates first playable. |
+| 0014 | ACCEPT WITH CONDITIONS | OQ1 below; the ADR-0004 amendments above; OQ3 (pool hidden in Menu) confirmed. |
+
+**Other points.**
+- Per-frame order, `_wire()` ranks and `WorldGeometry`/`WorldFrame` ownership are consistent across ADRs.
+- Draw calls: about 84 concurrent on Mobile against 150 is credible. On the Forward+ fallback the TD's arithmetic gives about 130 or more with the engine baseline unknown, so the margin is thin; R-1 must record the baseline.
+- P-1 is sound only with a tightening: a failed R-1 changes `F_read`, the hazard draw-call figures and the ADR-0012/0014 numbers, so R-1 runs first once `project.godot` exists, and **no Environment, Hazard view or Ball view story starts until R-1 is recorded**.
+- Acceptance order: 0002, 0003 (after the fix), 0005, 0004 (with its amendments), 0006, then 0007, 0008, 0011, then 0009, 0010, 0014, then 0012, then 0013.
+- Audio ADR: not needed before accepting the rest (a leaf; non-positional `AudioStreamPlayer` only, bus layout, OS audio-focus owner in Platform Services, cues on Juice stamp edges). Write it before the Juice audio stories.
+- **ADR-0014 OQ1 (plinth span):** blocks only the Double Gate plinth geometry and the Environment plinth stories, not Acceptance. The proposed 0.5 D extension along `s` breaks Pillar 2: a 0.12 u lip is visible to the ball within about 0.286 u of its edge, while the hit expansion along `s` is D/2 = 0.4 u, so the ball would visibly touch the lip for about 0.29 u before any hit. TD recommendation: per-piece footings, angularly inset, with the `s` extension capped at about 0.11 u or zero; add invariant I4 (no raised geometry within the ball's visual reach outside the hit-expanded footprint); revise Environment Rule 10, TR-environment-theming-012 and AC-14 (the GDD premise that the plinth "can never foul the ball's path" is wrong).
+
+Items marked "from memory" are the agent's unverified engine recollection.
