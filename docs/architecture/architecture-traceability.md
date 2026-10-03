@@ -1,8 +1,8 @@
 # Architecture Traceability Index
 
-Last Updated: 2026-10-03 (run 3, after ADR-0010)
+Last Updated: 2026-10-03 (run 4, after the amendment pass, P-1 and ADR-0013)
 Engine: Godot 4.7.2 (Android only, ADR-0001)
-Source: `/architecture-review` full mode, 2026-10-03, three runs (`architecture-review-2026-10-03.md`, `architecture-review-2026-10-03-rerun.md`, `architecture-review-2026-10-03-run3.md`). Registry: `docs/architecture/tr-registry.yaml` (run 3 revised the text of TR-menus-screen-flow-012 only; no new IDs).
+Source: `/architecture-review` full mode, 2026-10-03, four runs (`architecture-review-2026-10-03.md`, `-rerun.md`, `-run3.md`, `-run4.md`). Registry: `docs/architecture/tr-registry.yaml` (run 4: no new IDs; TR-tube-track-017 text was revised by ADR-0013).
 
 ## How to read this
 
@@ -12,17 +12,17 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 
 - Total requirements: 348
 - Architecture-relevant: 191
-- ✅ Covered: 174 (91%)
-- ⚠️ Partial: 15 (8%)
-- ❌ Gap: 2 (1%)
+- ✅ Covered: 179 (94%)
+- ⚠️ Partial: 11 (6%)
+- ❌ Gap: 1 (1%)
 - ➖ GDD-owned (not counted): 157
 
 | System | Total | ✅ | ⚠️ | ❌ | ➖ |
 |---|---|---|---|---|---|
-| tube-track | 24 | 9 | 3 | 1 | 11 |
+| tube-track | 24 | 12 | 1 | 0 | 11 |
 | ball-movement | 23 | 5 | 0 | 0 | 18 |
 | tilt-input | 26 | 13 | 0 | 0 | 13 |
-| camera | 21 | 4 | 1 | 0 | 16 |
+| camera | 21 | 5 | 0 | 0 | 16 |
 | obstacle-system | 24 | 18 | 1 | 0 | 5 |
 | pattern-difficulty | 21 | 10 | 2 | 0 | 9 |
 | near-miss-detection | 19 | 9 | 1 | 0 | 9 |
@@ -30,12 +30,12 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | run-state-restart | 25 | 13 | 1 | 0 | 11 |
 | platform-services | 20 | 17 | 1 | 0 | 2 |
 | save-persistence | 22 | 21 | 1 | 0 | 0 |
-| settings-accessibility | 15 | 4 | 2 | 0 | 9 |
+| settings-accessibility | 15 | 5 | 1 | 0 | 9 |
 | juice-feedback | 22 | 11 | 0 | 1 | 10 |
 | environment-theming | 19 | 12 | 1 | 0 | 6 |
 | hud | 23 | 8 | 0 | 0 | 15 |
 | menus-screen-flow | 24 | 15 | 0 | 0 | 9 |
-| **All** | **348** | **174** | **15** | **2** | **157** |
+| **All** | **348** | **179** | **11** | **1** | **157** |
 
 ### History
 
@@ -44,12 +44,12 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | 2026-10-03 | 157 (82%) | 17 | 17 | first run, ADR-0001 to ADR-0009 |
 | 2026-10-03 | 172 (90%) | 17 | 2 | re-run, plus ADR-0011, ADR-0012, ADR-0014 |
 | 2026-10-03 | 174 (91%) | 15 | 2 | run 3, plus ADR-0010 (TR-juice-feedback-007, TR-menus-screen-flow-012 now covered) |
+| 2026-10-03 | 179 (94%) | 11 | 1 | run 4, plus ADR-0013; amendment pass closed C-1 to C-17 (TR-tube-track-015, -016, -017, TR-camera-016, TR-settings-accessibility-009 now covered); first engine-specialist run, no BLOCKER or HIGH |
 
 ## Known Gaps (❌)
 
 | TR-ID | Requirement | Missing decision | Suggested ADR |
 |---|---|---|---|
-| TR-tube-track-017 | Precision: s is 64-bit; z=-s is cast to 32-bit only when the Vector3 is built; no rebase; one debug warning pe | precision at s=16384 (t=682 s): run cap or rebase undecided | (ADR-0013 not written) |
 | TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most 300-400 ms | three cues; bus layout and OS audio policy owner undecided (deferrable) | (no audio ADR) |
 
 ## Partial Coverage (⚠️)
@@ -57,9 +57,6 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-ID | ADR | Why partial |
 |---|---|---|
 | TR-tube-track-012 | ADR-0003 | depth fog verified on Forward+ only; Mobile gated by R-1 |
-| TR-tube-track-015 | ADR-0003 | Decision 2 says set only on change, Key Interfaces says every frame, GDD AC-23a needs every-frame sampling (C-1) |
-| TR-tube-track-016 | ADR-0003, ADR-0002 | ADR-0002 per-frame order has no Idle step for idle_step (C-2, C-11) |
-| TR-camera-016 | ADR-0004 | ADR-0004 omits BallConfig D and OMEGA_MAX as inputs of CameraMath.published (C-3, C-6) |
 | TR-obstacle-system-010 | ADR-0008 | mechanism changed (shared immutable spec, no copy); GDD wording must be revised |
 | TR-pattern-difficulty-011 | ADR-0008 | generalized padding changes CR9 and F2c; Pattern design review required |
 | TR-pattern-difficulty-014 | ADR-0004 | t_dodge_worst supply to Tube Track is not in the MapConfig or from_map path |
@@ -69,7 +66,6 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-platform-services-006 | ADR-0006 | Back on Android 16 / SDK 36 unverified; release blocker if undelivered (PS-4) |
 | TR-save-persistence-012 | ADR-0007 | ADR-0007 logs file-level failures once per load; GDD F2 and AC-10 say once per key |
 | TR-settings-accessibility-005 | ADR-0007 | slider commit on drag_ended; Settings CR5 still says write on every change |
-| TR-settings-accessibility-009 | ADR-0003 | live consumer path for the Tube Track seam scale: see C-1 |
 | TR-environment-theming-012 | ADR-0014 | plinth is surface 1 with an Environment material, but the GDD span (gate arc plus 0.5 D) covers the gap; per-piece footings need an Environment GDD revision (ADR-0014 OQ1) |
 
 ## Full Matrix (architecture-relevant requirements)
@@ -81,9 +77,9 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-tube-track-008 | Signals carry integers only and re-entrancy is guarded: a mutating call from any handler is rejected | ADR-0002 | ✅ Covered |
 | TR-tube-track-012 | Fog must be depth mode with fog_density=1.0 and fog_depth_begin<fog_depth_end=F; F and F_read are ra | ADR-0003 | ⚠️ Partial |
 | TR-tube-track-013 | Tube is a 32-facet flat-shaded cylinder with vertex radius R, a shared Mesh+Material per slot, no Co | ADR-0003 | ✅ Covered |
-| TR-tube-track-015 | seam_contrast_scale in [0,1] is sampled EVERY frame in every state (and on setting_changed); a mutat | ADR-0003 | ⚠️ Partial |
-| TR-tube-track-016 | Idle scroll is the internal step idle_step(dt) driven by the view node's own dt, clamped to t_lat; s | ADR-0003, ADR-0002 | ⚠️ Partial |
-| TR-tube-track-017 | Precision: s is 64-bit; z=-s is cast to 32-bit only when the Vector3 is built; no rebase; one debug  | (ADR-0013 not written) | ❌ Gap |
+| TR-tube-track-015 | seam_contrast_scale in [0,1] is sampled EVERY frame in every state (and on setting_changed); a mutat | ADR-0003 | ✅ Covered |
+| TR-tube-track-016 | Idle scroll is the internal step idle_step(dt) driven by the view node's own dt, clamped to t_lat; s | ADR-0003, ADR-0002 | ✅ Covered |
+| TR-tube-track-017 | Precision: s is 64-bit; z=-s is cast to 32-bit only when the Vector3 is built; no rebase; one debug  | ADR-0013 | ✅ Covered |
 | TR-tube-track-019 | Core is headless and GUT-testable with test doubles for Camera/Ball/Obstacle; the log sink counts wa | ADR-0009 | ✅ Covered |
 | TR-tube-track-020 | A 300 s deterministic simulation at dt=1/64 asserts the far-edge bound, exactly one left+entered pai | ADR-0009 | ✅ Covered |
 | TR-tube-track-021 | Performance budget: total draw calls<=150, the tube sharing one Mesh+Material | ADR-0003 | ✅ Covered |
@@ -109,7 +105,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-tilt-input-026 | Device evidence V-1 (sensor sign, signed by qa-lead and technical-director) BLOCKS the first playabl | ADR-0005 | ✅ Covered |
 | TR-camera-014 | No collision body; camera is outside the tube by construction (CAMERA_RADIUS>TUBE_RADIUS+0.5); stati | ADR-0009 | ✅ Covered |
 | TR-camera-015 | Camera is read-only and side-effect-free: no requests to Ball Movement, Tube Track or Run State; lin | ADR-0009 | ✅ Covered |
-| TR-camera-016 | Publish rear_extent=C_b=CAMERA_BACK_DISTANCE=6.0 and camera_distance (worst-case 7.84, shipped 8) as | ADR-0004 | ⚠️ Partial |
+| TR-camera-016 | Publish rear_extent=C_b=CAMERA_BACK_DISTANCE=6.0 and camera_distance (worst-case 7.84, shipped 8) as | ADR-0004 | ✅ Covered |
 | TR-camera-019 | Safe area is read from Platform Services (soft, provisional) | ADR-0006 | ✅ Covered |
 | TR-camera-020 | Perf: one Camera3D, per-frame transform update only; no draw cost of its own | ADR-0003 | ✅ Covered |
 | TR-obstacle-system-002 | A hazard is `{hazard_id:int>=0, footprint_pieces:[(theta_min,theta_max,s_start,s_end)], home_segment | ADR-0008, ADR-0002 | ✅ Covered |
@@ -216,7 +212,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-settings-accessibility-002 | SettingsCore (RefCounted, no Node) built through three injected Callables get_value_seam(section,key | ADR-0002 | ✅ Covered |
 | TR-settings-accessibility-003 | Boot read: exactly five get_value_seam calls (one per key, each with its own default), no batching,  | ADR-0002 | ✅ Covered |
 | TR-settings-accessibility-005 | set_value(key,value): no-op if equal to current (no write, no event); else update memory, call set_v | ADR-0007 | ⚠️ Partial |
-| TR-settings-accessibility-009 | setting_changed(key, value) signal plus getter are both REQUIRED for the two live consumers (Tube Tr | ADR-0003 | ⚠️ Partial |
+| TR-settings-accessibility-009 | setting_changed(key, value) signal plus getter are both REQUIRED for the two live consumers (Tube Tr | ADR-0003 | ✅ Covered |
 | TR-settings-accessibility-012 | haptics_enabled and haptics_intensity are supplied to PlatformCore (set_haptics_enabled setter; inte | ADR-0006 | ✅ Covered |
 | TR-settings-accessibility-015 | Fixture factories make_settings_fixture, make_get_value_stub, make_set_value_stub(succeeds), make_lo | ADR-0009 | ✅ Covered |
 | TR-juice-feedback-006 | The run_ended handler order is Juice, then Scoring, then HUD. The run_abandoned handler order is Jui | ADR-0002 | ✅ Covered |
