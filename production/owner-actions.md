@@ -10,6 +10,7 @@
 | A2 | After the first green CI run (T-2): decide whether the `ci` job becomes a required status check on `main`. | Repository setting | nothing technical |
 | A3 | Merge `dev` into `main` (PR, merge commit, no squash) when you consider a milestone done; tag releases. | CLAUDE.md: explicit approval every time | release |
 | A4 | Android: create the first export preset and keystore handling, install a debug APK on your phones. | Needs your devices, signing secrets and accounts | all device spikes |
+| A5 | Delete the merged remote branch `wip/run-state-core` (`git push origin --delete wip/run-state-core`). | git-workflow: deleting remote branches needs explicit approval | nothing (cosmetic) |
 
 ## B. Device and playtest evidence (needs your phones or your hands)
 
