@@ -1,12 +1,12 @@
 # Story 002: Spike T-1 - GUT on Godot 4.7.2
 
 > **Epic**: Test Harness & CI
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-03 (completed; evidence in production/qa/)
 
 ## Context
 **GDD**: none, defined by ADR-0009

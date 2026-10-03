@@ -57,6 +57,10 @@ class GodotResolutionTest(unittest.TestCase):
         with self.assertRaises(run_ci.Prerequisite):
             run_ci.find_godot({}, env={"GODOT": os.path.join(tempfile.gettempdir(), "no-such-godot-binary")})
 
+    def test_timeout_kills_a_hung_process(self):
+        code, out, timed_out = run_ci.run_with_timeout([sys.executable, "-c", "import time; time.sleep(30)"], os.getcwd(), 1)
+        self.assertTrue(timed_out)
+
     def test_expected_version(self):
         self.assertEqual(run_ci.expected_engine_version({"godot": {"version": "4.7.2-stable"}}), "4.7.2")
         self.assertEqual(run_ci.expected_engine_version(run_ci.load_versions()), "4.7.2")

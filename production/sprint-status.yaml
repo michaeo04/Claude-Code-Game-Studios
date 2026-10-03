@@ -21,38 +21,38 @@ stories:
     name: "Verify project scaffold (project.godot, .gitattributes, .gdignore)"
     file: "production/epics/test-harness-ci/story-001-verify-scaffold.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.33
     blocker: ""
-    completed: ""
+    completed: "2026-10-03"
   - id: "TH-002"
     name: "Spike T-1 - GUT on Godot 4.7.2"
     file: "production/epics/test-harness-ci/story-002-spike-t1-gut-on-4-7-2.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-03"
   - id: "TH-003"
     name: "Vendor GUT, .gutconfig.json, tests/support skeleton"
     file: "production/epics/test-harness-ci/story-003-vendor-gut-and-support.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-03"
   - id: "TH-004"
     name: "Verify and harden run_ci.py (entry command and result checks)"
     file: "production/epics/test-harness-ci/story-004-verify-run-ci.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: ""
+    completed: "2026-10-03"
   - id: "TH-005"
     name: "Harden the GDScript comment and string stripper"
     file: "production/epics/test-harness-ci/story-005-harden-gdscript-stripper.md"

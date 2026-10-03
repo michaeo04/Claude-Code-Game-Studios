@@ -36,10 +36,10 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | Verify project scaffold (project.godot, .gitattributes, .gdignore) | Config/Data | Ready | ADR-0009 |
-| 002 | Spike T-1: GUT on Godot 4.7.2 | Integration | Ready | ADR-0009 |
-| 003 | Vendor GUT, .gutconfig.json, tests/support skeleton | Config/Data | Ready | ADR-0009 |
-| 004 | Verify and harden run_ci.py | Integration | Ready | ADR-0009 |
+| 001 | Verify project scaffold (project.godot, .gitattributes, .gdignore) | Config/Data | Complete | ADR-0009 |
+| 002 | Spike T-1: GUT on Godot 4.7.2 | Integration | Complete | ADR-0009 |
+| 003 | Vendor GUT, .gutconfig.json, tests/support skeleton | Config/Data | Complete | ADR-0009 |
+| 004 | Verify and harden run_ci.py | Integration | Complete | ADR-0009 |
 | 005 | Harden the GDScript comment and string stripper | Logic | Ready | ADR-0009 |
 | 006 | Harden lint rule kinds and registered rule table | Logic | Ready | ADR-0009 |
 | 007 | Per-rule pass/fail fixtures and self-check | Logic | Ready | ADR-0009 |

@@ -1,12 +1,12 @@
 # Story 003: Vendor GUT, .gutconfig.json, tests/support skeleton
 
 > **Epic**: Test Harness & CI
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Config/Data
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-03 (completed; evidence in production/qa/)
 
 ## Context
 **GDD**: none, defined by ADR-0009
