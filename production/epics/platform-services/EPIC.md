@@ -73,7 +73,7 @@ This epic is complete when:
 | 009 | [CI lint for OS-call ownership (AC-12)](story-009-lint-ownership.md) | Logic | Ready | ADR-0009, ADR-0006 |
 | 010 | [CI manifest lint for project.godot and preset (AC-13)](story-010-lint-manifest.md) | Logic | Ready | ADR-0006, ADR-0009 |
 | 011 | [First Android export preset and merged-manifest check](story-011-export-preset-manifest.md) | Config/Data | Ready | ADR-0006 |
-| 012 | [Integration with Run State core (340 sequences)](story-012-integration-run-state.md) | Integration | Blocked | ADR-0009, ADR-0006 |
+| 012 | [Integration with Run State core (340 sequences)](story-012-integration-run-state.md) | Integration | Ready (depends on run-state-restart 001-004) | ADR-0009, ADR-0006 |
 | 013 | [Device spike PS-1, PS-2, PS-12 (lifecycle, thread)](story-013-spike-ps1-ps2-ps12-lifecycle.md) | Integration | Ready | ADR-0006 |
 | 014 | [Device spike PS-4 (Back on Android 16 / SDK 36)](story-014-spike-ps4-back.md) | Integration | Blocked | ADR-0006 |
 | 015 | [Advisory device checks PS-5, PS-6, PS-11](story-015-device-haptics-pip-permissions.md) | Integration | Ready | ADR-0006 |

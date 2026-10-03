@@ -1,14 +1,14 @@
 # Story 012: Integration with Run State core (INT/BACK pause, 340 sequences)
 
 > **Epic**: Platform Services
-> **Status**: Blocked
+> **Status**: Ready
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
 > **Last Updated**: (set by /dev-story when implementation begins)
 
-> **Blocked note**: needs the Run State core story (its AC-8) and the production adapter story (composition-root epic), neither written yet.
+> **Unblocked 2026-10-03**: the Run State stories now exist; depends on `run-state-restart` stories 001-004 (core, AC-8) and `composition-root` story 001, which supplies the production adapter wiring.
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
