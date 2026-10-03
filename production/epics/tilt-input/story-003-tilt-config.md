@@ -1,12 +1,12 @@
 # Story 003: TiltConfig resource, validation and sensitivity hook
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -43,7 +43,8 @@ Knobs and defaults are in the GDD Tuning Knobs table (FS 25, DZ 1.5, tau 0.05, k
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_config_validation_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/tilt_input/tilt_config_validation_test.gd (AC-4 [C], AC-8, AC-36 table and cross-knob rows)
 
 ## Dependencies
 - Depends on: Story 002

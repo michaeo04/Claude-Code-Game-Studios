@@ -1,12 +1,12 @@
 # Story 001: TubeMath frame, angle wrap and lane/facet formulas
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -57,7 +57,8 @@ Suggested path `src/core/tube_track/tube_math.gd`, `class_name TubeMath extends 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_math_frame_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/tube_track/tube_math_frame_test.gd (AC-1 to AC-6, AC-16)
 
 ## Dependencies
 - Depends on: test-harness-ci (GUT runner and `project.godot` scaffold)

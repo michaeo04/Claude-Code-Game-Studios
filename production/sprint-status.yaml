@@ -66,47 +66,47 @@ stories:
     name: "TiltMath pure functions (roll, filter, mapping, median)"
     file: "production/epics/tilt-input/story-002-tilt-math.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-003"
     name: "TiltConfig resource, validation and sensitivity hook"
     file: "production/epics/tilt-input/story-003-tilt-config.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-001"
     name: "TubeMath frame, angle wrap and lane/facet formulas"
     file: "production/epics/tube-track/story-001-tubemath-frame-angles.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-002"
     name: "TubeMath segment index, window sizes and seam spacing"
     file: "production/epics/tube-track/story-002-tubemath-segments-window-seams.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-003"
     name: "TubeConfig resource and validate() failure-code set"
     file: "production/epics/tube-track/story-003-tubeconfig-validation.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-007"
     name: "Pause, resume countdown, Paused guard and abandon"
     file: "production/epics/run-state-restart/story-007-pause-resume-abandon.md"

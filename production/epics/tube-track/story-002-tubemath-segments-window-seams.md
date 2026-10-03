@@ -1,12 +1,12 @@
 # Story 002: TubeMath segment index, window sizes and seam spacing
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -45,7 +45,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_math_window_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/tube_track/tube_math_window_test.gd (AC-7, AC-11, AC-14)
 
 ## Dependencies
 - Depends on: Story 001 (`TubeMath` file exists)

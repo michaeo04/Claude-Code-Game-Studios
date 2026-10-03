@@ -1,12 +1,12 @@
 # Story 002: TiltMath pure functions (roll, filter, mapping, median)
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -53,7 +53,8 @@ F1: `phi = SENSOR_SIGN * deg(asin(clamp(g.x / |g|, -1, 1)))`, uses only `g.x`; `
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_math_pure_functions_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/tilt_input/tilt_math_pure_functions_test.gd (19 tests: AC-1, AC-2a, AC-4, AC-6, AC-7a-e, AC-11)
 
 ## Dependencies
 - Depends on: test-harness-ci (GUT runner, spike T-1)

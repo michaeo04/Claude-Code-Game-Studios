@@ -69,9 +69,9 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | [TubeMath frame, angle wrap, lane/facet formulas](story-001-tubemath-frame-angles.md) | Logic | Ready | ADR-0013 |
-| 002 | [TubeMath segment index, window sizes, seam spacing](story-002-tubemath-segments-window-seams.md) | Logic | Ready | ADR-0009 |
-| 003 | [TubeConfig resource and validate() code set](story-003-tubeconfig-validation.md) | Logic | Ready | ADR-0004 |
+| 001 | [TubeMath frame, angle wrap, lane/facet formulas](story-001-tubemath-frame-angles.md) | Logic | Complete | ADR-0013 |
+| 002 | [TubeMath segment index, window sizes, seam spacing](story-002-tubemath-segments-window-seams.md) | Logic | Complete | ADR-0009 |
+| 003 | [TubeConfig resource and validate() code set](story-003-tubeconfig-validation.md) | Logic | Complete | ADR-0004 |
 | 004 | [WorldFrame render origin and rebase lint](story-004-worldframe-render-origin.md) | Logic | Ready | ADR-0013 |
 | 005 | [TubeWindow state machine, priming, load_map](story-005-tubewindow-state-machine.md) | Logic | Ready | ADR-0002 |
 | 006 | [advance(s) and synchronous recycling](story-006-tubewindow-advance-recycling.md) | Logic | Ready | ADR-0002 |

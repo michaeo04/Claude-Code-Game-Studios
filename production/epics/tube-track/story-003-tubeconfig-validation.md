@@ -1,12 +1,12 @@
 # Story 003: TubeConfig resource and validate() failure-code set
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -42,7 +42,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_config_validation_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/tube_track/tube_config_validation_test.gd (AC-12 code sets, AC-13, ADR-0004 field guard; "state stays Uninitialized" is Story 005)
 
 ## Dependencies
 - Depends on: Story 001 (F7 `gap`), Story 002 (F3, F5 functions)
