@@ -175,3 +175,25 @@ Verified against `production/session-logs/agent-audit.log`: `technical-director`
 - **ADR-0014 OQ1 (plinth span):** blocks only the Double Gate plinth geometry and the Environment plinth stories, not Acceptance. The proposed 0.5 D extension along `s` breaks Pillar 2: a 0.12 u lip is visible to the ball within about 0.286 u of its edge, while the hit expansion along `s` is D/2 = 0.4 u, so the ball would visibly touch the lip for about 0.29 u before any hit. TD recommendation: per-piece footings, angularly inset, with the `s` extension capped at about 0.11 u or zero; add invariant I4 (no raised geometry within the ball's visual reach outside the hit-expanded footprint); revise Environment Rule 10, TR-environment-theming-012 and AC-14 (the GDD premise that the plinth "can never foul the ball's path" is wrong).
 
 Items marked "from memory" are the agent's unverified engine recollection.
+
+---
+
+## TD conditions applied (2026-10-03, author session)
+
+Applied by the authoring session; **not independently re-reviewed**, and **no ADR status was changed**.
+
+| ADR | Applied |
+|---|---|
+| 0002 | `_wire()` sketch gains the `WorldFrame.on_run_reset` rank-1 row, the `phase_changed` rows (Ink cover, Hazard View) and the `map_load_failed` row, labelled a partial sketch. |
+| 0003 | R-1 gates the first Tube Track story and runs first (no Environment, Hazard view or Ball view story until it is recorded); the boot guard reads the rendering method through an injectable seam so headless CI can build `GameRoot`; Ordering Note names the technical-preferences update on Acceptance. |
+| 0004 | Phase A gains A3b (`HAZARD_STYLE_INVALID`) and A5 derives `camera_far` from the validated env (it is not in `CameraMath.published`); "B4" corrected to B5; `MapDefinition.hazard_style`, `MapConfig.hazard_style` and `MapConfig.camera_far` added. |
+| 0005 | stale "future ADR-0006/0011" reference fixed. |
+| 0006 | min SDK settled at 28 (verification item 14 rewritten); `screen_dpi` added to the display facts. |
+| 0007 | "step 11" replaced by "after `Menus.tick`". |
+| 0008 | preflight test path moved to `tests/integration/...`; P3 stays out of the debug-build boot. |
+| 0010 | "Five cores" corrected to three. |
+| 0011 | UI-1 also tests `stretch/mode = disabled` with `content_scale_factor`; the zero-base-size assumption is marked unverified. |
+| 0013 / 0014 | `HazardView` stores `s_offset` at bind; `rebase()` no longer calls the Obstacle accessor. |
+| 0014 OQ1 | RESOLVED: per-piece footings, `s` extension capped at 0.114 u (default 0), invariant I4 and its tests; Environment GDD Rule 10 carries a revision-required note (Rule 10, TR-environment-theming-012 and AC-14 still to be rewritten in a design review; systems-index status unchanged). |
+
+**Not applied (nothing to edit):** ADR-0009 (its only condition was the ADR-0008 path, fixed there; the coding-standards CI line is updated on Acceptance), ADR-0012 (all conditions are gates: R-1 checks 1 to 15, art-director sign-off, Juice wording).

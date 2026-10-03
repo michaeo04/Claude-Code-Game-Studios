@@ -229,7 +229,7 @@ func register_flash(now_us: int) -> void                            # ledger ent
 
 - A hard cut to Ink on the transition tick is the abrupt luminance step the UX spec avoided (accepted, user decision 2026-10-02; softened by the longer fade under reduced motion).
 - Taps are blocked for up to 0.35 s at a cut (the cover is STOP while visible).
-- Five cores gain an injected `clock_us` or a stamp field (Juice, Camera, Ink cover; Run State already has it).
+- Three cores gain an injected `clock_us` or a stamp field (Juice, Camera, Ink cover); Run State already has it.
 - Restart does not hide a possible seam-phase jump (accepted; PT-1 includes a Restart frame capture).
 
 ### Risks

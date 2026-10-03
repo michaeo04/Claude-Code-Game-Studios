@@ -10,6 +10,7 @@
 - ADRs referenced: ADR-0001 (Android only, Accepted); ADR-0002 to ADR-0014 (all Proposed, see ADR Audit)
 - Technical Director Sign-Off: 2026-10-02 APPROVED WITH CONDITIONS. Condition: no implementation starts until ADR-0002 to ADR-0009 are Accepted (Foundation and Core ADR gaps are not yet resolved)
 - **Condition amended 2026-10-03 (P-1, project-owner decision; the technical-director agent was not invoked, so this is not a TD ratification):** throwaway spike builds under `prototypes/` (isolated from `src/`) are allowed before any ADR is Accepted. An ADR is Accepted on a technical-director review, and each device spike it lists (R-1, T-1, PS-*, SP-*, PT-*, HV-1, UI-*) becomes a **validation gate on the first dependent story**: that story cannot be Done until the spike passes. The condition "no implementation starts until ADR-0002 to ADR-0009 are Accepted" applies to `src/`, not to `prototypes/`.
+- **Technical-director review of ADR-0002 to ADR-0014 (2026-10-03):** CONCERNS, advisory, no blocking flaw (record in `architecture-review-2026-10-03-run5.md`). The conditions were applied in the same session; no ADR is Accepted yet.
 - Lead Programmer Feasibility: skipped (lean mode)
 
 ## Engine Knowledge Gap Summary

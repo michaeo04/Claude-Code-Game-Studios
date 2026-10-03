@@ -137,7 +137,7 @@ Enumeration:
 
 Entry points:
 
-- **Blocking CI test:** `tests/unit/pattern_difficulty/pattern_difficulty_content_preflight_test.gd` (GUT) runs P1 to P3 over the shipped `chunk_library_01.tres`; it must pass for any merge that touches `assets/data/chunks/` or the validators.
+- **Blocking CI test:** `tests/integration/pattern_difficulty/pattern_difficulty_content_preflight_test.gd` (GUT; an Integration test, ADR-0009 layout) runs P1 to P3 over the shipped `chunk_library_01.tres`; the 500-seed P3 soak runs in CI only and is not part of the debug-build boot (if it is ever run there, MS-1 measures it); it must pass for any merge that touches `assets/data/chunks/` or the validators.
 - **Editor script:** an `EditorScript` (and the same `ContentPreflight` called from the CI runner) prints the records so a designer can check a chunk while authoring, before chunk authoring starts (Obstacle requires a debug overlay of effective footprints first; that overlay is a separate debug view).
 - The content test loads the real `.tres` files from disk, so it is classified as **Integration or Content evidence** (the testing standards forbid file I/O in unit tests); the validator unit tests build fixtures with `.new()`. It asserts exact values such as `PI/2` after the load, and the golden-sequence test reloads the library from disk, not an in-memory copy.
 - **Not on the device:** release builds run only the structural compile checks. The debug-build assertion at map load runs the full preflight as a development aid.

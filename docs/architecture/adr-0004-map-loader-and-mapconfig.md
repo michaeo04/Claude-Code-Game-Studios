@@ -79,7 +79,7 @@ MapConfig (RefCounted, built at load, read-only after build)
 ```
 
 - Per-run and per-build knobs (`TubeConfig` A, N, B and the rest, `CameraConfig`, `PatternConfig`) stay in their own `.tres` files; a map contributes only what varies per map.
-- **Camera values** (`rear_extent`, `camera_distance`, `visible_arc_half_width`) are pure functions of `CameraConfig` and the immutable `WorldGeometry` value (`R`, `D`, `N_F`, `L`, plus `OMEGA_MAX` from `BallConfig`; `CameraMath.published`, static). `WorldGeometry` is built once by `GameRoot` at composition from the base `TubeConfig` and `BallConfig` (so `D` has one owner, Ball Movement, and `TubeConfig` gains no copy of it) and is validated before the first `MapLoader.attempt`. `camera_distance` is the derived worst case (about 7.84), not a hand-copied 8, so a retune of `D` or `OMEGA_MAX` cannot silently invert Camera F9. `GameRoot` calls `CameraMath.published` at composition and passes the result to the loader, so no Camera node or instance is consulted and nothing flows up. They are published "at map load" in the sense that `MapConfig` carries them.
+- **Camera values** (`rear_extent`, `camera_distance`, `visible_arc_half_width`) are pure functions of `CameraConfig` and the immutable `WorldGeometry` value (`R`, `D`, `N_F`, `L`, plus `OMEGA_MAX` from `BallConfig`; `CameraMath.published`, static; `camera_far` is not among them: it depends on the map's resting fog end and is derived in Phase A step A5). `WorldGeometry` is built once by `GameRoot` at composition from the base `TubeConfig` and `BallConfig` (so `D` has one owner, Ball Movement, and `TubeConfig` gains no copy of it) and is validated before the first `MapLoader.attempt`. `camera_distance` is the derived worst case (about 7.84), not a hand-copied 8, so a retune of `D` or `OMEGA_MAX` cannot silently invert Camera F9. `GameRoot` calls `CameraMath.published` at composition and passes the result to the loader, so no Camera node or instance is consulted and nothing flows up. They are published "at map load" in the sense that `MapConfig` carries them.
 - `TubeConfig.from_map(base: TubeConfig, map: MapConfig) -> TubeConfig` returns a `base.duplicate()` (shallow; the config holds scalars only) with the map-supplied fields set (the fog, seam and `readable_distance` fields from `map.env`, `rear_extent`, `camera_distance`). The cached resources are never mutated.
 - `EnvConfig.validated(log_sink)` returns a clamped **copy**; the loaded resource, which `ResourceLoader` may cache and share, is never written.
 - **Dependency rules:** the graph is `MapDefinition -> EnvConfig` with no back-edge (`EnvConfig` never references `MapDefinition` or `MapConfig`); `MapConfig` is never an `@export` type; every `@export` field of `EnvConfig` and `TubeConfig` is a scalar, an enum or a `Color`. A unit test fails if a `Resource`, `Array` or `Dictionary` field is added to `TubeConfig` (a shallow `duplicate()` would then share state). `EnvConfig.validated()` copies with `duplicate()` of a scalar-only resource and never reassigns fields on the loaded instance; Phase B keeps only the validated copy, never `def.env`. Keep `env` and the library inline in `map_01.tres`, or load with the deep-ignore cache mode, so a Retry sees fresh sub-resources.
@@ -96,8 +96,9 @@ Phase A: validate (pure; any failure returns the whole code set, nothing is appl
         (a corrupt file also prints an engine error that the rate-limited log cannot suppress; the smoke test tolerates it)
   A2  env = def.env.validated(log_sink)      clamped copy; a null `env` or fatal problems -> MAP_ENV_INVALID (never a crash)
   A3  cam = camera geometry from the seam    finite and in range, else MAP_CAMERA_INVALID
+  A3b hazard_style = def.hazard_style.validated(log_sink)   scalar-only Resource (ADR-0014), clamped copy; null or fatal -> HAZARD_STYLE_INVALID
   A4  def.chunk_library not null             else MAP_LIBRARY_MISSING (content checked by ADR-0008's own validator)
-  A5  map = MapConfig.build(...); tube_cfg = TubeConfig.from_map(base, map)
+  A5  map = MapConfig.build(...); tube_cfg = TubeConfig.from_map(base, map)   MapConfig.build also derives camera_far = F_rest + L from the validated env (the resting fog end is per map, so it cannot come from CameraMath.published at composition); camera_far < F_rest -> MAP_CAMERA_INVALID
   A6  codes = tube_cfg.validate()            Tube Track's own set (FOG_BEFORE_READ, ...), passed through unchanged
 
 Phase B: apply (fixed order)
@@ -154,6 +155,7 @@ extends Resource
 @export var map_id: StringName
 @export var env: EnvConfig
 @export var chunk_library: Resource   # becomes ChunkLibrary in ADR-0008
+@export var hazard_style: Resource    # HazardStyle, scalar-only (ADR-0014); validated in Phase A step A3b
 
 # map_config.gd
 class_name MapConfig
@@ -165,6 +167,8 @@ var chunk_library: Resource           # shared, immutable
 var rear_extent: float
 var camera_distance: float
 var visible_arc_half_width: float
+var hazard_style: Resource           # validated copy (ADR-0014)
+var camera_far: float                 # F_rest + L, derived in Phase A step A5 from env (ADR-0014)
 
 # map_loader_core.gd
 class_name MapLoaderCore
@@ -240,8 +244,8 @@ func retry() -> bool                  # FAILED only; READY is ignored with one l
 
 | GDD System | Requirement | How This ADR Addresses It |
 |------------|-------------|--------------------------|
-| run-state-restart.md | Boot to Menu only on `map_ready`, sent only after a successful load; failure keeps Boot with no events (D9, OQ8, AC-22) | Decisions 2 and 3: validate first, `map_ready` only after B4, nothing sent on failure |
-| tube-track.md | `load_map` accepted only from Uninitialized; a failed validation keeps it and allows Retry; the loader owns the call and `map_ready`; Tube Track owns validation | Decisions 2 and 3 (A6 reuses `validate()`; B4 is last; Retry re-runs the sequence) |
+| run-state-restart.md | Boot to Menu only on `map_ready`, sent only after a successful load; failure keeps Boot with no events (D9, OQ8, AC-22) | Decisions 2 and 3: validate first, `map_ready` only after B5, nothing sent on failure |
+| tube-track.md | `load_map` accepted only from Uninitialized; a failed validation keeps it and allows Retry; the loader owns the call and `map_ready`; Tube Track owns validation | Decisions 2 and 3 (A6 reuses `validate()`; B5 is last; Retry re-runs the sequence) |
 | menus-screen-flow.md | Rule 8 failure screen, Retry, `MAP_LOAD_TIMEOUT` (TR-menus-009) | Decision 3 (`map_load_failed` signal, `request_map_retry`, timeout as backup) |
 | camera.md | `rear_extent`, `camera_distance`, `VISIBLE_ARC_HALF_WIDTH` published at map load | Decision 1 (derived by `CameraMath` from `WorldGeometry` and `OMEGA_MAX`, carried in `MapConfig`) |
 | environment-theming.md | `MapConfig` fields it owns, validated at map load | Decision 1 (`MapDefinition.env`, `EnvConfig.validated` copy) |

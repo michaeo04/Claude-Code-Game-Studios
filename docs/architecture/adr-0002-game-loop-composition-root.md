@@ -105,11 +105,15 @@ func _ready() -> void:
 func _wire() -> void:
     _rows = [
         [_run_state.run_reset, _pattern.on_run_reset, 1],
+        [_run_state.run_reset, _world_frame.on_run_reset, 1],      # ADR-0013: ties with Pattern, row order breaks the tie
         [_run_state.run_reset, _tube_adapter.on_run_reset, 2],
         [_run_state.run_reset, _obstacle.on_run_reset, 2],
         [_run_state.run_reset, _ball.on_run_reset, 3],
         [_run_state.run_reset, _camera.on_run_reset, 4],
-        # rank 5 handlers, then the run_ended and run_abandoned rows
+        [_run_state.phase_changed, _ink_core.on_phase_changed, 5],   # ADR-0010
+        [_run_state.phase_changed, _hazard_view.on_phase_changed, 5], # ADR-0014: pool hidden outside gameplay phases
+        [_map_loader.map_load_failed, _menus.on_map_load_failed, 5],  # ADR-0004; retry goes through the injected request_map_retry
+        # other rank 5 handlers, then the run_ended and run_abandoned rows (a partial sketch: the complete table is the one in GameRoot._wire())
     ]
     # sort by rank, row index as tie-break; then for each row: row[0].connect(row[1])
 

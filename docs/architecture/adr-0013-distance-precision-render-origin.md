@@ -150,7 +150,7 @@ class_name WorldFrameConfig extends Resource     # validated(log_sink) -> copy; 
 
 # view additions
 # TubeView.rebase() -> void        re-bind all N slots through render_z
-# HazardView.rebase() -> void      re-place every bound node through render_z(s_offset_of(id))
+# HazardView.rebase() -> void      re-place every bound node through render_z(its stored s_offset)
 ```
 
 ## Alternatives Considered
