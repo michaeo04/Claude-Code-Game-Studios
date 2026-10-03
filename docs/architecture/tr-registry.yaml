@@ -177,10 +177,10 @@ requirements:
     system: tube-track
     gdd: design/gdd/tube-track.md
     category: "Core"
-    requirement: "Precision: s is 64-bit; z=-s is cast to 32-bit only when the Vector3 is built; no rebase; one debug warning per run at s>=S_PRECISION_LIMIT, re-armed by begin_run; the treadmill is the fallback"
-    source: "R8, F4"
+    requirement: "Precision: s is 64-bit and unbounded; world z is placed only through WorldFrame.render_z(s) = -(s - origin_s), with origin_s a whole number of segments rebased when s - origin_s >= REBASE_SEGMENTS * L; no run cap, no precision warning (ADR-0013)"
+    source: "R8, F4, ADR-0013"
     created: 2026-10-03
-    revised: ""
+    revised: 2026-10-03
     status: active
   - id: TR-tube-track-018
     system: tube-track

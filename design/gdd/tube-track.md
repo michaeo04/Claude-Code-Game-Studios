@@ -90,8 +90,10 @@ the horizon, or a tube surface so busy that it competes with hazards for attenti
 **Rules**
 1. **Address by (theta, s, h).** Systems place, move and query things using
    (theta, s, h). Only Tube Track converts to world space; no other system reads or
-   writes raw world z. (This is what lets a later change, such as a treadmill or a
-   render-origin shift, happen without touching other systems.)
+   writes raw world z. **Revised 2026-10-03 (ADR-0013):** the `s` to render-z mapping is the
+   shared `WorldFrame.render_z` (a render-origin shift, decided), used by every view that places
+   a node (Tube, Hazard, Ball, Camera); the render-origin shift therefore touches those views
+   and is not local to Tube Track.
 2. **Angular distance.** The difference between two angles is always the shortest
    signed arc, `delta_theta = wrap_angle(theta_a - theta_b)` in [-pi, pi). Systems must
    use this rule and must not subtract angles directly.
@@ -151,13 +153,13 @@ the horizon, or a tube surface so busy that it competes with hazards for attenti
    10). Tube Track validates only what it can derive (F9 visibility time, F3 window size, the fog
    fields above, finite and positive values); the raw range of `F` and `F_read` and the
    speed-driven fog behavior belong to Environment & Theming (Open Question 10).
-8. **Precision, no render-origin shift in the MVP.** `s` is a 64-bit float (GDScript
+8. **Precision: render-origin shift (ADR-0013, decided 2026-10-03; replaces the earlier "no render-origin shift in the MVP").** `s` is a 64-bit float (GDScript
    `float`); `z = -s` is cast to 32 bits only when a Vector3 is built, and `s` is never
-   stored in a Vector3. There is no rebase: world z grows with `s`. Precision stays within
-   the requirement below `S_PRECISION_LIMIT` (F4). If `s` reaches it (`s >= S_PRECISION_LIMIT`), Tube Track logs one
-   warning per run (debug builds) and changes nothing else. If on-device testing shows
-   jitter, the fallback is a treadmill (ball and camera fixed on z, segments positioned
-   from `s` each frame); rule 1 keeps that change local to Tube Track.
+   stored in a Vector3. `s` is never reduced or capped. The render origin `origin_s`
+   (a whole number of segments) shifts when `s - origin_s >= REBASE_SEGMENTS * L` (default 84
+   segments), so every placed z stays below 2048 u and the error stays within the requirement of
+   F4 for any run length. `S_PRECISION_LIMIT` and its warning are retired; the treadmill is a
+   rejected alternative (ADR-0013).
 9. **Seams.** A seam pattern is a `SeamPattern` resource owned by Tube Track: `n_seams`
    (integer seams per segment). Seams are a **flat shading band** (a normal tilt and an albedo shift
    inside the contrast band below) with **no geometric relief** (art-director ruling 2026-09-20): a
@@ -407,7 +409,7 @@ Examples at L = 12, v_max = 25, t_lat = 0.1, C_b = 6, M_cam = 2 (B >= 1, default
 These rows test F3 alone. Some are not loadable maps: F9 rejects any `F` below 45.5 at v_max = 25
 and `d_cam` = 8 (rows with F = 37.5), and L = 6 is below `L_min` = 9 (F5).
 
-**F4. Precision (no rebase in the MVP)**
+**F4. Precision (superseded by the render-origin shift, ADR-0013; the model below is kept as the derivation of the 0.0024 u requirement and `Z_RENDER_MAX` = 2048)**
 `ulp(m) = 2^(floor(log2(m)) - 23)` for a 32-bit float of magnitude m.
 *Requirement (proposal):* world-position error of at most 0.5 px at the ball's distance.
 One pixel is about `2 * d * tan(FOV/2) / H` = 0.0048 u at d = 8 u, 60 degrees vertical FOV
@@ -537,8 +539,7 @@ resting 46.22 would give 1.529 s, but F9 is a v_max budget, so the 46.00 value i
   and `posmod`. After `begin_run()` the segments `-B .. -1` already exist.
 - **If `advance(s)` is called in any state except Running**: it is rejected (one error).
   The ball may only advance `s` once Tube Track is Running.
-- **If `s` reaches `S_PRECISION_LIMIT`** (`s >= S_PRECISION_LIMIT`): one warning per run in debug builds; nothing
-  else changes (rule 8).
+- **If `s - origin_s` reaches `REBASE_SEGMENTS * L`**: `GameRoot` rebases the render origin by whole segments in the WorldFrame step; the tube slots are re-bound and nothing else changes (rule 8, ADR-0013). There is no precision warning.
 
 **Angles, heights and invalid values**
 - **If theta is NaN or infinite**: `delta_theta` returns 0 and the conversion function
@@ -655,7 +656,7 @@ Values that live in other systems are not duplicated here. Every knob lives in t
 | `seam_contrast_scale` | 1.0 | 0-1 (set by Settings, read every frame) | Reduced-motion hook, applied immediately | n/a | Flat seams |
 | `IDLE_SCROLL_SPEED` | 1.5 | 0.5-3 | Life in the menu | Menu motion competes with run energy | The tube looks dead |
 | `T_VIS_MIN` | 1.5 s | 1.43-2.5 (guess; the floor is the derivation without its margin, 1.064 + 0.25 + 0.11, revised 2026-09-22 to Ball Movement's confirmed `T_DODGE_180` and latency; raised from 1.35, which was stale under the old 1.05/0.05 numbers) | Minimum hazard visibility time (F9), lower bound of `F_read` (`T_VIS_MIN * v_max + d_cam`) and so of `F` | Fog must be pushed far | Unfair surprises |
-| `S_PRECISION_LIMIT` | 16384 | 4096-16384 | Where the precision warning fires (F4) | Jitter before the warning | Noisy warnings |
+| `REBASE_SEGMENTS` (replaces `S_PRECISION_LIMIT`, ADR-0013) | 84 | 24-128 | Segments of travel between render-origin shifts; validated with `(REBASE_SEGMENTS + A + 1) * L <= 2048` | More jitter margin lost (z up to 2048 u) | More frequent rebases |
 | `RECYCLE_STEP_MARGIN` (t_lat) | 0.1 s (guess; the shared `DT_MAX`, its owner is settled in the Ball Movement GDD, Run State Open Question 9) | 0.05-0.25 (the range of the shared `DT_MAX`) | Window size (F3; at the default L, F and v_max the required A does not change inside this range); the caller's `dt` clamp; the idle-scroll step clamp (F8) | A larger window at other L or F | Not a window problem (recycling is synchronous): Run State clips hitches early and the run drifts slower than real time |
 | `CAMERA_MARGIN` (M_cam) | 2 (guess) | 1-4 | `B` requirement (F3) | Waste | Segments vanish while in view |
 | `A_MAX` / `B_MAX` / `N_MAX` | 12 / 3 / 16 | fixed caps (`N_MAX` = `A_MAX` + `B_MAX` + 1 is implied by the other two) | Sanity limits on the window | n/a | n/a |
@@ -797,7 +798,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
   v_max is 25/12 = 2.0833 (+/- 1e-6). **GIVEN** `n_seams = 4`, L = 12 (a spacing test only, not a
   valid map at the 3 Hz cap), **THEN** seams sit at 1.5, 4.5, 7.5, 10.5 and every gap, including
   across segment boundaries, is 3.0 (+/- 1e-9).
-- **AC-15 [U]** (F4, R8): `ulp32(700) = 6.1e-5`, `ulp32(7500) = 4.9e-4`, `ulp32(16384) = 1.95e-3`,
+- **AC-15 [U]** (F4, R8; **superseded by ADR-0013 Validation Criteria**: `WorldFrame` unit tests (rebase keeps `origin_s` a multiple of `L`, remainder in `[0, L)`, views re-placed, 3600 s soak below 2048 u); the ulp rows below stay as the derivation): `ulp32(700) = 6.1e-5`, `ulp32(7500) = 4.9e-4`, `ulp32(16384) = 1.95e-3`,
   `ulp32(1e6) = 0.0625` (relative tolerance 1%); `2 * ulp32(16383) <= 0.0024` and
   `2 * ulp32(16384) > 0.0024`; **GIVEN** Running at an `s` just below the limit (reached by steps
   of fewer than N segments, not by `advance(16384)` from 0, which is a re-prime), **WHEN**
@@ -945,7 +946,7 @@ stated. No [U] or [I] test asserts wall-clock time. Test seam: every `TubeMath` 
 | 10 | RESOLVED 2026-09-29 (`environment-theming.md` F1/F2, Core Rules 3-5): `MapConfig`'s fog fields and the readable criterion are Environment & Theming's own real derivation, not a placeholder. **Kept the 4:1 floor as binding** (did not adopt the art-director's 2026-09-20 advisory recommendation to loosen it to 2.5-3:1) — a real fog-opacity-vs-luminance-contrast derivation shows 4:1 is achievable without a fog wall once the ramp is properly sized: the placeholder 46/48 pairing was itself physically impossible (a 2 u ramp cannot carry fog from ~0% to 100% opacity), not evidence the floor itself needed loosening. The actual fix is a wider ramp (`fog_depth_begin` ≈ 44, `fog_end_distance` ≈ 84, not 48 — see this GDD's own Formulas note above), which reproduces `F_read` ≈ 46.02 with the 4:1 floor intact and clears this GDD's own visibility floor by 0.02-0.03 s. Propagated into this GDD's examples, tables, knobs and ACs on 2026-10-01 (review item C1). Speed-driven fog pull is capped by construction (Environment & Theming's own `FOG_PULL_MAX` knob has a derived hard ceiling so `F_read(v)` can never drop below the floor at any speed) — the art-director's own "fade rule" and "cap the speed-pull" concerns are both addressed structurally rather than by a separate fade-time check | — | Resolved |
 | 11 | RESOLVED 2026-09-28 (`settings-accessibility.md` Core Rule 7 / Formula F1): `seam_contrast_scale` is supplied as a strict binary opt-in — `0.0` when the player's `reduced_motion_enabled` toggle is on, `1.0` (this GDD's own shipped default, unaffected) otherwise. The general-population default stays at this GDD's own already-Approved `SEAM_HZ_MAX` (3 Hz) rather than being lowered for everyone; a conditional flash cap in place of the frequency-only cap was considered and not adopted (user decision, `settings-accessibility.md` session) | — | Resolved |
 | 12 | RESOLVED 2026-09-22 (`/design-review`, ball-movement.md): `v_max` = 25 u/s confirmed as Ball Movement's design intent — provisional pending BM-1/BM-2 (the device spike) and Environment & Theming's `F_read`, not yet a locked contract; `v_max`'s registry source now points to Ball Movement | Ball Movement GDD | Resolved |
-| 13 | On-device check of precision without a rebase; under the conservative 8-ulp model the safe zone ends at s = 4096. Fallback: treadmill | user, godot-specialist | First playable build |
+| 13 | RESOLVED by ADR-0013 (2026-10-03): render-origin shift; the on-device check is spike PRC-1 (error at the largest placed z just before a rebase). Earlier text: on-device check of precision without a rebase; under the conservative 8-ulp model the safe zone ends at s = 4096. Fallback: treadmill | user, godot-specialist | First playable build |
 | 14 | Default values (L, A, B, n_seams, SEAM_HZ_MAX, seam contrast band, IDLE_SCROLL_SPEED, t_lat, M_cam, T_VIS_MIN, R range) are guesses; validate on a real phone | user | First playable build |
 | 15 | Curved (spline) tube for later maps: revisit the camera model before adopting it | user | Full Vision |
 | 16 | RESOLVED 2026-09-29 (`environment-theming.md` Core Rule 6, user decision): the Mood State 1 preview hazard stays fixed on screen while the tube's own idle scroll (`s_idle`) advances underneath it — it does not scroll with the tube. Idle scroll itself is not cut from the MVP | — | Resolved |

@@ -347,6 +347,17 @@ state_ownership:
 #     revised: ""
 
 
+  - state: render_origin
+    status: active
+    owner_system: world-frame
+    adr: docs/architecture/adr-0013-distance-precision-render-origin.md
+    interface: "WorldFrame (RefCounted, built by GameRoot) holds origin_s (float64, an exact multiple of L, 0 at run start); render_z(s) = -(s - origin_s) is the only cast of a world distance to 32 bits; maybe_rebase(s) runs in the WorldFrame step right after TubeTrack.advance and shifts whole segments when s - origin_s >= REBASE_SEGMENTS * L (84); on_run_reset zeroes it (rank 1)"
+    write_access: world-frame-only
+    referenced_by:
+      - docs/architecture/adr-0013-distance-precision-render-origin.md
+    added: 2026-10-03
+    revised: ""
+
 # ─── INTERFACE CONTRACTS ──────────────────────────────────────────────────────
 # How systems are required to communicate with each other.
 # Conflicts: one ADR expects signal, another expects direct call = integration bug.
@@ -687,6 +698,22 @@ interfaces:
 #     added: 2026-03-26
 #     revised: ""
 
+
+  - contract: world_frame_placement
+    status: active
+    pattern: direct_call
+    producer: world-frame
+    consumers:
+      - tube-view
+      - hazard-view
+      - ball-view
+      - camera-view
+    adr: docs/architecture/adr-0013-distance-precision-render-origin.md
+    signal_signature: "WorldFrame.render_z(s: float) -> float for every node placed by s; GameRoot calls TubeView.rebase() then HazardView.rebase() when maybe_rebase(s) returns true (direct calls in _tick, no signal); rebase() re-places every bound node and calls reset_physics_interpolation(); cores publish ball-relative offsets, never a world z"
+    referenced_by:
+      - docs/architecture/adr-0013-distance-precision-render-origin.md
+    added: 2026-10-03
+    revised: ""
 
 # ─── PERFORMANCE BUDGETS ──────────────────────────────────────────────────────
 # Frame time allocations per system, against a defined total frame budget.
@@ -1291,6 +1318,17 @@ api_decisions:
 #     revised: ""
 
 
+  - purpose: world_distance_precision
+    status: active
+    api: "s stays float64 and unbounded; render position by render origin shift (WorldFrame, REBASE_SEGMENTS 84, Z_RENDER_MAX 2048); physics/common/physics_interpolation false"
+    not: "run cap at S_PRECISION_LIMIT, treadmill, double-precision engine build, raw z = -s in a Vector3"
+    adr: docs/architecture/adr-0013-distance-precision-render-origin.md
+    reason: "Render error stays under 0.0024 u (0.5 px) for any run length under the 8-ulp model, with logic untouched (Pillar 2)."
+    referenced_by:
+      - docs/architecture/adr-0013-distance-precision-render-origin.md
+    added: 2026-10-03
+    revised: ""
+
 # ─── FORBIDDEN PATTERNS ──────────────────────────────────────────────────────
 # Architecture anti-patterns explicitly banned by accepted ADRs.
 # When writing a new ADR, check this list — if the proposed approach matches
@@ -1730,8 +1768,16 @@ forbidden_patterns:
     adr: docs/architecture/adr-0010-presentation-time-hit-stop-ink-cover.md
     added: 2026-10-03
 
+  - pattern: raw_s_in_vector3
+    status: active
+    description: "No node position is built from s, s_offset or a snapshot s except through WorldFrame.render_z; no core stores a world z in a Vector3; no world-space shader math on z (WORLD_POSITION, MODEL_MATRIX[3]) unless its period divides REBASE_SEGMENTS * L; Running-state GPUParticles3D use local_coords = true."
+    why: "A raw large z loses precision (or pops at a rebase) and reintroduces the jitter ADR-0013 removes."
+    adr: docs/architecture/adr-0013-distance-precision-render-origin.md
+    added: 2026-10-03
+
 # Example:
 #
+
 # forbidden_patterns:
 #   - pattern: autoload_singleton_coupling
 #     status: active
