@@ -181,3 +181,22 @@ ADR-0002 (C-19, ADR-0013 step, construction order), ADR-0003 (C-20, E-6, E-7, E-
 | `docs/architecture/control-manifest.md` | ❌ `/create-control-manifest` after Acceptance |
 
 `/gate-check` is not offered while any item above is ❌. Re-run `/architecture-review` after the amendment pass.
+
+---
+
+## Amendment pass applied (2026-10-03, same day, author session)
+
+Applied by the authoring session; **not yet re-reviewed** (the next `/architecture-review` must run in a fresh session).
+
+| Item | Resolution |
+|---|---|
+| C-18 | ADR-0013 gains a section "The GDD frame `P(theta, s, h)`": the GDD formula stays as the logical frame; implementation is `TubeMath.local_point(theta, h)` (x, y) plus `WorldFrame.render_z(s)` (z); camera worked case. One-sentence notes in `tube-track.md` Rule 1 and `camera.md` F4; ADR-0012 BallView placement and ADR-0010 shard origin updated. Juice and Ball Movement GDD formulas unchanged. |
+| C-19 | ADR-0002 Decision 6 and its spy test: `idle_step` only when the phase is Menu (Tube Track Idle), never in Paused, Hit or Resuming. |
+| C-20 | "future ADR-0013" replaced in ADR-0003 and ADR-0014; ADR-0009 lint table gains `raw_s_in_vector3` (ADVISORY) and the `physics_interpolation` project setting. |
+| ADR-0013 follow-through | `WorldFrame step` after `TubeTrack.advance` and `WorldGeometry` and `WorldFrame` in the construction order (ADR-0002); `TubeView.rebase()` (ADR-0003); placement through `render_z` and `HazardView.rebase()` (ADR-0014). |
+| E-1 | ADR-0013 effects row rewritten: no running-state world-space effect exists in the MVP; future ones decide explicitly; stored anchors keep `s` and convert each tick. |
+| E-2 | `WorldFrame.reset()` called by the Tube Track adapter immediately before `to_idle()` (and by the loader before `load_map`); new wiring test. |
+| E-3, E-4, E-5, E-6, E-7, E-8, E-9, E-10 | Applied as worded in the table above (ADR-0013 arithmetic, ADR-0012 fog colour naming, ADR-0014 normals and R-1 row, ADR-0003 boot check, Windows Vulkan driver pin and warm-up measurement, ADR-0010 `fixed_fps`, engine-reference `Texture2D` rows). |
+| Ball Movement GDD | `S_PRECISION_LIMIT` references reworded as the retired constant. |
+
+**Still open:** `architecture.md` v1.1 (module tables, ADR-0013 listed as unwritten at lines 302 and 323), `systems-index.md` line 207 and `tr-baseline/world-movement.md` line 45 (retired constant), ADR-0002 to ADR-0014 Acceptance (TD review), ADR-0014 OQ1 (plinth span), the audio ADR, and the pre-gate items (`project.godot`, spike T-1, `run_ci.py`, control manifest).

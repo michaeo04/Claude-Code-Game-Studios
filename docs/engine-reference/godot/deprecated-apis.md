@@ -38,6 +38,6 @@ with the "Use Instead" column.
 | String-based `connect()` | Typed signal connections | Type-safe, refactor-friendly |
 | `$NodePath` in `_process()` | `@onready var` cached reference | Performance: path lookup every frame |
 | Untyped `Array` / `Dictionary` | `Array[Type]`, typed variables | GDScript compiler optimizations |
-| `Texture2D` in shader parameters | `Texture` base type | Changed in 4.4 |
+| `Texture2D` as a parameter or return type in the API (GDScript and C++ signatures, for example shader parameter setters) | `Texture` base type | Changed in 4.4. Shader source is not affected: uniforms are still declared `sampler2D` (ADR-0003's reading and the godot-specialist's; verify on 4.7.2) |
 | Manual post-process viewport chains | `Compositor` + `CompositorEffect` | Structured post-processing (4.3+) |
 | GodotPhysics3D for new projects | Jolt Physics 3D | Default since 4.6; better stability |

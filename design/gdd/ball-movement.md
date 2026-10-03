@@ -125,7 +125,7 @@ per step: t_run_new = t_run + dt;  s += S(t_run_new) - S(t_run);  publish speed(
 | Ramp time | `T_RAMP` | float | 45 to 240 | s; 0 or less means `V_MAX` from the start |
 
 **Output range:** `speed` in `[V_START, V_MAX]`, monotone non-decreasing; one step advances `s` by at most `V_MAX * DT_MAX` = 2.5 u. `V_START > V_MAX` is rejected at load; `V_START = V_MAX` is legal (constant speed). The exact integral replaces a left-Riemann `speed * dt`, which under-counts by `a * dt * t / 2` (0.125 u after 90 s at 60 Hz).
-**Example** (10 / 25 / 90): `speed(0)` = 10, `speed(45)` = 17.5, `speed(90)` = 25; `S(45)` = 618.75, `S(90)` = 1575, `S(120)` = 2325; `s` reaches Tube Track's `S_PRECISION_LIMIT` 16384 at t = 682.36 s.
+**Example** (10 / 25 / 90): `speed(0)` = 10, `speed(45)` = 17.5, `speed(90)` = 25; `S(45)` = 618.75, `S(90)` = 1575, `S(120)` = 2325; `s` reaches 16384 (the retired Tube Track `S_PRECISION_LIMIT`, ADR-0013) at t = 682.36 s.
 **Readability at `V_MAX`:** 25 u/s is 31 ball widths per second and a segment every 0.48 s; Tube Track F9 gives `T_vis` 1.52 s, a margin of only 0.02 s over its 1.5 s minimum with its default segments.
 
 **F3. Angular tracking, RATE mode**
@@ -162,7 +162,7 @@ Pattern & Difficulty and Tube Track F9 consume `T_DODGE_180 = T(PI, 0.05)` = **1
 
 (c) *Resolution* (position mode, Tilt Input `CURVE_EXP` 1): `ball_deg_per_tilt_deg = (STEER_ARC / (TILT_FULL_SCALE - DEAD_ZONE)) * 180 / PI` and `widths_per_tilt_deg = (STEER_ARC / (TILT_FULL_SCALE - DEAD_ZONE)) * (R + D/2) / D`. At the defaults (`STEER_ARC` = PI, B8; `TILT_FULL_SCALE` 25, `DEAD_ZONE` 1.5): 7.66 degrees of ball per degree of wrist, 0.567 ball widths per degree (one ball width is 1.76 degrees of wrist); the dead zone spans 0.85 ball widths (it hides rest tremor; the ball is sticky at rest); a 10 Hz tremor is attenuated to 0.078 by the two lags, a 2 Hz drift only to 0.68 (these attenuation figures depend on `BALL_LAG_TAU` and Tilt Input's `FILTER_TAU`, not `STEER_ARC`). Fine positioning is feasible for gaps of about 2.5 ball widths or more. `TILT_FULL_SCALE` 35 gives 5.37 degrees per degree at `STEER_ARC` = PI — the resolution lever the spike should pull first, per Knob Interactions below, rather than narrowing `STEER_ARC` (which the 3rd pass found creates an unenforceable, runtime-relocating dead zone — see Open Question 7). `STEER_ARC` and `TILT_FULL_SCALE` remain one joint tuning surface for the spike (Tilt Input Open Question 20). **Verified against `tools/reference-sim/ball_movement.js` (2026-09-22, pass 3): both figures above match to the digits shown.**
 
-**F6. Distance accumulation.** `t_run` and `s` are 64-bit floats; the worst rounding error over 40,942 frames (one full ramp at 60 Hz to `s` = `S_PRECISION_LIMIT`, t = 682.36 s) is about 7.5e-8 u. Conformance: `|s - S(t_run)| <= 1e-6 u` after 100,000 frames, and `t_run` equals Run State's `run_time`.
+**F6. Distance accumulation.** `t_run` and `s` are 64-bit floats; the worst rounding error over 40,942 frames (one full ramp at 60 Hz to `s` = 16384, the former `S_PRECISION_LIMIT`, t = 682.36 s) is about 7.5e-8 u. Conformance: `|s - S(t_run)| <= 1e-6 u` after 100,000 frames, and `t_run` equals Run State's `run_time`.
 
 ## Edge Cases
 
@@ -256,11 +256,11 @@ All defaults are guesses pending the on-device spike (Tilt Input V-1 and the joi
 **Knob interactions**
 - `STEER_ARC` and Tilt Input's `TILT_FULL_SCALE` (and `DEAD_ZONE`, `CURVE_EXP` 1) form one resolution surface (F5c): the spike tunes them together, **keeping `STEER_ARC` at its PI default** (B8 — narrowing it was tried under B3 and reverted because it created a dead zone that relocates with every resume re-base, unenforceable by Pattern & Difficulty; see Open Question 7) and raising `TILT_FULL_SCALE` first (35 degrees gives 5.37 degrees per degree at `STEER_ARC` = PI, versus 7.66 at `TILT_FULL_SCALE` 25 — a resolution lever roughly 7x larger than narrowing `STEER_ARC` itself would have been, with none of the dead-zone cost).
 - `OMEGA_MAX` and `BALL_LAG_TAU` together set `T_DODGE_180`; F9 stays valid while it is at most `T_DODGE_180_MAX` = 1.14 s (F5a). `BALL_LAG_TAU`'s safe range is narrowed to 0-0.072 (B6, 2026-09-22), derived from the *separate* F5b software-response budget — this does **not** make the F5a ceiling unreachable on its own: verified via `tools/reference-sim/ball_movement.js` against all four corners of the current safe ranges, only the corner (`OMEGA_MAX` 2.75, `BALL_LAG_TAU` 0.072) is unsafe (1.1695 s, over 1.14 s); the other three (2.75/0, 4.0/0, 4.0/0.072) are already safe in isolation. `BallConfig.validated()`'s derived check (Rule 13) stays live for that one corner, not as a backstop for a future Game Modes override (Open Question 11). It corrects by **lowering `BALL_LAG_TAU`**, not by raising `OMEGA_MAX`: an earlier version of this check moved `OMEGA_MAX` instead, which silently made every dodge easier and widened the collision sweep (Rule 8) rather than fixing the knob that was actually out of budget. `BALL_LAG_TAU` and Tilt Input's `FILTER_TAU` add in series to the F5b latency budget.
-- `V_MAX` and Tube Track: `T_vis` needs `F_read >= 1.5 * V_MAX + d_cam`; `V_MAX` and `T_RAMP` decide when `s` reaches `S_PRECISION_LIMIT` (682 s at 10 / 25 / 90).
+- `V_MAX` and Tube Track: `T_vis` needs `F_read >= 1.5 * V_MAX + d_cam`; `V_MAX` and `T_RAMP` decide when `s` reaches 16384, the former `S_PRECISION_LIMIT` (682 s at 10 / 25 / 90); render precision no longer depends on it (ADR-0013).
 - `V_START` and `T_RAMP` set the early-run difficulty that Pattern & Difficulty designs its telegraphs against (it reads the curve).
 - `BALL_DIAMETER` changes Tube Track's lane capacity and every gap width; a change needs Tube Track F6 re-checked.
 
-**Sources of truth elsewhere:** `DT_MAX` (Run State), `FILTER_TAU`, `DEAD_ZONE`, `TILT_FULL_SCALE`, `CURVE_EXP`, `sensitivity` (Tilt Input), `S_PRECISION_LIMIT`, `TUBE_RADIUS` (Tube Track), the camera's lag (Camera).
+**Sources of truth elsewhere:** `DT_MAX` (Run State), `FILTER_TAU`, `DEAD_ZONE`, `TILT_FULL_SCALE`, `CURVE_EXP`, `sensitivity` (Tilt Input), `TUBE_RADIUS` and `REBASE_SEGMENTS` (Tube Track; replaces `S_PRECISION_LIMIT`, ADR-0013), the camera's lag (Camera).
 
 ## Visual/Audio Requirements
 

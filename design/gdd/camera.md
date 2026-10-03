@@ -142,6 +142,8 @@ look_at_point       = the point on the tube's central axis at s = look_at_s   (r
 
 Camera never computes world coordinates of its own — it reuses Tube Track's own `P(theta, s, h)` (Tube Track Rule 1), the same "publish an angle/distance, let Tube Track place it in world space" pattern Ball Movement already follows for the ball itself. `P` places a point at radius `R + h` from the axis; passing `h = CAMERA_RADIUS - R` places the camera at exactly `CAMERA_RADIUS` from the axis (Core Rule 2), and `h = -R` places a point exactly on the axis (radius 0), which is what the look-at target requires — the angle argument is irrelevant at radius 0, since every angle maps to the same point there.
 
+**Placement note (ADR-0013):** `P` here is the logical frame. `CameraCore` keeps `s_ball` as a float64 and publishes only the angle and the offsets; `CameraView` places the eye at `local_point(phi_cam, CAMERA_RADIUS - R)` with z = `WorldFrame.render_z(s_ball) + CAMERA_BACK_DISTANCE` and the look-at on the axis with z = `render_z(s_ball) - CAMERA_LOOK_AHEAD`, which is the same point as the formula below shifted by the render origin.
+
 | Symbol | Type | Range | Description |
 |--------|------|-------|-------------|
 | `camera_position` | vector | — | World-space camera position, via Tube Track's own `P` |

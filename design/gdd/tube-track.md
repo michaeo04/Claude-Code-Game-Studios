@@ -93,7 +93,7 @@ the horizon, or a tube surface so busy that it competes with hazards for attenti
    writes raw world z. **Revised 2026-10-03 (ADR-0013):** the `s` to render-z mapping is the
    shared `WorldFrame.render_z` (a render-origin shift, decided), used by every view that places
    a node (Tube, Hazard, Ball, Camera); the render-origin shift therefore touches those views
-   and is not local to Tube Track.
+   and is not local to Tube Track. `P` below remains the logical frame (float64 `s`, origin at run start); its implementation is `TubeMath.local_point(theta, h)` for x and y plus `WorldFrame.render_z(s)` for z (ADR-0013, section on the GDD frame `P`).
 2. **Angular distance.** The difference between two angles is always the shortest
    signed arc, `delta_theta = wrap_angle(theta_a - theta_b)` in [-pi, pi). Systems must
    use this rule and must not subtract angles directly.

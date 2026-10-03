@@ -19,7 +19,7 @@ Last verified: 2026-02-12 | Engine: Godot 4.6
 
 ### 4.4 Changes
 - **`RenderingDevice.draw_list_begin`**: Many parameters removed; optional `breadcrumb` added
-- **Shader texture types**: Changed from `Texture2D` to `Texture` base type
+- **Shader texture types**: Changed from `Texture2D` to `Texture` base type in API signatures (GDScript and C++); shader source still declares `sampler2D` (unverified on 4.7.2)
 - **Particles `.restart()`**: Added optional `keep_seed` parameter
 
 ### 4.3 Changes (in training data)
@@ -79,5 +79,5 @@ d      = radial distance from the camera eye (not the depth along the view axis)
 - Assuming the default fog reaches 100% opacity at `fog_depth_end` (default mode is exponential and
   default `fog_density` is 0.01)
 - Using manual viewport chains instead of Compositor for post-processing
-- Using `Texture2D` in shader uniform types (use `Texture` since 4.4)
+- Using `Texture2D` as the type of a shader parameter in API calls (use `Texture` since 4.4); this is not about shader source, where uniforms are `sampler2D`
 - Not using Shader Baker for projects with many shader variants
