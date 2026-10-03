@@ -50,7 +50,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 
 | TR-ID | Requirement | Missing decision | Suggested ADR |
 |---|---|---|---|
-| TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most 300-400 ms | three cues; bus layout and OS audio policy owner undecided (deferrable) | (no audio ADR) |
+| TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most 300-400 ms | three cues; bus layout and OS audio policy owner (ADR-0015, Proposed) | ADR-0015 |
 
 ## Partial Coverage (⚠️)
 
