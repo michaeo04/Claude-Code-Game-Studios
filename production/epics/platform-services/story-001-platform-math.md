@@ -1,12 +1,12 @@
 # Story 001: PlatformMath pure functions (haptic gate, effective, interval, fps)
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -54,7 +54,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/platform_services/platform_services_math_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Status**: [x] Created, passing (17 tests)
+**Evidence**: `tests/unit/platform_services/platform_services_math_test.gd`: AC-3 `test_gate_*` and `test_interval_us_converts_seconds_once`; AC-5 `test_effective_*`; AC-8 `test_fps_eff_*` and `test_frame_time_*`. Signatures: `haptic_gate(...) -> bool` (`last = NO_LAST_US` (-1) means none; `dur` is the already-effective duration), `effective(dur, amp, max_ms) -> Vector2(dur_eff, amp_eff)`, `interval_us(seconds) -> int` (one argument), `frame_time(fps) -> float` ms.
 
 ## Dependencies
 - Depends on: test-harness-ci story 002 (GUT confirmed on 4.7.2, spike T-1)

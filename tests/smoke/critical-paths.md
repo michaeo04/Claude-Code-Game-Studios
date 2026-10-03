@@ -30,7 +30,7 @@
 
 ## Sprint 1 toolchain smoke (no playable build yet; see production/qa/qa-plan-sprint-1-2026-10-03.md)
 
-13. (pending) `python tools/ci/run_ci.py --only lint` exits 0 and `python -m unittest discover -s tools/ci/tests` passes.
-14. (pending) `godot --headless --path . --import` runs with no `SCRIPT ERROR` or `Parse Error` (also proves `project.godot` loads on 4.7.2).
-15. (pending) `python tools/ci/run_ci.py --only unit` runs, the JUnit XML reports more than zero tests and zero failures.
+13. (PASS 2026-10-04) `python tools/ci/run_ci.py --only lint` exits 0 and `python -m unittest discover -s tools/ci/tests` passes.
+14. (PASS 2026-10-04) `godot --headless --path . --import` runs with no `SCRIPT ERROR` or `Parse Error` (also proves `project.godot` loads on 4.7.2).
+15. (PASS 2026-10-04, 198 unit + 2 integration tests) `python tools/ci/run_ci.py --only unit` runs, the JUnit XML reports more than zero tests and zero failures.
 16. (pending) A `GameRoot` with fake systems runs the fixed per-frame order (spy test) and a `RunStateCore` runs start, hit, restart headless.

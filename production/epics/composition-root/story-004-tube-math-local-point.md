@@ -1,12 +1,12 @@
 # Story 004: `TubeMath.local_point` and the logical-frame reference
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0013 (frame `P` from `design/gdd/tube-track.md` Rule 1)
@@ -58,7 +58,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/composition_root/tube_math_local_point_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created, passing (8 tests)
+**Evidence**: `tests/unit/composition_root/tube_math_local_point_test.gd`: `test_local_point_matches_reference_on_fixture_table` (AC-1), `test_camera_eye_matches_reference_shifted_by_origin` (AC-2), `test_camera_look_at_on_axis_matches_reference_shifted_by_origin` (AC-3), `test_non_finite_theta_or_h_returns_zero_and_logs_once_each` (AC-4), `test_no_tube_math_method_returns_vector3` (AC-5). Signature note: `local_point(theta, h, r, log_sink = Callable())`; `R` and the sink are parameters (static function). The reference `logical_p` is in `tests/support/tube_logical_frame.gd`.
 
 ## Dependencies
 - Depends on: Story 003; tube-track epic (the `tube_math.gd` file; coordinate)

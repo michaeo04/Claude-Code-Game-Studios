@@ -174,11 +174,11 @@ stories:
     name: "`TubeMath.local_point` and the logical-frame reference"
     file: "production/epics/composition-root/story-004-tube-math-local-point.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.33
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TH-006"
     name: "Harden lint rule kinds and the registered rule table"
     file: "production/epics/test-harness-ci/story-006-harden-lint-rule-kinds.md"
@@ -192,11 +192,11 @@ stories:
     name: "PlatformMath pure functions (haptic gate, effective, interval, fps)"
     file: "production/epics/platform-services/story-001-platform-math.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TH-007"
     name: "Per-rule pass/fail fixtures and runner self-check"
     file: "production/epics/test-harness-ci/story-007-per-rule-fixtures-and-self-check.md"
