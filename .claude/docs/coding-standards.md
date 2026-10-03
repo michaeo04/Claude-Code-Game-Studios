@@ -78,6 +78,6 @@ Designations are recorded in `production/qa/designated-gates.md`. Check the regi
 - No merge if tests fail — tests are a blocking gate in CI
 - Never disable or skip failing tests to make CI pass — fix the underlying issue
 - Engine-specific CI commands:
-  - **Godot**: `godot --headless --script tests/gdunit4_runner.gd`
+  - **Godot**: `python tools/ci/run_ci.py` (GUT, `godot --headless --import` first, lint rules from `tools/ci/lint_rules.json`; ADR-0009. The script is created in the ADR-0009 Migration Plan, and `.github/workflows/ci.yml` is manual-only until spike T-2)
   - **Unity**: `game-ci/unity-test-runner@v4` (GitHub Actions)
   - **Unreal**: headless runner with `-nullrhi` flag

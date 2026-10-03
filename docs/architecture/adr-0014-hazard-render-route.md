@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-10-03)
 
 ## Date
 
@@ -133,7 +133,7 @@ WorldRoot (Node3D)
 
 ### 6. Culling and draw-call arithmetic
 
-- **Camera far plane:** Camera publishes `camera_far = F_rest + L` where `F_rest` is the **resting** fog end (`fog_end_distance`, 84 u at Map 1; derived in ADR-0004 Phase A step A5 from the validated `MapConfig.env`, not by `CameraMath.published` at composition, which has no map) and is **constant**: the speed pull of `fog_depth_end` (Environment F2) never changes the projection. The far plane is axial depth and fog distance is radial (radial is never smaller), so a fragment beyond axial `F` is already beyond radial `F` and 100% fogged; `far = F` would be correct and the `+ L` is only a conservative margin. A hazard fully swallowed by fog is frustum-culled with no code in the tick. Fog colour equals the background (ADR-0003; R-1 checks the sky band at the tube end), so the cut is invisible. The far plane also clips the tube, props and sky, which R-1 checks.
+- **Camera far plane:** `MapConfig.camera_far = F_rest + L` (derived and validated by the loader, ADR-0004 A5; Camera applies it to `Camera3D.far`) where `F_rest` is the **resting** fog end (`fog_end_distance`, 84 u at Map 1; derived in ADR-0004 Phase A step A5 from the validated `MapConfig.env`, not by `CameraMath.published` at composition, which has no map) and is **constant**: the speed pull of `fog_depth_end` (Environment F2) never changes the projection. The far plane is axial depth and fog distance is radial (radial is never smaller), so a fragment beyond axial `F` is already beyond radial `F` and 100% fogged; `far = F` would be correct and the `+ L` is only a conservative margin. A hazard fully swallowed by fog is frustum-culled with no code in the tick. Fog colour equals the background (ADR-0003; R-1 checks the sky band at the tube end), so the cut is invisible. The far plane also clips the tube, props and sky, which R-1 checks.
 - **Bound:** consecutive hazard starts are at least `S_MIN_SPACING` (6.25 u) apart (preflight P1 within a chunk, the sequencer across chunks). Culling is by AABB, so a hazard that starts just behind the camera and extends into view is still drawn: hazards drawn at most `floor((camera_far + max_hazard_s_length) / S_MIN_SPACING) + 1`, about 17 at the defaults. Draw calls: 17 bodies + at most 17 plinth surfaces (if every hazard were a Double Gate) = **34 worst case, under the 40 allocation**; the realistic figure is about 10 to 14. The Menu adds the `preview` node (1 to 2).
 - **Forward+ fallback:** a depth pre-pass may roughly double these counts (about 68 worst case, over the 40 allocation); the fallback of ADR-0003 therefore re-measures this figure, and the escalation below applies.
 - If R-1 measures more than 40, escalate to **mesh per segment** (route B, merged bodies with a per-vertex hazard ordinal, and the ADR-0012 isolate mechanism adapted); the `HazardView` interface (`bind`, `release`, `node_of`) does not change.
@@ -227,7 +227,7 @@ func s_offset_of(hazard_id: int) -> float
 |------|------------|--------|-----------|
 | Unshaded hazard material loses depth fog on Mobile | Low | High | R-1 check 2; fall back to a lit material with fixed lights and re-derive the luminances |
 | Hazard draw calls exceed 40 on device | Low | Medium | worst case 34 by construction; escalate to route B |
-| `camera_far` culls a hazard that fog has not fully hidden | Low | High | far is `F + L`, and the R-1 pop check; Camera validates `far >= F` |
+| `camera_far` culls a hazard that fog has not fully hidden | Low | High | far is `F + L`, and the R-1 pop check; the loader validates `camera_far` (`MAP_CAMERA_INVALID`) |
 | Plinth span clips the ball in a gap (see Open Question 1) | Medium | High | resolved: per-piece footings, `s` extension capped at 0.114 u, invariant I4; the Environment GDD revision (Rule 10, TR-environment-theming-012, AC-14) must land before the Environment plinth stories |
 | Prewarm too slow at boot | Low | Low | spike HV-1; threaded build is not possible for `ArrayMesh` on the main thread, so reduce triangles or lazy-build in a loading frame |
 | Face/shade assignment disagrees with the art direction | Medium | Low | one builder function; art director confirms before asset spec |
@@ -243,7 +243,7 @@ func s_offset_of(hazard_id: int) -> float
 
 ## Migration Plan
 
-Greenfield. Add `HazardStyle` to `MapDefinition`, the Phase B step to ADR-0004, accessors to `ObstacleCore`, and the Camera `camera_far` value. Update the art bible 3b line ("one MultiMesh per family") and ADR-0003 draw-call text (hazards: node per hazard, 34 worst case) once Accepted.
+Greenfield. Add `HazardStyle` to `MapDefinition`, the Phase B step to ADR-0004, accessors to `ObstacleCore`, and `camera_far` in `MapConfig` (ADR-0004 A5). Update the art bible 3b line ("one MultiMesh per family") and ADR-0003 draw-call text (hazards: node per hazard, 34 worst case) once Accepted.
 
 ## Validation Criteria
 

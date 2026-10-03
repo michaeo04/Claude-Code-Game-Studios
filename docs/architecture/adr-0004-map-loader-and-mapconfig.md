@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-10-03)
 
 ## Date
 
@@ -98,7 +98,7 @@ Phase A: validate (pure; any failure returns the whole code set, nothing is appl
   A3  cam = camera geometry from the seam    finite and in range, else MAP_CAMERA_INVALID
   A3b hazard_style = def.hazard_style.validated(log_sink)   scalar-only Resource (ADR-0014), clamped copy; null or fatal -> HAZARD_STYLE_INVALID
   A4  def.chunk_library not null             else MAP_LIBRARY_MISSING (content checked by ADR-0008's own validator)
-  A5  map = MapConfig.build(...); tube_cfg = TubeConfig.from_map(base, map)   MapConfig.build also derives camera_far = F_rest + L from the validated env (the resting fog end is per map, so it cannot come from CameraMath.published at composition); camera_far < F_rest -> MAP_CAMERA_INVALID
+  A5  map = MapConfig.build(...); tube_cfg = TubeConfig.from_map(base, map)   MapConfig.build also derives camera_far = F_rest + L from the validated env (the resting fog end is per map, so it cannot come from CameraMath.published at composition); `L <= 0` or a non-finite `camera_far` -> MAP_CAMERA_INVALID
   A6  codes = tube_cfg.validate()            Tube Track's own set (FOG_BEFORE_READ, ...), passed through unchanged
 
 Phase B: apply (fixed order)

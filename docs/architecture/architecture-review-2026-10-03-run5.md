@@ -197,3 +197,12 @@ Applied by the authoring session; **not independently re-reviewed**, and **no AD
 | 0014 OQ1 | RESOLVED: per-piece footings, `s` extension capped at 0.114 u (default 0), invariant I4 and its tests; Environment GDD Rule 10 carries a revision-required note (Rule 10, TR-environment-theming-012 and AC-14 still to be rewritten in a design review; systems-index status unchanged). |
 
 **Not applied (nothing to edit):** ADR-0009 (its only condition was the ADR-0008 path, fixed there; the coding-standards CI line is updated on Acceptance), ADR-0012 (all conditions are gates: R-1 checks 1 to 15, art-director sign-off, Juice wording).
+
+---
+
+## Acceptance (2026-10-03)
+
+- Second technical-director invocation (re-check of commit 136db60), logged in `production/session-logs/agent-audit.log`: all of ADR-0002 to ADR-0014 READY TO ACCEPT; four minor consistency defects reported and fixed before Acceptance (camera_far ownership aligned in ADR-0004 A5 and ADR-0014 lines 136, 230, 246; the vacuous `camera_far < F_rest` check replaced by `L <= 0` or non-finite; T-1 in ADR-0009 now records the headless rendering-method value; the injected `rendering_method_getter` named in ADR-0002 Decision 4; stale `screen_dpi` follow-up wording in ADR-0011).
+- **ADR-0002 to ADR-0014 set to Accepted (2026-10-03)** on the project owner's delegation ("tu quyet dinh", the owner's instruction that the assistant decide the plan). The TD review is advisory; the owner's delegation is the authority for the status change, not the TD verdict.
+- Synchronised per ADR-0009 Decision 8 and ADR-0003: `architecture.md` (statuses), `.claude/docs/technical-preferences.md` (Rendering Mobile with Forward+ fallback, GUT, forbidden patterns pointer, decisions log), `.claude/docs/coding-standards.md` (CI line). **Not yet done from Decision 8:** replacing the gdUnit4 scaffolding in the `/test-setup`, `/smoke-check`, `/test-helpers`, `/test-flakiness` skills, and marking the GDD open questions (Ball Movement 12, Obstacle 9, Platform Services 18, Tilt Input 16) and the systems-index note resolved.
+- Conditions that stay open as gates: every spike on the first dependent story; R-1 before any Environment, Hazard view or Ball view story; art-director sign-off of ball legibility (ADR-0012 OQ1); the Environment GDD revision (Rule 10, TR-environment-theming-012, AC-14) before the plinth stories; the audio ADR before the Juice audio stories.

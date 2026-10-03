@@ -7,7 +7,7 @@
 
 - **Engine**: Godot 4.7.2
 - **Language**: GDScript
-- **Rendering**: Forward+ (Godot 4 default, stylized low-poly 3D)
+- **Rendering**: Mobile renderer (Vulkan) on Android, gated by spike R-1; Forward+ is the pre-committed fallback (ADR-0003). Stylized low-poly 3D
 - **Physics**: Jolt (Godot 4.6+ default)
 
 ## Input & Platform
@@ -47,17 +47,18 @@
 ## Forbidden Patterns
 
 <!-- Add patterns that should never appear in this project's codebase -->
-- [None configured yet — add as architectural decisions are made]
+- The machine-checked list is the `forbidden_patterns` section of `docs/registry/architecture.yaml`, enforced by `tools/ci/lint_rules.json` (ADR-0009). Headline rules: no autoloads for game systems, no `_process`/`_physics_process` outside `GameRoot`, no `CONNECT_DEFERRED` on control signals, no `Engine.time_scale` or `SceneTree.paused`, no raw `s` in a `Vector3` outside `WorldFrame`/`TubeMath` (ADR-0013), no `CollisionObject3D`/`Area3D`/`RayCast3D` (ADR-0008)
 
 ## Allowed Libraries / Addons
 
 <!-- Add approved third-party dependencies here -->
-- [None configured yet — add as dependencies are approved]
+- GUT (MIT), pinned by exact release and `godot.sha512` in `tools/ci/versions.json` after spike T-1 (ADR-0009); gdUnit4 is the pre-committed fallback if T-1 fails
 
 ## Architecture Decisions Log
 
 <!-- Quick reference linking to full ADRs in docs/architecture/ -->
 - ADR-0001: Android only, iOS out of scope (`docs/architecture/adr-0001-android-only.md`, 2026-10-01)
+- ADR-0002 to ADR-0014 Accepted 2026-10-03 (`docs/architecture/`): game loop and Composition Root, renderer (Mobile) and tube route, Map Loader, sensor and input, Android integration, persistence, hazard content, test framework (GUT) and CI, presentation time, UI, ball material and chroma, distance precision and render origin, hazard render route. Validation spikes (R-1, T-1, PS-*, SP-*, PT-*, HV-1, UI-*, PRC-1, MS-1) gate the first dependent story
 
 ## Engine Specialists
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-10-03)
 
 ## Date
 
@@ -159,7 +159,7 @@ class_name WorldFrameConfig extends Resource     # validated(log_sink) -> copy; 
 - **Description**: `s` float64, `z = -s` cast per `Vector3`, one debug warning per run, device check at first playable.
 - **Pros**: no work now; Tube Track keeps the change "local".
 - **Cons**: it is not a decision; the 8-ulp model puts the limit at 164 s, inside planned runs; the fallback would then touch the same four view systems under deadline pressure with real code in place; the warning only exists in debug builds, so a player build jitters silently.
-- **Rejection Reason**: the project is greenfield and the four view ADRs are still Proposed, so the placement seam costs the least now.
+- **Rejection Reason**: the project is greenfield and no view code exists yet (the four view ADRs are Accepted but unbuilt), so the placement seam costs the least now.
 
 ### Alternative 2: Treadmill (ball and camera fixed, world repositioned every frame)
 - **Description**: ball and camera stay at a fixed z; every slot and hazard node is placed at `-(s_i - s)` each frame.

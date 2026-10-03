@@ -7,10 +7,10 @@
 - Engine: Godot 4.7.2, GDScript; Android only (ADR-0001); review mode `lean`
 - GDDs covered: tube-track, run-state-restart, tilt-input, platform-services, ball-movement, obstacle-system, pattern-difficulty, near-miss-detection, scoring-personal-best, save-persistence, settings-accessibility, camera, juice-feedback, environment-theming, hud, menus-screen-flow (16 system GDDs) plus `design/ux/hud.md`, `design/ux/menus-screen-flow.md`, `design/ux/interaction-patterns.md`
 - Technical Requirements Baseline: about 348 requirements (`TR-[slug]-[NNN]`) in `docs/architecture/tr-baseline/` (world-movement, gameplay, foundation, presentation-ui)
-- ADRs referenced: ADR-0001 (Android only, Accepted); ADR-0002 to ADR-0014 (all Proposed, see ADR Audit)
+- ADRs referenced: ADR-0001 (Android only, Accepted); ADR-0002 to ADR-0014 (all Accepted 2026-10-03, see ADR Audit)
 - Technical Director Sign-Off: 2026-10-02 APPROVED WITH CONDITIONS. Condition: no implementation starts until ADR-0002 to ADR-0009 are Accepted (Foundation and Core ADR gaps are not yet resolved)
 - **Condition amended 2026-10-03 (P-1, project-owner decision; the technical-director agent was not invoked, so this is not a TD ratification):** throwaway spike builds under `prototypes/` (isolated from `src/`) are allowed before any ADR is Accepted. An ADR is Accepted on a technical-director review, and each device spike it lists (R-1, T-1, PS-*, SP-*, PT-*, HV-1, UI-*) becomes a **validation gate on the first dependent story**: that story cannot be Done until the spike passes. The condition "no implementation starts until ADR-0002 to ADR-0009 are Accepted" applies to `src/`, not to `prototypes/`.
-- **Technical-director review of ADR-0002 to ADR-0014 (2026-10-03):** CONCERNS, advisory, no blocking flaw (record in `architecture-review-2026-10-03-run5.md`). The conditions were applied in the same session; no ADR is Accepted yet.
+- **Technical-director review of ADR-0002 to ADR-0014 (2026-10-03):** CONCERNS, advisory, no blocking flaw (record in `architecture-review-2026-10-03-run5.md`). The conditions were applied in the same session and re-checked by the technical-director (second invocation, same day; both logged in `production/session-logs/agent-audit.log`): all thirteen READY TO ACCEPT after four minor consistency fixes. **ADR-0002 to ADR-0014 were then set to Accepted (2026-10-03) on the project owner's delegation** ("tu quyet dinh"). The spikes they list remain validation gates on the first dependent story (P-1), and R-1 runs before any Environment, Hazard view or Ball view story.
 - Lead Programmer Feasibility: skipped (lean mode)
 
 ## Engine Knowledge Gap Summary
@@ -288,19 +288,19 @@ Updated 2026-10-03 (v1.1). Fourteen ADRs exist. Run 5 (`architecture-review-2026
 | ADR | Title | Status | Depends on |
 |---|---|---|---|
 | ADR-0001 | Android only | Accepted | none |
-| ADR-0002 | Game loop, Composition Root, tick order | Proposed | 0001 |
-| ADR-0003 | Renderer and tube render route | Proposed | 0001, 0002 |
-| ADR-0004 | Map Loader and MapConfig | Proposed | 0002, 0003 |
-| ADR-0005 | Sensor source and input pipeline | Proposed | 0001, 0002 |
-| ADR-0006 | Android platform integration | Proposed | 0001, 0002, 0003, 0005 |
-| ADR-0007 | Persistence implementation | Proposed | 0001, 0002, 0006 |
-| ADR-0008 | Hazard, collision and content format | Proposed | 0002, 0003, 0004 |
-| ADR-0009 | Test framework and CI | Proposed | 0002, 0004, 0007, 0008 |
-| ADR-0010 | Presentation time, hit-stop, Ink cover | Proposed | 0002, 0011 |
-| ADR-0011 | UI architecture | Proposed | 0002, 0003, 0005, 0006 |
-| ADR-0012 | Ball material and world chroma | Proposed | 0002, 0003, 0004, 0014 |
-| ADR-0013 | Distance precision and render origin | Proposed | 0002, 0003, 0004, 0012, 0014 |
-| ADR-0014 | Hazard render route | Proposed | 0002, 0003, 0004, 0008 |
+| ADR-0002 | Game loop, Composition Root, tick order | Accepted | 0001 |
+| ADR-0003 | Renderer and tube render route | Accepted | 0001, 0002 |
+| ADR-0004 | Map Loader and MapConfig | Accepted | 0002, 0003 |
+| ADR-0005 | Sensor source and input pipeline | Accepted | 0001, 0002 |
+| ADR-0006 | Android platform integration | Accepted | 0001, 0002, 0003, 0005 |
+| ADR-0007 | Persistence implementation | Accepted | 0001, 0002, 0006 |
+| ADR-0008 | Hazard, collision and content format | Accepted | 0002, 0003, 0004 |
+| ADR-0009 | Test framework and CI | Accepted | 0002, 0004, 0007, 0008 |
+| ADR-0010 | Presentation time, hit-stop, Ink cover | Accepted | 0002, 0011 |
+| ADR-0011 | UI architecture | Accepted | 0002, 0003, 0005, 0006 |
+| ADR-0012 | Ball material and world chroma | Accepted | 0002, 0003, 0004, 0014 |
+| ADR-0013 | Distance precision and render origin | Accepted | 0002, 0003, 0004, 0012, 0014 |
+| ADR-0014 | Hazard render route | Accepted | 0002, 0003, 0004, 0008 |
 
 **Traceability.** The Technical Requirements Baseline holds 348 requirements (`docs/architecture/tr-baseline/`, registered in `tr-registry.yaml`); 191 are architecture-relevant, of which 179 are covered, 11 partial and 1 gap (audio, deferrable). The full matrix is `docs/architecture/architecture-traceability.md`.
 
@@ -328,7 +328,7 @@ Approved 2026-10-02; **all ADRs below are written as of 2026-10-03** (status in 
 | ADR-0010 Presentation time, hit-stop, Ink cover | real-time effects, FOV ease, cover driven by `phase_changed` (decided in Data Flow) |
 | ADR-0011 UI architecture | `CanvasLayer` indices, dp to viewport conversion and stretch mode, view and Control split, AccessKit scope, dual focus |
 | ADR-0012 Ball material and world chroma | one owner for `L_ball_adjusted`, how Juice's rim glow layers on it, one chroma uniform |
-| ADR-0013 Distance precision and render origin | written (Proposed): `s` stays float64, `WorldFrame.render_z` shifts the render origin by whole segments |
+| ADR-0013 Distance precision and render origin | Accepted: `s` stays float64, `WorldFrame.render_z` shifts the render origin by whole segments |
 
 **Can defer to implementation:** the audio policy ADR (three Juice cues, bus layout), OS audio policy owner, AccessKit names and reading order, specific shader techniques.
 
@@ -345,14 +345,14 @@ Approved 2026-10-02; **all ADRs below are written as of 2026-10-03** (status in 
 
 | # | Question | Resolves in |
 |---|---|---|
-| 1 | Renderer: Forward+ (technical preferences) or Mobile (Environment Open Question 5)? The F_read derivation was verified on Forward+ only | Decided in ADR-0003 (Proposed): Mobile, gate R-1 on two Android makers, Forward+ as the fallback |
-| 2 | Test framework: GUT (CLAUDE.md, technical preferences) or gdUnit4 (some GDDs, CI line)? | Decided in ADR-0009 (Proposed): GUT |
-| 3 | Do Android lifecycle callbacks arrive on another thread (PS-12), and is `back_pressed` delivered on Android 16 / SDK 36 (PS-4)? | Decided in ADR-0006 (Proposed); spikes PS-12 and PS-4 still validate it |
-| 4 | Cost of the synchronous personal-best write on the death frame (SP-1); fallback A/B-slot scheme | Decided in ADR-0007 (Proposed); spike SP-1 measures it |
-| 5 | Run cap or rebase of `s` at 16384 (t = 682 s) | RESOLVED in ADR-0013 (Proposed): render-origin shift, no run cap |
-| 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | Decided in ADR-0003 (Proposed): 12 slots, about 81 concurrent draws against 150, measured in R-1 |
-| 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | Decided in ADR-0005 (Proposed); still a device spike |
-| 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | Decided in ADR-0008 (Proposed, section 6); Pattern GDD revision flagged |
+| 1 | Renderer: Forward+ (technical preferences) or Mobile (Environment Open Question 5)? The F_read derivation was verified on Forward+ only | Decided in ADR-0003 (Accepted): Mobile, gate R-1 on two Android makers, Forward+ as the fallback |
+| 2 | Test framework: GUT (CLAUDE.md, technical preferences) or gdUnit4 (some GDDs, CI line)? | Decided in ADR-0009 (Accepted): GUT |
+| 3 | Do Android lifecycle callbacks arrive on another thread (PS-12), and is `back_pressed` delivered on Android 16 / SDK 36 (PS-4)? | Decided in ADR-0006 (Accepted); spikes PS-12 and PS-4 still validate it |
+| 4 | Cost of the synchronous personal-best write on the death frame (SP-1); fallback A/B-slot scheme | Decided in ADR-0007 (Accepted); spike SP-1 measures it |
+| 5 | Run cap or rebase of `s` at 16384 (t = 682 s) | RESOLVED in ADR-0013 (Accepted): render-origin shift, no run cap |
+| 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | Decided in ADR-0003 (Accepted): 12 slots, about 81 concurrent draws against 150, measured in R-1 |
+| 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | Decided in ADR-0005 (Accepted); still a device spike |
+| 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | Decided in ADR-0008 (Accepted, section 6); Pattern GDD revision flagged |
 | 9 | ~~The Ink cover driven by `phase_changed` differs from the UX spec and Core Rule 9~~ **Resolved 2026-10-03**: ADR-0010 written; both documents edited | ADR-0010 |
 | 10 | `Composition Root` and `Map Loader` have no row in `design/gdd/systems-index.md` | edit the index |
 | 11 | Platform Services GDD names no `haptics_intensity` setter (API Boundaries adds `set_haptics_intensity`) | edit `platform-services.md` |

@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-10-03)
 
 ## Date
 
@@ -69,7 +69,7 @@ The testing standards make Logic and Integration evidence BLOCKING and say "no m
 - **Discovery:** `.gutconfig.json` sets `"prefix": ""` and `"suffix": "_test.gd"` (GUT's default prefix `test_` would match none of the project's `[system]_[feature]_test.gd` files); the runner also fails on **zero tests executed** and on an executed count lower than the number of `*_test.gd` files, because a test script with a parse error can be skipped while the run stays green.
 - Test files are `[system]_[feature]_test.gd`, classes `extends GutTest`, functions `test_[scenario]_[expected]` (testing standards).
 - **Framework independence of fixtures:** factories and fakes live in `tests/support/` as plain `RefCounted` classes and functions with **no GUT base class and no GUT call** (`make_save_fixture()`, `make_obstacle_fixture()`, `FakeSaveFs`, `make_clock_stub`, signal-log recorders). Only the `*_test.gd` files touch GUT, so a switch to gdUnit4 is a mechanical port of test files. Test files reference support code with `const X = preload("res://tests/support/x.gd")`, which needs no class cache and is robust headless; `class_name` in `tests/support/` is allowed only with a unique prefix and is not used by tests. Fakes are not named like GUT classes (`Double`, `Spy`). GUT's command line is expected to work without enabling the plugin; no `[editor_plugins]` entry is added unless the editor panel is wanted (then the `project_setting` lints allow it).
-- **Spike T-1 (before the first story, blocking):** install the chosen GUT release into a throwaway project on 4.7.2 and, on Windows and Linux, run one passing, one failing and one `[N]` `SceneTree` test headless; confirm the verification items 1 to 7. **Release choice:** the newest GUT release whose notes name 4.5 or later, otherwise the latest tested on 4.7.2. **Pre-committed failure response:** if GUT cannot meet items 1 to 5 on 4.7.2, switch to gdUnit4 (its CLI, JUnit XML and GitHub action exist), keep `tests/support/` unchanged, and port the test files; this ADR is then superseded by a short amendment, not rewritten.
+- **Spike T-1 (before the first story, blocking):** install the chosen GUT release into a throwaway project on 4.7.2 and, on Windows and Linux, run one passing, one failing and one `[N]` `SceneTree` test headless; confirm the verification items 1 to 7, and record what `RenderingServer.get_current_rendering_method()` returns under the headless driver (ADR-0003 Decision 1 injects a fake for it). **Release choice:** the newest GUT release whose notes name 4.5 or later, otherwise the latest tested on 4.7.2. **Pre-committed failure response:** if GUT cannot meet items 1 to 5 on 4.7.2, switch to gdUnit4 (its CLI, JUnit XML and GitHub action exist), keep `tests/support/` unchanged, and port the test files; this ADR is then superseded by a short amendment, not rewritten.
 
 ### 2. Test layout and the evidence classes
 

@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-10-03)
 
 ## Date
 
@@ -209,5 +209,5 @@ Greenfield. Add the settings to `project.godot` and to Platform Services' manife
 
 ## Related
 
-- ADR-0001, ADR-0002, ADR-0003; ADR-0006 and ADR-0011 (both written, Proposed)
+- ADR-0001, ADR-0002, ADR-0003; ADR-0006 and ADR-0011 (both Accepted)
 - `docs/architecture/architecture.md` (API Boundaries, Open Question 7)
