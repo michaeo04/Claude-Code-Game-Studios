@@ -61,7 +61,7 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | [SettingsMath (seam contrast, sensitivity validation)](story-001-settings-math.md) | Logic | Ready | ADR-0002 |
+| 001 | [SettingsMath (seam contrast, sensitivity validation)](story-001-settings-math.md) | Logic | Complete | ADR-0002 |
 | 002 | [SettingsCore construction, fixtures, boot read](story-002-core-construction-boot-read.md) | Logic | Ready | ADR-0002 |
 | 003 | [Boot-time sensitivity validation and logging](story-003-boot-sensitivity-clamp.md) | Logic | Ready | ADR-0002 |
 | 004 | [Typed getters, no seam access after construction](story-004-getters.md) | Logic | Ready | ADR-0002 |

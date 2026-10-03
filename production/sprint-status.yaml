@@ -147,29 +147,29 @@ stories:
     name: "SettingsMath (seam contrast derivation and tilt sensitivity validation)"
     file: "production/epics/settings-accessibility/story-001-settings-math.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-001"
     name: "PersistMath pure functions"
     file: "production/epics/save-persistence/story-001-persist-math.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-002"
     name: "RateLimitedLog and log codes"
     file: "production/epics/platform-services/story-002-rate-limited-log.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.33
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-004"
     name: "`TubeMath.local_point` and the logical-frame reference"
     file: "production/epics/composition-root/story-004-tube-math-local-point.md"

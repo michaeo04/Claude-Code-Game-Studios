@@ -63,7 +63,7 @@ This epic is complete when:
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
 | 001 | [PlatformMath pure functions](story-001-platform-math.md) | Logic | Ready | ADR-0006 |
-| 002 | [RateLimitedLog and log codes](story-002-rate-limited-log.md) | Logic | Ready | ADR-0006 |
+| 002 | [RateLimitedLog and log codes](story-002-rate-limited-log.md) | Logic | Complete | ADR-0006 |
 | 003 | [HapticsConfig validation and shipped defaults](story-003-haptics-config.md) | Logic | Ready | ADR-0006 |
 | 004 | [PlatformCore lifecycle model and edge signals](story-004-core-lifecycle.md) | Logic | Ready | ADR-0006 |
 | 005 | [PlatformCore haptic call flow and drop counters](story-005-core-haptics.md) | Logic | Ready | ADR-0006 |

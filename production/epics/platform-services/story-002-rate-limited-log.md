@@ -1,12 +1,12 @@
 # Story 002: RateLimitedLog and log codes
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -22,7 +22,7 @@
 - Guardrail: log rate limit is a fixed constant of 1.0 s, not a tuning knob.
 
 ## Acceptance Criteria
-- [ ] **AC-6 [R]** Log codes are exactly `UNKNOWN_HAPTIC_KIND`, `KNOB_CLAMPED`, `SETTINGS_MISMATCH` (error level) and `LIFECYCLE_NOOP` (debug). `RateLimitedLog` passes one message per (code, key) per 1.0 s of the injected clock, the window running from the last message that passed: at 0 passes; same key at 999999 us does not; at 1000000 us does; two different keys (or codes) at one stamp both pass; a clock that goes backwards passes the message and re-bases the window; the level is preserved.
+- [x] **AC-6 [R]** Log codes are exactly `UNKNOWN_HAPTIC_KIND`, `KNOB_CLAMPED`, `SETTINGS_MISMATCH` (error level) and `LIFECYCLE_NOOP` (debug). `RateLimitedLog` passes one message per (code, key) per 1.0 s of the injected clock, the window running from the last message that passed: at 0 passes; same key at 999999 us does not; at 1000000 us does; two different keys (or codes) at one stamp both pass; a clock that goes backwards passes the message and re-bases the window; the level is preserved.
 
 ## Implementation Notes
 Code constants live in one place (a small constants class or `PlatformCore` constants) so other stories import them. Window `RATE_LIMIT_US = 1_000_000` is a fixed constant. Key per code: kind id for `UNKNOWN_HAPTIC_KIND`, `<kind>.<field>` for `KNOB_CLAMPED`, the setting key for `SETTINGS_MISMATCH`, the event name for `LIFECYCLE_NOOP`. Store `last_passed_us` per (code, key); a message passes when none stored, `now < last` (re-base) or `now - last >= 1_000_000`. AC-1, AC-4 and AC-7 use a recording sink without the limiter, so the limiter stays optional in `PlatformCore` construction.
@@ -40,7 +40,8 @@ Code constants live in one place (a small constants class or `PlatformCore` cons
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/platform_services/platform_services_rate_limited_log_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing (`python tools/ci/run_ci.py --only all`)
+**Evidence**: `tests/unit/platform_services/platform_services_rate_limited_log_test.gd` (10 tests: AC-6)
 
 ## Dependencies
 - Depends on: test-harness-ci story 002 (GUT confirmed on 4.7.2)

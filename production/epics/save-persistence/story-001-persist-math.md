@@ -1,12 +1,12 @@
 # Story 001: PersistMath pure functions
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -22,10 +22,10 @@
 - Guardrail: unit tests never touch the real file system.
 
 ## Acceptance Criteria
-- [ ] **AC-1 [M]** `schema_compatible(v, 3)`: 0 -> false, -1 -> false, 1/2/3 -> true, 4 -> false; type-guard rows `"1"`, `true`, `[1]` -> false with no runtime error (the comparison is never attempted on a non-int).
-- [ ] **AC-2 [M]** `read_valid(parsed_ok, compatible, has_key, type_matches)` truth table: all true -> true; each single factor false -> false (one row per factor); all false -> false.
-- [ ] **AC-3 [M]** `read_error_code` precedence: `(false,true,true,true)` -> `FILE_UNREADABLE`; `(true,false,true,true)` -> `SCHEMA_INCOMPATIBLE`; `(true,true,false,true)` -> no code; `(true,true,true,false)` -> `TYPE_MISMATCH`; `(false,false,true,true)` -> `FILE_UNREADABLE`.
-- [ ] **AC-13 [M]** `is_serializable_type` is false for a raw `Object`/`RefCounted` (and, per ADR-0007 Decision 4, for NaN/infinite `float`), true for `int`, `float`, `String`, `bool`, `Vector2`, `Array`, `Dictionary`. (The `SaveCore.set_value` half of AC-13 is Story 004.)
+- [x] **AC-1 [M]** `schema_compatible(v, 3)`: 0 -> false, -1 -> false, 1/2/3 -> true, 4 -> false; type-guard rows `"1"`, `true`, `[1]` -> false with no runtime error (the comparison is never attempted on a non-int).
+- [x] **AC-2 [M]** `read_valid(parsed_ok, compatible, has_key, type_matches)` truth table: all true -> true; each single factor false -> false (one row per factor); all false -> false.
+- [x] **AC-3 [M]** `read_error_code` precedence: `(false,true,true,true)` -> `FILE_UNREADABLE`; `(true,false,true,true)` -> `SCHEMA_INCOMPATIBLE`; `(true,true,false,true)` -> no code; `(true,true,true,false)` -> `TYPE_MISMATCH`; `(false,false,true,true)` -> `FILE_UNREADABLE`.
+- [x] **AC-13 [M]** `is_serializable_type` is false for a raw `Object`/`RefCounted` (and, per ADR-0007 Decision 4, for NaN/infinite `float`), true for `int`, `float`, `String`, `bool`, `Vector2`, `Array`, `Dictionary`. (The `SaveCore.set_value` half of AC-13 is Story 004.)
 
 ## Implementation Notes
 Create `src/core/persistence/persist_math.gd` (`class_name PersistMath`, static funcs, doc comments on every public function). Use `CURRENT_SCHEMA_VERSION` as a parameter to F1 so tests pass 3 while the shipped constant is 1. `read_error_code` returns an empty string for "no code". Log code names are string constants on `PersistMath` (`FILE_UNREADABLE`, `SCHEMA_INCOMPATIBLE`, `TYPE_MISMATCH`, `UNSERIALIZABLE_VALUE`, `WRITE_FAILED`, `FILE_MISSING`). The per-key once-per-load logging change (TR-012 open point) does not affect these pure functions: the precedence order is unchanged. Test inputs for AC-1 must go through the same entry point `SaveCore` will use, with a `Variant` parameter.
@@ -48,7 +48,8 @@ Create `src/core/persistence/persist_math.gd` (`class_name PersistMath`, static 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_persist_math_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing (`python tools/ci/run_ci.py --only all`)
+**Evidence**: `tests/unit/save_persistence/save_persistence_persist_math_test.gd` (19 tests: AC-1, AC-2, AC-3, AC-13 [M] half)
 
 ## Dependencies
 - Depends on: None (cross-epic: test-harness-ci spike T-1 must be passed so GUT runs)

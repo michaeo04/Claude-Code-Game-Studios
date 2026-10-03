@@ -64,7 +64,7 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | [PersistMath pure functions](story-001-persist-math.md) | Logic | Ready | ADR-0007 |
+| 001 | [PersistMath pure functions](story-001-persist-math.md) | Logic | Complete | ADR-0007 |
 | 002 | [SaveFs facade, SaveConfig and test fixture](story-002-save-fs-config-fixture.md) | Config/Data | Ready | ADR-0007 |
 | 003 | [SaveCore boot load, get_value and first launch](story-003-boot-load-and-get-value.md) | Logic | Ready | ADR-0007 |
 | 004 | [set_value write path (temp, complete map, rename)](story-004-write-path.md) | Logic | Ready | ADR-0007 |

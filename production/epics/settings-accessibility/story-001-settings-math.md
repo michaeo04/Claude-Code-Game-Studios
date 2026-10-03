@@ -1,12 +1,12 @@
 # Story 001: SettingsMath (seam contrast derivation and tilt sensitivity validation)
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -22,8 +22,8 @@
 - Guardrail: exact `==` for bools/codes/counts; `1e-6` for floats.
 
 ## Acceptance Criteria
-- [ ] **AC-1** `seam_contrast_scale(false)` == `1.0` exactly and `seam_contrast_scale(true)` == `0.0` exactly; each output asserted a member of `{0.0, 1.0}`; a lerp or any other scale factor fails.
-- [ ] **AC-2** `tilt_sensitivity_validate(raw, min, max, default)` table against 0.4/2.6/1.3: 1.5 -> 1.5 not corrected; 0.4 -> 0.4 not corrected; 2.6 -> 2.6 not corrected; 5.0 -> 2.6 corrected; 0.1 -> 0.4 corrected (clamped to MIN, not DEFAULT); 0.0 -> 1.3 corrected; -2.0 -> 1.3 corrected; NAN -> 1.3 corrected; INF -> 1.3 corrected.
+- [x] **AC-1** `seam_contrast_scale(false)` == `1.0` exactly and `seam_contrast_scale(true)` == `0.0` exactly; each output asserted a member of `{0.0, 1.0}`; a lerp or any other scale factor fails.
+- [x] **AC-2** `tilt_sensitivity_validate(raw, min, max, default)` table against 0.4/2.6/1.3: 1.5 -> 1.5 not corrected; 0.4 -> 0.4 not corrected; 2.6 -> 2.6 not corrected; 5.0 -> 2.6 corrected; 0.1 -> 0.4 corrected (clamped to MIN, not DEFAULT); 0.0 -> 1.3 corrected; -2.0 -> 1.3 corrected; NAN -> 1.3 corrected; INF -> 1.3 corrected.
 
 ## Implementation Notes
 `SettingsMath` is a static class (`class_name SettingsMath`, `RefCounted`), no state. F1: `0.0 if reduced_motion_enabled else 1.0`. F2: `is_valid = is_finite(raw) and raw > 0`; value is `clamp(raw, min, max)` when valid, else `default`; return `{value, was_corrected}` where `was_corrected` is true when the output differs because of clamping or fallback. The function logs nothing (logging belongs to `SettingsCore`, story 003). Typed signatures throughout. Min, max and default are parameters, never read from constants, so the 0.4/2.6/1.3 fixture is exercisable.
@@ -47,7 +47,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_math_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing (`python tools/ci/run_ci.py --only all`)
+**Evidence**: `tests/unit/settings_accessibility/settings_accessibility_math_test.gd` (13 tests: AC-1 three tests, AC-2 nine table rows plus -INF, one test each)
 
 ## Dependencies
 - Depends on: None (test harness: test-harness-ci epic, GUT installed)
