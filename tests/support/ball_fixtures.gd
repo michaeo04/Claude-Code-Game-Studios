@@ -23,9 +23,12 @@ static func make_ball_fixture() -> BallConfig:
 	return cfg
 
 
-## Stub until Story 004 creates `BallCore`; then it returns `BallCore.new(cfg.validated(sink), dt_max, sink)`.
-static func make_core(_cfg: BallConfig, _dt_max: float = 0.1) -> RefCounted:
-	return null
+## A fresh `BallCore` on a validated copy of `cfg`; `sink` (from `make_sink()`) receives every log line, default none.
+static func make_core(cfg: BallConfig, dt_max: float = 0.1, sink: RefCounted = null) -> BallCore:
+	var log_sink: Callable = Callable()
+	if sink != null:
+		log_sink = Callable(sink, "sink")
+	return BallCore.new(cfg.validated(log_sink), dt_max, log_sink)
 
 
 ## A fresh recording `log_sink` target; pass `sink.sink` as the Callable.

@@ -35,6 +35,18 @@
 | C4 | Weekly working hours (Sprint 1 assumes 6 focused hours per day) | `production/sprints/sprint-1.md` |
 | C5 | Technical-director review of ADR-0015 before the Juice audio stories | ADR-0015 (Proposed) |
 
+## E. Decisions the assistant took on its own (confirm or overrule when you have time)
+
+| # | Decision | Where | Why it was taken |
+|---|---|---|---|
+| E1 | At an exact half-turn error (`wrap_angle(PI)` is `-PI`), `BallCore` turns toward the sign of the raw error, so steer +1 from rest turns the right way | `src/core/ball_movement/ball_core.gd`, Ball Movement AC-3/7/8 | The ACs require it; the GDD does not state the tie rule. Consider one sentence in the GDD edge cases |
+| E2 | The default `BALL_LAG_TAU` (0.06) breaks the 1.14 s `T_DODGE_180` ceiling when `OMEGA_MAX` is set to 2.75 (T about 1.154 s); the two omega-boundary tests use 0.03 | Ball Movement GDD F5a/Rule 13 | The GDD checks only the corners of the safe ranges; the derived check stays live. A tuning finding for the BM spike, not a code defect |
+| E3 | The stall-pause clause of Run State AC-11 was moved from story RS-004 to story RS-008 AC-16 (the stall guard owner) | `production/epics/run-state-restart/` | Cannot be tested before the stall guard exists |
+| E4 | `user://` cannot be matched by the lint (string literals are blanked by design); Run State purity is enforced through the absence of any file API instead | RS-001 AC-9 | Stripper design in ADR-0009 |
+| E5 | No in-game volume or mute setting in the MVP | ADR-0015 Decision 7 | Needs a Settings GDD revision; device volume is the control |
+| E6 | Settings Core Rule 5 now says a slider commits on `drag_ended`; Save F2/AC-10 now log a file-level failure once per load | `settings-accessibility.md`, `save-persistence.md` | ADR-0007 said so; GDD edited to match |
+| E7 | Sprint capacity assumption of 6 focused hours per day (see C4) | sprint plans | Weekly hours were never stated |
+
 ## D. Resolved (kept so the history is visible)
 
 - Godot binary on this machine: installed at `C:/Users/candl/tools/godot-4.7.2/` (2026-10-03).

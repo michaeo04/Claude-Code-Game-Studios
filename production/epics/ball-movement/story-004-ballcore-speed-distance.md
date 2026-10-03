@@ -1,12 +1,12 @@
 # Story 004: BallCore shell, reset and forward speed/distance integration
 
 > **Epic**: Ball Movement
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -49,7 +49,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/ball_movement/ball_movement_distance_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/ball_movement/ball_movement_distance_test.gd (19 tests: test_distance_*_matches_oracle, test_first_step_60hz_matches_oracle, test_distance_ignores_steer_table, test_left_riemann_would_undercount_distance, test_long_run_100k_frames_stays_on_integral, test_fresh_core_shape_matches_rule_9, test_reset_*)
+**Status**: [x] Passing (CI green 2026-10-04)
 
 ## Dependencies
 - Depends on: Story 001, Story 002, Story 003

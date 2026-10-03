@@ -1,12 +1,12 @@
 # Story 005: Position-mode tracking, dt_eff guards and held-steer semantics
 
 > **Epic**: Ball Movement
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -63,7 +63,8 @@ In `BallCore.step`: guard `dt_eff` first (no-op path sets prev = current, `omega
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/ball_movement/ball_movement_tracking_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/ball_movement/ball_movement_tracking_test.gd (29 tests: AC-2 test_noop_*, AC-3 test_dt_*/test_tiny_dt_*, AC-6 test_steer_*_half_*, AC-7 test_first_frame_*/test_sweep_table_*, AC-8 test_arrival_frame_*/test_small_target_*, AC-9 test_sine_tracking_*, AC-17 held-steer tests)
+**Status**: [x] Passing (CI green 2026-10-04)
 
 ## Dependencies
 - Depends on: Story 004

@@ -69,8 +69,8 @@ This epic is complete when:
 | 001 | [BallMath pure functions](story-001-ball-math.md) | Logic | Complete | ADR-0009 |
 | 002 | [BallConfig resource and fixtures](story-002-ball-config-fixtures.md) | Config/Data | Complete | ADR-0009 |
 | 003 | [BallConfig.validated() and derived check](story-003-ball-config-validated.md) | Logic | Complete | ADR-0009 |
-| 004 | [BallCore shell, speed and distance](story-004-ballcore-speed-distance.md) | Logic | Ready | ADR-0002 |
-| 005 | [Position tracking, dt guards, held steer](story-005-position-tracking-dt-steer.md) | Logic | Ready | ADR-0002 |
+| 004 | [BallCore shell, speed and distance](story-004-ballcore-speed-distance.md) | Logic | Complete | ADR-0002 |
+| 005 | [Position tracking, dt guards, held steer](story-005-position-tracking-dt-steer.md) | Logic | Complete | ADR-0002 |
 | 006 | [Anchor, resume, published state](story-006-anchor-resume-published-state.md) | Logic | Ready | ADR-0002 |
 | 007 | [RATE mapping and latch](story-007-rate-mode-latch.md) | Logic | Ready | ADR-0009 |
 | 008 | [Reset conformance, logs, determinism](story-008-reset-logs-determinism.md) | Logic | Ready | ADR-0009 |

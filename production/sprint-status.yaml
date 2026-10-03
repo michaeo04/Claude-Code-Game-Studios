@@ -48,20 +48,20 @@ stories:
     name: "BallCore shell, reset and forward speed/distance integration"
     file: "production/epics/ball-movement/story-004-ballcore-speed-distance.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-005"
     name: "Position-mode tracking, dt_eff guards and held-steer semantics"
     file: "production/epics/ball-movement/story-005-position-tracking-dt-steer.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.67
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-002"
     name: "TiltMath pure functions (roll, filter, mapping, median)"
     file: "production/epics/tilt-input/story-002-tilt-math.md"
