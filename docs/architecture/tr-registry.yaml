@@ -3049,10 +3049,10 @@ requirements:
     system: menus-screen-flow
     gdd: design/gdd/menus-screen-flow.md
     category: "Timing"
-    requirement: "`transition_covering` is true for at least one tick spanning Menu to Running and Running to Menu, and false elsewhere. The Ink cover runs about 150-250 ms (80-100 ms in, hold, 80-100 ms out). There is no cut on Restart or Hit to Running"
+    requirement: "`transition_covering` (InkCoverCore.covering()) is true for at least one tick spanning Menu to Running and Paused or Hit to Menu, and false elsewhere. The Ink cover is opaque on the tick of phase_changed, holds 0.05 s, then fades out over 0.18 s (0.30 s under reduced motion). There is no cut on Restart (Hit to Running) or Resume"
     source: "Rule 9; UX Transitions"
     created: 2026-10-03
-    revised: ""
+    revised: 2026-10-03
     status: active
   - id: TR-menus-screen-flow-013
     system: menus-screen-flow

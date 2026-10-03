@@ -1,8 +1,8 @@
 # Architecture Traceability Index
 
-Last Updated: 2026-10-03 (re-run after ADR-0011, ADR-0012, ADR-0014)
+Last Updated: 2026-10-03 (run 3, after ADR-0010)
 Engine: Godot 4.7.2 (Android only, ADR-0001)
-Source: `/architecture-review` full mode, 2026-10-03, two runs (`architecture-review-2026-10-03.md`, `architecture-review-2026-10-03-rerun.md`). Registry: `docs/architecture/tr-registry.yaml` (unchanged by the re-run; no GDD changed).
+Source: `/architecture-review` full mode, 2026-10-03, three runs (`architecture-review-2026-10-03.md`, `architecture-review-2026-10-03-rerun.md`, `architecture-review-2026-10-03-run3.md`). Registry: `docs/architecture/tr-registry.yaml` (run 3 revised the text of TR-menus-screen-flow-012 only; no new IDs).
 
 ## How to read this
 
@@ -12,8 +12,8 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 
 - Total requirements: 348
 - Architecture-relevant: 191
-- ✅ Covered: 172 (90%)
-- ⚠️ Partial: 17 (9%)
+- ✅ Covered: 174 (91%)
+- ⚠️ Partial: 15 (8%)
 - ❌ Gap: 2 (1%)
 - ➖ GDD-owned (not counted): 157
 
@@ -31,11 +31,11 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | platform-services | 20 | 17 | 1 | 0 | 2 |
 | save-persistence | 22 | 21 | 1 | 0 | 0 |
 | settings-accessibility | 15 | 4 | 2 | 0 | 9 |
-| juice-feedback | 22 | 10 | 1 | 1 | 10 |
+| juice-feedback | 22 | 11 | 0 | 1 | 10 |
 | environment-theming | 19 | 12 | 1 | 0 | 6 |
 | hud | 23 | 8 | 0 | 0 | 15 |
-| menus-screen-flow | 24 | 14 | 1 | 0 | 9 |
-| **All** | **348** | **172** | **17** | **2** | **157** |
+| menus-screen-flow | 24 | 15 | 0 | 0 | 9 |
+| **All** | **348** | **174** | **15** | **2** | **157** |
 
 ### History
 
@@ -43,6 +43,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 |---|---|---|---|---|
 | 2026-10-03 | 157 (82%) | 17 | 17 | first run, ADR-0001 to ADR-0009 |
 | 2026-10-03 | 172 (90%) | 17 | 2 | re-run, plus ADR-0011, ADR-0012, ADR-0014 |
+| 2026-10-03 | 174 (91%) | 15 | 2 | run 3, plus ADR-0010 (TR-juice-feedback-007, TR-menus-screen-flow-012 now covered) |
 
 ## Known Gaps (❌)
 
@@ -69,9 +70,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-save-persistence-012 | ADR-0007 | ADR-0007 logs file-level failures once per load; GDD F2 and AC-10 say once per key |
 | TR-settings-accessibility-005 | ADR-0007 | slider commit on drag_ended; Settings CR5 still says write on every change |
 | TR-settings-accessibility-009 | ADR-0003 | live consumer path for the Tube Track seam scale: see C-1 |
-| TR-juice-feedback-007 | ADR-0002 | hit-stop as a real-time hold is decided in architecture.md but ADR-0010 is not written |
 | TR-environment-theming-012 | ADR-0014 | plinth is surface 1 with an Environment material, but the GDD span (gate arc plus 0.5 D) covers the gap; per-piece footings need an Environment GDD revision (ADR-0014 OQ1) |
-| TR-menus-screen-flow-012 | architecture.md | Ink cover driven by phase_changed differs from UX spec and Rule 9; ADR-0010 not written |
 
 ## Full Matrix (architecture-relevant requirements)
 
@@ -221,7 +220,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-settings-accessibility-012 | haptics_enabled and haptics_intensity are supplied to PlatformCore (set_haptics_enabled setter; inte | ADR-0006 | ✅ Covered |
 | TR-settings-accessibility-015 | Fixture factories make_settings_fixture, make_get_value_stub, make_set_value_stub(succeeds), make_lo | ADR-0009 | ✅ Covered |
 | TR-juice-feedback-006 | The run_ended handler order is Juice, then Scoring, then HUD. The run_abandoned handler order is Jui | ADR-0002 | ✅ Covered |
-| TR-juice-feedback-007 | Hitstop is a fixed 0.20 s in every mode and never scaled by reduced motion. The composition root inj | ADR-0002 | ⚠️ Partial |
+| TR-juice-feedback-007 | Hitstop is a fixed 0.20 s in every mode and never scaled by reduced motion. The composition root inj | ADR-0010 | ✅ |
 | TR-juice-feedback-008 | Hit grey-out multiplies chroma toward 0 on all world elements with luminance preserved. The killer h | ADR-0012 | ✅ Covered |
 | TR-juice-feedback-009 | Hit flash is a full-screen Rim White overlay, peak opacity at most 0.30, at most 2 frames, at hitsto | ADR-0003 | ✅ Covered |
 | TR-juice-feedback-010 | Near-miss ring pulse and PB ring sweep are a shader term on the tube material, additive, Rim White c | ADR-0003 | ✅ Covered |
@@ -257,7 +256,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-menus-screen-flow-008 | haptic(UI_TAP) fires on every forwarded or committed on-screen tap. It does not fire on a gated tap  | ADR-0006 | ✅ Covered |
 | TR-menus-screen-flow-009 | The map-load-failure screen shows when elapsed Boot time >= MAP_LOAD_TIMEOUT (comparison is >=). It  | ADR-0004 | ✅ Covered |
 | TR-menus-screen-flow-011 | Settings is reachable only from Menu-base. Each change calls set_value at once. There is no revert,  | ADR-0007 | ✅ Covered |
-| TR-menus-screen-flow-012 | `transition_covering` is true for at least one tick spanning Menu to Running and Running to Menu, an | architecture.md | ⚠️ Partial |
+| TR-menus-screen-flow-012 | `transition_covering` is true for at least one tick spanning Menu to Running and Running to Menu, an | ADR-0010 | ✅ |
 | TR-menus-screen-flow-013 | Restart and Menu stamp press_us on press-down. The readying fill (PAUSE_INPUT_GUARD) is cosmetic and | ADR-0005 | ✅ Covered |
 | TR-menus-screen-flow-014 | (UX) Gated controls are shown dimmed (about 45%) with a reason label, never hidden. The Lagoon outli | ADR-0011 | ✅ Covered |
 | TR-menus-screen-flow-015 | (UX) Layout is dp-based and thumb-low. Play is 240x72 with centre at min(0.70H, H-232). The Paused R | ADR-0011 | ✅ Covered |
