@@ -1,12 +1,12 @@
 # Story 007: Pause, resume countdown, Paused guard and abandon
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -50,7 +50,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_pause_resume_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/run_state/run_state_pause_resume_test.gd (31 tests), passing in `run_ci.py --only all`.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 002, 003, 004, 006

@@ -1,12 +1,12 @@
 # Story 002: SettingsCore construction, fixture factories and boot read
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -54,7 +54,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_boot_read_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/settings_accessibility/settings_accessibility_boot_read_test.gd (6 tests), passing in run_ci.py --only all.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Story 001; test-harness-ci epic (GUT)

@@ -111,38 +111,38 @@ stories:
     name: "Pause, resume countdown, Paused guard and abandon"
     file: "production/epics/run-state-restart/story-007-pause-resume-abandon.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-008"
     name: "Timers, stall guard and clock robustness"
     file: "production/epics/run-state-restart/story-008-timers-stall-guard.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-002"
     name: "SettingsCore construction, fixture factories and boot read"
     file: "production/epics/settings-accessibility/story-002-core-construction-boot-read.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-002"
     name: "SaveFs facade, SaveConfig and test fixture"
     file: "production/epics/save-persistence/story-002-save-fs-config-fixture.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-006"
     name: "Anchor, resume re-base, 2 PI shift, published previous values and inertness"
     file: "production/epics/ball-movement/story-006-anchor-resume-published-state.md"

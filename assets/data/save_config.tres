@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="SaveConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/core/persistence/save_config.gd" id="1_savecfg"]
+
+[resource]
+script = ExtResource("1_savecfg")
+save_log_rate_limit = 1.0
+corrupt_backup_retention = 5
+save_file_size_max = 65536

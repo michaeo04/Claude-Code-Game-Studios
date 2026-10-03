@@ -1,12 +1,12 @@
 # Story 008: Timers, stall guard and clock robustness
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -47,7 +47,8 @@ Tick step 1 (stall guard) applies if the phase at the start is Running or Resumi
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_timers_stall_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/run_state/run_state_timers_stall_test.gd (19 tests), passing in `run_ci.py --only all`.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 004, 006, 007

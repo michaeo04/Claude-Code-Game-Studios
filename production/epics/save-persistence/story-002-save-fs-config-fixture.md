@@ -1,12 +1,12 @@
 # Story 002: SaveFs facade, SaveConfig and test fixture
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Config/Data
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -43,7 +43,8 @@ Files: `src/core/persistence/save_fs.gd` (ADR-0007 Key Interfaces, verbatim sign
 ## Test Evidence
 **Story Type**: Config/Data
 **Required evidence**: `tests/advisory/save_persistence/save_persistence_shipped_defaults_test.gd` (smoke check pass, ADVISORY) plus `tests/unit/save_persistence/save_persistence_fake_fs_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/save_persistence/save_persistence_fake_fs_test.gd (6 tests) and tests/advisory/save_persistence/save_persistence_shipped_defaults_test.gd (1 test), passing.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: None (cross-epic: test-harness-ci T-1)

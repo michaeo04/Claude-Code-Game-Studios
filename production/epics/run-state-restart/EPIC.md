@@ -77,8 +77,8 @@ This epic is complete when:
 | 004 | [tick(), run clock F1 and settling tick](story-004-tick-run-clock.md) | Logic | Complete | ADR-0002 |
 | 005 | [Hit acceptance, stale run_id and same-tick tie-break](story-005-hit-handling.md) | Logic | Complete | ADR-0002 |
 | 006 | [Restart lock, press_us handling and restart_unlocked](story-006-hit-lock-press-us.md) | Logic | Complete | ADR-0005, ADR-0002 |
-| 007 | [Pause, resume countdown, Paused guard and abandon](story-007-pause-resume-abandon.md) | Logic | Ready | ADR-0006, ADR-0002 |
-| 008 | [Timers, stall guard and clock robustness](story-008-timers-stall-guard.md) | Logic | Ready | ADR-0002 |
+| 007 | [Pause, resume countdown, Paused guard and abandon](story-007-pause-resume-abandon.md) | Logic | Complete | ADR-0006, ADR-0002 |
+| 008 | [Timers, stall guard and clock robustness](story-008-timers-stall-guard.md) | Logic | Complete | ADR-0002 |
 | 009 | [Same-tick request conflicts and order independence](story-009-same-tick-ordering.md) | Logic | Ready | ADR-0002 |
 | 010 | [RunConfig validation and lock bounds](story-010-config-validation-lock-bounds.md) | Config/Data | Ready | ADR-0002, ADR-0009 |
 | 011 | [Flash bound bot and contract doubles](story-011-flash-bound-contract-doubles.md) | Logic | Ready | ADR-0009, ADR-0002 |

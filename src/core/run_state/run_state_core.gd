@@ -149,7 +149,7 @@ func request_menu(press_us: int) -> void:
 ## One frame (GDD Core Rule 3): queued requests in class priority order, then timers, then commit.
 ## Returns `dt_eff`, the world step of this frame: non-zero only for a tick that begins and ends in Running
 ## and is not a settling tick. The owner passes the same value on to Ball Movement.
-func tick(world_dt: float, _real_dt: float) -> float:
+func tick(world_dt: float, real_dt: float) -> float:
 	if _busy:
 		_log(RunStateMath.LogLevel.ERROR, RunStateMath.LOG_REQUEST_NESTED, "tick() called from inside a handler or a tick")
 		return 0.0
@@ -159,6 +159,14 @@ func tick(world_dt: float, _real_dt: float) -> float:
 	_tick_settling = _settling_pending
 	_settling_pending = false
 	_tick_prior_phases.clear()
+
+	# Step 1, stall guard: backup to the focus-out notification (GDD Core Rule 3, F2). The tick's hits are discarded.
+	if (start_phase == Phase.RUNNING or start_phase == Phase.RESUMING) and not _tick_settling:
+		if not RunStateMath.is_valid_dt(real_dt):
+			_warn_bad_real_dt(now_us, real_dt)
+		elif real_dt >= _config.stall_pause_threshold:
+			_discard_queued_hits()
+			_enter_paused(PauseSource.APP_INTERRUPTED, now_us)
 
 	var step: float = 0.0
 	if start_phase == Phase.RUNNING and not _tick_settling:
@@ -251,6 +259,26 @@ func _warn_bad_dt(now_us: int, value: float) -> void:
 	_dt_warning_given = true
 	_last_dt_warning_us = now_us
 	_log(RunStateMath.LogLevel.WARNING, RunStateMath.LOG_DT_INVALID, "world_dt=%s is not finite and non-negative" % value)
+
+
+## A bad `real_dt` shares the one-per-second limiter of a bad `world_dt`: one warning per second in total.
+func _warn_bad_real_dt(now_us: int, value: float) -> void:
+	if _dt_warning_given and RunStateMath.elapsed_us(now_us, _last_dt_warning_us) < RunStateMath.seconds_to_us(1.0):
+		return
+	_dt_warning_given = true
+	_last_dt_warning_us = now_us
+	_log(RunStateMath.LogLevel.WARNING, RunStateMath.LOG_DT_INVALID, "real_dt=%s is not finite and non-negative" % value)
+
+
+## Drops the queued hits of a stalled tick, one debug line each (they must not end a run the player did not see).
+func _discard_queued_hits() -> void:
+	var kept: Array[_Request] = []
+	for req: _Request in _queue:
+		if req.kind == RequestKind.HIT:
+			_log(RunStateMath.LogLevel.DEBUG, RunStateMath.LOG_HIT_IGNORED, "hit discarded on a stall-guard tick")
+		else:
+			kept.append(req)
+	_queue = kept
 
 
 func _process_requests(now_us: int) -> void:
