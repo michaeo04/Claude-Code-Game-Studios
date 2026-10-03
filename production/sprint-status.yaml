@@ -9,173 +9,254 @@
 #   done           <->  Complete
 #   blocked        <->  Blocked
 
-sprint: 2
-goal: "Headless Core simulation: Ball Movement, Tilt Input math and config, Tube Track math and config, rest of the Run State phase machine"
-start: "2026-10-19"
-end: "2026-10-30"
+sprint: 3
+goal: "Finish Save, Settings and Platform logic; Tube Track window recycling; Tilt Input neutral capture and pipeline"
+start: "2026-11-02"
+end: "2026-11-13"
 generated: "2026-10-04"
 updated: "2026-10-04"
 
 stories:
-  - id: "BM-001"
-    name: "BallMath pure functions (wrap_angle, F1 step, F2 speed and S, F5 T)"
-    file: "production/epics/ball-movement/story-001-ball-math.md"
+  - id: "SP-003"
+    name: "SaveCore boot load, get_value and first launch"
+    file: "production/epics/save-persistence/story-003-boot-load-and-get-value.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.44
     blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-002"
-    name: "BallConfig resource, shipped defaults and test fixtures"
-    file: "production/epics/ball-movement/story-002-ball-config-fixtures.md"
+    completed: ""
+  - id: "SP-004"
+    name: "set_value write path (temp, complete map, rename)"
+    file: "production/epics/save-persistence/story-004-write-path.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.42
+    estimate_days: 0.44
     blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-003"
-    name: "BallConfig.validated() clamps and the derived T_DODGE_180 check"
-    file: "production/epics/ball-movement/story-003-ball-config-validated.md"
+    completed: ""
+  - id: "SP-005"
+    name: "Write failure handling and rate-limited logging"
+    file: "production/epics/save-persistence/story-005-write-failure-and-rate-limit.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-004"
-    name: "BallCore shell, reset and forward speed/distance integration"
-    file: "production/epics/ball-movement/story-004-ballcore-speed-distance.md"
+    completed: ""
+  - id: "SP-006"
+    name: "Read validity, per-key fallback and error logging"
+    file: "production/epics/save-persistence/story-006-read-validity-and-error-logging.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.50
+    estimate_days: 0.38
     blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-005"
-    name: "Position-mode tracking, dt_eff guards and held-steer semantics"
-    file: "production/epics/ball-movement/story-005-position-tracking-dt-steer.md"
+    completed: ""
+  - id: "SP-007"
+    name: "Corrupt-file backup, rotation and oversize guard"
+    file: "production/epics/save-persistence/story-007-corrupt-backup-and-oversize-guard.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.67
+    estimate_days: 0.38
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-002"
-    name: "TiltMath pure functions (roll, filter, mapping, median)"
-    file: "production/epics/tilt-input/story-002-tilt-math.md"
+    completed: ""
+  - id: "ST-003"
+    name: "Boot-time tilt sensitivity validation and logging"
+    file: "production/epics/settings-accessibility/story-003-boot-sensitivity-clamp.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.25
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-003"
-    name: "TiltConfig resource, validation and sensitivity hook"
-    file: "production/epics/tilt-input/story-003-tilt-config.md"
+    completed: ""
+  - id: "ST-004"
+    name: "Typed getters and seam_contrast_scale, no seam access after construction"
+    file: "production/epics/settings-accessibility/story-004-getters.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.42
+    estimate_days: 0.19
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-001"
-    name: "TubeMath frame, angle wrap and lane/facet formulas"
-    file: "production/epics/tube-track/story-001-tubemath-frame-angles.md"
+    completed: ""
+  - id: "ST-005"
+    name: "set_value writes on change, no-ops on equal, emits setting_changed once"
+    file: "production/epics/settings-accessibility/story-005-set-value-write-and-event.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.50
+    estimate_days: 0.38
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-002"
-    name: "TubeMath segment index, window sizes and seam spacing"
-    file: "production/epics/tube-track/story-002-tubemath-segments-window-seams.md"
+    completed: ""
+  - id: "ST-006"
+    name: "Runtime tilt sensitivity validation and unknown-key rejection"
+    file: "production/epics/settings-accessibility/story-006-runtime-validation-unknown-key.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.42
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-003"
-    name: "TubeConfig resource and validate() failure-code set"
-    file: "production/epics/tube-track/story-003-tubeconfig-validation.md"
+    completed: ""
+  - id: "ST-007"
+    name: "Failed write keeps the in-memory value"
+    file: "production/epics/settings-accessibility/story-007-write-failure.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.12
     blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-007"
-    name: "Pause, resume countdown, Paused guard and abandon"
-    file: "production/epics/run-state-restart/story-007-pause-resume-abandon.md"
+    completed: ""
+  - id: "ST-008"
+    name: "No consumer seams, closed call surface and determinism"
+    file: "production/epics/settings-accessibility/story-008-isolation-determinism.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "TT-006"
+    name: "advance(s) and synchronous recycling"
+    file: "production/epics/tube-track/story-006-tubewindow-advance-recycling.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.31
+    blocker: ""
+    completed: ""
+  - id: "TT-007"
+    name: "Re-entrancy guard, binder contract and idempotent begin_run"
+    file: "production/epics/tube-track/story-007-tubewindow-reentrancy-guard.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "TT-008"
+    name: "Idle scroll step and deterministic segment content"
+    file: "production/epics/tube-track/story-008-idle-scroll-and-content-determinism.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.31
+    blocker: ""
+    completed: ""
+  - id: "TT-009"
+    name: "300 s deterministic window simulation"
+    file: "production/epics/tube-track/story-009-window-simulation-300s.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "TI-005"
+    name: "Neutral capture mechanics and pending capture"
+    file: "production/epics/tilt-input/story-005-neutral-capture.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "TI-006"
+    name: "Pipeline order and the published output contract"
+    file: "production/epics/tilt-input/story-006-pipeline-output-contract.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.38
+    blocker: ""
+    completed: ""
+  - id: "TI-007"
+    name: "Capture policy, conditional re-anchor and run-stop recording"
+    file: "production/epics/tilt-input/story-007-capture-policy-reanchor.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "PS-003"
+    name: "HapticsConfig validation and shipped defaults"
+    file: "production/epics/platform-services/story-003-haptics-config.md"
     priority: should-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-008"
-    name: "Timers, stall guard and clock robustness"
-    file: "production/epics/run-state-restart/story-008-timers-stall-guard.md"
+    completed: ""
+  - id: "PS-004"
+    name: "PlatformCore lifecycle model and edge signals"
+    file: "production/epics/platform-services/story-004-core-lifecycle.md"
     priority: should-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.44
     blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-002"
-    name: "SettingsCore construction, fixture factories and boot read"
-    file: "production/epics/settings-accessibility/story-002-core-construction-boot-read.md"
+    completed: ""
+  - id: "PS-005"
+    name: "PlatformCore haptic call flow, drop causes and counters"
+    file: "production/epics/platform-services/story-005-core-haptics.md"
     priority: should-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.38
     blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-002"
-    name: "SaveFs facade, SaveConfig and test fixture"
-    file: "production/epics/save-persistence/story-002-save-fs-config-fixture.md"
+    completed: ""
+  - id: "BM-007"
+    name: "RATE mapping (F3) and the mapping-mode latch"
+    file: "production/epics/ball-movement/story-007-rate-mode-latch.md"
     priority: should-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.42
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-006"
-    name: "Anchor, resume re-base, 2 PI shift, published previous values and inertness"
-    file: "production/epics/ball-movement/story-006-anchor-resume-published-state.md"
+    completed: ""
+  - id: "BM-008"
+    name: "Reset conformance, log-code census and bit-identical determinism"
+    file: "production/epics/ball-movement/story-008-reset-logs-determinism.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.31
+    blocker: ""
+    completed: ""
+  - id: "PS-006"
+    name: "PlatformCore Back signal and display facts"
+    file: "production/epics/platform-services/story-006-core-back-display-facts.md"
     priority: nice-to-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-004"
-    name: "TiltCore poll, clock stamps and sample ring buffer"
-    file: "production/epics/tilt-input/story-004-tilt-core-poll-buffer.md"
+    completed: ""
+  - id: "TI-008"
+    name: "Availability states, start timeout and availability signal"
+    file: "production/epics/tilt-input/story-008-availability-states.md"
     priority: nice-to-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-005"
-    name: "TubeWindow state machine, priming and load_map"
-    file: "production/epics/tube-track/story-005-tubewindow-state-machine.md"
+    completed: ""
+  - id: "ST-009"
+    name: "Architecture and coupling lint for SettingsCore and SettingsMath"
+    file: "production/epics/settings-accessibility/story-009-architecture-lint.md"
     priority: nice-to-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.58
+    estimate_days: 0.25
     blocker: ""
-    completed: "2026-10-04"
-  - id: "RS-009"
-    name: "Same-tick request conflicts and order independence"
-    file: "production/epics/run-state-restart/story-009-same-tick-ordering.md"
+    completed: ""
+  - id: "SP-008"
+    name: "Flush no-op and SaveService node wiring"
+    file: "production/epics/save-persistence/story-008-flush-and-save-service-node.md"
     priority: nice-to-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.42
+    estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
+    completed: ""
