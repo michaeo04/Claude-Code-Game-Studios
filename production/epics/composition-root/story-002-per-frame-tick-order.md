@@ -1,12 +1,12 @@
 # Story 002: Fixed per-frame order in `_tick()` (spy test)
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0002
@@ -60,7 +60,8 @@ Write `_tick(real_dt, world_dt)` once, calling systems through the injected refe
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/composition_root/composition_root_tick_order_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created, passing
+**Evidence**: tests/unit/composition_root/composition_root_tick_order_test.gd (test_running_tick_log_matches_adr_order_exactly, test_world_frame_step_between_advance_and_obstacle, test_ball_view_immediately_after_camera, test_idle_step_only_in_menu, test_advance_and_rebase_only_when_running, test_rebase_true_calls_tube_then_hazard_once, test_tail_runs_last_in_every_phase, test_hundred_ticks_with_scripted_phases_are_deterministic)
 
 ## Dependencies
 - Depends on: Story 001

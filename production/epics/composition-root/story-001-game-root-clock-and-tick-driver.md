@@ -1,12 +1,12 @@
 # Story 001: GameRoot clock injection and single tick driver
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0002
@@ -65,7 +65,8 @@ Create `src/core/game_root.gd` and the root scene with `PROCESS_MODE_ALWAYS`. Ke
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/composition_root/composition_root_tick_driver_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [~] Tests passing (9) in composition_root_tick_driver_test.gd
+**Closed 2026-10-04**: AC-1 is proven by `src/core/game_root.tscn` (root `GameRoot`, `process_mode = 3`) and `tests/integration/composition_root/composition_root_scene_test.gd` (instantiates the scene, asserts the class and the mode, and checks the .tscn text). AC-4's production binding to `Time.get_ticks_usec` is only checked as a valid default callable; the real clock reading is exercised by every device run.
 
 ## Dependencies
 - Depends on: test-harness-ci (GUT runs, spike T-1)

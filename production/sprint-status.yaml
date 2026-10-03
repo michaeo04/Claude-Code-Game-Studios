@@ -66,29 +66,29 @@ stories:
     name: "GameRoot clock injection and single tick driver"
     file: "production/epics/composition-root/story-001-game-root-clock-and-tick-driver.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-002"
     name: "Fixed per-frame order in `_tick()` (spy test)"
     file: "production/epics/composition-root/story-002-per-frame-tick-order.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-003"
     name: "WorldFrame, WorldFrameConfig and the render-origin math"
     file: "production/epics/composition-root/story-003-world-frame-core.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-001"
     name: "RunStateCore skeleton, public API, signals and purity"
     file: "production/epics/run-state-restart/story-001-core-skeleton-api.md"

@@ -1,12 +1,12 @@
 # Story 003: WorldFrame, WorldFrameConfig and the render-origin math
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0013
@@ -61,7 +61,8 @@ Files `src/core/world_frame.gd`, `src/core/world_frame_config.gd`. `WorldFrame._
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/composition_root/world_frame_core_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created, passing
+**Evidence**: tests/unit/composition_root/world_frame_core_test.gd (16 tests; AC-7 proven by the guard predicate and the violation counter, not by a real assert(), which would abort the run). WorldGeometry is a minimal placeholder in src/core/world/world_geometry.gd.
 
 ## Dependencies
 - Depends on: Story 001; map-loader epic (`WorldGeometry`; fake until then)
