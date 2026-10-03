@@ -1,0 +1,60 @@
+# CI per ADR-0009 (Proposed). Manual trigger only until spike T-2 is green:
+# this workflow cannot pass yet (no project.godot, no addons/gut, no tools/ci/run_ci.py,
+# empty godot.sha512 in tools/ci/versions.json). When T-2 passes, add the triggers
+#   push: branches: [dev, main]      pull_request: branches: [main, dev]
+# and ask the project owner about making the `ci` job a required status check on main.
+name: ci
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.x"
+
+      - name: Install pinned Godot (checksum committed by hand)
+        run: |
+          set -euo pipefail
+          URL=$(python3 -c "import json;print(json.load(open('tools/ci/versions.json'))['godot']['url'])")
+          SHA=$(python3 -c "import json;print(json.load(open('tools/ci/versions.json'))['godot']['sha512'])")
+          if [ -z "$SHA" ]; then
+            echo "tools/ci/versions.json godot.sha512 is empty: commit the checksum by hand (ADR-0009)." >&2
+            exit 1
+          fi
+          curl -fsSL -o "$RUNNER_TEMP/godot.zip" "$URL"
+          echo "$SHA  $RUNNER_TEMP/godot.zip" | sha512sum -c -
+          mkdir -p "$RUNNER_TEMP/godot"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          BIN=$(find "$RUNNER_TEMP/godot" -type f -name 'Godot_v*linux*' | head -n 1)
+          chmod +x "$BIN"
+          echo "GODOT=$BIN" >> "$GITHUB_ENV"
+
+      - name: Run tests and lints
+        run: python3 tools/ci/run_ci.py
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-reports
+          path: build/test-reports/
+          if-no-files-found: ignore

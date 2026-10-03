@@ -1,0 +1,9 @@
+{
+  "dirs": ["res://tests/unit/", "res://tests/integration/"],
+  "include_subdirs": true,
+  "prefix": "",
+  "suffix": "_test.gd",
+  "should_exit": true,
+  "junit_xml_file": "res://build/test-reports/gut.xml",
+  "log_level": 1
+}

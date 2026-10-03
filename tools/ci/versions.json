@@ -1,0 +1,14 @@
+{
+  "status": "PENDING: godot.sha512 is committed by hand by the project owner; the gut block is filled by spike T-1 (ADR-0009). godot.url is the expected official URL, unverified until T-2.",
+  "godot": {
+    "version": "4.7.2-stable",
+    "archive": "Godot_v4.7.2-stable_linux.x86_64.zip",
+    "url": "https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip",
+    "sha512": ""
+  },
+  "gut": {
+    "release_tag": "",
+    "upstream_commit": "",
+    "license": "MIT"
+  }
+}
