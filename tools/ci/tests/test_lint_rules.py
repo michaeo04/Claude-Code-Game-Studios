@@ -59,6 +59,8 @@ class RuleFixtureTest(unittest.TestCase):
     def test_fixtures_are_txt_files(self):
         for dirpath, _dirs, files in os.walk(lr.FIXTURES_DIR):
             for f in files:
+                if f == "expected_lines.json":
+                    continue  # data for the stripper line-number test, not a GDScript fixture
                 self.assertTrue(f.endswith(".txt"), f"{dirpath}/{f}: invalid GDScript fixtures must be .txt")
 
 

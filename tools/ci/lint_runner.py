@@ -2,7 +2,7 @@
 """Lint runner for the project (ADR-0009 Decision 5). Python 3, standard library only.
 
 Usage:
-    python tools/ci/lint_runner.py [--rule <id>] [--list] [--verbose] [--root <dir>]
+    python tools/ci/lint_runner.py [--rule <id>] [--list] [--coverage] [--verbose] [--root <dir>] [--fixtures-dir <dir>]
 
 Reads tools/ci/lint_rules.json (rule table) and scans the repository.
 GDScript files are scanned after comments and string literals are stripped by ONE
@@ -68,7 +68,7 @@ def strip_gdscript(text: str, keep_strings: bool = False) -> str:
     while i < n:
         c = text[i]
         if c == "#":
-            while i < n and text[i] != "\n":
+            while i < n and text[i] not in "\r\n":
                 i += 1
             continue
         j = i
@@ -86,7 +86,7 @@ def strip_gdscript(text: str, keep_strings: bool = False) -> str:
             while k < n:
                 ch = text[k]
                 if ch == "\\":
-                    k += 2
+                    k += 3 if text.startswith("\r\n", k + 1) else 2
                     continue
                 if triple:
                     if text.startswith(q * 3, k):
@@ -108,7 +108,7 @@ def strip_gdscript(text: str, keep_strings: bool = False) -> str:
                 opener = q * (3 if triple else 1)
                 out.append(prefix + opener + body + (opener if closed else ""))
             else:
-                out.append(prefix + '""' + "\n" * body.count("\n"))
+                out.append(prefix + '""' + "".join(re.findall(r"\r?\n", body)))
             i = end
             continue
         out.append(c)
@@ -124,7 +124,7 @@ def strip_c_style(text: str, keep_strings: bool = False) -> str:
     while i < n:
         c = text[i]
         if text.startswith("//", i):
-            while i < n and text[i] != "\n":
+            while i < n and text[i] not in "\r\n":
                 i += 1
             continue
         if text.startswith("/*", i):
@@ -304,8 +304,12 @@ def parse_project_godot(text: str):
     """Parse project.godot / .cfg into (section, key, value, line) tuples (single-line values)."""
     entries = []
     section = ""
+    depth = 0  # open [ / { / ( of a value that continues on the next lines (input maps, arrays)
     for number, raw in enumerate(text.splitlines(), start=1):
         line = raw.strip()
+        if depth > 0:
+            depth += _bracket_delta(line)
+            continue
         if not line or line.startswith(";") or line.startswith("#"):
             continue
         if line.startswith("[") and line.endswith("]"):
@@ -314,7 +318,30 @@ def parse_project_godot(text: str):
         if "=" in line:
             key, _, value = line.partition("=")
             entries.append((section, key.strip(), value.strip(), number))
+            depth = max(0, _bracket_delta(value))
     return entries
+
+
+def _bracket_delta(fragment: str) -> int:
+    """Net count of opening minus closing brackets outside double-quoted strings."""
+    delta = 0
+    in_str = False
+    escaped = False
+    for ch in fragment:
+        if in_str:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == '"':
+                in_str = False
+        elif ch == '"':
+            in_str = True
+        elif ch in "[{(":
+            delta += 1
+        elif ch in "]})":
+            delta -= 1
+    return delta
 
 
 def _norm(value: str) -> str:
@@ -592,37 +619,85 @@ def self_check(rules, fixtures_dir: str = FIXTURES_DIR) -> list[str]:
 # --------------------------------------------------------------------------- registry coverage
 
 def read_registry_forbidden_patterns(yaml_text: str):
-    """Tiny reader for the `forbidden_patterns:` section: returns [(pattern, status)]."""
+    """Tiny reader for the `forbidden_patterns:` section: returns [(pattern, status)].
+
+    Purpose-built (stdlib has no YAML parser); accepts LF and CRLF, quoted names and trailing comments.
+    """
     patterns = []
     in_section = False
     for line in yaml_text.splitlines():
         if not in_section:
-            if re.match(r"^forbidden_patterns:\s*$", line):
+            if re.match(r"^forbidden_patterns:\s*(#.*)?$", line):
                 in_section = True
             continue
-        if line.strip() and not line.startswith((" ", "\t", "#")):
+        if line.strip() and not line.startswith((" ", "	", "#")):
             break  # next top-level key
-        m = re.match(r"^\s+-\s+pattern:\s*([\w.-]+)\s*$", line)
+        m = re.match(r"""^\s+-\s+pattern:\s*["']?([\w.-]+)["']?\s*(#.*)?$""", line)
         if m:
             patterns.append([m.group(1), "active"])
             continue
-        m = re.match(r"^\s+status:\s*([\w-]+)", line)
+        m = re.match(r"""^\s+status:\s*["']?([\w-]+)""", line)
         if m and patterns:
             patterns[-1][1] = m.group(1)
     return [(p, s) for p, s in patterns]
 
 
-def registry_coverage(table: dict, yaml_text: str) -> list[str]:
-    """Return active registry patterns with neither a `forbidden:<pattern>` rule nor a review_only mark."""
+def coverage_rows(table: dict, yaml_text: str):
+    """Return [(pattern, status, coverage)] with coverage 'rule', 'review_only', 'retired' or 'MISSING'."""
     ids = {r["id"] for r in table.get("rules", [])}
     review = {e["pattern"] for e in table.get("review_only", [])}
-    return [p for p, status in read_registry_forbidden_patterns(yaml_text)
-            if status == "active" and f"forbidden:{p}" not in ids and p not in review]
+    rows = []
+    for p, status in read_registry_forbidden_patterns(yaml_text):
+        if status != "active":
+            cov = "retired"
+        elif f"forbidden:{p}" in ids:
+            cov = "rule"
+        elif p in review:
+            cov = "review_only"
+        else:
+            cov = "MISSING"
+        rows.append((p, status, cov))
+    return rows
+
+
+def registry_coverage(table: dict, yaml_text: str) -> list[str]:
+    """Return active registry patterns with neither a `forbidden:<pattern>` rule nor a review_only mark."""
+    return [p for p, _s, cov in coverage_rows(table, yaml_text) if cov == "MISSING"]
+
+
+def load_registry_rows(root: str, table: dict):
+    """Return (rows, warning). A missing, unreadable or malformed registry gives a warning, never a crash."""
+    path = os.path.join(root, REGISTRY_REL)
+    if not os.path.isfile(path):
+        return [], f"{REGISTRY_REL} not found, coverage not checked"
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace", newline="") as fh:
+            text = fh.read()
+        rows = coverage_rows(table, text)
+    except (OSError, ValueError, KeyError) as exc:
+        return [], f"{REGISTRY_REL} unreadable ({type(exc).__name__}: {exc}), coverage not checked"
+    if not rows:
+        return [], f"{REGISTRY_REL} has no parsable forbidden_patterns section, coverage not checked"
+    return rows, None
+
+
+def print_coverage(root: str, table: dict, out) -> int:
+    """`--coverage`: print one line per registry pattern. Always exit 0 (ADVISORY)."""
+    rows, warning = load_registry_rows(root, table)
+    if warning:
+        print(f"warning: registry:coverage: {warning}", file=out)
+    for p, status, cov in rows:
+        print(f"{p}	{status}	{cov}", file=out)
+    missing = sum(1 for _p, _s, c in rows if c == "MISSING")
+    print(f"coverage: {len(rows)} pattern(s), {missing} unenforced and not review_only", file=out)
+    return 0
 
 
 # --------------------------------------------------------------------------- main
 
-def run(root: str, table: dict, only_rule: str | None = None, verbose: bool = False, out=sys.stdout) -> int:
+def run(root: str, table: dict, only_rule: str | None = None, verbose: bool = False, out=None,
+        fixtures_dir: str | None = None) -> int:
+    out = sys.stdout if out is None else out
     rules = table["rules"]
     if only_rule:
         rules = [r for r in rules if r["id"] == only_rule]
@@ -631,7 +706,7 @@ def run(root: str, table: dict, only_rule: str | None = None, verbose: bool = Fa
             return 2
     failed = False
 
-    errors = self_check(rules)
+    errors = self_check(rules) if fixtures_dir is None else self_check(rules, fixtures_dir)
     for err in errors:
         print(f"SELF-CHECK FAILED: {err}", file=out)
     failed = failed or bool(errors)
@@ -650,16 +725,14 @@ def run(root: str, table: dict, only_rule: str | None = None, verbose: bool = Fa
                 advisory += 1
 
     if not only_rule:
-        reg = os.path.join(root, REGISTRY_REL)
-        if os.path.isfile(reg):
-            with open(reg, "r", encoding="utf-8") as fh:
-                missing = registry_coverage(table, fh.read())
-            for pat in missing:
-                print(f"{REGISTRY_REL}:1: [ADVISORY] registry:coverage: forbidden pattern {pat!r} has no rule "
-                      f"'forbidden:{pat}' and is not review_only", file=out)
+        rows, warning = load_registry_rows(root, table)
+        if warning:
+            print(f"warning: registry:coverage: {warning}", file=out)
+        for p, _s, cov in rows:
+            if cov == "MISSING":
+                print(f"{REGISTRY_REL}:1: [ADVISORY] registry:coverage: forbidden pattern {p!r} has no rule "
+                      f"'forbidden:{p}' and is not review_only", file=out)
                 advisory += 1
-        else:
-            notes.append(f"registry:coverage: {REGISTRY_REL} not found, passes")
 
     if notes:
         if verbose:
@@ -676,6 +749,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Project lint runner (ADR-0009 Decision 5)")
     ap.add_argument("--rule", help="run a single rule id")
     ap.add_argument("--list", action="store_true", help="list rules and exit")
+    ap.add_argument("--coverage", action="store_true", help="print the registry forbidden_patterns coverage table and exit")
+    ap.add_argument("--fixtures-dir", default=None, help="fixture folder for the self-check (default tools/ci/tests/fixtures)")
     ap.add_argument("--verbose", action="store_true", help="list rules that passed with a note")
     ap.add_argument("--root", default=REPO_ROOT, help="repository root to scan")
     args = ap.parse_args(argv)
@@ -695,7 +770,9 @@ def main(argv=None) -> int:
         for e in table.get("review_only", []):
             print(f"{'forbidden:' + e['pattern']}\treview_only\t-\t{e['reason']}")
         return 0
-    return run(os.path.abspath(args.root), table, args.rule, args.verbose)
+    if args.coverage:
+        return print_coverage(os.path.abspath(args.root), table, sys.stdout)
+    return run(os.path.abspath(args.root), table, args.rule, args.verbose, fixtures_dir=args.fixtures_dir)
 
 
 if __name__ == "__main__":
