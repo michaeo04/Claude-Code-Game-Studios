@@ -1,8 +1,8 @@
 # Architecture Traceability Index
 
-Last Updated: 2026-10-03
+Last Updated: 2026-10-03 (re-run after ADR-0011, ADR-0012, ADR-0014)
 Engine: Godot 4.7.2 (Android only, ADR-0001)
-Source: `/architecture-review` full mode, 2026-10-03. Registry: `docs/architecture/tr-registry.yaml`.
+Source: `/architecture-review` full mode, 2026-10-03, two runs (`architecture-review-2026-10-03.md`, `architecture-review-2026-10-03-rerun.md`). Registry: `docs/architecture/tr-registry.yaml` (unchanged by the re-run; no GDD changed).
 
 ## How to read this
 
@@ -12,18 +12,18 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 
 - Total requirements: 348
 - Architecture-relevant: 191
-- ✅ Covered: 157 (82%)
-- ⚠️ Partial: 17 (8%)
-- ❌ Gap: 17 (8%)
+- ✅ Covered: 172 (90%)
+- ⚠️ Partial: 17 (9%)
+- ❌ Gap: 2 (1%)
 - ➖ GDD-owned (not counted): 157
 
 | System | Total | ✅ | ⚠️ | ❌ | ➖ |
 |---|---|---|---|---|---|
 | tube-track | 24 | 9 | 3 | 1 | 11 |
-| ball-movement | 23 | 4 | 0 | 1 | 18 |
+| ball-movement | 23 | 5 | 0 | 0 | 18 |
 | tilt-input | 26 | 13 | 0 | 0 | 13 |
 | camera | 21 | 4 | 1 | 0 | 16 |
-| obstacle-system | 24 | 17 | 1 | 1 | 5 |
+| obstacle-system | 24 | 18 | 1 | 0 | 5 |
 | pattern-difficulty | 21 | 10 | 2 | 0 | 9 |
 | near-miss-detection | 19 | 9 | 1 | 0 | 9 |
 | scoring-personal-best | 20 | 5 | 1 | 0 | 14 |
@@ -31,33 +31,25 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | platform-services | 20 | 17 | 1 | 0 | 2 |
 | save-persistence | 22 | 21 | 1 | 0 | 0 |
 | settings-accessibility | 15 | 4 | 2 | 0 | 9 |
-| juice-feedback | 22 | 8 | 1 | 3 | 10 |
-| environment-theming | 19 | 10 | 0 | 3 | 6 |
-| hud | 23 | 4 | 1 | 3 | 15 |
-| menus-screen-flow | 24 | 9 | 1 | 5 | 9 |
-| **All** | **348** | **157** | **17** | **17** | **157** |
+| juice-feedback | 22 | 10 | 1 | 1 | 10 |
+| environment-theming | 19 | 12 | 1 | 0 | 6 |
+| hud | 23 | 8 | 0 | 0 | 15 |
+| menus-screen-flow | 24 | 14 | 1 | 0 | 9 |
+| **All** | **348** | **172** | **17** | **2** | **157** |
+
+### History
+
+| Date | Covered | Partial | Gap | Notes |
+|---|---|---|---|---|
+| 2026-10-03 | 157 (82%) | 17 | 17 | first run, ADR-0001 to ADR-0009 |
+| 2026-10-03 | 172 (90%) | 17 | 2 | re-run, plus ADR-0011, ADR-0012, ADR-0014 |
 
 ## Known Gaps (❌)
 
 | TR-ID | Requirement | Missing decision | Suggested ADR |
 |---|---|---|---|
 | TR-tube-track-017 | Precision: s is 64-bit; z=-s is cast to 32-bit only when the Vector3 is built; no rebase; one debug warning pe | precision at s=16384 (t=682 s): run cap or rebase undecided | (ADR-0013 not written) |
-| TR-ball-movement-019 | Ball view is a smooth-shaded sphere with a cool-white rim; cosmetic roll rate speed/radius and a capped lean f | ball view, material owner, who instantiates it; ADR-0003 allocates 4 draw calls only | (ADR-0012 not written) |
-| TR-obstacle-system-023 | Hazards render at full silhouette and chroma the instant they enter the visible arc (no fade, alpha ramp or LO | how variable-width arc hazards are meshed and instanced; art bible proposes one MultiMesh per family; ADR-0003 allocates 40 calls | (hazard render route not decided) |
-| TR-juice-feedback-008 | Hit grey-out multiplies chroma toward 0 on all world elements with luminance preserved. The killer hazard (loo | per-hazard chroma exemption and world chroma uniform owner | (ADR-0012 not written) |
-| TR-juice-feedback-012 | Ball rim glow is a fresnel treatment layered on the ball's base material. Silhouette and scale are unchanged.  | rim glow vs Environment L_ball_adjusted on one ball material | (ADR-0012 not written) |
 | TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most 300-400 ms | three cues; bus layout and OS audio policy owner undecided (deferrable) | (no audio ADR) |
-| TR-environment-theming-007 | A world chroma multiplier of 0.88 at v_max applies to tube, sky and prop materials only. It is a separate para | world chroma uniform: shader global or per-material | (ADR-0012 not written) |
-| TR-environment-theming-009 | colorblind_safe_enabled applies L_ball_adjusted to the ball material itself. It is read from the getter at con | who instantiates and owns the ball material | (ADR-0012 not written) |
-| TR-environment-theming-012 | The Double Gate plinth is environment-owned geometry. Height is 0.15D, the span is the gate arc plus a 0.5D ma | plinth geometry spawner | (hazard render route not decided) |
-| TR-hud-015 | (UX) dp to viewport units: viewport_units_per_dp = (viewport_size.x/screen_size.x)*(screen_dpi/160). The dpi s | dp to viewport conversion, stretch mode, CanvasLayer indices | (ADR-0011 not written) |
-| TR-hud-016 | (UX) The HUD canvas sits above the world and below Menus screens. The Menu/Running Ink cut layer sits ABOVE th | dp to viewport conversion, stretch mode, CanvasLayer indices | (ADR-0011 not written) |
-| TR-hud-021 | (UX) AccessKit names and reading order are proposals only until verified on 4.7.2. Live score is not announced | AccessKit scope and names | (ADR-0011 not written) |
-| TR-menus-screen-flow-014 | (UX) Gated controls are shown dimmed (about 45%) with a reason label, never hidden. The Lagoon outline pulses  | recursive disable, dp layout, ScrollContainer drag arbitration, CanvasLayer order | (ADR-0011 not written) |
-| TR-menus-screen-flow-015 | (UX) Layout is dp-based and thumb-low. Play is 240x72 with centre at min(0.70H, H-232). The Paused Restart/Men | recursive disable, dp layout, ScrollContainer drag arbitration, CanvasLayer order | (ADR-0011 not written) |
-| TR-menus-screen-flow-016 | (UX) Settings is a vertical scroll list with fixed header and Back. A drag starting on a slider thumb moves th | recursive disable, dp layout, ScrollContainer drag arbitration, CanvasLayer order | (ADR-0011 not written) |
-| TR-menus-screen-flow-019 | (UX) The Ink cover sits above the HUD canvas. Menus screens sit above the HUD canvas. The ordinary Paused scre | recursive disable, dp layout, ScrollContainer drag arbitration, CanvasLayer order | (ADR-0011 not written) |
-| TR-menus-screen-flow-021 | (UX) AccessKit names, roles and reading order are non-binding proposals. The dialog and failure message are an | AccessKit scope and names | (ADR-0011 not written) |
 
 ## Partial Coverage (⚠️)
 
@@ -65,8 +57,8 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 |---|---|---|
 | TR-tube-track-012 | ADR-0003 | depth fog verified on Forward+ only; Mobile gated by R-1 |
 | TR-tube-track-015 | ADR-0003 | Decision 2 says set only on change, Key Interfaces says every frame, GDD AC-23a needs every-frame sampling (C-1) |
-| TR-tube-track-016 | ADR-0003, ADR-0002 | ADR-0002 per-frame order has no Idle step for idle_step (C-2) |
-| TR-camera-016 | ADR-0004 | ADR-0004 omits BallConfig D and OMEGA_MAX as inputs of CameraMath.published (C-3) |
+| TR-tube-track-016 | ADR-0003, ADR-0002 | ADR-0002 per-frame order has no Idle step for idle_step (C-2, C-11) |
+| TR-camera-016 | ADR-0004 | ADR-0004 omits BallConfig D and OMEGA_MAX as inputs of CameraMath.published (C-3, C-6) |
 | TR-obstacle-system-010 | ADR-0008 | mechanism changed (shared immutable spec, no copy); GDD wording must be revised |
 | TR-pattern-difficulty-011 | ADR-0008 | generalized padding changes CR9 and F2c; Pattern design review required |
 | TR-pattern-difficulty-014 | ADR-0004 | t_dodge_worst supply to Tube Track is not in the MapConfig or from_map path |
@@ -78,7 +70,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-settings-accessibility-005 | ADR-0007 | slider commit on drag_ended; Settings CR5 still says write on every change |
 | TR-settings-accessibility-009 | ADR-0003 | live consumer path for the Tube Track seam scale: see C-1 |
 | TR-juice-feedback-007 | ADR-0002 | hit-stop as a real-time hold is decided in architecture.md but ADR-0010 is not written |
-| TR-hud-014 | ADR-0006 | safe area covered; dp conversion needs ADR-0011 |
+| TR-environment-theming-012 | ADR-0014 | plinth is surface 1 with an Environment material, but the GDD span (gate arc plus 0.5 D) covers the gap; per-piece footings need an Environment GDD revision (ADR-0014 OQ1) |
 | TR-menus-screen-flow-012 | architecture.md | Ink cover driven by phase_changed differs from UX spec and Rule 9; ADR-0010 not written |
 
 ## Full Matrix (architecture-relevant requirements)
@@ -100,7 +92,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-tube-track-024 | Run State events map through a Tube Track-owned thin adapter to begin_run/pause/resume/end_run/to_id | ADR-0004 | ✅ Covered |
 | TR-ball-movement-005 | step() is called once per rendered frame, after Run State tick() and Tilt poll/flush, in every phase | ADR-0002 | ✅ Covered |
 | TR-ball-movement-013 | Contact is not detected here: no collider, CharacterBody3D or hit_reported; Obstacle System owns swe | ADR-0008 | ✅ Covered |
-| TR-ball-movement-019 | Ball view is a smooth-shaded sphere with a cool-white rim; cosmetic roll rate speed/radius and a cap | (ADR-0012 not written) | ❌ Gap |
+| TR-ball-movement-019 | Ball view is a smooth-shaded sphere with a cool-white rim; cosmetic roll rate speed/radius and a cap | ADR-0012 | ✅ Covered |
 | TR-ball-movement-020 | Oracles come from tools/reference-sim/ball_movement.js; fixture make_ball_fixture(), make_core(cfg,d | ADR-0009 | ✅ Covered |
 | TR-ball-movement-021 | Device gates need a measurable harness: per-frame theta logging, a 240 fps jig, evidence files under | ADR-0009 | ✅ Covered |
 | TR-tilt-input-001 | Only the TiltInput node reads motion sensors (Input.get_gravity and siblings); CI lint enforces it o | ADR-0005 | ✅ Covered |
@@ -139,7 +131,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-obstacle-system-019 | A lint over ObstacleMath/Core/Config and their transitive dependencies bans `CollisionObject3D`, `Ch | ADR-0009 | ✅ Covered |
 | TR-obstacle-system-021 | Determinism: no randomness; two instances fed the same 500-tick script give bit-identical `hit_repor | ADR-0008, ADR-0002 | ✅ Covered |
 | TR-obstacle-system-022 | A hazard that hit the ball stays bound through the Hit freeze. Recycling happens only inside `advanc | ADR-0002 | ✅ Covered |
-| TR-obstacle-system-023 | Hazards render at full silhouette and chroma the instant they enter the visible arc (no fade, alpha  | (hazard render route not decided) | ❌ Gap |
+| TR-obstacle-system-023 | Hazards render at full silhouette and chroma the instant they enter the visible arc (no fade, alpha  | ADR-0014 | ✅ Covered |
 | TR-pattern-difficulty-002 | Chunk record: `{chunk_id, tier, segment_count 1-3, hazard_placements:[(local_segment_index, hazard_t | ADR-0008 | ✅ Covered |
 | TR-pattern-difficulty-003 | PatternCore is the `HazardContentProvider`: `hazards_for_segment(index)` returns empty for `index<0` | ADR-0008 | ✅ Covered |
 | TR-pattern-difficulty-006 | The PRNG is a `RandomNumberGenerator` with an explicit `seed` set from `run_id` before the first dra | ADR-0008 | ✅ Covered |
@@ -230,11 +222,11 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-settings-accessibility-015 | Fixture factories make_settings_fixture, make_get_value_stub, make_set_value_stub(succeeds), make_lo | ADR-0009 | ✅ Covered |
 | TR-juice-feedback-006 | The run_ended handler order is Juice, then Scoring, then HUD. The run_abandoned handler order is Jui | ADR-0002 | ✅ Covered |
 | TR-juice-feedback-007 | Hitstop is a fixed 0.20 s in every mode and never scaled by reduced motion. The composition root inj | ADR-0002 | ⚠️ Partial |
-| TR-juice-feedback-008 | Hit grey-out multiplies chroma toward 0 on all world elements with luminance preserved. The killer h | (ADR-0012 not written) | ❌ Gap |
+| TR-juice-feedback-008 | Hit grey-out multiplies chroma toward 0 on all world elements with luminance preserved. The killer h | ADR-0012 | ✅ Covered |
 | TR-juice-feedback-009 | Hit flash is a full-screen Rim White overlay, peak opacity at most 0.30, at most 2 frames, at hitsto | ADR-0003 | ✅ Covered |
 | TR-juice-feedback-010 | Near-miss ring pulse and PB ring sweep are a shader term on the tube material, additive, Rim White c | ADR-0003 | ✅ Covered |
 | TR-juice-feedback-011 | Shard burst is one GPUParticles3D with one mesh and one material. It is visual-only with no physics  | ADR-0003 | ✅ Covered |
-| TR-juice-feedback-012 | Ball rim glow is a fresnel treatment layered on the ball's base material. Silhouette and scale are u | (ADR-0012 not written) | ❌ Gap |
+| TR-juice-feedback-012 | Ball rim glow is a fresnel treatment layered on the ball's base material. Silhouette and scale are u | ADR-0012 | ✅ Covered |
 | TR-juice-feedback-014 | Juice calls haptic(NEAR_MISS) and haptic(HIT) unconditionally, with no haptics_enabled check. There  | ADR-0006 | ✅ Covered |
 | TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most  | (no audio ADR) | ❌ Gap |
 | TR-juice-feedback-017 | Presentation fits the budget. Rings add zero draw calls and shards are batched, so Juice adds at mos | ADR-0003 | ✅ Covered |
@@ -244,9 +236,9 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-environment-theming-004 | Fog uses a depth ramp with factor = smoothstep(begin, end, d)^curve * density. Density must be 1.0,  | ADR-0003 | ✅ Covered |
 | TR-environment-theming-005 | Map load computes F_read from the 4:1 contrast crossing. It rejects with MAP_VISIBILITY_UNSAFE if F_ | ADR-0004 | ✅ Covered |
 | TR-environment-theming-006 | Speed-driven fog pull moves only fog_depth_end (written each frame while Running). u = clamp((speed- | ADR-0003 | ✅ Covered |
-| TR-environment-theming-007 | A world chroma multiplier of 0.88 at v_max applies to tube, sky and prop materials only. It is a sep | (ADR-0012 not written) | ❌ Gap |
-| TR-environment-theming-009 | colorblind_safe_enabled applies L_ball_adjusted to the ball material itself. It is read from the get | (ADR-0012 not written) | ❌ Gap |
-| TR-environment-theming-012 | The Double Gate plinth is environment-owned geometry. Height is 0.15D, the span is the gate arc plus | (hazard render route not decided) | ❌ Gap |
+| TR-environment-theming-007 | A world chroma multiplier of 0.88 at v_max applies to tube, sky and prop materials only. It is a sep | ADR-0012 | ✅ Covered |
+| TR-environment-theming-009 | colorblind_safe_enabled applies L_ball_adjusted to the ball material itself. It is read from the get | ADR-0012 | ✅ Covered |
+| TR-environment-theming-012 | The Double Gate plinth is environment-owned geometry. Height is 0.15D, the span is the gate arc plus | ADR-0014 | ⚠️ Partial |
 | TR-environment-theming-013 | Background props are MultiMesh-instanced, 3-6 meshes. A palette-swap map is retinted material parame | ADR-0003 | ✅ Covered |
 | TR-environment-theming-014 | The tube, sky and prop materials use a sky gradient of 2 stops. Sky hue is constant across states. M | ADR-0003 | ✅ Covered |
 | TR-environment-theming-015 | Glow and tonemap behaviour on Forward+ (glow before tonemapping since 4.6) must not disturb the cont | ADR-0003 | ✅ Covered |
@@ -254,12 +246,12 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-environment-theming-018 | Tests live in tests/unit/environment_theming/ as environment_theming_[feature]_test.gd. make_env_fix | ADR-0009 | ✅ Covered |
 | TR-environment-theming-019 | Deferred checks: the integration driver with a real BallCore, and on-device Mobile-renderer contrast | ADR-0009 | ✅ Covered |
 | TR-hud-013 | The view owns a full-screen tap catcher enabled only in Hit. Pause and Menu sit above it with mouse_ | ADR-0005 | ✅ Covered |
-| TR-hud-014 | (UX) Layout is dp-based inside Platform Services safe_area. Zones: Z1 top-left, Z2 pause top-right ( | ADR-0006 | ⚠️ Partial |
-| TR-hud-015 | (UX) dp to viewport units: viewport_units_per_dp = (viewport_size.x/screen_size.x)*(screen_dpi/160). | (ADR-0011 not written) | ❌ Gap |
-| TR-hud-016 | (UX) The HUD canvas sits above the world and below Menus screens. The Menu/Running Ink cut layer sit | (ADR-0011 not written) | ❌ Gap |
+| TR-hud-014 | (UX) Layout is dp-based inside Platform Services safe_area. Zones: Z1 top-left, Z2 pause top-right ( | ADR-0006, ADR-0011 | ✅ Covered |
+| TR-hud-015 | (UX) dp to viewport units: viewport_units_per_dp = (viewport_size.x/screen_size.x)*(screen_dpi/160). | ADR-0011 | ✅ Covered |
+| TR-hud-016 | (UX) The HUD canvas sits above the world and below Menus screens. The Menu/Running Ink cut layer sit | ADR-0011 | ✅ Covered |
 | TR-hud-018 | (UX) HUD performance: at most 20 draw calls and 1.0 ms per tick in the worst-case Hit state. No drop | ADR-0003 | ✅ Covered |
 | TR-hud-019 | (UX) Touch targets are at least 48 dp and activate on release inside. Press feedback scales to 0.94  | ADR-0005 | ✅ Covered |
-| TR-hud-021 | (UX) AccessKit names and reading order are proposals only until verified on 4.7.2. Live score is not | (ADR-0011 not written) | ❌ Gap |
+| TR-hud-021 | (UX) AccessKit names and reading order are proposals only until verified on 4.7.2. Live score is not | ADR-0011 | ✅ Covered |
 | TR-hud-023 | Tests live in tests/unit/hud/ and tests/integration/hud/ as hud_[feature]_test.gd. Fixtures are make | ADR-0009 | ✅ Covered |
 | TR-menus-screen-flow-007 | quit() is called exactly once, only from on_quit_confirm_tapped while confirm_quit_open. The dialog  | ADR-0006 | ✅ Covered |
 | TR-menus-screen-flow-008 | haptic(UI_TAP) fires on every forwarded or committed on-screen tap. It does not fire on a gated tap  | ADR-0006 | ✅ Covered |
@@ -267,13 +259,13 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-menus-screen-flow-011 | Settings is reachable only from Menu-base. Each change calls set_value at once. There is no revert,  | ADR-0007 | ✅ Covered |
 | TR-menus-screen-flow-012 | `transition_covering` is true for at least one tick spanning Menu to Running and Running to Menu, an | architecture.md | ⚠️ Partial |
 | TR-menus-screen-flow-013 | Restart and Menu stamp press_us on press-down. The readying fill (PAUSE_INPUT_GUARD) is cosmetic and | ADR-0005 | ✅ Covered |
-| TR-menus-screen-flow-014 | (UX) Gated controls are shown dimmed (about 45%) with a reason label, never hidden. The Lagoon outli | (ADR-0011 not written) | ❌ Gap |
-| TR-menus-screen-flow-015 | (UX) Layout is dp-based and thumb-low. Play is 240x72 with centre at min(0.70H, H-232). The Paused R | (ADR-0011 not written) | ❌ Gap |
-| TR-menus-screen-flow-016 | (UX) Settings is a vertical scroll list with fixed header and Back. A drag starting on a slider thum | (ADR-0011 not written) | ❌ Gap |
+| TR-menus-screen-flow-014 | (UX) Gated controls are shown dimmed (about 45%) with a reason label, never hidden. The Lagoon outli | ADR-0011 | ✅ Covered |
+| TR-menus-screen-flow-015 | (UX) Layout is dp-based and thumb-low. Play is 240x72 with centre at min(0.70H, H-232). The Paused R | ADR-0011 | ✅ Covered |
+| TR-menus-screen-flow-016 | (UX) Settings is a vertical scroll list with fixed header and Back. A drag starting on a slider thum | ADR-0011 | ✅ Covered |
 | TR-menus-screen-flow-018 | (UX) Menus add at most 25 draw calls and 1.0 ms per tick. Menu shows within 100 ms of phase Menu. Se | ADR-0003 | ✅ Covered |
-| TR-menus-screen-flow-019 | (UX) The Ink cover sits above the HUD canvas. Menus screens sit above the HUD canvas. The ordinary P | (ADR-0011 not written) | ❌ Gap |
+| TR-menus-screen-flow-019 | (UX) The Ink cover sits above the HUD canvas. Menus screens sit above the HUD canvas. The ordinary P | ADR-0011 | ✅ Covered |
 | TR-menus-screen-flow-020 | Android Back is delivered as back_pressed. Platform Services sets quit_on_go_back=false. Android-onl | ADR-0006 | ✅ Covered |
-| TR-menus-screen-flow-021 | (UX) AccessKit names, roles and reading order are non-binding proposals. The dialog and failure mess | (ADR-0011 not written) | ❌ Gap |
+| TR-menus-screen-flow-021 | (UX) AccessKit names, roles and reading order are non-binding proposals. The dialog and failure mess | ADR-0011 | ✅ Covered |
 | TR-menus-screen-flow-023 | Tests live in tests/unit/menus_screen_flow/ as menu_[feature]_test.gd. A fresh core per case. make_m | ADR-0009 | ✅ Covered |
 | TR-menus-screen-flow-024 | Mutation-catching priority: AC-2, 3, 4 (Back bypassing Resume's gate), 5 and 27 are the highest prio | ADR-0009 | ✅ Covered |
 
