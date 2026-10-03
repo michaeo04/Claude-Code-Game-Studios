@@ -13,3 +13,7 @@ Control Manifest Version: 2026-10-03
 | Composition Root & Game Loop | Foundation | Composition Root (GameRoot) | none (ADRs) | Not yet created | Ready |
 | Map Loader & MapConfig | Foundation | Map Loader | none (ADRs) | Not yet created | Ready |
 | Test Harness & CI | Foundation | Test infrastructure (tools/ci, tests/) | none (ADRs) | Not yet created | Ready |
+| Tube Track | Core | Tube Track | design/gdd/tube-track.md | Not yet created | Ready |
+| Tilt Input | Core | Tilt Input | design/gdd/tilt-input.md | Not yet created | Ready |
+| Ball Movement | Core | Ball Movement | design/gdd/ball-movement.md | Not yet created | Ready |
+| Obstacle System | Core | Obstacle System | design/gdd/obstacle-system.md | Not yet created | Ready |
