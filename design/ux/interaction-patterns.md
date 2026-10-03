@@ -256,4 +256,4 @@ The UI owns **no audio**. The `UI_TAP` haptic (15 ms, amplitude 0.3, priority 0;
 | 2 | P4: Platform Services supplies no system gesture insets (`hud.md` Open Question 11) | technical-director, godot-specialist | Vertical slice |
 | 3 | P13 to P16: AccessKit names and roles are unverified on 4.7.2 | accessibility-specialist, godot-specialist | Vertical slice |
 | 4 | P12: whether to move the HUD Menu button to P11 after playtests (art bible §7) | user, ux-designer | First-playable playtest |
-| 5 | No `design/accessibility-requirements.md`: the library uses WCAG-AA as its baseline | user, accessibility-specialist | Before `/gate-check pre-production` |
+| 5 | RESOLVED 2026-10-03: the tier is committed in `design/accessibility-requirements.md` (Basic plus named features, 2026-10-03); the library keeps WCAG-AA contrast as its baseline | accessibility-specialist | Resolved |

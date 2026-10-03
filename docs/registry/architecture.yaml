@@ -1770,7 +1770,7 @@ forbidden_patterns:
 
   - pattern: raw_s_in_vector3
     status: active
-    description: "No node position is built from s, s_offset or a snapshot s except through WorldFrame.render_z; no core stores a world z in a Vector3; no world-space shader math on z (WORLD_POSITION, MODEL_MATRIX[3]) unless its period divides REBASE_SEGMENTS * L; Running-state GPUParticles3D use local_coords = true."
+    description: "No node position is built from s, s_offset or a snapshot s except through WorldFrame.render_z; no core stores a world z in a Vector3; no world-space shader math on z (WORLD_POSITION, MODEL_MATRIX[3]) unless its period divides REBASE_SEGMENTS * L; a future running-state effect decides explicitly: parented to the ball with local_coords = true, or world-anchored with local_coords = false and a restart() on the rebase tick (ADR-0013 Decision 3)."
     why: "A raw large z loses precision (or pops at a rebase) and reintroduces the jitter ADR-0013 removes."
     adr: docs/architecture/adr-0013-distance-precision-render-origin.md
     added: 2026-10-03

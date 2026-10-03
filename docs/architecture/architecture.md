@@ -215,7 +215,7 @@ func pause() -> void
 func resume() -> void
 func end_run() -> void
 func to_idle() -> void
-static func to_world(theta: float, s: float, h: float) -> Vector3   # the ONLY (theta, s, h) to world conversion
+static func local_point(theta: float, h: float) -> Vector2   # x and y of the GDD's P; no s (ADR-0013). z comes only from WorldFrame.render_z(s)
 static func delta_theta(a: float, b: float) -> float   # canonical; never built-in wrapf()
 
 class_name BallCore extends RefCounted
@@ -299,7 +299,7 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 | ADR-0010 Presentation time, hit-stop, Ink cover | real-time effects, FOV ease, cover driven by `phase_changed` (decided in Data Flow) |
 | ADR-0011 UI architecture | `CanvasLayer` indices, dp to viewport conversion and stretch mode, view and Control split, AccessKit scope, dual focus |
 | ADR-0012 Ball material and world chroma | one owner for `L_ball_adjusted`, how Juice's rim glow layers on it, one chroma uniform |
-| ADR-0013 Distance precision | run cap or rebase at s = 16384 (t = 682 s) |
+| ADR-0013 Distance precision and render origin | written (Proposed): `s` stays float64, `WorldFrame.render_z` shifts the render origin by whole segments |
 
 **Can defer to implementation:** OS audio policy owner, AccessKit names and reading order, specific shader techniques.
 
@@ -320,7 +320,7 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 | 2 | Test framework: GUT (CLAUDE.md, technical preferences) or gdUnit4 (some GDDs, CI line)? | ADR-0009 |
 | 3 | Do Android lifecycle callbacks arrive on another thread (PS-12), and is `back_pressed` delivered on Android 16 / SDK 36 (PS-4)? | ADR-0006 |
 | 4 | Cost of the synchronous personal-best write on the death frame (SP-1); fallback A/B-slot scheme | ADR-0007 |
-| 5 | Run cap or rebase of `s` at 16384 (t = 682 s) | ADR-0013 |
+| 5 | Run cap or rebase of `s` at 16384 (t = 682 s) | RESOLVED in ADR-0013 (Proposed): render-origin shift, no run cap |
 | 6 | Tube render route (node per slot, MultiMesh, scrolling shader) and the measured draw-call figure | ADR-0003 |
 | 7 | Do `emulate_mouse_from_touch` off and `emulate_touch_from_mouse` on behave as assumed on 4.7.2? | ADR-0005 |
 | 8 | Cross-chunk spacing hole in Pattern & Difficulty (adjacent non-opposing chunks can violate `S_MIN_SPACING`, `HAZARD_OVERLAP`) | ADR-0008, then a Pattern GDD revision |

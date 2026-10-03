@@ -203,8 +203,8 @@ L. Small systems ("lite") can have short GDDs; all 8 required sections still app
   exact at rest only; off-neutral drift is bounded, not zero, and logged (not yet gated) via BM-4 (pass 4).
   Owns the forward-speed ramp (`V_START` 10, `T_RAMP` 90 s) and
   the ball diameter (0.8). Provisionally, Obstacle System (not Ball Movement) detects contact against the
-  published ball state (Open Question 4, the collision ADR). `DT_MAX` stays owned by Run State. Flags an
-  `S_PRECISION_LIMIT` timing risk (`s` reaches 16384 at 682 s) for Tube Track and Run State to resolve.
+  published ball state (Open Question 4, the collision ADR). `DT_MAX` stays owned by Run State. Flagged an
+  `S_PRECISION_LIMIT` timing risk (`s` reaches 16384 at 682 s); resolved 2026-10-03 by ADR-0013 (render-origin shift, no run cap).
   Its Node reference sim lives at `tools/reference-sim/ball_movement.js`; its `wrap_angle` must never be
   reimplemented over GDScript's built-in `wrapf()` (binary-confirmed divergent at the PI seam, pass 4).
   BM-1a/BM-1b/BM-3's designation is recorded in `production/qa/designated-gates.md` (created pass 4).

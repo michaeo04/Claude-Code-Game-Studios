@@ -16,7 +16,7 @@ Three `RefCounted` classes, no `SceneTree`, no autoload, no `Engine.` or `Time.`
 
 | Class | Built with | Role |
 |-------|------------|------|
-| `TubeMath` | static functions | `wrap_angle(a, log_sink)`, `delta_theta(a, b, log_sink)`, `to_world(theta, s, h, R, log_sink)` (`P` in the GDD), F3 `required_a` / `required_b`, F4 `ulp32`, F5 `seam_s`, F6 `lane_width` / `lane_count`, F7 `facet_gap`, F8 `idle_step(s_idle, v_idle, dt, t_lat, L)`, F9 `t_vis`, `segment_content(config, index)` |
+| `TubeMath` | static functions | `wrap_angle(a, log_sink)`, `delta_theta(a, b, log_sink)`, `local_point(theta, h, R, log_sink)` (x and y of `P` in the GDD; ADR-0013; the logical `P` with `z = -s` exists only as a test reference function, never in `src/`), F3 `required_a` / `required_b`, F4 `ulp32`, F5 `seam_s`, F6 `lane_width` / `lane_count`, F7 `facet_gap`, F8 `idle_step(s_idle, v_idle, dt, t_lat, L)`, F9 `t_vis`, `segment_content(config, index)` |
 | `TubeConfig` | `Resource`, every knob and the `MapConfig` fields Tube Track reads | `validate() -> Array` of records `{code: String, ...}` (a record, not message text: `SEAM_HZ` carries `max_n_seams`, `L_INVALID` carries `l_min`, `NO_VALID_F` carries the range) |
 | `TubeWindow` | `(config: TubeConfig, log_sink: Callable(level, message), slot_binder: Callable(slot_index: int, segment_index: int))` | The lifecycle state machine and the window |
 
@@ -160,6 +160,6 @@ several behaviours.
   validator a `Dictionary`, not a `TubeConfig` field.
 
 **Naming and CI**
-- The GDD's `log` parameter should be `log_sink` in code; `P` should be `to_world` (snake_case).
+- The GDD's `log` parameter should be `log_sink` in code; `P` is implemented as `local_point` plus `WorldFrame.render_z` (ADR-0013).
 - `technical-preferences.md` names GUT while `coding-standards.md` runs `gdunit4_runner.gd`; settle before Technical Setup.
 - CI needs the import pass (`godot --headless --import`) before GUT, and a `project.godot` does not exist yet.

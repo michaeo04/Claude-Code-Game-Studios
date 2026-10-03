@@ -5,7 +5,7 @@ Source: the four GDDs read in full. Engine flags: H/M/L = post-cutoff risk. "GDD
 
 === TUBE TRACK ===
 TR-tube-track-001 | Core | Define the frame: theta=0 at top (+Y), theta grows clockwise from behind, s grows along -Z, P(theta,s,h)=((R+h)sin t,(R+h)cos t,-s); only Tube Track converts to world space | R=3.0, h>=0; Vector3 float32 only at the build step | Core Rules/Coordinate frame R1
-TR-tube-track-002 | Core | TubeMath static RefCounted functions: wrap_angle (fposmod(a+PI,TAU)-PI plus a guard returning [-PI,PI)), delta_theta, F2-F9, idle_step, P (rename to_world suggested in OQ18); non-finite input returns 0 and logs | Built-in wrapf is banned (collapses PI-1e-9 to -PI); GDScript `wrap` global does not parse unqualified; Godot 4.7.2 verified (H) | F1, R2
+TR-tube-track-002 | Core | TubeMath static RefCounted functions: wrap_angle (fposmod(a+PI,TAU)-PI plus a guard returning [-PI,PI)), delta_theta, F2-F9, idle_step, local_point(theta, h) -> Vector2 (x, y of the GDD's P; the z part is WorldFrame.render_z, ADR-0013; replaces the suggested to_world); non-finite input returns 0 and logs | Built-in wrapf is banned (collapses PI-1e-9 to -PI); GDScript `wrap` global does not parse unqualified; Godot 4.7.2 verified (H) | F1, R2
 TR-tube-track-003 | Core | TubeConfig (Resource) holds every knob plus the MapConfig fields it reads; validate() returns a SET of stable failure codes | Codes: NOT_FINITE, NOT_POSITIVE, VISIBILITY, FOG_BEFORE_READ, FOG_DENSITY, FOG_MODE, FOG_RANGE, A_TOO_LARGE, A_TOO_SMALL, A_OUT_OF_RANGE, B_OUT_OF_RANGE, L_INVALID, SEAM_HZ, R_RANGE, NO_VALID_F | EC Map validation
 TR-tube-track-004 | Core | TubeWindow (RefCounted, not an autoload) is the state machine: it owns the window, emits the signals, and takes TubeConfig, a log_sink Callable and slot_binder Callable(slot_index:int, segment_index:int) | slot_index=posmod(segment_index,N); N=A+B+1<=16 | Structure
 TR-tube-track-005 | Core | State machine of 5 states and 8 events: exactly 16 of 40 (state,event) pairs are accepted; the rest give no state change, no signal and one logged error; load_map is accepted only from Uninitialized and a failed validation keeps Uninitialized (Retry allowed) | 16/40 pairs; AC-19 is table-driven | States and Transitions
@@ -32,7 +32,7 @@ TR-tube-track-024 | Platform | Run State events map through a Tube Track-owned t
 ARCHITECTURE FACTS (tube-track)
 - Modules: TubeConfig (Resource), TubeMath (static RefCounted), TubeWindow (RefCounted), SeamPattern (Resource), TubeTrack (Node3D view, injected into Ball Movement/Camera/Obstacle), a Run State adapter owned by Tube Track.
 - Owns exclusively: the coordinate frame and the only theta/s/h to world conversion; wrap_angle/delta_theta (the canonical copy Ball Movement and Camera reuse); window and segment lifecycle; seam format and seam constraints; map validation (F3/F5/F9/F7); idle scroll.
-- Exposes: advance(s), load_map, unload_map, begin_run, pause, resume, end_run, to_idle; P/to_world, R, surface normal, delta_theta, state; signals as in TR-008.
+- Exposes: advance(s), load_map, unload_map, begin_run, pause, resume, end_run, to_idle; local_point (x, y of P; z via WorldFrame.render_z), R, surface normal, delta_theta, state; signals as in TR-008.
 - Consumes: s (Ball Movement driver), v_max, rear_extent/camera_distance (Camera, published at map load), MapConfig (Environment & Theming), seam_contrast_scale (Settings), Run State events, T_dodge_worst (Pattern & Difficulty).
 - Engine classes: Node3D, MeshInstance3D/MultiMesh, ShaderMaterial, Environment (fog).
 - Order: init is load_map, then Idle. Per tick, advance(s) runs after Ball Movement's step, in Running only. Idle uses the view's own dt.
@@ -42,7 +42,7 @@ CONFLICTS OR GAPS (tube-track)
 - Render route is unresolved (OQ3), as are the renderer and the numeric draw-call limit (OQ1), so seam shader and S_PRECISION handling cannot be fixed.
 - Run State event names for the adapter are "provisional" here and settled elsewhere. The adapter's skip rules (pause when already Paused, to_idle on Boot to Menu) are only in OQ6.
 - d_cam is a fixed 8 here but a derived 6.54-7.84 in Camera; the GDD says "published at map load" without naming the publisher object or call.
-- Unvalidated knobs: SEAM_HZ_MAX>3, T_VIS_MIN=0, IDLE_SCROLL_SPEED, t_lat, M_cam and S_PRECISION_LIMIT have no validation code (OQ18). There is no unknown seam_pattern_id handling.
+- Unvalidated knobs: SEAM_HZ_MAX>3, T_VIS_MIN=0, IDLE_SCROLL_SPEED, t_lat, M_cam have no validation code (S_PRECISION_LIMIT is retired by ADR-0013) (OQ18). There is no unknown seam_pattern_id handling.
 - `log` is a bad parameter name (shadows a global), and the segment_content/tick_idle signatures are not listed in Structure.
 - Tube Track does not say how it is told about a mid-run v_max change (assumed static).
 

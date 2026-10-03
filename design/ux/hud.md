@@ -239,7 +239,7 @@ None. Placement and size values here are design constants, not player-adjustable
 
 ## Accessibility
 
-No `design/accessibility-requirements.md` exists yet, so there is no committed tier. This section uses **WCAG-AA as the working baseline** and logs the gap in Open Questions.
+The tier is committed in `design/accessibility-requirements.md` (Basic plus named features, 2026-10-03). This section keeps **WCAG-AA contrast as its working baseline**; `/ux-review` checks it against the committed tier.
 
 | Area | Requirement |
 |---|---|
@@ -286,7 +286,7 @@ Measured on a device matrix of at least: a 16:9 phone (H about 640 dp), a 20:9 p
 | # | Question | Owner | Resolve when |
 |---|----------|-------|--------------|
 | 1 | No `design/player-journey.md`: this spec assumes the player's context (calm at the start, startled in Hit, re-gripping in Resuming). Template at `.claude/docs/templates/player-journey.md` | user, ux-designer | Before `/gate-check pre-production` |
-| 2 | No `design/accessibility-requirements.md`: the tier is not committed; WCAG-AA is used as a baseline | user, accessibility-specialist | Before `/gate-check pre-production` |
+| 2 | RESOLVED 2026-10-03: the tier is committed in `design/accessibility-requirements.md` (Basic plus named features, 2026-10-03); WCAG-AA contrast stays the working baseline of this spec | accessibility-specialist | Resolved |
 | 3 | Z3 (banner) and Z4 (status slot) positions assume where the ball and hazards sit on screen; `camera.md` does not fix it. Verify neither covers the isolated killer hazard on death (art bible §3e). On short screens (H = 640 dp) the reserved Z4 group spans 47% to 70% of H, closer to the approach zone | user, art-director | Vertical slice, on device |
 | 4 | Score digits: 7 or more digits shrink to a 20 sp floor (Layout rules), which fits about 8 digits in the 130 dp pill. Beyond 8 digits is undefined, and the BEST pill (14 sp floor) already overflows at 8 digits while Score still fits, so the two floors need aligning; Scoring has no cap; a cap or an abbreviation would conflict with "the number is always honest" | game-designer | Before first-playable |
 | 5 | Handedness: pause is top-right only. Mirroring needs a setting owned by Settings & Accessibility | user | Post-MVP, or when playtests show reach problems |

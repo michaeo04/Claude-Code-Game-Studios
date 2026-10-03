@@ -121,7 +121,7 @@ formulas:
       - R
     output_range: [-16384, 16384]
     expression: "P(theta, s, h) = ((R + h) * sin(theta), (R + h) * cos(theta), -s)"
-    notes: "Returns a world-space position. There is no render-origin rebase in the MVP; z = -s grows with the run and is only precise below S_PRECISION_LIMIT (16384, F4). s is 64-bit and cast to 32 bits only when the Vector3 is built. Only Tube Track converts to world space; other systems address things by (theta, s, h)."
+    notes: "Returns a world-space position. Logical frame (float64 s, origin at run start). Revised 2026-10-03 (ADR-0013): the render origin shifts by whole segments (WorldFrame, REBASE_SEGMENTS), S_PRECISION_LIMIT is retired, and the implementation is TubeMath.local_point(theta, h) for x and y plus WorldFrame.render_z(s) for z; s is cast to 32 bits only inside render_z. Other systems address things by (theta, s, h)."
     added: 2026-09-19
     revised: 2026-09-20
 

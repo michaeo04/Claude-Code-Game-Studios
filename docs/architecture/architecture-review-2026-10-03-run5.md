@@ -127,3 +127,19 @@ ADR-0013 (C-21 `to_world` fate, C-23 loader clause), ADR-0003 line 98 (C-24), `a
 | `tools/ci/run_ci.py`, `lint_runner.py`, `lint_rules.json`, `godot.sha512`, GUT vendored, spike T-1 | ❌ |
 
 `/gate-check` is not offered while any ❌ above remains.
+
+---
+
+## Edit pass applied (2026-10-03, author session)
+
+Applied by the authoring session after this review; **not independently re-reviewed**. Verified by grep only (no remaining live `to_world`, no "no accessibility-requirements.md" text in `design/`).
+
+| Item | Resolution |
+|---|---|
+| C-21 | ADR-0013 states that `TubeMath.local_point` replaces the proposed `to_world`, and that the logical `P` is a test-only reference. `architecture.md` signature, TR-tube-track-002 (`revised: 2026-10-03`), `tr-baseline/world-movement.md` (lines 8 and 35) and `tests/unit/tube_track/test-plan.md` (lines 19 and 163) updated. Tube Track OQ18 is a historical open question and is left as written. |
+| C-22 | `design/registry/entities.yaml` `P` notes rewritten (logical frame, rebase, retired constant); `docs/registry/architecture.yaml` `raw_s_in_vector3` description no longer mandates `local_coords = true`. |
+| C-23 | Map-loader clause removed from ADR-0013 (Decision 2 and the `reset()` signature comment); ADR-0004 untouched. |
+| C-24 | ADR-0003 `idle_step` comment ("only in Menu (Tube Track Idle)"); `ball-movement.md` edge case; `run-state-restart.md` `run_reset` rank 1 names `WorldFrame`. |
+| Housekeeping | `systems-index.md` line 207 and `tr-baseline` line 45 mark `S_PRECISION_LIMIT` retired; `architecture.md` lines 302 and 323 mark ADR-0013 written (Proposed); the five accessibility passages in `hud.md`, `menus-screen-flow.md` and `interaction-patterns.md` now cite the committed tier and keep WCAG-AA contrast as the spec baseline. |
+
+**Still open:** `architecture.md` v1.1 module rows (ADR-0010 to ADR-0014 components, layer stack, Phase B step; only the stale lines were fixed), TD review and Acceptance of ADR-0002 to ADR-0014, ADR-0014 OQ1, the audio ADR, and the pre-gate items.

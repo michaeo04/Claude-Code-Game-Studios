@@ -95,7 +95,7 @@ No shadows, no engine glow, no Compositor in the MVP
 class_name TubeView extends Node3D       # no _process (ADR-0002)
 func build(cfg: TubeConfig, mesh: ArrayMesh, mat: ShaderMaterial) -> void   # creates N slots once
 func bind_slot(slot_index: int, segment_index: int) -> void                # transform only
-func idle_step(dt: float) -> void                                         # called by GameRoot in Idle
+func idle_step(dt: float) -> void                                         # called by GameRoot only in Menu (Tube Track Idle)
 func set_seam_contrast_scale(v: float) -> void                             # called every frame with the Settings value; writes the material only on change
 func rebase() -> void                                                     # ADR-0013: re-binds all N slots through WorldFrame.render_z
 ```

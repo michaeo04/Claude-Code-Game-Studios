@@ -42,10 +42,10 @@ requirements:
     system: tube-track
     gdd: design/gdd/tube-track.md
     category: "Core"
-    requirement: "TubeMath static RefCounted functions: wrap_angle (fposmod(a+PI,TAU)-PI plus a guard returning [-PI,PI)), delta_theta, F2-F9, idle_step, P (rename to_world suggested in OQ18); non-finite input returns 0 and logs"
+    requirement: "TubeMath static RefCounted functions: wrap_angle (fposmod(a+PI,TAU)-PI plus a guard returning [-PI,PI)), delta_theta, F2-F9, idle_step, local_point(theta, h) -> Vector2 (x, y of the GDD's P; the z part is WorldFrame.render_z, ADR-0013; replaces the suggested to_world); non-finite input returns 0 and logs"
     source: "F1, R2"
     created: 2026-10-03
-    revised: ""
+    revised: 2026-10-03
     status: active
   - id: TR-tube-track-003
     system: tube-track

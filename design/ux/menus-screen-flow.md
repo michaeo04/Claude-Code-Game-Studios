@@ -324,7 +324,7 @@ The UI owns no game state. The overlay flags `settings_open` and `confirm_quit_o
 
 ## Accessibility
 
-No `design/accessibility-requirements.md` exists, so there is no committed tier. WCAG-AA is the working baseline, as in the HUD spec (HUD Open Question 2).
+The tier is committed in `design/accessibility-requirements.md` (Basic plus named features, 2026-10-03). WCAG-AA contrast is the working baseline, as in the HUD spec (HUD Open Question 2).
 
 | Area | Requirement |
 |---|---|
@@ -394,7 +394,7 @@ Measured on the device matrix of the HUD spec (a 16:9 phone, a 20:9 phone, a not
 | # | Question | Owner | Resolve when |
 |---|----------|-------|--------------|
 | 1 | No `design/player-journey.md`: the arrival states are assumptions. Template at `.claude/docs/templates/player-journey.md` | user, ux-designer | Before `/gate-check pre-production` |
-| 2 | No `design/accessibility-requirements.md`: the tier is not committed; WCAG-AA is the baseline | user, accessibility-specialist | Before `/gate-check pre-production` |
+| 2 | RESOLVED 2026-10-03: the tier is committed in `design/accessibility-requirements.md` (Basic plus named features, 2026-10-03); WCAG-AA contrast stays the baseline | accessibility-specialist | Resolved |
 | 3 | Retry and the Retrying look: the contract is decided (the loader retries `load_map`, sends `map_ready` only on success, a failed load stays in Boot) but the loader's interface is provisional until Run State's Open Question 8 is resolved | whoever authors the map loader | When that system is authored |
 | 4 | SUPERSEDED 2026-10-01: the project is Android-only, so `quit()` applies everywhere and the GDD needs no platform split | — | Superseded |
 | 5 | No game name or wordmark on Menu (the name is a working title); a reserved area is not drawn | user, art-director | When the name and branding are final |
