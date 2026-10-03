@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-03"  # ADR-0002 to ADR-0009 and ADR-0014 stances added
+last_updated: "2026-10-03"  # ADR-0002 to ADR-0009, ADR-0011 and ADR-0014 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -247,6 +247,29 @@ state_ownership:
     write_access: hazard-view-only
     referenced_by:
       - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+    revised: ""
+
+
+  - state: ui_scale
+    status: active
+    owner_system: ui-scaler
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    interface: "Window.content_scale_factor = clamp(screen_dpi / 160, 0.75, 4.0), written only by UiScaler.apply(DisplayFacts), only when the value differs and never while Running; one viewport unit is one dp; ui_scale_changed(scale) after the write; views relayout on their next tick"
+    write_access: ui-scaler-only
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
+  - state: ui_layer_stack
+    status: active
+    owner_system: ui-layers
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    interface: "UiLayers constants: FLASH 5 (Juice), HUD 10, MENUS 20, INK_COVER 30, DEBUG 100 (editor only); no CanvasLayer.layer is assigned from a literal"
+    write_access: ui-layers-constants-only
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
     added: 2026-10-03
     revised: ""
 
@@ -489,6 +512,35 @@ interfaces:
     signal_signature: "HazardView.bind(hazard_id: int, spec: HazardSpec, s_offset: float), release(hazard_id), release_all(), node_of(hazard_id) -> MeshInstance3D, show_preview(spec), hide_preview(); driven by hazard_bound and hazard_released handlers (_wire() rows, immediate); ObstacleCore.spec_of(hazard_id) and s_offset_of(hazard_id) are valid during hazard_bound emission"
     referenced_by:
       - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+    revised: ""
+
+
+  - contract: ui_scale_changed
+    status: active
+    pattern: signal
+    producer: ui-scaler
+    consumers:
+      - hud
+      - menus-screen-flow
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    signal_signature: "ui_scale_changed(scale: float), emitted after content_scale_factor is applied; handlers only mark layout dirty, relayout runs in the next view tick"
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
+  - contract: ui_access_helper
+    status: active
+    pattern: direct_call
+    producer: ui-access
+    consumers:
+      - hud
+      - menus-screen-flow
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    signal_signature: "UiAccess.name_control(c, name), set_gated(c, reason), announce(text), set_live(c, mode); the only file that touches accessibility_* properties; no acceptance criterion depends on it until spike UI-A1"
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
     added: 2026-10-03
     revised: ""
 
@@ -999,6 +1051,40 @@ api_decisions:
     added: 2026-10-03
     revised: ""
 
+
+  - purpose: ui_dp_conversion
+    status: active
+    api: "display/window/stretch/mode canvas_items, scale_mode fractional, content_scale_size (0,0), Window.content_scale_factor = dpi / 160 (so layouts are written in dp)"
+    not: "stretch disabled with a manual dp() on every number (fallback only if spike UI-1 fails), viewport stretch mode, a fixed base size with keep_width"
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    reason: "HUD and Menus numbers are true dp; 48 dp targets must not drift across densities; fonts stay crisp."
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: ui_inert_controls
+    status: active
+    api: "hidden = visible false; blocked = full-screen mouse_filter STOP (scrim, backdrop, Ink cover, Hit tap catcher); gated = own is_gated flag with dimming and reason label; every non-interactive Control is IGNORE; stock Buttons inside a ScrollContainer are PASS"
+    not: "mouse_behavior_recursive, Button.disabled for gating"
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    reason: "Relies on long-stable picking behaviour; avoids an unverified 4.5 API; a STOP default on Panel and ColorRect would swallow taps."
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: ui_slider_in_scroll
+    status: active
+    api: "UiSlider extends HSlider overriding _has_point to the thumb rectangle (>= 48 x 48 dp), slider at least 48 dp tall with a horizontal margin, commit on drag_ended"
+    not: "a slider whose whole row is STOP, set_value on value_changed"
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    reason: "A drag that starts on the thumb moves the slider and any other drag scrolls (Menus Settings); fallback is a PASS wrapper with manual thumb dragging."
+    referenced_by:
+      - docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+    revised: ""
+
 # Example:
 #
 # api_decisions:
@@ -1359,6 +1445,42 @@ forbidden_patterns:
     description: "HazardMeshBuilder output must pass the per-face winding test (clockwise front face) and invariants I1 to I3 before any hazard mesh change merges."
     why: "A wrong winding under cull_back makes a hazard invisible; the silhouette invariant is the Pillar 2 guarantee."
     adr: docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+
+
+  - pattern: mouse_behavior_recursive_in_mvp
+    status: active
+    description: "No use of mouse_behavior_recursive (or the recursive focus property) in the MVP."
+    why: "visible = false and STOP blockers already cover every case; the 4.5 API is unverified on 4.7.2."
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+
+  - pattern: button_disabled_for_gating
+    status: active
+    description: "View code never sets Button.disabled to gate a control; it uses the own is_gated flag, dimming and the reason label."
+    why: "Menus rules: gated controls stay visible with a reason and a gated tap is still received."
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+
+  - pattern: literal_canvas_layer_index
+    status: active
+    description: "CanvasLayer.layer is assigned only from UiLayers constants, never a numeric literal."
+    why: "One stack order for flash, HUD, Menus and the Ink cover."
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+
+  - pattern: accessibility_properties_outside_ui_access
+    status: active
+    description: "accessibility_* properties and DisplayServer.accessibility_* appear only in ui_access.gd."
+    why: "AccessKit scope on Android is unverified; one place to change after spike UI-A1."
+    adr: docs/architecture/adr-0011-ui-architecture.md
+    added: 2026-10-03
+
+  - pattern: noninteractive_control_stop_filter
+    status: active
+    description: "A non-interactive Control (pill background, row, container, Hit flash ColorRect) never keeps mouse_filter STOP; only buttons, sliders, scrims, the tap catcher and the Ink cover are STOP."
+    why: "Panel, PanelContainer and ColorRect default to STOP and would swallow taps and scroll drags."
+    adr: docs/architecture/adr-0011-ui-architecture.md
     added: 2026-10-03
 
 # Example:
