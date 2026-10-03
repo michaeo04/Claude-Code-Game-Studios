@@ -9,6 +9,7 @@
 - Technical Requirements Baseline: about 348 requirements (`TR-[slug]-[NNN]`) in `docs/architecture/tr-baseline/` (world-movement, gameplay, foundation, presentation-ui)
 - ADRs referenced: ADR-0001 (Android only)
 - Technical Director Sign-Off: 2026-10-02 APPROVED WITH CONDITIONS. Condition: no implementation starts until ADR-0002 to ADR-0009 are Accepted (Foundation and Core ADR gaps are not yet resolved)
+- **Condition amended 2026-10-03 (P-1, project-owner decision; the technical-director agent was not invoked, so this is not a TD ratification):** throwaway spike builds under `prototypes/` (isolated from `src/`) are allowed before any ADR is Accepted. An ADR is Accepted on a technical-director review, and each device spike it lists (R-1, T-1, PS-*, SP-*, PT-*, HV-1, UI-*) becomes a **validation gate on the first dependent story**: that story cannot be Done until the spike passes. The condition "no implementation starts until ADR-0002 to ADR-0009 are Accepted" applies to `src/`, not to `prototypes/`.
 - Lead Programmer Feasibility: skipped (lean mode)
 
 ## Engine Knowledge Gap Summary
@@ -309,7 +310,7 @@ Approved 2026-10-02. Write with `/architecture-decision`. Document conflicts to 
 3. **Dependencies point down; upward data is load-time config.** Core never calls Presentation; Camera and Environment values reach Core through `MapConfig`.
 4. **Fairness-critical numbers are validated at load and fail loudly.** Offline preflight with stable error codes, never a mid-run rejection (Pillar 2).
 5. **Presentation never gates gameplay.** Juice, HUD and Camera read state and run on real time; Run State is the sole owner of phase and run time.
-6. **Do not trust memory of post-cutoff engine behavior.** Every HIGH risk API needs evidence (engine reference or an on-device spike) before an ADR is Accepted.
+6. **Do not trust memory of post-cutoff engine behavior.** Every HIGH risk API needs evidence (engine reference or an on-device spike) before the **first dependent story is Done**; an ADR can be Accepted with the spike listed as its validation gate (P-1, 2026-10-03).
 
 ## Open Questions
 

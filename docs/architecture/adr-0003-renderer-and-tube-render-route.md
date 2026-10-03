@@ -38,7 +38,7 @@ The renderer was never chosen: `technical-preferences.md` says Forward+, the Env
 | **Depends On** | ADR-0001 (Android only), ADR-0002 (the view has no `_process`; `GameRoot` calls `idle_step`) |
 | **Enables** | ADR-0010 (presentation time), ADR-0011 (UI architecture), ADR-0012 (ball material and world chroma) |
 | **Blocks** | Tube Track, Environment & Theming and Juice & Feedback epics |
-| **Ordering Note** | Spike R-1 should run before the first Tube Track story is Done; the decision stays `Proposed` until R-1 passes |
+| **Ordering Note** | Spike R-1 is the validation gate of the first Tube Track story (it cannot be Done until R-1 passes); the ADR can be Accepted on technical-director review before R-1 runs (P-1, 2026-10-03), and a failed R-1 triggers the Forward+ rollback below |
 
 ## Context
 

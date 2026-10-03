@@ -273,7 +273,7 @@ Rule record (lint_rules.json)
 
 ## Migration Plan
 
-1. Create `project.godot` (needed before T-1), then spike T-1 in a throwaway project and record the exact GUT release, command and exit-code behavior.
+1. Create `project.godot` (needed before T-1), then spike T-1 in a throwaway project under `prototypes/` (allowed before Acceptance, P-1) and record the exact GUT release, command and exit-code behavior.
 2. Add `addons/gut/` (pinned), `.gutconfig.json`, `tests/support/`, `tools/ci/` and the first lint rules from the registered ADRs.
 3. Add `.github/workflows/ci.yml`; spike T-2 is the first green run on `dev`.
 4. Update the documents and skills of Decision 8 (skills are project-owned).
