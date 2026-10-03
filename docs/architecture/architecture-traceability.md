@@ -223,7 +223,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-juice-feedback-011 | Shard burst is one GPUParticles3D with one mesh and one material. It is visual-only with no physics  | ADR-0003 | ✅ Covered |
 | TR-juice-feedback-012 | Ball rim glow is a fresnel treatment layered on the ball's base material. Silhouette and scale are u | ADR-0012 | ✅ Covered |
 | TR-juice-feedback-014 | Juice calls haptic(NEAR_MISS) and haptic(HIT) unconditionally, with no haptics_enabled check. There  | ADR-0006 | ✅ Covered |
-| TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most  | (no audio ADR) | ❌ Gap |
+| TR-juice-feedback-016 | Three cues. Whoosh lasts 0.08 s from rim onset. The hit sting is a dry transient with decay at most  | ADR-0015 (Proposed) | ✅ Covered |
 | TR-juice-feedback-017 | Presentation fits the budget. Rings add zero draw calls and shards are batched, so Juice adds at mos | ADR-0003 | ✅ Covered |
 | TR-juice-feedback-020 | Tests live in tests/unit/juice_feedback/ as juice_[feature]_test.gd. They use make_juice_fixture, ma | ADR-0009 | ✅ Covered |
 | TR-juice-feedback-021 | Device evidence: the 3 flashes/s cap under real frame jitter, Lagoon-edge contrast on a real device, | ADR-0009 | ✅ Covered |

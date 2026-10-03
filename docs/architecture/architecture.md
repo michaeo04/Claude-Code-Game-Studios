@@ -301,12 +301,13 @@ Updated 2026-10-03 (v1.1). Fourteen ADRs exist. Run 5 (`architecture-review-2026
 | ADR-0012 | Ball material and world chroma | Accepted | 0002, 0003, 0004, 0014 |
 | ADR-0013 | Distance precision and render origin | Accepted | 0002, 0003, 0004, 0012, 0014 |
 | ADR-0014 | Hazard render route | Accepted | 0002, 0003, 0004, 0008 |
+| ADR-0015 | Audio policy (three cues, bus layout, OS audio policy owner) | Proposed (2026-10-03; needs a technical-director review before the Juice audio stories) | 0002, 0006, 0009, 0010 |
 
 **Traceability.** The Technical Requirements Baseline holds 348 requirements (`docs/architecture/tr-baseline/`, registered in `tr-registry.yaml`); 191 are architecture-relevant, of which 179 are covered, 11 partial and 1 gap (audio, deferrable). The full matrix is `docs/architecture/architecture-traceability.md`.
 
 ## Required ADRs
 
-Approved 2026-10-02; **all ADRs below are written as of 2026-10-03** (status in the ADR Audit); only the audio policy is outstanding. Write with `/architecture-decision`. Document conflicts to settle: renderer **Forward+** (technical preferences) versus **Mobile** (Environment Open Question 5); test framework **GUT** (CLAUDE.md, technical preferences) versus **gdUnit4** (some GDDs, CI line).
+Approved 2026-10-02; **all ADRs below are written as of 2026-10-03** (status in the ADR Audit); the audio policy is ADR-0015 (Proposed). Write with `/architecture-decision`. Document conflicts to settle: renderer **Forward+** (technical preferences) versus **Mobile** (Environment Open Question 5); test framework **GUT** (CLAUDE.md, technical preferences) versus **gdUnit4** (some GDDs, CI line).
 
 **Must have before coding starts (Foundation and Core):**
 
@@ -330,7 +331,7 @@ Approved 2026-10-02; **all ADRs below are written as of 2026-10-03** (status in 
 | ADR-0012 Ball material and world chroma | one owner for `L_ball_adjusted`, how Juice's rim glow layers on it, one chroma uniform |
 | ADR-0013 Distance precision and render origin | Accepted: `s` stays float64, `WorldFrame.render_z` shifts the render origin by whole segments |
 
-**Can defer to implementation:** the audio policy ADR (three Juice cues, bus layout), OS audio policy owner, AccessKit names and reading order, specific shader techniques.
+**Can defer to implementation:** AccessKit names and reading order, specific shader techniques.
 
 ## Architecture Principles
 
