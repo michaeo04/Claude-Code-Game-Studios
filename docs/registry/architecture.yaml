@@ -30,7 +30,7 @@
 #   Superseded entries:     Grep pattern="status: superseded"
 
 version: 1
-last_updated: "2026-10-02"  # ADR-0002, ADR-0003, ADR-0005, ADR-0006, ADR-0007, ADR-0004, ADR-0008 and ADR-0009 stances added
+last_updated: "2026-10-03"  # ADR-0002 to ADR-0009 and ADR-0014 stances added
 
 # ─── STATE OWNERSHIP ─────────────────────────────────────────────────────────
 # Who is the authoritative owner of each piece of shared game state.
@@ -225,6 +225,29 @@ state_ownership:
     referenced_by:
       - docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
+    revised: ""
+
+
+  - state: hazard_meshes
+    status: active
+    owner_system: hazard-view
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    interface: "Dictionary[HazardSpec, ArrayMesh] cache built once in HazardView.apply_map (Phase B) from HazardMeshBuilder output; surface 0 body (one shared hazard ShaderMaterial), surface 1 plinth (Environment-owned material, uniforms mutated never replaced); cleared and rebuilt on Retry"
+    write_access: hazard-view-only
+    referenced_by:
+      - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+    revised: ""
+
+  - state: hazard_node_pool
+    status: active
+    owner_system: hazard-view
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    interface: "192 MeshInstance3D (N_MAX * MAX_PIECES_PER_SEGMENT) created once, one per bound hazard, plus one reserved preview node; bind sets transform then visible last; nodes are never created or freed during a run; node_of(hazard_id) is the lookup"
+    write_access: hazard-view-only
+    referenced_by:
+      - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
     revised: ""
 
 # Example:
@@ -455,6 +478,20 @@ interfaces:
     added: 2026-10-02
     revised: ""
 
+
+  - contract: hazard_view_binding
+    status: active
+    pattern: direct_call
+    producer: obstacle-system
+    consumers:
+      - hazard-view
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    signal_signature: "HazardView.bind(hazard_id: int, spec: HazardSpec, s_offset: float), release(hazard_id), release_all(), node_of(hazard_id) -> MeshInstance3D, show_preview(spec), hide_preview(); driven by hazard_bound and hazard_released handlers (_wire() rows, immediate); ObstacleCore.spec_of(hazard_id) and s_offset_of(hazard_id) are valid during hazard_bound emission"
+    referenced_by:
+      - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+    revised: ""
+
 # Example:
 #
 # interfaces:
@@ -647,6 +684,17 @@ performance_budgets:
     referenced_by:
       - docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
+    revised: ""
+
+
+  - system: draw_calls_hazards_worst_case
+    status: active
+    budget_draw_calls: 34
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    notes: "Derived inside the 40 of draw_calls_hazards: 17 bodies + 17 plinth surfaces, from floor((camera_far + max hazard s length) / S_MIN_SPACING) + 1 on Mobile; about double on Forward+ (depth pre-pass). Typical 10 to 14. Measured in R-1."
+    referenced_by:
+      - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
     revised: ""
 
 # Example:
@@ -926,6 +974,29 @@ api_decisions:
     referenced_by:
       - docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
+    revised: ""
+
+
+  - purpose: hazard_geometry_route
+    status: active
+    api: "one MeshInstance3D per hazard; all pieces of a hazard merged into one ArrayMesh per HazardSpec (add_surface_from_arrays, chunk-local, z = -s_offset on the node); prism to R + D then flat top or two-slope spike; unshaded body ShaderMaterial shared by all hazards"
+    not: "MultiMeshInstance3D per family, vertex-shader arc deformation, node per piece, custom_aabb"
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    reason: "A linear instance transform cannot give a variable angular width on a cylinder; draw cost follows hazards (34 worst case), and the silhouette covers the analytic footprint (Pillar 2)."
+    referenced_by:
+      - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+    revised: ""
+
+  - purpose: camera_far_plane
+    status: active
+    api: "Camera far = F_rest + L, constant (derived in CameraMath from MapConfig; the speed pull of fog_depth_end never changes the projection)"
+    not: "a per-frame far plane, culling code in the tick, no culling"
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    reason: "Fragments beyond axial F are already 100% fogged (radial distance >= axial depth), so frustum culling is invisible and bounds the visible hazard count."
+    referenced_by:
+      - docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
     revised: ""
 
 # Example:
@@ -1253,6 +1324,42 @@ forbidden_patterns:
     why: "Suppressions must be reviewable in one place."
     adr: docs/architecture/adr-0009-test-framework-and-ci.md
     added: 2026-10-02
+
+
+  - pattern: hazard_node_per_piece
+    status: active
+    description: "No MeshInstance3D per HazardPiece; one node per hazard with all pieces merged into one mesh."
+    why: "Draw cost must follow hazards, not pieces (12 pieces per segment would exceed the 40 allocation), and the killer isolate needs one node per hazard."
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+
+  - pattern: hazard_multimesh_arc_deform
+    status: active
+    description: "No MultiMesh or vertex-shader deformation for hazards."
+    why: "Silhouette must equal the collision footprint and the Mobile path is unverified."
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+
+  - pattern: hazard_mesh_built_in_tick
+    status: active
+    description: "ArrayMesh for hazards is created only in HazardView.apply_map; never at bind or in a tick."
+    why: "No allocation or hitch during a run; a bad mesh must fail at map load."
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+
+  - pattern: hazard_material_override_whole
+    status: active
+    description: "No material_override on a hazard node; per-hazard variation uses instance uniforms or set_surface_override_material(0, ...)."
+    why: "material_override replaces every surface and would repaint the Double Gate plinth."
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
+
+  - pattern: hazard_mesh_winding_untested
+    status: active
+    description: "HazardMeshBuilder output must pass the per-face winding test (clockwise front face) and invariants I1 to I3 before any hazard mesh change merges."
+    why: "A wrong winding under cull_back makes a hazard invisible; the silhouette invariant is the Pillar 2 guarantee."
+    adr: docs/architecture/adr-0014-hazard-render-route.md
+    added: 2026-10-03
 
 # Example:
 #
