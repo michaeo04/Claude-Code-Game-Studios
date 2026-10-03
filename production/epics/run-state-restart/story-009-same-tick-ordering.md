@@ -1,12 +1,12 @@
 # Story 009: Same-tick request conflicts and order independence
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -22,8 +22,8 @@
 - Guardrail: log level is classified by the phase at the request's turn (GDD Core Rule 3)
 
 ## Acceptance Criteria
-- [ ] **AC-18**: table-driven, one row per pair: hit + `pause(button)` gives Hit and one debug line for the pause; `pause(app_interrupted)` sent while a hit is queued gives Paused, no `run_ended`, no log for the interruption and one debug line for the ignored hit; stall tick + hit gives Paused, no `run_ended` and one debug line; menu + restart in unlocked Hit or in Paused after the guard gives Menu with the restart rejected (debug); resume + restart in Paused after the guard gives Resuming, restart rejected (debug), no `run_abandoned`; `pause(button)` + restart and `pause(button)` + menu from Running give Paused with the second ignored inside the guard (debug); `app_interrupted` + `button` gives one pause with source `app_interrupted`; `button` + `back` gives one pause with the first's source; `app_interrupted` + restart in unlocked Hit gives Running; a pause on the countdown-expiry tick wins
-- [ ] **AC-19**: for each of the 120 orderings of {hit, `pause(button)`, menu, restart, resume} sent in one tick, from Running, Paused (after the guard) and unlocked Hit, the outcome (final phase, ordered events, log lines) equals the hard-coded row of `test-plan.md` section 5 (Running gives Hit with 3 debug and 1 warning; Paused gives Resuming with 4 debug; unlocked Hit gives Menu with `phase_changed` only, 1 debug, 2 warning, 1 debug); arrival order inside a class checked by separate rows (two pause sources, two restarts)
+- [x] **AC-18**: table-driven, one row per pair: hit + `pause(button)` gives Hit and one debug line for the pause; `pause(app_interrupted)` sent while a hit is queued gives Paused, no `run_ended`, no log for the interruption and one debug line for the ignored hit; stall tick + hit gives Paused, no `run_ended` and one debug line; menu + restart in unlocked Hit or in Paused after the guard gives Menu with the restart rejected (debug); resume + restart in Paused after the guard gives Resuming, restart rejected (debug), no `run_abandoned`; `pause(button)` + restart and `pause(button)` + menu from Running give Paused with the second ignored inside the guard (debug); `app_interrupted` + `button` gives one pause with source `app_interrupted`; `button` + `back` gives one pause with the first's source; `app_interrupted` + restart in unlocked Hit gives Running; a pause on the countdown-expiry tick wins
+- [x] **AC-19**: for each of the 120 orderings of {hit, `pause(button)`, menu, restart, resume} sent in one tick, from Running, Paused (after the guard) and unlocked Hit, the outcome (final phase, ordered events, log lines) equals the hard-coded row of `test-plan.md` section 5 (Running gives Hit with 3 debug and 1 warning; Paused gives Resuming with 4 debug; unlocked Hit gives Menu with `phase_changed` only, 1 debug, 2 warning, 1 debug); arrival order inside a class checked by separate rows (two pause sources, two restarts)
 
 ## Implementation Notes
 Generate the 120 permutations in the test with a helper, but compare only against the three hard-coded expectation tables. Class priority means {pause, resume} from Running gives Paused then Resuming (GDD Open Question 17 asks for a semantic oracle; note the finding in the test, do not change behaviour). Reuse the factory and recorder from Story 002.
@@ -47,7 +47,8 @@ Generate the 120 permutations in the test with a helper, but compare only agains
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_same_tick_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/run_state/run_state_same_tick_test.gd` (AC-18 pair rows, AC-19 3 x 120 orderings plus separate rows).
 
 ## Dependencies
 - Depends on: Stories 005, 006, 007, 008

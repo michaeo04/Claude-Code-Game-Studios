@@ -3,7 +3,9 @@
 ## Engine-free `RefCounted`: no clock, no engine delta, no randomness; the same input sequence gives the same
 ## output. `GameRoot` calls `step(dt_eff, steer, valid, input_source)` once per tick after `RunState.tick`
 ## (ADR-0002). `s` is a float64 that is never wrapped, capped or re-based (ADR-0013). Not persisted (TR-022).
-## Rate mode, the resume anchor and the 2 PI shift belong to later stories (006, 007).
+## The resume anchor re-base and the 2 PI shift live here (Rule 5); rate mode belongs to story 007.
+## Constraint on content, not on this code (TR-ball-movement-023): the segments covering `s` = 0 to 11 u must be
+## hazard-free because of the up-to-1.064 s glide after a reset with a non-zero steer (Pattern & Difficulty epic).
 class_name BallCore
 extends RefCounted
 
@@ -71,6 +73,7 @@ var _s_prev: float = 0.0
 var _speed: float = 0.0
 var _omega: float = 0.0
 var _held_steer: float = 0.0
+var _rebase_armed: bool = false
 
 
 ## `cfg` must already be validated (`BallConfig.validated`). `dt_max` is Run State's `DT_MAX`; a non-positive or
@@ -95,7 +98,14 @@ func reset() -> void:
 	_s_prev = 0.0
 	_omega = 0.0
 	_held_steer = 0.0
+	_rebase_armed = false
 	_speed = BallMath.speed(0.0, _cfg.v_start, _cfg.v_max, _cfg.t_ramp)
+
+
+## `run_resumed` happened (Rule 5): the first step with `dt_eff > 0` re-bases the anchor so the target equals the
+## current pose. A step with `dt_eff = 0` does not consume it. Example: `core.on_resumed()`.
+func on_resumed() -> void:
+	_rebase_armed = true
 
 
 ## One step per tick (Rule 2). `dt_eff <= 0` or non-finite changes nothing but the previous values; a non-finite
@@ -118,6 +128,9 @@ func step(dt_eff: float, steer: float, valid: bool, _input_source: int) -> void:
 		dt = _dt_max
 
 	_accept_steer(steer, valid)
+	if _rebase_armed:
+		_rebase_armed = false
+		_phi_anchor = _phi - _cfg.steer_arc * _held_steer
 
 	# Forward motion: exact integral of the speed curve (F2).
 	var t_old: float = _t_run
@@ -140,6 +153,12 @@ func step(dt_eff: float, steer: float, valid: bool, _input_source: int) -> void:
 	_phi += BallMath.step(e, dt, _cfg.ball_lag_tau, _cfg.omega_max)
 	_omega = (_phi - phi_old) / dt
 	_theta = BallMath.wrap_angle(_phi)
+
+	# Keep phi bounded: shift phi and the anchor together by whole turns. omega and theta were taken before it.
+	if absf(_phi) > TAU:
+		var shift: float = float(int(_phi / TAU)) * TAU
+		_phi -= shift
+		_phi_anchor -= shift
 
 
 func _accept_steer(steer: float, valid: bool) -> void:

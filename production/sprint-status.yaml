@@ -147,11 +147,11 @@ stories:
     name: "Anchor, resume re-base, 2 PI shift, published previous values and inertness"
     file: "production/epics/ball-movement/story-006-anchor-resume-published-state.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.58
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-004"
     name: "TiltCore poll, clock stamps and sample ring buffer"
     file: "production/epics/tilt-input/story-004-tilt-core-poll-buffer.md"
@@ -174,8 +174,8 @@ stories:
     name: "Same-tick request conflicts and order independence"
     file: "production/epics/run-state-restart/story-009-same-tick-ordering.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.42
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
