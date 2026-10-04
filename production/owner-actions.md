@@ -34,6 +34,7 @@
 | C3 | Whether to add an in-game volume control after the first playtest | ADR-0015 Decision 7 |
 | C4 | Weekly working hours (Sprint 1 assumes 6 focused hours per day) | `production/sprints/sprint-1.md` |
 | C5 | Technical-director review of ADR-0015 before the Juice audio stories | ADR-0015 (Proposed) |
+| C6 | Pattern & Difficulty design review (asked by the technical director, ADR-0008, and by traceability TR-pattern-difficulty-011/-014): ADR-0008 Decision 6 generalises the cross-chunk spacing so the read history includes Spikes, which conflicts with GDD AC-12c / CR9 / F2c; no ADR names the carrier field that supplies `t_dodge_worst` to Tube Track. Stories PD-010, PD-011 and PD-014 are Blocked until the GDD is revised (a design decision, then the assistant can implement) | `design/gdd/pattern-difficulty.md`, `production/epics/pattern-difficulty/` | Needs a design decision |
 
 ## E. Decisions the assistant took on its own (confirm or overrule when you have time)
 

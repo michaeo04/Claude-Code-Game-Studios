@@ -18,3 +18,6 @@ Control Manifest Version: 2026-10-03
 | Ball Movement | Core | Ball Movement | design/gdd/ball-movement.md | 17 stories | Ready |
 | Obstacle System | Core | Obstacle System | design/gdd/obstacle-system.md | 17 stories | Ready |
 | Code Review Follow-ups | Foundation | cross-cutting (`src/core/`) | none (code review 2026-10-04) | 7 stories | Ready |
+| Pattern & Difficulty | Feature | Pattern & Difficulty | design/gdd/pattern-difficulty.md | 14 stories | Ready |
+| Near-Miss Detection | Feature | Near-Miss Detection | design/gdd/near-miss-detection.md | 12 stories | Ready |
+| Scoring & Personal Best | Feature | Scoring & Personal Best | design/gdd/scoring-personal-best.md | 13 stories | Ready |
