@@ -70,7 +70,7 @@ This epic is complete when:
 | 007 | [Failed write keeps in-memory value](story-007-write-failure.md) | Logic | Complete | ADR-0007 |
 | 008 | [No consumer seams, call surface, determinism](story-008-isolation-determinism.md) | Logic | Complete | ADR-0002 |
 | 009 | [Architecture and coupling lint](story-009-architecture-lint.md) | Logic | Complete | ADR-0009 |
-| 010 | [Shipped defaults smoke (advisory)](story-010-defaults-smoke.md) | Config/Data | Ready | ADR-0009 |
+| 010 | [Shipped defaults smoke (advisory)](story-010-defaults-smoke.md) | Config/Data | Complete | ADR-0009 |
 | 011 | [Real Save round trip](story-011-save-roundtrip-integration.md) | Integration | Ready | ADR-0007 |
 | 012 | [Composition wiring, haptics push, live consumers](story-012-composition-and-consumers.md) | Integration | Ready | ADR-0002 |
 

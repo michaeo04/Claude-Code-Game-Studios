@@ -1,12 +1,12 @@
 # Story 010: Shipped defaults and sensitivity range smoke check (ADVISORY)
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Config/Data
 > **Estimate**: 1 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -40,7 +40,8 @@ Construct the core with the production default constructor arguments (no overrid
 ## Test Evidence
 **Story Type**: Config/Data
 **Required evidence**: `tests/advisory/settings_accessibility/settings_accessibility_defaults_test.gd`; smoke check pass note in `production/qa/smoke-[date].md`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/advisory/settings_accessibility/settings_accessibility_defaults_test.gd` (2 tests, pass); smoke note `production/qa/smoke-2026-10-04.md`.
+**Status**: [x] Created
 
 ## Dependencies
 - Depends on: Story 002

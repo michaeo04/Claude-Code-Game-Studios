@@ -1,12 +1,12 @@
 # Story 009: Real SaveFs implementation and file round trip
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -43,7 +43,8 @@ Inner class in `src/core/persistence/save_service.gd`; paths are injectable so t
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/save_persistence/save_persistence_real_fs_test.gd` plus `production/qa/evidence/save-persistence-real-fs-notes.md`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/save_persistence/save_persistence_real_fs_test.gd` (9 tests, all pass) and `production/qa/evidence/save-persistence-real-fs-notes.md`.
+**Status**: [x] Created
 
 ## Dependencies
 - Depends on: Story 004, Story 007, Story 008
