@@ -9,254 +9,254 @@
 #   done           <->  Complete
 #   blocked        <->  Blocked
 
-sprint: 3
-goal: "Finish Save, Settings and Platform logic; Tube Track window recycling; Tilt Input neutral capture and pipeline"
-start: "2026-11-02"
-end: "2026-11-13"
+sprint: 4
+goal: "Code review follow-ups, Map Loader, Composition Root wiring, first Obstacle System stories"
+start: "2026-11-16"
+end: "2026-11-27"
 generated: "2026-10-04"
 updated: "2026-10-04"
 
 stories:
-  - id: "SP-003"
-    name: "SaveCore boot load, get_value and first launch"
-    file: "production/epics/save-persistence/story-003-boot-load-and-get-value.md"
+  - id: "CRF-001"
+    name: "One log-sink contract and one level enum for every core"
+    file: "production/epics/code-review-followups/story-001-unified-log-contract.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-004"
-    name: "set_value write path (temp, complete map, rename)"
-    file: "production/epics/save-persistence/story-004-write-path.md"
+    completed: ""
+  - id: "CRF-002"
+    name: "GameRoot `_tick` against the real core APIs"
+    file: "production/epics/code-review-followups/story-002-game-root-tick-real-apis.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
-    estimate_days: 0.44
+    estimate_days: 0.50
     blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-005"
-    name: "Write failure handling and rate-limited logging"
-    file: "production/epics/save-persistence/story-005-write-failure-and-rate-limit.md"
+    completed: ""
+  - id: "CRF-003"
+    name: "Live tilt sensitivity update from Settings to TiltCore"
+    file: "production/epics/code-review-followups/story-003-live-sensitivity-update.md"
     priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-006"
-    name: "Read validity, per-key fallback and error logging"
-    file: "production/epics/save-persistence/story-006-read-validity-and-error-logging.md"
+    completed: ""
+  - id: "CRF-004"
+    name: "Validate `haptics_intensity` in SettingsCore"
+    file: "production/epics/code-review-followups/story-004-haptics-intensity-validation.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.38
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-007"
-    name: "Corrupt-file backup, rotation and oversize guard"
-    file: "production/epics/save-persistence/story-007-corrupt-backup-and-oversize-guard.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.38
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-003"
-    name: "Boot-time tilt sensitivity validation and logging"
-    file: "production/epics/settings-accessibility/story-003-boot-sensitivity-clamp.md"
-    priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-004"
-    name: "Typed getters and seam_contrast_scale, no seam access after construction"
-    file: "production/epics/settings-accessibility/story-004-getters.md"
+    completed: ""
+  - id: "ML-001"
+    name: "MapDefinition, MapConfig and loader seam types"
+    file: "production/epics/map-loader/story-001-map-types-and-seams.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.19
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-005"
-    name: "set_value writes on change, no-ops on equal, emits setting_changed once"
-    file: "production/epics/settings-accessibility/story-005-set-value-write-and-event.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.38
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-006"
-    name: "Runtime tilt sensitivity validation and unknown-key rejection"
-    file: "production/epics/settings-accessibility/story-006-runtime-validation-unknown-key.md"
-    priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-007"
-    name: "Failed write keeps the in-memory value"
-    file: "production/epics/settings-accessibility/story-007-write-failure.md"
+    completed: ""
+  - id: "ML-002"
+    name: "HazardStyle validation and TubeConfig.from_map"
+    file: "production/epics/map-loader/story-002-hazard-style-and-tube-config-from-map.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.12
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-008"
-    name: "No consumer seams, closed call surface and determinism"
-    file: "production/epics/settings-accessibility/story-008-isolation-determinism.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.25
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-006"
-    name: "advance(s) and synchronous recycling"
-    file: "production/epics/tube-track/story-006-tubewindow-advance-recycling.md"
-    priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-007"
-    name: "Re-entrancy guard, binder contract and idempotent begin_run"
-    file: "production/epics/tube-track/story-007-tubewindow-reentrancy-guard.md"
+    completed: ""
+  - id: "ML-003"
+    name: "MapConfig.build with Camera values and camera_far"
+    file: "production/epics/map-loader/story-003-camera-values-and-camera-far.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.25
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-008"
-    name: "Idle scroll step and deterministic segment content"
-    file: "production/epics/tube-track/story-008-idle-scroll-and-content-determinism.md"
-    priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TT-009"
-    name: "300 s deterministic window simulation"
-    file: "production/epics/tube-track/story-009-window-simulation-300s.md"
+    completed: ""
+  - id: "ML-004"
+    name: "Phase A validation sequence"
+    file: "production/epics/map-loader/story-004-phase-a-validation.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.25
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-005"
-    name: "Neutral capture mechanics and pending capture"
-    file: "production/epics/tilt-input/story-005-neutral-capture.md"
-    priority: must-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-006"
-    name: "Pipeline order and the published output contract"
-    file: "production/epics/tilt-input/story-006-pipeline-output-contract.md"
+    completed: ""
+  - id: "ML-005"
+    name: "Phase B apply order and map_ready"
+    file: "production/epics/map-loader/story-005-phase-b-apply-and-map-ready.md"
     priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.38
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-007"
-    name: "Capture policy, conditional re-anchor and run-stop recording"
-    file: "production/epics/tilt-input/story-007-capture-policy-reanchor.md"
-    priority: must-have
-    status: done
-    owner: ""
-    estimate_days: 0.44
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "PS-003"
-    name: "HapticsConfig validation and shipped defaults"
-    file: "production/epics/platform-services/story-003-haptics-config.md"
-    priority: should-have
-    status: done
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "PS-004"
-    name: "PlatformCore lifecycle model and edge signals"
-    file: "production/epics/platform-services/story-004-core-lifecycle.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.44
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "PS-005"
-    name: "PlatformCore haptic call flow, drop causes and counters"
-    file: "production/epics/platform-services/story-005-core-haptics.md"
-    priority: should-have
-    status: done
-    owner: ""
-    estimate_days: 0.38
-    blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-007"
-    name: "RATE mapping (F3) and the mapping-mode latch"
-    file: "production/epics/ball-movement/story-007-rate-mode-latch.md"
-    priority: should-have
-    status: done
+    completed: ""
+  - id: "ML-006"
+    name: "Failure reporting, map_load_failed and Retry"
+    file: "production/epics/map-loader/story-006-failure-signal-and-retry.md"
+    priority: must-have
+    status: ready-for-dev
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "BM-008"
-    name: "Reset conformance, log-code census and bit-identical determinism"
-    file: "production/epics/ball-movement/story-008-reset-logs-determinism.md"
+    completed: ""
+  - id: "CR-005"
+    name: "Rebase contract for views, reset wiring and soak"
+    file: "production/epics/composition-root/story-005-world-frame-rebase-contract.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "CR-006"
+    name: "Construction order and the WorldGeometry/WorldFrame preflight"
+    file: "production/epics/composition-root/story-006-construction-order-and-validation.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "CR-007"
+    name: "`_wire()` row table and pinned subscriber order"
+    file: "production/epics/composition-root/story-007-wire-table-subscriber-order.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "OB-001"
+    name: "Authored content classes, HazardSpec and HazardContentProvider"
+    file: "production/epics/obstacle-system/story-001-authored-content-classes-hazard-spec.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "OB-002"
+    name: "ObstacleConfig, sweep-invariant validation and test fixtures"
+    file: "production/epics/obstacle-system/story-002-obstacle-config-and-test-fixtures.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.31
+    blocker: ""
+    completed: ""
+  - id: "OB-003"
+    name: "Effective footprint (F1) and swept-rectangle overlap (F2)"
+    file: "production/epics/obstacle-system/story-003-footprint-expansion-and-swept-overlap.md"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "CRF-005"
+    name: "SaveCore backup ordering and wall-clock robustness"
+    file: "production/epics/code-review-followups/story-005-save-backup-ordering.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "CRF-006"
+    name: "Remove duplicated and hard-coded tuning values"
+    file: "production/epics/code-review-followups/story-006-duplicated-tuning-values.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "CRF-007"
+    name: "RunStateCore must not drop an app interrupt while busy"
+    file: "production/epics/code-review-followups/story-007-run-state-interrupt-while-busy.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "ML-007"
+    name: "Author map_01.tres and its round-trip test"
+    file: "production/epics/map-loader/story-007-map-01-resource.md"
     priority: should-have
     status: backlog
     owner: ""
     estimate_days: 0.31
     blocker: ""
     completed: ""
-  - id: "PS-006"
-    name: "PlatformCore Back signal and display facts"
-    file: "production/epics/platform-services/story-006-core-back-display-facts.md"
+  - id: "OB-004"
+    name: "Safe-gap sweep-line (F3) and hazard overlap validation"
+    file: "production/epics/obstacle-system/story-004-gap-sweep-line-and-hazard-overlap.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "OB-005"
+    name: "Footprint, grace-zone, piece-count and spacing validators"
+    file: "production/epics/obstacle-system/story-005-footprint-limit-density-validators.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "TI-011"
+    name: "Fallback input (unwired) and the state-transition table"
+    file: "production/epics/tilt-input/story-011-fallback-input.md"
     priority: nice-to-have
-    status: done
+    status: backlog
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "TI-008"
-    name: "Availability states, start timeout and availability signal"
-    file: "production/epics/tilt-input/story-008-availability-states.md"
+    completed: ""
+  - id: "ML-008"
+    name: "map_loader.gd driver and ResourceLoader lint"
+    file: "production/epics/map-loader/story-008-map-loader-driver-and-lint.md"
     priority: nice-to-have
-    status: done
+    status: backlog
+    owner: ""
+    estimate_days: 0.38
+    blocker: ""
+    completed: ""
+  - id: "OB-006"
+    name: "hidden() classification, hidden-content gate and exit rule (F4)"
+    file: "production/epics/obstacle-system/story-006-hidden-classification-and-exit-rules.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.44
+    blocker: ""
+    completed: ""
+  - id: "CR-008"
+    name: "Boot rendering-method check through an injected getter"
+    file: "production/epics/composition-root/story-008-boot-rendering-method-seam.md"
+    priority: nice-to-have
+    status: backlog
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: "2026-10-04"
-  - id: "ST-009"
-    name: "Architecture and coupling lint for SettingsCore and SettingsMath"
-    file: "production/epics/settings-accessibility/story-009-architecture-lint.md"
+    completed: ""
+  - id: "PS-008"
+    name: "PlatformServices node, notification mapping, thread rule and boot"
+    file: "production/epics/platform-services/story-008-node-notifications-boot.md"
     priority: nice-to-have
-    status: done
+    status: backlog
     owner: ""
-    estimate_days: 0.25
+    estimate_days: 0.44
     blocker: ""
-    completed: "2026-10-04"
-  - id: "SP-008"
-    name: "Flush no-op and SaveService node wiring"
-    file: "production/epics/save-persistence/story-008-flush-and-save-service-node.md"
-    priority: nice-to-have
-    status: done
-    owner: ""
-    estimate_days: 0.31
-    blocker: ""
-    completed: "2026-10-04"
+    completed: ""
