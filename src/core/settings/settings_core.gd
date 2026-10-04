@@ -15,7 +15,7 @@ const KEY_HAPTICS_INTENSITY: String = "haptics_intensity"
 const KEY_TILT_SENSITIVITY: String = "tilt_sensitivity"
 const KEY_REDUCED_MOTION: String = "reduced_motion_enabled"
 const KEY_COLORBLIND_SAFE: String = "colorblind_safe_enabled"
-## Log code emitted when a tilt sensitivity (stored at boot, or passed to `set_value`) had to be corrected.
+## Log code emitted when a tilt sensitivity or haptics intensity (stored at boot, or passed to `set_value`) had to be corrected.
 const CODE_SETTING_CLAMPED: StringName = &"SETTING_CLAMPED"
 ## Log code emitted when `set_value` receives a key that is not one of the five settings.
 const CODE_UNKNOWN_SETTING_KEY: StringName = &"UNKNOWN_SETTING_KEY"
@@ -58,7 +58,16 @@ func _init(
 	_sensitivity_max = sensitivity_max
 	_default_sensitivity = default_sensitivity
 	_haptics_enabled = _get_value_seam.call(SECTION, KEY_HAPTICS_ENABLED, true) as bool
-	_haptics_intensity = _get_value_seam.call(SECTION, KEY_HAPTICS_INTENSITY, 1.0) as float
+	var raw_intensity: float = _get_value_seam.call(SECTION, KEY_HAPTICS_INTENSITY, SettingsHapticsRule.DEFAULT_INTENSITY) as float
+	var intensity_checked: Dictionary = _validate_intensity(raw_intensity)
+	_haptics_intensity = intensity_checked["value"] as float
+	if intensity_checked["was_corrected"] as bool:
+		_log_sink.call(
+			LogLevel.WARNING,
+			CODE_SETTING_CLAMPED,
+			KEY_HAPTICS_INTENSITY,
+			"stored haptics_intensity %s corrected to %s" % [str(raw_intensity), str(_haptics_intensity)]
+		)
 	var raw_tilt: float = _get_value_seam.call(SECTION, KEY_TILT_SENSITIVITY, _default_sensitivity) as float
 	var checked: Dictionary = SettingsMath.tilt_sensitivity_validate(raw_tilt, _sensitivity_min, _sensitivity_max, _default_sensitivity)
 	_tilt_sensitivity = checked["value"] as float
@@ -129,7 +138,15 @@ func set_value(key: String, value: Variant) -> bool:
 					"tilt_sensitivity %s corrected to %s" % [str(value), str(new_value)]
 				)
 		KEY_HAPTICS_INTENSITY:
-			new_value = value as float
+			var intensity: Dictionary = _validate_intensity(value as float)
+			new_value = intensity["value"] as float
+			if intensity["was_corrected"] as bool:
+				_log_sink.call(
+					LogLevel.WARNING,
+					CODE_SETTING_CLAMPED,
+					key,
+					"haptics_intensity %s corrected to %s" % [str(value), str(new_value)]
+				)
 		_:
 			new_value = value as bool
 	if new_value == _current(key):
@@ -138,6 +155,10 @@ func set_value(key: String, value: Variant) -> bool:
 	_set_value_seam.call(SECTION, key, new_value)
 	setting_changed.emit(key, new_value)
 	return true
+
+
+func _validate_intensity(raw: float) -> Dictionary:
+	return SettingsHapticsRule.validate(raw)
 
 
 func _current(key: String) -> Variant:

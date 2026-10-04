@@ -1,7 +1,7 @@
 # Story 005: SaveCore backup ordering and wall-clock robustness
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
@@ -25,9 +25,9 @@
 
 ## Acceptance Criteria
 
-- [ ] Backup names are ordered by their numeric (timestamp, counter) pair, not as strings: 11 backups within one second rotate the oldest first.
-- [ ] A wall clock of 0 or one that moves backwards does not make the newest backup look oldest (the order falls back to a monotonic counter in the name).
-- [ ] The bounded name probe from 2026-10-04 stays; a test covers the exhausted-names case.
+- [x] Backup names are ordered by their numeric (timestamp, counter) pair, not as strings: 11 backups within one second rotate the oldest first.
+- [x] A wall clock of 0 or one that moves backwards does not make the newest backup look oldest (the order falls back to a monotonic counter in the name).
+- [x] The bounded name probe from 2026-10-04 stays; a test covers the exhausted-names case.
 
 ---
 
@@ -53,7 +53,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Logic
 **Required evidence**: `tests/unit/` test file named in the story, must exist and pass
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/save_persistence/save_persistence_backup_order_test.gd` (test_eleven_backups_in_one_second_rotate_oldest_first, test_wall_clock_zero_does_not_make_newest_backup_oldest, test_wall_clock_going_backwards_keeps_newest_backup, test_exhausted_names_leave_file_in_place_and_stop)
 
 ---
 

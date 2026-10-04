@@ -127,22 +127,44 @@ func flush() -> void:
 
 
 ## Logs a file-level failure once, moves the unusable file aside and rotates old backups.
+## Backup names are `save.cfg.corrupt-<unix seconds>-<sequence>`. The sequence is one more than the highest
+## sequence among the existing backups, so it grows monotonically even when the wall clock is 0 or goes backwards;
+## rotation orders by (sequence, timestamp) numerically, never as strings.
 func _fail_file(code: String, message: String) -> void:
 	_log_sink.call(LogLevel.ERROR, StringName(code), "", message)
-	var stamp: String = "%s%d-" % [SAVE_DIR + BACKUP_PREFIX, int(_wall_clock.call())]
+	var stamp: String = "%s%d-" % [SAVE_DIR + BACKUP_PREFIX, maxi(int(_wall_clock.call()), 0)]
 	var n: int = 0
-	while n < BACKUP_NAME_ATTEMPTS_MAX and _fs.exists("%s%d" % [stamp, n]):
+	for existing: String in _fs.list_backups(SAVE_DIR, BACKUP_PREFIX):
+		n = maxi(n, _parse_backup(existing)[1] + 1)
+	var probes: int = 0
+	while probes < BACKUP_NAME_ATTEMPTS_MAX and _fs.exists("%s%d" % [stamp, n]):
 		n += 1
-	if n >= BACKUP_NAME_ATTEMPTS_MAX:
+		probes += 1
+	if probes >= BACKUP_NAME_ATTEMPTS_MAX:
 		# Every probed name is taken: leave the unusable file in place rather than loop without end.
 		return
 	if not _fs.rename(REAL_PATH, "%s%d" % [stamp, n]):
 		return
-	# Name order equals age order only while the Unix timestamps have the same digit count (10 digits until 2286).
 	var names: Array[String] = []
 	for backup: String in _fs.list_backups(SAVE_DIR, BACKUP_PREFIX):
 		names.append(backup)
-	names.sort()
+	names.sort_custom(_backup_older)
 	var excess: int = names.size() - _config.corrupt_backup_retention
 	for i: int in range(maxi(excess, 0)):
 		_fs.delete(SAVE_DIR + names[i])
+
+
+## `[timestamp, sequence]` of a backup file name; `[-1, -1]` when the name does not parse (oldest).
+static func _parse_backup(file_name: String) -> Array[int]:
+	var parts: PackedStringArray = file_name.trim_prefix(BACKUP_PREFIX).split("-")
+	if parts.size() != 2 or not parts[0].is_valid_int() or not parts[1].is_valid_int():
+		return [-1, -1]
+	return [parts[0].to_int(), parts[1].to_int()]
+
+
+static func _backup_older(a: String, b: String) -> bool:
+	var pa: Array[int] = _parse_backup(a)
+	var pb: Array[int] = _parse_backup(b)
+	if pa[1] != pb[1]:
+		return pa[1] < pb[1]
+	return pa[0] < pb[0]

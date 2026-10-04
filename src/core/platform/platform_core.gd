@@ -151,7 +151,7 @@ func set_haptics_enabled(enabled: bool) -> void:
 ## Global amplitude scalar, clamped to 0-1; a non-finite value is ignored.
 func set_haptics_intensity(intensity: float) -> void:
 	if is_finite(intensity):
-		_haptics_intensity = clampf(intensity, 0.0, 1.0)
+		_haptics_intensity = clampf(intensity, HapticsConfig.INTENSITY_RANGE.x, HapticsConfig.INTENSITY_RANGE.y)
 
 
 ## Plays the pulse of `kind` if the gate allows it; returns true when `vibrate` was called.

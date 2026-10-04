@@ -21,3 +21,12 @@ static func tilt_sensitivity_validate(raw: float, min_value: float, max_value: f
 		return {"value": default_value, "was_corrected": true}
 	var clamped: float = clampf(raw, min_value, max_value)
 	return {"value": clamped, "was_corrected": clamped != raw}
+
+
+## Validates a raw haptics intensity against `[min_value, max_value]` (zero is valid). A non-finite `raw` falls
+## back to `default_value`; a finite one is clamped to the nearest bound. Same result shape as F2.
+static func haptics_intensity_validate(raw: float, min_value: float, max_value: float, default_value: float) -> Dictionary:
+	if not is_finite(raw):
+		return {"value": default_value, "was_corrected": true}
+	var clamped: float = clampf(raw, min_value, max_value)
+	return {"value": clamped, "was_corrected": clamped != raw}

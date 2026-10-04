@@ -1,7 +1,7 @@
 # Story 004: Validate `haptics_intensity` in SettingsCore
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
@@ -25,9 +25,9 @@
 
 ## Acceptance Criteria
 
-- [ ] A stored `haptics_intensity` outside the Platform Services range, or non-finite, is replaced by the nearest bound or the default at boot with one `SETTING_CLAMPED` log.
-- [ ] `set_value("haptics_intensity", NAN)` and out-of-range values are rejected or clamped exactly as the Settings GDD specifies for sensitivity (same code path), memory and the persisted value never differ.
-- [ ] The range comes from `HapticsConfig` (single source), not a copy.
+- [x] A stored `haptics_intensity` outside the Platform Services range, or non-finite, is replaced by the nearest bound or the default at boot with one `SETTING_CLAMPED` log.
+- [x] `set_value("haptics_intensity", NAN)` and out-of-range values are rejected or clamped exactly as the Settings GDD specifies for sensitivity (same code path), memory and the persisted value never differ.
+- [x] The range comes from `HapticsConfig` (single source), not a copy.
 
 ---
 
@@ -53,7 +53,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Logic
 **Required evidence**: `tests/unit/` test file named in the story, must exist and pass
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/settings_accessibility/settings_accessibility_haptics_intensity_test.gd` (boot clamp/NaN/zero tests, set_value NaN/out-of-range tests, test_range_comes_from_haptics_config)
 
 ---
 

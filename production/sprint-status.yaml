@@ -39,20 +39,20 @@ stories:
     name: "Live tilt sensitivity update from Settings to TiltCore"
     file: "production/epics/code-review-followups/story-003-live-sensitivity-update.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CRF-004"
     name: "Validate `haptics_intensity` in SettingsCore"
     file: "production/epics/code-review-followups/story-004-haptics-intensity-validation.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-001"
     name: "MapDefinition, MapConfig and loader seam types"
     file: "production/epics/map-loader/story-001-map-types-and-seams.md"

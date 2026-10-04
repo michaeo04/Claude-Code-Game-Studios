@@ -30,6 +30,8 @@ const LOG_POSTURE_UNSUPPORTED: StringName = &"POSTURE_UNSUPPORTED"
 const LOG_NOT_PORTRAIT: StringName = &"NOT_PORTRAIT"
 ## Shared clamp of `dt` in microseconds (`DT_MAX` 0.1 s, Run State registry `dt_max`).
 const DT_MAX_US: int = 100000
+## Log code of a corrected live sensitivity (warning level).
+const LOG_SETTING_CLAMPED: StringName = &"SETTING_CLAMPED"
 ## Log code of sensors disabled by project setting (error level).
 const LOG_SENSORS_DISABLED: StringName = &"SENSORS_DISABLED"
 ## Log code of the start timeout (error level).
@@ -230,6 +232,18 @@ func on_run_stopped() -> void:
 	_stop_us = _clock.call() as int
 	var vals: PackedFloat64Array = _window_samples(_stop_us - _guard_us - _window_us, _stop_us - _guard_us)
 	_phi_stop = TiltMath.median(vals) if vals.size() >= _n_min else NAN
+
+
+## Settings hook, live: replaces the sensitivity (validated against the `TiltConfig` bounds, one `SETTING_CLAMPED`
+## warning when corrected) and recomputes `FS_eff`. The ring buffer, the neutral and the filter are untouched; the
+## next `poll()` publishes a `steer` scaled by the new value.
+func set_sensitivity(value: float) -> void:
+	var quiet: Callable = func(_level: int, _code: StringName, _key: String, _message: String) -> void: pass
+	var checked: float = TiltConfig.validated_sensitivity(value, quiet)
+	if checked != value and _log_sink.is_valid():
+		_log_sink.call(LogLevel.WARNING, LOG_SETTING_CLAMPED, "tilt_sensitivity", "sensitivity %s corrected to %s" % [value, checked])
+	_sensitivity = checked
+	_fs_eff = minf(_config.tilt_full_scale / _sensitivity, TiltMath.FS_EFF_MAX)
 
 
 ## Current availability state.

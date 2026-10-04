@@ -13,6 +13,10 @@ const KEY_MIN_INTERVAL: String = "HAPTIC_MIN_INTERVAL"
 const MIN_INTERVAL_RANGE: Vector2 = Vector2(0.0, 0.5)
 const MAX_MS_RANGE: Vector2 = Vector2(50.0, 500.0)
 const AMPLITUDE_RANGE: Vector2 = Vector2(0.0, 1.0)
+## Range of the global `haptics_intensity` scalar supplied by Settings (single source for Platform and Settings).
+const INTENSITY_RANGE: Vector2 = Vector2(0.0, 1.0)
+## Shipped default of `haptics_intensity`.
+const INTENSITY_DEFAULT: float = 1.0
 const PRIORITY_MIN: int = 0
 const PRIORITY_MAX: int = 9
 ## Lower duration bound of NEAR_MISS and HIT (UI_TAP may be 0 = disabled).

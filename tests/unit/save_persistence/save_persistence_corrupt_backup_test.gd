@@ -60,6 +60,9 @@ func test_second_event_in_same_second_gets_next_counter() -> void:
 
 
 func test_retention_three_deletes_oldest_only_on_fourth_backup() -> void:
+	# Only the real file exists; every backup name is free (the listed names are scripted separately).
+	_fs.returns["exists"] = false
+	_fs.returns["exists_by_path"] = {"user://save.cfg": true}
 	_fs.returns["list_backups"] = PackedStringArray(["save.cfg.corrupt-1700000000-0"])
 	_boot()
 	_fs.returns["list_backups"] = PackedStringArray(["save.cfg.corrupt-1700000000-0", "save.cfg.corrupt-1699999999-0"])

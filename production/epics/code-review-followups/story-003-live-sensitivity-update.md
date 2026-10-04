@@ -1,7 +1,7 @@
 # Story 003: Live tilt sensitivity update from Settings to TiltCore
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 2-3 h
@@ -25,9 +25,9 @@
 
 ## Acceptance Criteria
 
-- [ ] `TiltCore.set_sensitivity(value)` exists (validated against `TiltConfig` bounds, one `SETTING_CLAMPED` log when corrected, no effect on the ring buffer or the neutral).
-- [ ] Wiring (adapter in `src/core/`): `SettingsCore.setting_changed("tilt_sensitivity", v)` calls `TiltCore.set_sensitivity` before the next `poll`.
-- [ ] Integration test: change the sensitivity mid-run; the next published `steer` scales accordingly and no other output changes.
+- [x] `TiltCore.set_sensitivity(value)` exists (validated against `TiltConfig` bounds, one `SETTING_CLAMPED` log when corrected, no effect on the ring buffer or the neutral).
+- [x] Wiring (adapter in `src/core/`): `SettingsCore.setting_changed("tilt_sensitivity", v)` calls `TiltCore.set_sensitivity` before the next `poll`.
+- [x] Integration test: change the sensitivity mid-run; the next published `steer` scales accordingly and no other output changes.
 
 ---
 
@@ -53,7 +53,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/` test
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/integration/composition_root/composition_root_live_sensitivity_test.gd` (test_mid_run_change_scales_next_steer_and_nothing_else, test_set_sensitivity_out_of_range_clamps_with_one_log, test_other_keys_are_ignored)
 
 ---
 
