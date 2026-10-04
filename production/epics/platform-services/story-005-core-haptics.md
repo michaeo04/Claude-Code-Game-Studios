@@ -1,12 +1,12 @@
 # Story 005: PlatformCore haptic call flow, drop causes and counters
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -22,7 +22,7 @@
 - Guardrail: haptic pulse never queued while not attentive; no log for disabled/not-attentive/zero-duration drops.
 
 ## Acceptance Criteria
-- [ ] **AC-4 [C]** HIT at stamp 0 plays (`vibrate` receives 80, 1.0); NEAR_MISS at 30000 drops (`THROTTLED`, `last_played_us` unchanged), at 79999 drops (past interval, inside the HIT pulse) and at 80000 plays. Fresh core: NEAR_MISS at 0 plays, HIT at 20000 plays (priority 2 over 1; `vibrate` receives 80, 1.0), HIT at 40000 drops (equal priority, inside interval), NEAR_MISS at 60000 drops (HIT of 20000 ends at 100000). NEAR_MISS at 0, NEAR_MISS at 40000 drops and at 50000 plays; UI_TAP within a NEAR_MISS's interval drops. After each other drop cause (disabled, not attentive, duration 0 through `UI_TAP` set to 0, unknown kind) an allowed call at the same stamp on the same fresh core plays; drop order `UNKNOWN_KIND`, `DISABLED`, `NOT_ATTENTIVE`, `ZERO_DURATION`, `THROTTLED`, each incrementing exactly its `haptic_drops` counter; disabled, not-attentive and zero-duration drops log nothing; an unknown kind logs one `UNKNOWN_HAPTIC_KIND` error and does not call `vibrate`. Each drop cause has its own test.
+- [x] **AC-4 [C]** HIT at stamp 0 plays (`vibrate` receives 80, 1.0); NEAR_MISS at 30000 drops (`THROTTLED`, `last_played_us` unchanged), at 79999 drops (past interval, inside the HIT pulse) and at 80000 plays. Fresh core: NEAR_MISS at 0 plays, HIT at 20000 plays (priority 2 over 1; `vibrate` receives 80, 1.0), HIT at 40000 drops (equal priority, inside interval), NEAR_MISS at 60000 drops (HIT of 20000 ends at 100000). NEAR_MISS at 0, NEAR_MISS at 40000 drops and at 50000 plays; UI_TAP within a NEAR_MISS's interval drops. After each other drop cause (disabled, not attentive, duration 0 through `UI_TAP` set to 0, unknown kind) an allowed call at the same stamp on the same fresh core plays; drop order `UNKNOWN_KIND`, `DISABLED`, `NOT_ATTENTIVE`, `ZERO_DURATION`, `THROTTLED`, each incrementing exactly its `haptic_drops` counter; disabled, not-attentive and zero-duration drops log nothing; an unknown kind logs one `UNKNOWN_HAPTIC_KIND` error and does not call `vibrate`. Each drop cause has its own test.
 
 ## Implementation Notes
 Evaluate in the GDD order; the first matching cause drops the call and increments that cause's counter. Use `PlatformMath.haptic_gate` and `effective` (Story 001) and the validated `HapticsConfig` (Story 003). When played: set `last_played_us = now`, `last_end_us = now + dur_eff * 1000`, `last_prio = prio`, then `vibrate.call(dur_eff, amp_eff)` where `amp_eff` applies `haptics_intensity` after the -1 sentinel check. A dropped call changes none of the three stamps. A clock anomaly (`now < last_played_us`) plays and re-bases the stamps. `set_haptics_enabled(bool)` is a core setter; disabling mid-pulse makes no extra `vibrate` call. Use method Callables, not self-capturing lambdas.
@@ -41,7 +41,8 @@ Evaluate in the GDD order; the first matching cause drops the call and increment
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/platform_services/platform_services_core_haptics_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/platform_services/platform_services_core_haptics_test.gd`: one test per drop cause plus preemption, interval and clock-anomaly tests
 
 ## Dependencies
 - Depends on: Stories 001, 003, 004

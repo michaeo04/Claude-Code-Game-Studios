@@ -183,29 +183,29 @@ stories:
     name: "HapticsConfig validation and shipped defaults"
     file: "production/epics/platform-services/story-003-haptics-config.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-004"
     name: "PlatformCore lifecycle model and edge signals"
     file: "production/epics/platform-services/story-004-core-lifecycle.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-005"
     name: "PlatformCore haptic call flow, drop causes and counters"
     file: "production/epics/platform-services/story-005-core-haptics.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-007"
     name: "RATE mapping (F3) and the mapping-mode latch"
     file: "production/epics/ball-movement/story-007-rate-mode-latch.md"
@@ -237,11 +237,11 @@ stories:
     name: "Availability states, start timeout and availability signal"
     file: "production/epics/tilt-input/story-008-availability-states.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-009"
     name: "Architecture and coupling lint for SettingsCore and SettingsMath"
     file: "production/epics/settings-accessibility/story-009-architecture-lint.md"
