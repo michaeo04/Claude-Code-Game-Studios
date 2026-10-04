@@ -121,6 +121,16 @@ func reset() -> void:
 	_speed = BallMath.speed(0.0, _cfg.v_start, _cfg.v_max, _cfg.t_ramp)
 
 
+## `run_reset(run_id)` subscriber (ADR-0002 rank 3): same as `reset()`. Example: `rs.run_reset.connect(ball.on_run_reset)`.
+func on_run_reset(_run_id: int) -> void:
+	reset()
+
+
+## `run_resumed(run_id)` subscriber: same as `on_resumed()`.
+func on_run_resumed(_run_id: int) -> void:
+	on_resumed()
+
+
 ## `run_resumed` happened (Rule 5): the first step with `dt_eff > 0` re-bases the anchor so the target equals the
 ## current pose, and the rate-mode velocity `w` goes to 0 (the mode is not re-latched). A step with `dt_eff = 0`
 ## does not consume the re-base. Example: `core.on_resumed()`.

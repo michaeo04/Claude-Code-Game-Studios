@@ -35,6 +35,10 @@ var _signatures: Dictionary = {
 func _init(system_name: String, shared_log: Array[String]) -> void:
 	_name = system_name
 	_log = shared_log
+	# Obstacle and Near-Miss take the ball in `step(ball)` (ADR-0002 Decision 6).
+	var key: String = system_name.to_lower().replace("_", "")
+	if key == "obstacle" or key == "nearmiss":
+		_signatures["step"] = [TYPE_OBJECT]
 
 
 ## Replaces the expected argument types (`TYPE_*`) of `method_name`; the count is the array size.

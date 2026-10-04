@@ -8,7 +8,7 @@ const FRONT: Array[String] = [
 	"TiltInput.poll", "TiltRunAdapter.flush", "RunState.tick", "Ball.step",
 ]
 const MIDDLE: Array[String] = [
-	"Obstacle.test", "NearMiss.step", "Scoring.step",
+	"Obstacle.step", "NearMiss.step", "Scoring.step",
 ]
 const TAIL: Array[String] = [
 	"Camera.step", "BallView.tick", "Environment.tick", "Juice.tick", "HUD.tick", "Menus.tick",
@@ -73,7 +73,7 @@ func test_world_frame_step_between_advance_and_obstacle() -> void:
 	var log: Array[String] = _tick_in(P.RUNNING)
 	var adv: int = log.find("TubeTrack.advance")
 	assert_eq(log.find("WorldFrame.maybe_rebase"), adv + 1)
-	assert_eq(log.find("Obstacle.test"), adv + 2)
+	assert_eq(log.find("Obstacle.step"), adv + 2)
 
 
 func test_ball_view_immediately_after_camera() -> void:
@@ -102,7 +102,7 @@ func test_rebase_true_calls_tube_then_hazard_once() -> void:
 	assert_eq(log.count("TubeView.rebase"), 1)
 	assert_eq(log.count("HazardView.rebase"), 1)
 	assert_lt(log.find("TubeView.rebase"), log.find("HazardView.rebase"))
-	assert_lt(log.find("HazardView.rebase"), log.find("Obstacle.test"))
+	assert_lt(log.find("HazardView.rebase"), log.find("Obstacle.step"))
 
 
 func test_rebase_false_calls_neither() -> void:

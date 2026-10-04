@@ -85,8 +85,8 @@ func on_run_abandoned(_run_id: int, _run_time_ms: int) -> void:
 	_finalize()
 
 
-## Synchronous run reset (before `run_started`): zeroes score, latch and milestone index; makes no seam call.
-func on_run_reset() -> void:
+## Synchronous run reset (before `run_started`; the optional run id lets it connect to `run_reset(run_id)` directly): zeroes score, latch and milestone index; makes no seam call.
+func on_run_reset(_run_id: int = 0) -> void:
 	current_score = 0
 	has_passed_this_run = false
 	next_milestone_index = 0

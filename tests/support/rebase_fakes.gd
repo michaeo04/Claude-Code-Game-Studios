@@ -22,8 +22,10 @@ class Stub extends RefCounted:
 	func tick(world_dt: float = 0.0, _real_dt: float = 0.0) -> float:
 		return world_dt if phase == RunStateCore.Phase.RUNNING else 0.0
 
-	func step(dt_eff: float = 0.0, _steer: float = 0.0, _valid: bool = true, _source: int = 0) -> void:
-		s += speed * dt_eff
+	## As ball: `(dt_eff, steer, valid, source)`; as Obstacle / Near-Miss: `(ball)`; as Scoring / Camera: no argument.
+	func step(first: Variant = null, _steer: float = 0.0, _valid: bool = true, _source: int = 0) -> void:
+		if first is float:
+			s += speed * (first as float)
 
 	func advance(_ball_s: float) -> void:
 		pass

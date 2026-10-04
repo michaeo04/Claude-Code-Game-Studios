@@ -344,7 +344,43 @@ func _build_rows() -> Array:
 		rows.append([rs.run_ended, tilt.on_run_ended, RANK_ENDED_REST])
 		rows.append([rs.run_paused, tilt.on_run_paused, RANK_REST])
 		rows.append([rs.phase_changed, tilt.on_phase_changed, RANK_REST])
+	rows.append_array(_real_core_rows(rs))
 	rows.append_array(_extra_rows)
+	return rows
+
+
+## Rows of the real Obstacle, Near-Miss, Ball and Scoring cores (present only when the injected system is the real
+## class; a spy or stub adds nothing). Still strict spies (no class yet, so no row here): Pattern provider, Camera,
+## Juice, HUD, Menus; their rows arrive with their stories through `add_wire_row`.
+## `run_reset`: Obstacle rank 2 (after the Tube Track adapter by row index), Ball 3, Near-Miss and Scoring rank 5.
+## `run_ended` / `run_abandoned`: Scoring rank 2. Window and hit signals go in the rest rank.
+func _real_core_rows(rs: RunStateCore) -> Array:
+	var rows: Array = []
+	var obstacle: ObstacleCore = _obstacle as ObstacleCore
+	var near_miss: NearMissCore = _near_miss as NearMissCore
+	var ball: BallCore = _ball as BallCore
+	var scoring: ScoreCore = _scoring as ScoreCore
+	var window: TubeWindow = _tube_track as TubeWindow
+	if obstacle != null:
+		rows.append([rs.run_reset, obstacle.on_run_reset, RANK_TUBE_OBSTACLE])
+		if window != null:
+			rows.append([window.segment_entered_window, obstacle.on_segment_entered_window, RANK_REST])
+			rows.append([window.segment_left_window, obstacle.on_segment_left_window, RANK_REST])
+			rows.append([window.window_primed, obstacle.on_window_primed, RANK_REST])
+		if near_miss != null:
+			rows.append([obstacle.hazard_bound, near_miss.on_hazard_bound, RANK_REST])
+			rows.append([obstacle.hazard_released, near_miss.on_hazard_released, RANK_REST])
+			rows.append([obstacle.hit_reported, near_miss.on_hit_reported, RANK_REST])
+		rows.append([obstacle.hit_reported, rs.request_hit, RANK_REST])
+	if ball != null:
+		rows.append([rs.run_reset, ball.on_run_reset, RANK_BALL])
+		rows.append([rs.run_resumed, ball.on_run_resumed, RANK_REST])
+	if near_miss != null:
+		rows.append([rs.run_reset, near_miss.on_run_reset, RANK_REST])
+	if scoring != null:
+		rows.append([rs.run_reset, scoring.on_run_reset, RANK_REST])
+		rows.append([rs.run_ended, scoring.on_run_ended, RANK_SCORING])
+		rows.append([rs.run_abandoned, scoring.on_run_abandoned, RANK_SCORING])
 	return rows
 
 
@@ -368,8 +404,8 @@ func _tick(real_dt: float, world_dt: float) -> void:
 		if _world_frame.call(&"maybe_rebase", ball_s) as bool:
 			_tube_view.call(&"rebase")
 			_hazard_view.call(&"rebase")
-	_obstacle.call(&"test")
-	_near_miss.call(&"step")
+	_obstacle.call(&"step", _ball)
+	_near_miss.call(&"step", _ball)
 	_scoring.call(&"step")
 	if phase == RunStateCore.Phase.MENU:
 		_tube_view.call(&"idle_step", real_dt)

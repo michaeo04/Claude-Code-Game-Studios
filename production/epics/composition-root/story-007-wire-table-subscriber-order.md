@@ -59,7 +59,7 @@ Rows live in `_rows: Array` built inside `_wire()`; sort with a comparator on `(
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/composition_root_wire_order_test.gd`
-**Evidence (partial)**: `tests/integration/composition_root/composition_root_wire_order_test.gd` (8 tests, passing). Gap: AC-1 (Run State AC-30 against the full real table) and the rank rows of Pattern, Obstacle, Ball, Camera, Juice, Scoring, HUD are exercised with typed spies through `add_wire_row`; the real rows land with their system stories.
+**Evidence (partial)**: `tests/integration/composition_root/composition_root_wire_order_test.gd` (8 tests, passing). Real rows added 2026-10-05 (Obstacle, Near-Miss, Ball, Scoring, window and hit signals; `composition_root_m1_headless_run_test.gd` drives them). Still strict spies: Pattern provider, Camera, Juice, HUD, Menus. Gap: AC-1 (Run State AC-30 against the full real table) and the rank rows of Pattern, Obstacle, Ball, Camera, Juice, Scoring, HUD are exercised with typed spies through `add_wire_row`; the real rows land with their system stories.
 
 ## Dependencies
 - Depends on: Story 006; run-state-restart epic (signals; fake until then)

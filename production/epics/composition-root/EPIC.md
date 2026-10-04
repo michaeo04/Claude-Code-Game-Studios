@@ -51,6 +51,7 @@ This epic is complete when:
 | 010 | [Map load hand-off and loop start](story-010-map-load-handoff-and-loop-start.md) | Integration | Ready | ADR-0002, ADR-0004 |
 | 011 | [Orchestration soak on device (60/120 Hz)](story-011-orchestration-device-soak.md) | Integration | Ready | ADR-0002 |
 | 012 | [PRC-1 rebase spike on device](story-012-rebase-device-spike-prc1.md) | Integration | Ready | ADR-0013 |
+| 013 | [M1 headless run through the real cores](story-013-m1-headless-run.md) | Integration | Complete | ADR-0002 |
 
 ## Next Step
 
