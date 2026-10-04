@@ -57,29 +57,29 @@ stories:
     name: "MapDefinition, MapConfig and loader seam types"
     file: "production/epics/map-loader/story-001-map-types-and-seams.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-002"
     name: "HazardStyle validation and TubeConfig.from_map"
     file: "production/epics/map-loader/story-002-hazard-style-and-tube-config-from-map.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-003"
     name: "MapConfig.build with Camera values and camera_far"
     file: "production/epics/map-loader/story-003-camera-values-and-camera-far.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-004"
     name: "Phase A validation sequence"
     file: "production/epics/map-loader/story-004-phase-a-validation.md"

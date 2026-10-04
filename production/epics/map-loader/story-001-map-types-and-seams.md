@@ -1,12 +1,12 @@
 # Story 001: MapDefinition, MapConfig and loader seam types
 
 > **Epic**: Map Loader & MapConfig
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0004
@@ -58,7 +58,8 @@ Files: `src/core/map/map_definition.gd`, `map_config.gd`, `map_loader_seams.gd`,
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/map_loader/map_loader_types_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/map_loader/map_loader_types_test.gd` (AC-1 to AC-3), `tests/integration/map_loader/map_loader_export_scan_test.gd` (AC-4, moved out of unit tests because the lint forbids file access there)
 
 ## Dependencies
 - Depends on: test-harness-ci epic (GUT runnable); `EnvConfig` class from the environment-theming epic (or a minimal stand-in scalar-only class owned there)

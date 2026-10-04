@@ -81,6 +81,21 @@ func with_dt_max(dt_max: float) -> TubeConfig:
 	return out
 
 
+## Copy of `base` with the map-supplied fields set: fog and `readable_distance` from `map.env`, `rear_extent` and
+## `camera_distance` from `map`. `base` and the loaded resources are never mutated (ADR-0004).
+static func from_map(base: TubeConfig, map: MapConfig) -> TubeConfig:
+	var out: TubeConfig = base.duplicate() as TubeConfig
+	out.fog_mode = map.env.fog_mode as FogMode
+	out.fog_depth_begin = map.env.fog_depth_begin
+	out.fog_end_distance = map.env.fog_end_distance
+	out.fog_depth_curve = map.env.fog_depth_curve
+	out.fog_density = map.env.fog_density
+	out.readable_distance = map.env.readable_distance
+	out.rear_extent = map.rear_extent
+	out.camera_distance = map.camera_distance
+	return out
+
+
 ## Validates the config for `v_max` (Ball Movement) and the ball diameter `d`. `raw` optionally replaces the integer
 ## fields `segment_length`, `segments_ahead`, `segments_behind`, `n_seams` with Variants (a typed int export cannot hold
 ## 2.5). Returns failure records; `[]` means valid. Reporting rules follow the GDD: a non-finite or non-positive input

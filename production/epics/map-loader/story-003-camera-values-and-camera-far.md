@@ -1,12 +1,12 @@
 # Story 003: MapConfig.build with Camera values and camera_far
 
 > **Epic**: Map Loader & MapConfig
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0004
@@ -63,7 +63,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/map_loader/map_loader_map_config_build_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/map_loader/map_loader_map_config_build_test.gd`
 
 ## Dependencies
 - Depends on: Story 001, Story 002; camera epic (`CameraMath.published`) for the real geometry shape
