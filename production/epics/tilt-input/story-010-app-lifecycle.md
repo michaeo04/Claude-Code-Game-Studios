@@ -1,12 +1,12 @@
 # Story 010: App lifecycle handling (background, resume settle)
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -40,7 +40,7 @@ On backgrounded: clear the buffer, set `neutral_stale`, return to Acquiring; in 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_app_lifecycle_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tilt_input/tilt_core_app_lifecycle_test.gd` (passing)
 
 ## Dependencies
 - Depends on: Story 005, Story 007, Story 008; platform-services (signals `app_backgrounded`/`app_foregrounded`, wiring only)

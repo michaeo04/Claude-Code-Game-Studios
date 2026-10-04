@@ -72,12 +72,12 @@ This epic is complete when:
 | 002 | [TiltMath pure functions](story-002-tilt-math.md) | Logic | Complete | ADR-0002 |
 | 003 | [TiltConfig, validation, sensitivity](story-003-tilt-config.md) | Logic | Complete | ADR-0009 |
 | 004 | [TiltCore poll, stamps, ring buffer](story-004-tilt-core-poll-buffer.md) | Logic | Complete | ADR-0002 |
-| 005 | [Neutral capture mechanics](story-005-neutral-capture.md) | Logic | Ready | ADR-0002 |
+| 005 | [Neutral capture mechanics](story-005-neutral-capture.md) | Logic | Complete | ADR-0002 |
 | 006 | [Pipeline order and output contract](story-006-pipeline-output-contract.md) | Logic | Complete | ADR-0005 |
-| 007 | [Capture policy and re-anchor](story-007-capture-policy-reanchor.md) | Logic | Ready | ADR-0002 |
-| 008 | [Availability states and timeout](story-008-availability-states.md) | Logic | Ready | ADR-0005 |
-| 009 | [Sensor-loss dropout hold](story-009-sensor-loss-hold.md) | Logic | Ready | ADR-0005 |
-| 010 | [App lifecycle handling](story-010-app-lifecycle.md) | Logic | Ready | ADR-0006 |
+| 007 | [Capture policy and re-anchor](story-007-capture-policy-reanchor.md) | Logic | Complete | ADR-0002 |
+| 008 | [Availability states and timeout](story-008-availability-states.md) | Logic | Complete | ADR-0005 |
+| 009 | [Sensor-loss dropout hold](story-009-sensor-loss-hold.md) | Logic | Complete | ADR-0005 |
+| 010 | [App lifecycle handling](story-010-app-lifecycle.md) | Logic | Complete | ADR-0006 |
 | 011 | [Fallback input and transition table](story-011-fallback-input.md) | Logic | Ready | ADR-0005 |
 | 012 | [TiltRunAdapter and sensor-lost pause](story-012-tilt-run-adapter.md) | Integration | Ready | ADR-0002 |
 | 013 | [TiltInput node, settings, log sink](story-013-tilt-input-node.md) | Integration | Ready | ADR-0005 |

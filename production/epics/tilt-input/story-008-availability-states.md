@@ -1,12 +1,12 @@
 # Story 008: Availability states, start timeout and availability signal
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -44,7 +44,7 @@ States per the GDD table: Acquiring, Live (`SENSOR` or `FALLBACK`), Unavailable.
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_availability_states_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tilt_input/tilt_core_availability_states_test.gd` (passing; AC-28 [I] half is Story 013)
 
 ## Dependencies
 - Depends on: Story 004, Story 006

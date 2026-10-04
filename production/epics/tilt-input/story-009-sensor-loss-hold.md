@@ -1,12 +1,12 @@
 # Story 009: Sensor-loss dropout hold (F6)
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -42,7 +42,7 @@ F6: consecutive invalid polls accumulate `invalid_us += min(dt_us, DT_MAX_us)` a
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_sensor_loss_hold_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tilt_input/tilt_core_sensor_loss_hold_test.gd` (passing)
 
 ## Dependencies
 - Depends on: Story 006, Story 008

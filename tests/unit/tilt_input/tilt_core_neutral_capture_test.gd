@@ -181,6 +181,25 @@ func test_capture_in_acquiring_waits_for_n_min_valid_samples_and_signals_once_ac
 	assert_signal_emitted_with_parameters(fx.core, "availability_changed", [true])
 
 
+func test_capture_in_unavailable_waits_for_n_min_valid_samples_and_signals_ac18() -> void:
+	var fx: Fixture = Fixture.new()
+	fx.live_core(0.0)
+	fx.tick_invalid(8)
+	assert_eq(fx.core.get_state(), TiltCore.State.UNAVAILABLE)
+	fx.availability.clear()
+	fx.core.on_run_reset(TiltCore.PreviousPhase.MENU)
+	assert_true(fx.core.get_neutral_pending())
+	fx.tick(7.0, 4)
+	assert_true(fx.core.get_neutral_pending())
+	assert_eq(fx.core.get_steer(), 0.0)
+	fx.tick(7.0, 1)
+	assert_false(fx.core.get_neutral_pending())
+	assert_almost_eq(fx.core.get_phi0(), 7.0, DEG_TOL)
+	assert_eq(fx.core.get_steer(), 0.0)
+	assert_eq(fx.core.get_phi_f(), 0.0)
+	assert_eq(fx.availability, [true] as Array[bool])
+
+
 func test_fresh_core_is_pending_and_stale_then_first_capture_clears_both_ac45() -> void:
 	var fx: Fixture = Fixture.new()
 	assert_true(fx.core.get_neutral_stale())

@@ -2,8 +2,8 @@
 ##
 ## Engine-free `RefCounted`: no `Input`, no `Time`, no node. The gravity vector comes from the injected
 ## `sample_source`, time from the injected microsecond `clock`. Covers the poll path, neutral capture
-## (rules 7, 8), the pipeline and the published output (rules 2, 5). Availability timeouts, the sensor-loss
-## hold, the app lifecycle and the fallback arrive in later stories.
+## (rules 7, 8), the pipeline and the published output (rules 2, 5), the availability states, the start timeout,
+## the sensor-loss hold (F6) and the app lifecycle (rule 9). Fallback steering arrives in a later story.
 class_name TiltCore
 extends RefCounted
 
@@ -30,6 +30,12 @@ const LOG_POSTURE_UNSUPPORTED: StringName = &"POSTURE_UNSUPPORTED"
 const LOG_NOT_PORTRAIT: StringName = &"NOT_PORTRAIT"
 ## Shared clamp of `dt` in microseconds (`DT_MAX` 0.1 s, Run State registry `dt_max`).
 const DT_MAX_US: int = 100000
+## Log code of sensors disabled by project setting (error level).
+const LOG_SENSORS_DISABLED: StringName = &"SENSORS_DISABLED"
+## Log code of the start timeout (error level).
+const LOG_SENSOR_TIMEOUT: StringName = &"SENSOR_TIMEOUT"
+## Consecutive invalid polls needed before Unavailable (GDD F6 `DROPOUT_MIN_POLLS`).
+const DROPOUT_MIN_POLLS: int = 3
 
 var _config: TiltConfig
 var _sample_source: Callable
@@ -48,6 +54,17 @@ var _fs_eff: float = 25.0
 var _guard_us: int = 0
 var _window_us: int = 0
 var _n_min: int = 5
+var _input_source: InputSource = InputSource.SENSOR
+var _locked: bool = false
+var _in_background: bool = false
+var _hold_us: int = 0
+var _timeout_us: int = 0
+var _settle_us: int = 0
+var _settle_until_us: int = 0
+var _timeout_armed: bool = false
+var _timeout_start_us: int = 0
+var _invalid_us: int = 0
+var _invalid_polls: int = 0
 
 var _phi0: float = 0.0
 var _phi_f: float = 0.0
@@ -69,9 +86,11 @@ var _count: int = 0
 ## Builds a core. `config` should already be validated. An invalid Callable (unset or freed) logs one
 ## `SEAM_INVALID` error per seam through `log_sink` (when that one is valid) and leaves the core Unavailable
 ## for good; `poll()` then does nothing. `sensitivity` is the Settings hook (validated here); a false
-## `is_portrait` logs one `NOT_PORTRAIT` diagnostic and changes nothing else.
+## `is_portrait` logs one `NOT_PORTRAIT` diagnostic and changes nothing else. `sensors_enabled` false logs one
+## `SENSORS_DISABLED` error: Live `FALLBACK` when `is_debug`, otherwise Unavailable for good (a configuration error).
+## Example: `TiltCore.new(cfg, src, clk, sink, fb, 1.0, true, false, false)` is Unavailable and inert.
 func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sink: Callable, fallback_source: Callable,
-		sensitivity: float = 1.0, is_portrait: bool = true) -> void:
+		sensitivity: float = 1.0, is_portrait: bool = true, sensors_enabled: bool = true, is_debug: bool = true) -> void:
 	_config = config
 	_sample_source = sample_source
 	_clock = clock
@@ -83,6 +102,9 @@ func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sin
 	_guard_us = roundi(config.neutral_guard * 1e6)
 	_window_us = roundi(config.neutral_window * 1e6)
 	_n_min = maxi(1, config.neutral_min_samples)
+	_hold_us = roundi(config.dropout_hold * 1e6)
+	_timeout_us = roundi(config.sensor_start_timeout * 1e6)
+	_settle_us = roundi(config.sensor_resume_settle * 1e6)
 	_pending_samples.resize(_n_min)
 	_angles.resize(BUFFER_CAPACITY)
 	_stamps.resize(BUFFER_CAPACITY)
@@ -99,13 +121,20 @@ func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sin
 		_state = State.UNAVAILABLE
 	if not is_portrait:
 		_log(LOG_NOT_PORTRAIT, "the screen is not in portrait; F1 still uses the screen-relative x axis")
+	if not sensors_enabled:
+		_log(LOG_SENSORS_DISABLED, "the sensor project settings are disabled")
+		if is_debug:
+			_enter_fallback_state()
+		else:
+			_state = State.UNAVAILABLE
+			_locked = true
 
 
 ## Reads one sample and stamps it with the injected clock (once per rendered frame, GDD rule 6).
 ## `dt` is the clamped stamp difference to the last accepted poll; an equal or backwards stamp appends
 ## nothing and gives `dt` 0. A valid sample (finite, `|g| >= g_min`) is appended to the ring buffer.
 func poll() -> void:
-	if _is_broken():
+	if _is_broken() or _in_background:
 		return
 	var now_us: int = _clock.call() as int
 	if _has_previous and now_us <= _previous_now_us:
@@ -117,10 +146,18 @@ func poll() -> void:
 	_last_dt = float(diff_us) / 1e6
 	_has_previous = true
 	_previous_now_us = now_us
+	if _input_source == InputSource.FALLBACK or now_us < _settle_until_us:
+		return
+	if not _timeout_armed:
+		_timeout_armed = true
+		_timeout_start_us = now_us
 
 	var g: Vector3 = _sample_source.call() as Vector3
 	if not g.is_finite() or g.length_squared() < _g_min_sq:
+		_on_invalid_poll(now_us, diff_us)
 		return
+	_invalid_us = 0
+	_invalid_polls = 0
 	var angle: float = TiltMath.roll_deg(g, _config.sensor_sign)
 	_append(angle, now_us)
 	_sensor_ever_live = true
@@ -131,10 +168,41 @@ func poll() -> void:
 		availability_changed.emit(true)
 
 
+## App backgrounded (rule 9, from Platform Services): clears the buffer and sets `neutral_stale`. From Live or
+## Unavailable (sensor lost) the state becomes Acquiring (`availability_changed(false)` when it was Live); in
+## Acquiring only the buffer is cleared. Polls are ignored until `on_app_foregrounded()`. A second call equals one.
+## Ignored in Live `FALLBACK` and after a release-build configuration error.
+func on_app_backgrounded() -> void:
+	if _is_broken() or _input_source == InputSource.FALLBACK:
+		return
+	_count = 0
+	_head = 0
+	_in_background = true
+	_timeout_armed = false
+	_invalid_us = 0
+	_invalid_polls = 0
+	_neutral_stale = true
+	_steer = 0.0
+	var was_live: bool = _state == State.LIVE
+	_state = State.ACQUIRING
+	if was_live:
+		availability_changed.emit(false)
+
+
+## App foregrounded (rule 9): samples are discarded for `SENSOR_RESUME_SETTLE` from now, and the start timeout
+## counts from the first poll after the settle. Does nothing without a prior `on_app_backgrounded()`.
+func on_app_foregrounded() -> void:
+	if _is_broken() or _input_source == InputSource.FALLBACK or not _in_background:
+		return
+	_in_background = false
+	_settle_until_us = (_clock.call() as int) + _settle_us
+	_timeout_armed = false
+
+
 ## Capture event: `run_reset` (rule 7). From Hit or Paused it re-anchors conditionally unless `neutral_stale`;
 ## every other previous phase (Boot, Menu, unknown) always captures.
 func on_run_reset(previous_phase: PreviousPhase) -> void:
-	if _is_broken():
+	if _is_broken() or _input_source == InputSource.FALLBACK:
 		return
 	if (previous_phase == PreviousPhase.HIT or previous_phase == PreviousPhase.PAUSED) and not _neutral_stale:
 		_reanchor()
@@ -144,7 +212,7 @@ func on_run_reset(previous_phase: PreviousPhase) -> void:
 
 ## Capture event: the end of the resume countdown (rule 7). Always captures.
 func on_run_resumed() -> void:
-	if _is_broken():
+	if _is_broken() or _input_source == InputSource.FALLBACK:
 		return
 	_capture_event()
 
@@ -179,6 +247,16 @@ func get_last_dt() -> float:
 	return _last_dt
 
 
+## Accumulated clamped poll time (microseconds) of the consecutive invalid polls (F6).
+func get_invalid_us() -> int:
+	return _invalid_us
+
+
+## Number of consecutive invalid polls (F6).
+func get_invalid_polls() -> int:
+	return _invalid_polls
+
+
 ## True once a valid sample was accepted.
 func get_sensor_ever_live() -> bool:
 	return _sensor_ever_live
@@ -194,9 +272,9 @@ func get_valid() -> bool:
 	return _state == State.LIVE
 
 
-## Control source; always SENSOR until the fallback story.
+## Control source (rule 2): SENSOR, or FALLBACK after the start timeout or with sensors disabled in a debug build.
 func get_input_source() -> InputSource:
-	return InputSource.SENSOR
+	return _input_source
 
 
 ## Captured neutral in degrees (within +-PHI_MAX).
@@ -230,7 +308,7 @@ func get_neutral_stale() -> bool:
 
 
 func _is_broken() -> bool:
-	return not (_sample_source.is_valid() and _clock.is_valid() and _log_sink.is_valid() and _fallback_source.is_valid())
+	return _locked or not (_sample_source.is_valid() and _clock.is_valid() and _log_sink.is_valid() and _fallback_source.is_valid())
 
 
 func _append(angle_deg: float, now_us: int) -> void:
@@ -332,3 +410,34 @@ func _window_samples(lo_us: int, hi_us: int) -> PackedFloat64Array:
 		if stamp >= lo_us and stamp <= hi_us:
 			out.append(_angles[idx])
 	return out
+
+
+## One invalid poll: Acquiring checks the start timeout, Live (`SENSOR`) runs the F6 hold.
+func _on_invalid_poll(now_us: int, diff_us: int) -> void:
+	if _state == State.ACQUIRING:
+		if now_us - _timeout_start_us < _timeout_us:
+			return
+		if _sensor_ever_live:
+			_state = State.UNAVAILABLE
+			_log(LOG_SENSOR_TIMEOUT, "no valid sample after the app returned; Unavailable")
+		else:
+			_enter_fallback_state()
+			_log(LOG_SENSOR_TIMEOUT, "no valid sample within the start timeout; using the fallback input")
+			availability_changed.emit(true)
+	elif _state == State.LIVE:
+		_invalid_us += diff_us
+		_invalid_polls += 1
+		if _invalid_us <= _hold_us or _invalid_polls < DROPOUT_MIN_POLLS:
+			return
+		_state = State.UNAVAILABLE
+		_steer = 0.0
+		_neutral_stale = true
+		availability_changed.emit(false)
+
+
+func _enter_fallback_state() -> void:
+	_state = State.LIVE
+	_input_source = InputSource.FALLBACK
+	_neutral_pending = false
+	_neutral_stale = false
+	_steer = 0.0

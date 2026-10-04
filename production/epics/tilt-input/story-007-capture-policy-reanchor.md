@@ -1,7 +1,7 @@
 # Story 007: Capture policy, conditional re-anchor and run-stop recording
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
@@ -44,7 +44,7 @@ Always capture on `run_reset` from Boot, Menu or an unknown previous phase and o
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_capture_policy_test.gd`
-**Evidence**: `tests/unit/tilt_input/tilt_core_capture_policy_test.gd` (passing). Gap: AC-16e needs `on_app_backgrounded` (Story 010); only the stale routing from construction is proven.
+**Evidence**: `tests/unit/tilt_input/tilt_core_capture_policy_test.gd` (passing); AC-16e after app background/foreground: `tests/unit/tilt_input/tilt_core_app_lifecycle_test.gd::test_hit_and_paused_resets_capture_after_a_background_ac16e`
 
 ## Dependencies
 - Depends on: Story 002, Story 005

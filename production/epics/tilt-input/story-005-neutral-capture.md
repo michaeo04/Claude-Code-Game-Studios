@@ -1,7 +1,7 @@
 # Story 005: Neutral capture mechanics and pending capture
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
@@ -52,7 +52,7 @@ Capture sets `phi0` to the median of samples in the closed window `[t - G - W, t
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_neutral_capture_test.gd`
-**Evidence**: `tests/unit/tilt_input/tilt_core_neutral_capture_test.gd` (passing). Gap: AC-18 Unavailable half needs the Unavailable transition of Story 009; only Acquiring is proven.
+**Evidence**: `tests/unit/tilt_input/tilt_core_neutral_capture_test.gd` (passing; AC-18 Unavailable half: `test_capture_in_unavailable_waits_for_n_min_valid_samples_and_signals_ac18`)
 
 ## Dependencies
 - Depends on: Story 002, Story 003, Story 004

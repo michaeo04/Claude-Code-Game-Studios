@@ -17,15 +17,24 @@ var core: TiltCore
 var gravity: Vector3 = Vector3(0.0, -9.81, 0.0)
 var fallback_value: int = 0
 var step_us: int = STEP_US
+## Every `availability_changed` value in emission order.
+var availability: Array[bool] = []
 var _polled: bool = false
 
 
-func _init(config: TiltConfig = null, sensitivity: float = 1.0, is_portrait: bool = true) -> void:
+func _init(config: TiltConfig = null, sensitivity: float = 1.0, is_portrait: bool = true, sensors_enabled: bool = true,
+		is_debug: bool = true) -> void:
 	var cfg: TiltConfig = config
 	if cfg == null:
 		cfg = TiltConfig.new()
 		cfg.sensor_sign = 1
-	core = TiltCoreClass.new(cfg, _source, clock.as_callable(), sink.sink, _fallback, sensitivity, is_portrait)
+	core = TiltCoreClass.new(cfg, _source, clock.as_callable(), sink.sink, _fallback, sensitivity, is_portrait,
+			sensors_enabled, is_debug)
+	core.availability_changed.connect(_on_availability)
+
+
+func _on_availability(available: bool) -> void:
+	availability.append(available)
 
 
 func _source() -> Vector3:
@@ -46,6 +55,16 @@ func set_pose(pose_deg: float) -> void:
 ## one `step_us` after the previous.
 func tick(pose_deg: float, count: int = 1) -> void:
 	set_pose(pose_deg)
+	for i: int in count:
+		if _polled:
+			clock.advance_us(step_us)
+		core.poll()
+		_polled = true
+
+
+## `count` polls with an invalid sample (zero vector), stamped like `tick`.
+func tick_invalid(count: int = 1) -> void:
+	gravity = Vector3.ZERO
 	for i: int in count:
 		if _polled:
 			clock.advance_us(step_us)
