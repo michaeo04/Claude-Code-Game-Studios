@@ -1,0 +1,3 @@
+#@path: project.godot
+[application]
+run/max_fps=60

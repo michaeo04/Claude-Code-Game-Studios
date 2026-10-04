@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -42,7 +42,7 @@ Read the same entries as Story 007 (a shared data file, e.g. JSON under `tools/c
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/` unittest fixtures (passing and failing per entry); run by `python tools/ci/run_ci.py --only lint`
-**Status**: [ ] Not yet created
+**Evidence (partial)**: `tools/ci/tests/test_lint_platform_rules.py` (ManifestLintTest). Gap: `emulate_mouse_from_touch` stays optional in the registered ADR-0005 rule (an existing unit test requires that), so a missing key for it does not fail; export-preset key names are unverified (owner-actions E14).
 
 ## Dependencies
 - Depends on: Story 007; test-harness-ci lint runner stories

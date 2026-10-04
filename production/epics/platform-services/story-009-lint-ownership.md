@@ -1,12 +1,12 @@
 # Story 009: CI lint for OS-call ownership (AC-12)
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -48,7 +48,7 @@ Add two rules to `tools/ci/lint_rules.json` (`only_in` for 12a with the allowlis
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/` unittest cases with one passing and one failing fixture per rule (ADR-0009 Decision 5); run by `python tools/ci/run_ci.py --only lint`
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_platform_rules.py` (OwnershipTest, PurityTest) plus pass/fail fixtures for `forbidden:platform_os_calls_outside_platform_services`, `forbidden:project_settings_outside_platform_services`, `forbidden:platform_core_purity`.
 
 ## Dependencies
 - Depends on: Story 008; test-harness-ci lint runner stories

@@ -78,7 +78,7 @@ This epic is complete when:
 | 007 | [Re-entrancy guard, binder contract](story-007-tubewindow-reentrancy-guard.md) | Logic | Complete | ADR-0002 |
 | 008 | [Idle scroll step and deterministic content](story-008-idle-scroll-and-content-determinism.md) | Logic | Complete | ADR-0003 |
 | 009 | [300 s deterministic window simulation](story-009-window-simulation-300s.md) | Logic | Complete | ADR-0009 |
-| 010 | [Run State adapter and map-load integration](story-010-run-state-adapter.md) | Integration | Ready | ADR-0004 |
+| 010 | [Run State adapter and map-load integration](story-010-run-state-adapter.md) | Integration | Complete | ADR-0004 |
 | 011 | [TubeView mesh, shared material, slots, rebase](story-011-tubeview-mesh-slots.md) | Integration | Ready | ADR-0003 |
 | 012 | [Seam shader band and per-frame seam_contrast_scale](story-012-seam-shader-contrast-scale.md) | Logic | Ready | ADR-0003 |
 | 013 | [R-1 renderer gate and device performance evidence](story-013-r1-gate-device-performance.md) | Integration | Ready | ADR-0003 |

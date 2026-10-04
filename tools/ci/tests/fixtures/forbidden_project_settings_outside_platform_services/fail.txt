@@ -1,0 +1,2 @@
+#@path: src/core/other/foo.gd
+var a = ProjectSettings.get_setting("x")

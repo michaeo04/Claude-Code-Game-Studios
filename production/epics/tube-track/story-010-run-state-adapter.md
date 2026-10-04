@@ -1,12 +1,12 @@
 # Story 010: Run State adapter and map-load integration
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Integration
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md` (Dependencies, Open Question 6; no numbered AC, criteria below come from the ADRs)
@@ -42,7 +42,7 @@
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/tube_track/tube_run_adapter_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/tube_track/tube_run_adapter_test.gd` (4 tests: real RunStateCore phase sequence, origin reset before to_idle with idle binds equal to a fresh placement, Restart re-prime, loader double B5 and Retry); unit coverage in `tests/unit/tube_track/tube_run_adapter_test.gd`.
 
 ## Dependencies
 - Depends on: Story 004, Story 005, Story 006; run-state-restart epic (core and event names); map-loader epic (B5 sequence)

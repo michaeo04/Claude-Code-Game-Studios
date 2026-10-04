@@ -1,0 +1,5 @@
+#@path: src/core/platform/platform_core.gd
+extends RefCounted
+var t: Timer
+var x := Overtime.now() # Time.get_ticks_usec()
+var y := some_get_tree_like()

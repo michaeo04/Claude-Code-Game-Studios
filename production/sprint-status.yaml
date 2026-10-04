@@ -48,29 +48,29 @@ stories:
     name: "Run State adapter and map-load integration"
     file: "production/epics/tube-track/story-010-run-state-adapter.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-008"
     name: "PlatformServices node, notification mapping, thread rule and boot"
     file: "production/epics/platform-services/story-008-node-notifications-boot.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-009"
     name: "CI lint for OS-call ownership (AC-12)"
     file: "production/epics/platform-services/story-009-lint-ownership.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "PS-010"
     name: "CI manifest lint for project.godot and export preset (AC-13)"
     file: "production/epics/platform-services/story-010-lint-manifest.md"

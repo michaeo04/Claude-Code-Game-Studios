@@ -1,0 +1,3 @@
+#@path: project.godot
+[input_devices]
+sensors/enable_gravity=false

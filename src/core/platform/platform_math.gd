@@ -1,7 +1,7 @@
 ## Platform Services pure functions (design/gdd/platform-services.md F2, F3, F4; ADR-0006).
 ##
 ## Static and engine-free: no Input, DisplayServer, ProjectSettings, Engine, Time or OS. Every tunable value
-## (minimum interval, maximum duration, frame cap) arrives as a parameter. `fis_for_platform` is added by Story 008.
+## (minimum interval, maximum duration, frame cap) arrives as a parameter.
 class_name PlatformMath
 extends RefCounted
 
@@ -62,3 +62,8 @@ static func frame_time(fps: float) -> float:
 	if not (is_finite(fps) and fps > 0.0):
 		return 0.0
 	return 1000.0 / fps
+
+
+## Focus implies suspend on Android only (GDD rule 1): true for "Android", false for every other OS name.
+static func fis_for_platform(os_name: String) -> bool:
+	return os_name == "Android"

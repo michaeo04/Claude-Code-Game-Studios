@@ -1,12 +1,12 @@
 # Story 008: PlatformServices node, notification mapping, thread rule and boot
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -54,7 +54,7 @@ Node exposes the five signals (re-emitted from the core), `haptic(kind)`, `set_h
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/platform_services/platform_services_node_test.gd` (must pass; SceneTree `[N]` test under `--headless`)
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/platform_services/platform_services_node_test.gd` (6 tests: mapping, fis_for_platform, boot, mismatch not repaired, main-thread sync, off-thread deferred).
 
 ## Dependencies
 - Depends on: Stories 001, 004, 005, 006, 007

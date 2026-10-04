@@ -1,0 +1,4 @@
+#@path: src/core/other/foo.gd
+func _notification(w):
+	if w == NOTIFICATION_WM_GO_BACK_REQUEST:
+		pass

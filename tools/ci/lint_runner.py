@@ -729,7 +729,7 @@ def print_coverage(root: str, table: dict, out) -> int:
 # --------------------------------------------------------------------------- main
 
 def run(root: str, table: dict, only_rule: str | None = None, verbose: bool = False, out=None,
-        fixtures_dir: str | None = None) -> int:
+        fixtures_dir: str | None = None, android_export: bool = False) -> int:
     out = sys.stdout if out is None else out
     rules = table["rules"]
     if only_rule:
@@ -749,6 +749,10 @@ def run(root: str, table: dict, only_rule: str | None = None, verbose: bool = Fa
     notes: list[str] = []
     for rule in rules:
         res = evaluate(rule, source)
+        if android_export and rule["kind"] == "manifest" and not source.exists(rule.get("file", "export_presets.cfg")):
+            # The skip is BLOCKING from the first Android build (story PS-010): no preset means no export.
+            res.violations.append(_viol(rule, rule.get("file", "export_presets.cfg"), 1,
+                                        "Android export requested but the export preset file does not exist"))
         notes.extend(res.notes)
         for v in res.violations:
             print(v.format(), file=out)
@@ -785,6 +789,8 @@ def main(argv=None) -> int:
     ap.add_argument("--coverage", action="store_true", help="print the registry forbidden_patterns coverage table and exit")
     ap.add_argument("--fixtures-dir", default=None, help="fixture folder for the self-check (default tools/ci/tests/fixtures)")
     ap.add_argument("--verbose", action="store_true", help="list rules that passed with a note")
+    ap.add_argument("--android-export", action="store_true",
+                    help="an Android export is being built: a missing export_presets.cfg fails the manifest rules")
     ap.add_argument("--root", default=REPO_ROOT, help="repository root to scan")
     args = ap.parse_args(argv)
     try:
@@ -805,7 +811,8 @@ def main(argv=None) -> int:
         return 0
     if args.coverage:
         return print_coverage(os.path.abspath(args.root), table, sys.stdout)
-    return run(os.path.abspath(args.root), table, args.rule, args.verbose, fixtures_dir=args.fixtures_dir)
+    return run(os.path.abspath(args.root), table, args.rule, args.verbose, fixtures_dir=args.fixtures_dir,
+               android_export=args.android_export)
 
 
 if __name__ == "__main__":

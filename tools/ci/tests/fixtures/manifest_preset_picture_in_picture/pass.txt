@@ -1,0 +1,2 @@
+#@path: export_presets.cfg
+graphics/picture_in_picture=false

@@ -69,8 +69,8 @@ This epic is complete when:
 | 005 | [PlatformCore haptic call flow and drop counters](story-005-core-haptics.md) | Logic | Complete | ADR-0006 |
 | 006 | [PlatformCore Back signal and display facts](story-006-core-back-display-facts.md) | Logic | Complete | ADR-0006 |
 | 007 | [PlatformSettings manifest and mismatches()](story-007-platform-settings.md) | Logic | Complete | ADR-0006, ADR-0005 |
-| 008 | [PlatformServices node, notification mapping, thread rule, boot](story-008-node-notifications-boot.md) | Logic | Ready | ADR-0006 |
-| 009 | [CI lint for OS-call ownership (AC-12)](story-009-lint-ownership.md) | Logic | Ready | ADR-0009, ADR-0006 |
+| 008 | [PlatformServices node, notification mapping, thread rule, boot](story-008-node-notifications-boot.md) | Logic | Complete | ADR-0006 |
+| 009 | [CI lint for OS-call ownership (AC-12)](story-009-lint-ownership.md) | Logic | Complete | ADR-0009, ADR-0006 |
 | 010 | [CI manifest lint for project.godot and preset (AC-13)](story-010-lint-manifest.md) | Logic | Ready | ADR-0006, ADR-0009 |
 | 011 | [First Android export preset and merged-manifest check](story-011-export-preset-manifest.md) | Config/Data | Ready | ADR-0006 |
 | 012 | [Integration with Run State core (340 sequences)](story-012-integration-run-state.md) | Integration | Ready (depends on run-state-restart 001-004) | ADR-0009, ADR-0006 |

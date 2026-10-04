@@ -263,6 +263,9 @@
    "scope": [
     "src/**/*.gd"
    ],
+   "exclude": [
+    "src/**/platform_services.gd"
+   ],
    "pattern": "\\bNOTIFICATION_APPLICATION_(?:PAUSED|RESUMED)\\b",
    "message": "Use FOCUS_OUT / FOCUS_IN, not APPLICATION_PAUSED / RESUMED"
   },
@@ -1004,6 +1007,120 @@
    ],
    "pattern": "^\\s*const\\s+(?:LOG_|LOGGER_)?LEVEL_\\w*",
    "message": "Log level numbers live only in LogLevel (src/core/log/log_level.gd); do not declare a private LEVEL_ constant in a core"
+  },
+  {
+   "id": "forbidden:platform_os_calls_outside_platform_services",
+   "source": "ADR-0006; design/gdd/platform-services.md AC-12 (story PS-009)",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bNOTIFICATION_(?:APPLICATION_(?:FOCUS_IN|FOCUS_OUT|PAUSED|RESUMED)|WM_GO_BACK_REQUEST)\\b|\\bInput\\.vibrate_handheld\\b|\\bDisplayServer\\.(?:get_display_safe_area|screen_get_refresh_rate|screen_get_size|screen_set_keep_on)\\b",
+   "allow": [
+    "src/**/platform_services.gd"
+   ],
+   "message": "Only the PlatformServices node owns lifecycle notifications, vibration and display queries"
+  },
+  {
+   "id": "forbidden:project_settings_outside_platform_services",
+   "source": "ADR-0006; design/gdd/platform-services.md AC-12 (story PS-009)",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bProjectSettings\\.",
+   "allow": [
+    "src/**/platform_services.gd",
+    "src/**/tilt_input.gd"
+   ],
+   "message": "ProjectSettings is read only by PlatformServices (boot check) and TiltInput (its two sensor settings)"
+  },
+  {
+   "id": "forbidden:platform_core_purity",
+   "source": "ADR-0006; design/gdd/platform-services.md AC-12 (story PS-009)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/platform_core.gd",
+    "src/**/platform_math.gd",
+    "src/**/rate_limited_log.gd"
+   ],
+   "pattern": "\\bextends\\s+Node\\b|\\b(?:Input|DisplayServer|ProjectSettings|Engine|Time|OS)\\.|\\bget_tree\\b",
+   "message": "PlatformCore, PlatformMath and RateLimitedLog are engine-free RefCounted/static code"
+  },
+  {
+   "id": "project_setting:max_fps",
+   "source": "ADR-0006 Decision 9; design/gdd/platform-services.md AC-13 (story PS-010)",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "application/run/max_fps",
+   "value": "60",
+   "required": true,
+   "message": "application/run/max_fps must be 60 (a missing key defaults to 0)"
+  },
+  {
+   "id": "project_setting:enable_gravity",
+   "source": "ADR-0006 Decision 9; design/gdd/platform-services.md AC-13 (story PS-010)",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "equals",
+   "key": "input_devices/sensors/enable_gravity",
+   "value": "true",
+   "required": true,
+   "message": "input_devices/sensors/enable_gravity must be true (tilt input; owner tag tilt)"
+  },
+  {
+   "id": "manifest:preset_vibrate",
+   "source": "ADR-0006 Decision 9; design/gdd/platform-services.md AC-13 (story PS-010)",
+   "severity": "BLOCKING",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "lines_require": [
+    {
+     "line_pattern": "^permissions/vibrate=",
+     "contains": [
+      "=true"
+     ]
+    }
+   ],
+   "message": "Android preset must grant the VIBRATE permission (key name UNVERIFIED until the first preset, owner-actions E14; keys live in src/core/platform/platform_settings.gd)"
+  },
+  {
+   "id": "manifest:preset_immersive_mode",
+   "source": "ADR-0006 Decision 9; design/gdd/platform-services.md AC-13 (story PS-010)",
+   "severity": "BLOCKING",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "lines_require": [
+    {
+     "line_pattern": "^screen/immersive_mode=",
+     "contains": [
+      "=true"
+     ]
+    }
+   ],
+   "message": "Android preset must enable immersive mode (key name UNVERIFIED until the first preset, owner-actions E14; keys live in src/core/platform/platform_settings.gd)"
+  },
+  {
+   "id": "manifest:preset_picture_in_picture",
+   "source": "ADR-0006 Decision 9; design/gdd/platform-services.md AC-13 (story PS-010)",
+   "severity": "BLOCKING",
+   "kind": "manifest",
+   "file": "export_presets.cfg",
+   "lines_require": [
+    {
+     "line_pattern": "^graphics/picture_in_picture=",
+     "contains": [
+      "=false"
+     ]
+    }
+   ],
+   "message": "Android preset must disable Picture-in-Picture (key name UNVERIFIED until the first preset, owner-actions E14; keys live in src/core/platform/platform_settings.gd)"
   }
  ]
 }

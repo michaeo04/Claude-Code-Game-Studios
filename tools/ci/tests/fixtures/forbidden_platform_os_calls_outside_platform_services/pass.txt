@@ -1,0 +1,4 @@
+#@path: src/core/platform/platform_services.gd
+func _notification(w):
+	if w == NOTIFICATION_WM_GO_BACK_REQUEST:
+		DisplayServer.screen_set_keep_on(true)
