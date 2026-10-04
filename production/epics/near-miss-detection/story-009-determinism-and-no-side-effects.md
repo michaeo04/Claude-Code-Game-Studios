@@ -1,12 +1,12 @@
 # Story 009: Determinism and no side effects
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -46,7 +46,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_determinism_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_determinism_test.gd (AC-19 x3, AC-20 x2), script in tests/support/near_miss_script.gd
+**Status**: [x] Created, passing
 
 ## Dependencies
 - Depends on: Stories 005-008

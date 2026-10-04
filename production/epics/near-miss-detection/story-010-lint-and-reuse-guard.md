@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -46,8 +46,11 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_lint_parity_test.gd (plus lint fixtures under tools/ci/tests/fixtures/)
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_lint_parity_test.gd (AC-22b parity, pose table tests/support/near_miss_pose_table.gd); lint rules forbidden:near_miss_core_purity (AC-21) and forbidden:near_miss_second_arc_overlap (AC-22a) with pass/fail fixtures under tools/ci/tests/fixtures/. Heuristic scan limit acknowledged; the code-review sign-off is still to be recorded by /code-review.
+**Status**: [x] Created, passing
 
 ## Dependencies
 - Depends on: Stories 003, 005
 - Unlocks: None
+
+> **Reopened 2026-10-05**: AC-21 and AC-22a require a recorded code-review sign-off, which does not exist yet (the 2026-10-04 review covered only the modules that existed then). Lint and parity tests pass. Close this story when the sign-off is recorded in `production/qa/` (owner-actions C7).

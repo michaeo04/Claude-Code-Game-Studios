@@ -1,0 +1,10 @@
+#@path: src/core/near_miss/near_miss_math.gd
+class_name NearMissMath
+extends RefCounted
+
+static func arc_overlap(a: float, b: float) -> bool:
+	return a == b
+
+
+static func swept_hit() -> bool:
+	return false

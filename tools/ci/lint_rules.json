@@ -1154,6 +1154,28 @@
    ],
    "pattern": "\\b(?:var|const)\\s+_?(?:score|combo|health|lives|damage|multiplier|streak|difficulty|hit_count|near_miss_count)\\w*",
    "message": "GameRoot is wiring only: no gameplay-rule state (score, combo, health, lives, damage, multiplier, streak, difficulty, hit or near-miss counters)"
+  },
+  {
+   "id": "forbidden:near_miss_core_purity",
+   "source": "ADR-0008; near-miss-detection.md (story NM-010 AC-21)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/near_miss/*.gd"
+   ],
+   "pattern": "\\b(?:CollisionObject3D|CharacterBody3D|Area3D|RayCast3D|ShapeCast3D|PhysicsServer\\w*|RandomNumberGenerator|get_tree|_process|_physics_process|randi\\w*|randf\\w*|randomize|seed)\\b|\\b(?:Input|Engine|Time|OS|DisplayServer)\\s*\\.|\\bseed\\s*\\(|\\b(?:global_)?position\\.z\\b|\\bglobal_transform\\.origin\\b",
+   "message": "Near-Miss cores hold no physics node, no engine singleton call, no process hook, no randomness and no raw world Z"
+  },
+  {
+   "id": "forbidden:near_miss_second_arc_overlap",
+   "source": "ADR-0008 Decision 3; near-miss-detection.md (story NM-010 AC-22)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/near_miss/*.gd"
+   ],
+   "pattern": "\\bfunc\\s+(?:arc_overlap\\w*|theta_hit|s_hit|swept_hit)\\b",
+   "message": "Near-Miss reuses ObstacleMath for overlap and swept tests; a second definition is forbidden"
   }
  ]
 }

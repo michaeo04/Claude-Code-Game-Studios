@@ -6,7 +6,7 @@
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -22,9 +22,9 @@
 - Guardrail: `Obstacle.test` plus `NearMiss.step` at most 0.4 ms per tick at the 192-piece worst case (spike OB-1, advisory until the first-playable profiling pass)
 
 ## Acceptance Criteria
-- [ ] AC-23 [I]: wiring to the real `BallCore` published `theta`, `theta_prev`, `s`, `s_prev` (all four already exposed by `src/core/ball_movement/ball_core.gd`).
-- [ ] AC-24 [I]: wiring to the real Obstacle `hazard_bound`/`hazard_released(hazard_id, released_by_reset)` and `hit_reported`; a real graze produces one `near_miss_detected`, a real hit produces none.
-- [ ] AC-25 [I]: wiring to Run State's `run_reset`/`run_id`; a `window_primed` re-prime with a hazard in its near zone emits nothing.
+- [x] AC-23 [I]: wiring to the real `BallCore` published `theta`, `theta_prev`, `s`, `s_prev` (all four already exposed by `src/core/ball_movement/ball_core.gd`).
+- [x] AC-24 [I]: wiring to the real Obstacle `hazard_bound`/`hazard_released(hazard_id, released_by_reset)` and `hit_reported`; a real graze produces one `near_miss_detected`, a real hit produces none.
+- [x] AC-25 [I]: wiring to Run State's `run_reset`/`run_id`; a `window_primed` re-prime with a hazard in its near zone emits nothing.
 - [ ] AC-26 [I]: the Juice & Feedback consumption contract (every `near_miss_detected` gets the identical fixed-magnitude presentation) is exercised through the real tick once the Juice core exists; until then record the deferral in the evidence.
 
 ## Implementation Notes
@@ -60,7 +60,8 @@
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: tests/integration/near_miss_detection/near_miss_detection_wiring_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/integration/near_miss_detection/near_miss_detection_wiring_test.gd (AC-23, AC-24, AC-25 pass). AC-26 DEFERRED: no Juice core exists; owned by the juice-feedback epic. Full GameRoot run already proven by tests/integration/composition_root/composition_root_m1_headless_run_test.gd.
+**Status**: [~] AC-23 to AC-25 passing, AC-26 deferred
 
 ## Dependencies
 - Depends on: Stories 005-008; cross-epic: ball-movement, obstacle-system stories 006-007, run-state-restart, composition-root `_wire()` story, juice-feedback

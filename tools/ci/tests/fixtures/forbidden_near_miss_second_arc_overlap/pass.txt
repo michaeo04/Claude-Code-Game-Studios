@@ -1,0 +1,7 @@
+#@path: src/core/near_miss/near_miss_math.gd
+class_name NearMissMath
+extends RefCounted
+
+## A second arc_overlap is forbidden; this calls ObstacleMath.arc_overlap(a, b, c, d).
+static func zones() -> bool:
+	return ObstacleMath.arc_overlap(0.0, 1.0, 0.5, 1.0)
