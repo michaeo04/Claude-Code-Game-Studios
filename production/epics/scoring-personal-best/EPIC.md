@@ -69,8 +69,8 @@ This epic is complete when:
 | 004 | [step(): non-finite, negative, over-range and decreasing s](story-004-out-of-contract-s-guards.md) | Logic | Complete | ADR-0002 |
 | 005 | [Run endings: finalize, new-best write and personal_best_updated](story-005-run-endings-and-personal-best-write.md) | Logic | Complete | ADR-0007 |
 | 006 | [personal_best_passed: once-per-run live crossing](story-006-personal-best-passed.md) | Logic | Complete | ADR-0002 |
-| 007 | [milestone_crossed, ScoringConfig and validate_milestones](story-007-milestones-and-scoring-config.md) | Logic | Ready | ADR-0002 |
-| 008 | [Public surface, determinism and no side effects](story-008-surface-determinism-no-side-effects.md) | Logic | Ready | ADR-0009 |
+| 007 | [milestone_crossed, ScoringConfig and validate_milestones](story-007-milestones-and-scoring-config.md) | Logic | Complete | ADR-0002 |
+| 008 | [Public surface, determinism and no side effects](story-008-surface-determinism-no-side-effects.md) | Logic | Complete | ADR-0009 |
 | 009 | [ScoreService driver and Run State wiring against a fake source](story-009-score-service-driver.md) | Logic | Ready | ADR-0002 |
 | 010 | [CI lints: identifier, deny-list and typed-binding scans](story-010-ci-lints.md) | Logic | Ready | ADR-0009 |
 | 011 | [Composition Root: construct, wire rows, tick call and milestone preflight](story-011-composition-root-wiring.md) | Integration | Ready | ADR-0002 |

@@ -11,6 +11,9 @@ signal personal_best_updated(final_score: int)
 ## Emitted once per run when the live score first exceeds a non-zero personal best.
 signal personal_best_passed(personal_best: int)
 
+## Emitted once per run for each configured distance threshold, in ascending order, when the live score first reaches it.
+signal milestone_crossed(threshold: int)
+
 ## Largest `s` accepted by `step()` (crash-safety bound just under int64 max).
 const S_MAX: float = 9.2e18
 
@@ -73,6 +76,10 @@ func step() -> void:
 	if not has_passed_this_run and personal_best > 0 and current_score > personal_best:
 		has_passed_this_run = true
 		personal_best_passed.emit(personal_best)
+	while next_milestone_index < _milestone_distances.size() and current_score >= _milestone_distances[next_milestone_index]:
+		var threshold: int = _milestone_distances[next_milestone_index]
+		next_milestone_index += 1
+		milestone_crossed.emit(threshold)
 
 
 ## Run ended by a hit. `hazard_id` and `run_time_ms` are accepted for the signal shape and never read.

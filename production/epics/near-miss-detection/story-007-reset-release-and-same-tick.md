@@ -1,12 +1,12 @@
 # Story 007: Release by reset suppression and same-tick bind and release
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -22,8 +22,8 @@
 - Guardrail: `Obstacle.test` plus `NearMiss.step` at most 0.4 ms per tick at the 192-piece worst case (spike OB-1, advisory until the first-playable profiling pass)
 
 ## Acceptance Criteria
-- [ ] AC-28 [C]: two hazards in the near zone, not hit: `hazard_released(id, true)` emits nothing and discards the entry; `hazard_released(id, false)` emits exactly one `near_miss_detected(id, run_id)`. Third case: a hit on hazard A ends the run while B is in its near zone and the next `window_primed` releases B with `released_by_reset` true: nothing fires for B. A mutation ignoring the flag or suppressing ordinary releases must fail.
-- [ ] AC-18 [C]: `hazard_bound` and `hazard_released` for the same `hazard_id` in the same tick with no intervening test create and tear down the entry with no `near_miss_detected`; a release on the same tick as a natural exit emits exactly once.
+- [x] AC-28 [C]: two hazards in the near zone, not hit: `hazard_released(id, true)` emits nothing and discards the entry; `hazard_released(id, false)` emits exactly one `near_miss_detected(id, run_id)`. Third case: a hit on hazard A ends the run while B is in its near zone and the next `window_primed` releases B with `released_by_reset` true: nothing fires for B. A mutation ignoring the flag or suppressing ordinary releases must fail.
+- [x] AC-18 [C]: `hazard_bound` and `hazard_released` for the same `hazard_id` in the same tick with no intervening test create and tear down the entry with no `near_miss_detected`; a release on the same tick as a natural exit emits exactly once.
 
 ## Implementation Notes
 - Release logic: emit iff `released_by_reset` is false and `was_in_near_zone` and not `hit_ever_true`; discard the entry in all cases. If the natural exit edge already emitted this tick, the release must not emit again (clear `was_in_near_zone` on emit).
@@ -46,7 +46,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_release_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: near_miss_detection_release_test.gd (6 tests, passing: AC-28 reset/ordinary/hit-then-prime, AC-18 bind+release, exit+release).
+**Status**: [x] Complete
 
 ## Dependencies
 - Depends on: Story 005

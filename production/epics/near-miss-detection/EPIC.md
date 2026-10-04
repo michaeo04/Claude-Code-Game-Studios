@@ -68,8 +68,8 @@ This epic is complete when:
 | 004 | [F3-NM preflight validator: NEAR_ZONE_OVERLAP](story-004-near-zone-overlap-validator.md) | Logic | Complete | ADR-0008 |
 | 005 | [NearMissCore per-hazard state and edge-triggered output](story-005-near-miss-core-state-and-edge-output.md) | Logic | Complete | ADR-0002 |
 | 006 | [Hit overrides near-miss and same-tick order](story-006-hit-override.md) | Logic | Ready | ADR-0002 |
-| 007 | [Release by reset suppression and same-tick bind and release](story-007-reset-release-and-same-tick.md) | Logic | Ready | ADR-0002 |
-| 008 | [Non-finite ball state is a no-op frame](story-008-non-finite-state-guard.md) | Logic | Ready | ADR-0008 |
+| 007 | [Release by reset suppression and same-tick bind and release](story-007-reset-release-and-same-tick.md) | Logic | Complete | ADR-0002 |
+| 008 | [Non-finite ball state is a no-op frame](story-008-non-finite-state-guard.md) | Logic | Complete | ADR-0008 |
 | 009 | [Determinism and no side effects](story-009-determinism-and-no-side-effects.md) | Logic | Ready | ADR-0008 |
 | 010 | [Engine-coupling lint and reuse-not-reimplement guard](story-010-lint-and-reuse-guard.md) | Logic | Ready | ADR-0009 |
 | 011 | [Wire NearMissCore to real Ball, Obstacle, Run State and Juice](story-011-integration-wiring.md) | Integration | Ready | ADR-0002 |

@@ -1,12 +1,12 @@
 # Story 007: milestone_crossed, ScoringConfig and validate_milestones
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -22,9 +22,9 @@
 - Guardrail: 60 FPS / 16.6 ms frame; the death frame carries Juice, Scoring, HUD freeze and the save write in one tick (ADR-0007 Decision 5, spike SP-3 budget p95 <= 3 ms)
 
 ## Acceptance Criteria
-- [ ] **AC-23** Thresholds `[100, 250]` with `s` 99, 101, 249, 251: `milestone_crossed(100)` once at the first tick the score reaches 100, `milestone_crossed(250)` once, none early, repeated or out of order. After `on_run_reset()` mid-run, both fire again. Boundary rows: `s` 100.0 fires, 99.999 does not, a first-step 100.0 after a reset fires (a `>` mutation fails). An empty array over a long run fires nothing and never indexes out of bounds.
-- [ ] **AC-24** Thresholds `[100, 250, 500]` and one `step()` jumping `s` from 90 to 600: three events in one call in the order 100, 250, 500 (never batched, skipped or reordered).
-- [ ] **AC-25** `ScoringConfig.validate_milestones(Array) -> Array[String]` returns one message per violation for non-ascending or duplicate (`[250, 100]`, `[100, 100]`), non-positive (0, negative) and non-integer (`100.5`); a valid or empty array returns `[]`.
+- [x] **AC-23** Thresholds `[100, 250]` with `s` 99, 101, 249, 251: `milestone_crossed(100)` once at the first tick the score reaches 100, `milestone_crossed(250)` once, none early, repeated or out of order. After `on_run_reset()` mid-run, both fire again. Boundary rows: `s` 100.0 fires, 99.999 does not, a first-step 100.0 after a reset fires (a `>` mutation fails). An empty array over a long run fires nothing and never indexes out of bounds.
+- [x] **AC-24** Thresholds `[100, 250, 500]` and one `step()` jumping `s` from 90 to 600: three events in one call in the order 100, 250, 500 (never batched, skipped or reordered).
+- [x] **AC-25** `ScoringConfig.validate_milestones(Array) -> Array[String]` returns one message per violation for non-ascending or duplicate (`[250, 100]`, `[100, 100]`), non-positive (0, negative) and non-integer (`100.5`); a valid or empty array returns `[]`.
 
 ## Implementation Notes
 - Create `src/core/scoring_personal_best/scoring_config.gd` (`class_name ScoringConfig`, `extends Resource`, `@export var milestone_distances: Array[int]`, default `[100, 250, 500, 1000, 2000]`, a placeholder pending Open Question 9) and a pure `static func validate_milestones(values: Array) -> Array[String]` (no file I/O). Follow the Config pattern of `src/core/ball_movement/ball_config.gd`.
@@ -55,7 +55,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_milestones_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_milestones_test.gd` (10 tests, passing: ac23 order/rearm/boundary/first-step/empty, ac24 jump, ac25 validator).
+**Status**: [x] Complete
 
 ## Dependencies
 - Depends on: Stories 002, 003

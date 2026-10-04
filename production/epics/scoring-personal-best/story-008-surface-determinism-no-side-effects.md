@@ -1,12 +1,12 @@
 # Story 008: Public surface, determinism and no side effects
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -22,9 +22,9 @@
 - Guardrail: 60 FPS / 16.6 ms frame; the death frame carries Juice, Scoring, HUD freeze and the save write in one tick (ADR-0007 Decision 5, spike SP-3 budget p95 <= 3 ms)
 
 ## Acceptance Criteria
-- [ ] **AC-11b** `ScoreCore`'s non-underscore script-defined methods are exactly `step`, `on_run_reset`, `on_run_ended`, `on_run_abandoned`, `get_current_score`, `get_personal_best` (plus the static `validate_seams`, listed explicitly as the documented seam check); no near-miss-shaped method exists even if unused. `get_script_signal_list()` returns exactly `personal_best_updated(final_score: int)`, `personal_best_passed(personal_best: int)`, `milestone_crossed(threshold: int)`.
-- [ ] **AC-12** Over a full scripted session (boot, several run cycles, new bests and non-bests) the only seam calls are `s_seam` (exactly one per `step()`, none from reset or ending handlers), `get_value_seam` (exactly once) and `set_value_seam` (only on new-best endings).
-- [ ] **AC-13** Two independently constructed cores run the identical `s` and event script from the identical starting best: the full `current_score` sequences and both final `is_new_best` verdicts are bit-identical.
+- [x] **AC-11b** `ScoreCore`'s non-underscore script-defined methods are exactly `step`, `on_run_reset`, `on_run_ended`, `on_run_abandoned`, `get_current_score`, `get_personal_best` (plus the static `validate_seams`, listed explicitly as the documented seam check); no near-miss-shaped method exists even if unused. `get_script_signal_list()` returns exactly `personal_best_updated(final_score: int)`, `personal_best_passed(personal_best: int)`, `milestone_crossed(threshold: int)`.
+- [x] **AC-12** Over a full scripted session (boot, several run cycles, new bests and non-bests) the only seam calls are `s_seam` (exactly one per `step()`, none from reset or ending handlers), `get_value_seam` (exactly once) and `set_value_seam` (only on new-best endings).
+- [x] **AC-13** Two independently constructed cores run the identical `s` and event script from the identical starting best: the full `current_score` sequences and both final `is_new_best` verdicts are bit-identical.
 
 ## Implementation Notes
 - First step: run a throwaway check of `ScoreCore.get_script().get_script_method_list()` on the 4.7.2 binary (`GODOT` per memory note `reference_godot_binary_and_ci`), record the result in the story file, and pick the reflection or source-parse mechanism. Update the traceability Partial note when closed.
@@ -54,7 +54,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_surface_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_surface_test.gd` (6 tests, passing). Reflection check on 4.7.2: `Script.get_script_method_list()` is USABLE; it returns only script-defined members (no inherited RefCounted/Object ones), including static `validate_seams` and underscore members (`_init`, `_finalize`), so the scan filters names starting with `_`. The source-parse fallback is not needed. Throwaway test deleted.
+**Status**: [x] Complete
 
 ## Dependencies
 - Depends on: Stories 004, 005, 006, 007

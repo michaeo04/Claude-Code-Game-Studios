@@ -17,6 +17,9 @@ extends RefCounted
 ## The payload is exactly these two fields.
 signal near_miss_detected(hazard_id: int, run_id: int)
 
+## Log code (error level) of a tick whose ball state has a non-finite `theta`, `theta_prev`, `s` or `s_prev`.
+const LOG_NON_FINITE_BALL: StringName = &"NON_FINITE_BALL"
+
 var _log_sink: Callable
 var _angle_margin: float
 var _s_margin: float
@@ -85,6 +88,11 @@ func step(ball: RefCounted) -> void:
 	var theta_prev: float = ball.get(&"theta_prev") as float
 	var s: float = ball.get(&"s") as float
 	var s_prev: float = ball.get(&"s_prev") as float
+	# A non-finite pose is a no-op frame (hits and releases above still apply); the next valid tick resumes.
+	if not (is_finite(theta) and is_finite(theta_prev) and is_finite(s) and is_finite(s_prev)):
+		if _log_sink.is_valid():
+			_log_sink.call(LogLevel.ERROR, LOG_NON_FINITE_BALL, "ball", "non-finite ball state; tick skipped")
+		return
 	var ids: Array[int] = []
 	ids.append_array(_order)
 	for hazard_id: int in ids:

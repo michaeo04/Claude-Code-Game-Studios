@@ -149,7 +149,7 @@ A requirement is **architecture-relevant** when satisfying it needs a decision t
 | TR-near-miss-detection-016 | Lint (engine-coupling regex family, as Obstacle) plus a reuse-not-reimplement guard (no second `arc_ | ADR-0009 | ✅ Covered |
 | TR-near-miss-detection-017 | NM-1 on-device check, BLOCKING at first-playable: near-miss-to-hazard-passed ratio within +/-20% bet | ADR-0009 | ✅ Covered |
 | TR-near-miss-detection-019 | None owned. Juice owns the VFX/audio/haptic. A coalescing requirement is handed to Juice (two near-m | (Juice) | ⚠️ Partial |
-| TR-scoring-personal-best-003 | The public surface is exactly six non-underscore methods: `step()`, `on_run_reset()`, `on_run_ended( | ADR-0009 | ⚠️ Partial |
+| TR-scoring-personal-best-003 | The public surface is exactly six non-underscore methods: `step()`, `on_run_reset()`, `on_run_ended( | ADR-0009 | ✅ Covered (reflection verified on 4.7.2, story 008) |
 | TR-scoring-personal-best-008 | The only persistence is `[scoring].personal_best` in `save.cfg` via Save & Persistence. It is read o | ADR-0007 | ✅ Covered |
 | TR-scoring-personal-best-013 | `ScoreService.step()` runs once per tick strictly after Ball Movement's step, using the same callbac | ADR-0002 | ✅ Covered |
 | TR-scoring-personal-best-014 | `ScoreService` connects at composition-root construction, before Run State's first emit (Godot drops | ADR-0002 | ✅ Covered |

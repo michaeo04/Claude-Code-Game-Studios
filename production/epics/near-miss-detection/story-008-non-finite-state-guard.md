@@ -1,12 +1,12 @@
 # Story 008: Non-finite ball state is a no-op frame
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 1-2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -22,7 +22,7 @@
 - Guardrail: `Obstacle.test` plus `NearMiss.step` at most 0.4 ms per tick at the 192-piece worst case (spike OB-1, advisory until the first-playable profiling pass)
 
 ## Acceptance Criteria
-- [ ] AC-17 [C]: a tick with `theta = NaN` or `s = +inf` is a no-op (last known-good swept endpoint held), logs exactly one error, produces no `near_miss_detected` from the NaN/inf comparison; the next valid tick resumes with no residual effect.
+- [x] AC-17 [C]: a tick with `theta = NaN` or `s = +inf` is a no-op (last known-good swept endpoint held), logs exactly one error, produces no `near_miss_detected` from the NaN/inf comparison; the next valid tick resumes with no residual effect.
 
 ## Implementation Notes
 - Do not propagate NaN into `NEAR_MISS_CANDIDATE`. The GDD names no log code for this case; choose one constant in the core and record it in the story when implemented. Frozen ticks (`dt_eff` 0) rely on Ball Movement's no-op contract (`theta_prev == theta`) and need no special case (covered by Story 005, AC-13).
@@ -40,7 +40,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_non_finite_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: near_miss_detection_non_finite_test.gd (3 tests, passing). Log code chosen: `NearMissCore.LOG_NON_FINITE_BALL` = `NON_FINITE_BALL`, error level, key `ball`. Queued hits/releases still apply on a bad tick; only movement is skipped.
+**Status**: [x] Complete
 
 ## Dependencies
 - Depends on: Story 005
