@@ -87,5 +87,5 @@ static func valid_definition() -> MapDefinition:
 	def.map_id = &"test"
 	def.env = EnvConfig.new()
 	def.hazard_style = HazardStyle.new()
-	def.chunk_library = Resource.new()
+	def.chunk_library = ChunkLibrary.new()
 	return def

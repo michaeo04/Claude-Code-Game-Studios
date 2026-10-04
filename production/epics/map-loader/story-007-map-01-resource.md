@@ -1,12 +1,12 @@
 # Story 007: Author map_01.tres and its round-trip test
 
 > **Epic**: Map Loader & MapConfig
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Config/Data
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: none, defined by ADR-0004
@@ -59,7 +59,8 @@ Do not author the chunk library here; reference `assets/data/chunks/chunk_librar
 ## Test Evidence
 **Story Type**: Config/Data
 **Required evidence**: `tests/integration/map_loader/map_loader_map_01_roundtrip_test.gd` plus smoke check pass noted in `production/qa/smoke-[date].md`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/integration/map_loader/map_loader_map_01_roundtrip_test.gd` (6 tests: classes, ChunkLibrary type, env values, HazardStyle defaults, Phase A passes with real EnvConfig/TubeConfig, no Camera keys). Library in the file is an EMPTY inline `ChunkLibrary` (temporary placeholder until the Pattern epic ships `chunk_library_01.tres`). `MapDefinition.chunk_library` is now typed `ChunkLibrary`. Smoke-check note not written (no `/smoke-check` run).
 
 ## Dependencies
 - Depends on: Story 004; environment-theming epic (`EnvConfig` fields and Map 1 values); pattern-difficulty epic (library class and `chunk_library_01.tres`)

@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="MapDefinition" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://src/core/map_loader/map_definition.gd" id="1_def"]
+[ext_resource type="Script" path="res://src/core/map_loader/env_config.gd" id="2_env"]
+[ext_resource type="Script" path="res://src/core/map_loader/hazard_style.gd" id="3_style"]
+[ext_resource type="Script" path="res://src/core/obstacle/chunk_library.gd" id="4_lib"]
+
+[sub_resource type="Resource" id="Resource_env"]
+script = ExtResource("2_env")
+seam_pattern_id = &"default"
+fog_mode = 0
+fog_depth_begin = 44.0
+fog_end_distance = 84.0
+fog_depth_curve = 1.0
+fog_density = 1.0
+fog_color = Color(0.9019608, 0.92941177, 0.9607843, 1)
+readable_distance = 46.22
+tube_color = Color(0.6627451, 0.7490196, 0.6901961, 1)
+sky_top_color = Color(0.76862746, 0.8235294, 0.9019608, 1)
+sky_bottom_color = Color(0.9019608, 0.92941177, 0.9607843, 1)
+prop_set_id = &"none"
+
+[sub_resource type="Resource" id="Resource_style"]
+script = ExtResource("3_style")
+height_d_wall = 1.0
+height_d_double_gate = 1.0
+height_d_near_ring = 1.0
+height_d_spike = 1.6
+face_color = Color(0.627451, 0.0627451, 0.10196079, 1)
+shade_color = Color(0.36078432, 0.03921569, 0.07058824, 1)
+
+[sub_resource type="Resource" id="Resource_lib"]
+script = ExtResource("4_lib")
+
+[resource]
+script = ExtResource("1_def")
+map_id = &"map_01"
+env = SubResource("Resource_env")
+chunk_library = SubResource("Resource_lib")
+hazard_style = SubResource("Resource_style")

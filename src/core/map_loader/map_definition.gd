@@ -5,7 +5,7 @@ extends Resource
 @export var map_id: StringName
 ## Environment values (graph `MapDefinition -> EnvConfig`, no back-edge).
 @export var env: EnvConfig
-## Typed `ChunkLibrary` once ADR-0008 exists (Pattern epic); `Resource` until then.
-@export var chunk_library: Resource
+## The authored hazard library (ADR-0008 Decision 1).
+@export var chunk_library: ChunkLibrary
 ## A `HazardStyle` (ADR-0014), validated in Phase A step A3b.
 @export var hazard_style: Resource
