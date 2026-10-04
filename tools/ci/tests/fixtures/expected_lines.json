@@ -11,6 +11,7 @@
  "forbidden_connect_deferred_control_signals_scene": 1,
  "forbidden_copy_or_mutate_hazard_resources": 1,
  "forbidden_debug_build_gate_for_dev_input": 1,
+ "forbidden_duplicate_deep": 1,
  "forbidden_duplicate_vulkan_uses_feature": 2,
  "forbidden_engine_glow_for_gameplay_effects": 1,
  "forbidden_engine_physics_for_hazards": 1,

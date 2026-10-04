@@ -120,20 +120,20 @@ stories:
     name: "map_loader.gd driver and ResourceLoader lint"
     file: "production/epics/map-loader/story-008-map-loader-driver-and-lint.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-009"
     name: "Loader wiring order, map_load_failed to Menus, Retry Callable"
     file: "production/epics/map-loader/story-009-wiring-and-menus-retry.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-008"
     name: "Boot rendering-method check through an injected getter"
     file: "production/epics/composition-root/story-008-boot-rendering-method-seam.md"

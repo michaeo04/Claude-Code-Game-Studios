@@ -1,12 +1,12 @@
 # Story 009: Loader wiring order, map_load_failed to Menus, Retry Callable
 
 > **Epic**: Map Loader & MapConfig
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 2-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0004
@@ -63,7 +63,7 @@ Builds on the composition-root epic; the real `Menus` view may not exist yet, so
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/map_loader/map_loader_wiring_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/map_loader/map_loader_wiring_test.gd` (6 tests).
 
 ## Dependencies
 - Depends on: Story 008; composition-root epic (`GameRoot._wire()`); run-state-restart epic

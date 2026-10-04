@@ -9,3 +9,5 @@ extends Resource
 @export var v_max: float = 25.0
 ## Ball diameter `D` handed to `TubeConfig.validate` (Phase A step A6). Same ownership note as `v_max`.
 @export var ball_diameter: float = 0.8
+## Boot map path (ADR-0004: boot config, not code). MVP: the single shipped map.
+@export var map_path: String = "res://assets/data/maps/map_01.tres"

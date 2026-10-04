@@ -182,6 +182,17 @@
    "message": "res:// content is loaded only through ResourceLoader in map_loader.gd, never FileAccess/DirAccess"
   },
   {
+   "id": "forbidden:duplicate_deep",
+   "source": "ADR-0004",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bduplicate_deep\\s*\\(",
+   "message": "No duplicate_deep() (4.5 API): configs use a shallow duplicate() in validated()"
+  },
+  {
    "id": "forbidden:non_scalar_tube_config_field",
    "source": "ADR-0004",
    "severity": "BLOCKING",

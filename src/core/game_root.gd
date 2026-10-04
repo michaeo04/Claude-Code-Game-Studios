@@ -223,9 +223,21 @@ func _start_map_loader() -> Error:
 		return ERR_UNCONFIGURED
 	_map_loader = (_factory[&"map_loader"] as Callable).call(map_loader_config) as Object
 	construction_trace.append(&"map_loader")
+	_bind_menus_to_map_loader()
 	_map_loader.call(&"start")
 	construction_trace.append(&"map_loader.start")
 	return OK
+
+
+## Hands Menus the `map_load_failed` signal and the typed Retry Callable (`request_map_retry`, bound to
+## `MapLoader.retry`) before the first attempt, so a failure in `start()` reaches Menus in the same call. Menus connects
+## the signal immediately. Skipped for a loader that is not a `MapLoader` or a Menus without `bind_map_loader`.
+func _bind_menus_to_map_loader() -> void:
+	if not (_map_loader is MapLoader) or _menus == null or not _menus.has_method(&"bind_map_loader"):
+		return
+	var loader: MapLoader = _map_loader as MapLoader
+	var request_map_retry: Callable = loader.retry
+	_menus.call(&"bind_map_loader", loader.map_load_failed, request_map_retry)
 
 
 ## Builds the row table, validates it (a failure connects nothing), sorts by `(rank, row index)` and connects every

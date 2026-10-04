@@ -45,8 +45,8 @@ This epic is complete when:
 | 005 | Phase B apply order and map_ready | Logic | Complete | ADR-0004 |
 | 006 | Failure reporting, map_load_failed and Retry | Logic | Complete | ADR-0004 |
 | 007 | Author map_01.tres and its round-trip test | Config/Data | Complete | ADR-0004, ADR-0008, ADR-0014 |
-| 008 | map_loader.gd driver and ResourceLoader lint | Integration | Ready | ADR-0004 |
-| 009 | Loader wiring order, map_load_failed to Menus, Retry Callable | Integration | Ready | ADR-0004 |
+| 008 | map_loader.gd driver and ResourceLoader lint | Integration | Complete | ADR-0004 |
+| 009 | Loader wiring order, map_load_failed to Menus, Retry Callable | Integration | Complete | ADR-0004 |
 | 010 | Android export smoke test (load and corrupted copy) | Integration | Ready | ADR-0004, ADR-0008 |
 | 011 | MS-1 boot sequence time on a mid-tier phone | Integration | Ready | ADR-0004, ADR-0014 |
 
