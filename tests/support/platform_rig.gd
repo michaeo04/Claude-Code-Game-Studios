@@ -13,6 +13,10 @@ var core: PlatformCore
 var vibrations: Array[Array] = []
 ## Signal names recorded since the last `take()`.
 var signals: Array[String] = []
+## Display facts returned by `display()`.
+var facts: Dictionary = {}
+## Every `display()` read ("read") and lifecycle signal, in order; never cleared by `take()`.
+var order: Array[String] = []
 
 
 func _init(fis: bool, config: HapticsConfig = null) -> void:
@@ -46,7 +50,8 @@ func vibrate(duration_ms: int, amplitude: float) -> void:
 
 
 func display() -> Dictionary:
-	return {}
+	order.append("read")
+	return facts
 
 
 ## Recorded signals since the last call as `"INT,BG"`, or `"-"` when none; clears the record.
@@ -58,15 +63,19 @@ func take() -> String:
 
 func _on_interrupted() -> void:
 	signals.append("INT")
+	order.append("INT")
 
 
 func _on_backgrounded() -> void:
 	signals.append("BG")
+	order.append("BG")
 
 
 func _on_foregrounded() -> void:
 	signals.append("FG")
+	order.append("FG")
 
 
 func _on_returned() -> void:
 	signals.append("RET")
+	order.append("RET")

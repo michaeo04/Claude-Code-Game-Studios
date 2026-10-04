@@ -1,12 +1,12 @@
 # Story 007: PlatformSettings manifest data and mismatches()
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -42,7 +42,8 @@ The manifest is data (an array of entries with `section`, `key`, `expected`, `ow
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/platform_services/platform_services_settings_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Status**: [x] Passing
+**Evidence**: tests/unit/platform_services/platform_services_settings_test.gd: mismatches tests (all correct, N wrong, missing key, preset exclusion, gravity first, report)
 
 ## Dependencies
 - Depends on: Story 002

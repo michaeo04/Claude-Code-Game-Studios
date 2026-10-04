@@ -67,8 +67,8 @@ This epic is complete when:
 | 003 | [HapticsConfig validation and shipped defaults](story-003-haptics-config.md) | Logic | Complete | ADR-0006 |
 | 004 | [PlatformCore lifecycle model and edge signals](story-004-core-lifecycle.md) | Logic | Complete | ADR-0006 |
 | 005 | [PlatformCore haptic call flow and drop counters](story-005-core-haptics.md) | Logic | Complete | ADR-0006 |
-| 006 | [PlatformCore Back signal and display facts](story-006-core-back-display-facts.md) | Logic | Ready | ADR-0006 |
-| 007 | [PlatformSettings manifest and mismatches()](story-007-platform-settings.md) | Logic | Ready | ADR-0006, ADR-0005 |
+| 006 | [PlatformCore Back signal and display facts](story-006-core-back-display-facts.md) | Logic | Complete | ADR-0006 |
+| 007 | [PlatformSettings manifest and mismatches()](story-007-platform-settings.md) | Logic | Complete | ADR-0006, ADR-0005 |
 | 008 | [PlatformServices node, notification mapping, thread rule, boot](story-008-node-notifications-boot.md) | Logic | Ready | ADR-0006 |
 | 009 | [CI lint for OS-call ownership (AC-12)](story-009-lint-ownership.md) | Logic | Ready | ADR-0009, ADR-0006 |
 | 010 | [CI manifest lint for project.godot and preset (AC-13)](story-010-lint-manifest.md) | Logic | Ready | ADR-0006, ADR-0009 |

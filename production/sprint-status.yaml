@@ -228,11 +228,11 @@ stories:
     name: "PlatformCore Back signal and display facts"
     file: "production/epics/platform-services/story-006-core-back-display-facts.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-008"
     name: "Availability states, start timeout and availability signal"
     file: "production/epics/tilt-input/story-008-availability-states.md"

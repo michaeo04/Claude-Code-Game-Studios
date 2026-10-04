@@ -1,12 +1,12 @@
 # Story 006: PlatformCore Back signal and display facts
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/platform-services.md`
@@ -48,7 +48,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/platform_services/platform_services_core_back_display_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Status**: [x] Passing
+**Evidence**: tests/unit/platform_services/platform_services_core_back_display_test.gd: test_back_emits_once_per_call_in_all_four_states, test_back_does_not_change_lifecycle_sequence, test_display_read_* / test_regaining_* / test_handler_sees_new_values / safe-area / refresh tests
 
 ## Dependencies
 - Depends on: Story 004

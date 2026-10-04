@@ -52,6 +52,7 @@
 | E11 | `SettingsCore.set_value` coerces a wrong-typed value with `as bool` / `as float`; the Settings stories do not say what a wrong-typed value should do (reject and log vs coerce). A follow-up decision for the Settings GDD | `src/core/settings/settings_core.gd` | Story silent |
 | E12 | Three modules now use three different log-level numbers (Save INFO=1/ERROR=2, Run State and Settings WARNING=1, RateLimitedLog DEBUG/ERROR). Time for one shared level enum (a small refactor story) | `src/core/` | E10 became real when Settings arrived |
 | E13 | ADR-0005 Decision 1 says Tilt Input becomes Unavailable after the start timeout, but Tilt GDD AC-29/AC-48 keep Live `FALLBACK` when a sensor was never live (Unavailable only after it had been live). `TiltCore` follows the GDD; ADR-0005 wording should be amended to match. Also: polls are ignored between `on_app_backgrounded()` and `on_app_foregrounded()` (the GDD is silent) | `src/core/tilt_input/tilt_core.gd`, ADR-0005 | GDD ACs win over the ADR sentence |
+| E14 | The three export-preset key names in `PlatformSettings` (`permissions/vibrate`, `screen/immersive_mode`, `graphics/picture_in_picture`) are guesses; confirm them against the real `export_presets.cfg` when you create the first Android preset (A4), or let the assistant read the file you create and correct them | `src/core/platform/platform_settings.gd`, platform-services story 011 | Cannot be verified without a preset |
 
 ## D. Resolved (kept so the history is visible)
 

@@ -15,6 +15,8 @@ signal app_backgrounded
 signal app_foregrounded
 ## The app regained attention.
 signal app_returned
+## The Back request arrived (one emission per `on_back_requested` call). Decides nothing; consumers are idempotent.
+signal back_pressed
 
 ## Reasons a `haptic` call is dropped, in evaluation order.
 enum DropCause { UNKNOWN_KIND, DISABLED, NOT_ATTENTIVE, ZERO_DURATION, THROTTLED }
@@ -42,11 +44,41 @@ var _paused: bool = false
 var _haptics_enabled: bool = true
 var _haptics_intensity: float = 1.0
 var _drops: Array[int] = [0, 0, 0, 0, 0]
+var _safe_area: Rect2i = Rect2i()
+var _screen_size: Vector2i = Vector2i.ZERO
+var _viewport_size: Vector2i = Vector2i.ZERO
+var _refresh_rate: float = 0.0
+var _screen_dpi: int = 0
 
 ## True when the app has focus and is not paused.
 var attentive: bool:
 	get:
 		return _is_attentive()
+
+## Safe area in pixels; the full screen rectangle when the source reports an empty one.
+var safe_area: Rect2i:
+	get:
+		return _safe_area
+
+## Screen size in pixels.
+var screen_size: Vector2i:
+	get:
+		return _screen_size
+
+## Viewport size in pixels, exposed unconverted.
+var viewport_size: Vector2i:
+	get:
+		return _viewport_size
+
+## Display refresh rate in Hz, raw (0 or negative means unknown; `PlatformMath.fps_eff` handles it).
+var refresh_rate: float:
+	get:
+		return _refresh_rate
+
+## Screen DPI (extra key for ADR-0011), 0 when unknown.
+var screen_dpi: int:
+	get:
+		return _screen_dpi
 
 ## True when the app is suspended (paused, or unfocused when focus implies suspend).
 var suspended: bool:
@@ -70,6 +102,7 @@ func _init(
 	_vibrate = vibrate
 	_display_source = display_source
 	_config = config
+	_read_display()
 
 
 ## Window focus lost.
@@ -102,6 +135,11 @@ func on_resumed() -> void:
 		_noop(EVENT_RESUMED)
 		return
 	_apply(_focused, false)
+
+
+## Back request (the node forwards `NOTIFICATION_WM_GO_BACK_REQUEST`). Emits `back_pressed` in every lifecycle state.
+func on_back_requested() -> void:
+	back_pressed.emit()
 
 
 ## Master haptics switch (fed by Settings). Disabling mid-pulse makes no extra `vibrate` call.
@@ -179,6 +217,8 @@ func _apply(focused: bool, paused: bool) -> void:
 	_paused = paused
 	var a1: bool = _is_attentive()
 	var s1: bool = _is_suspended()
+	if (s0 and not s1) or (not a0 and a1):
+		_read_display()
 	if a0 and not a1:
 		app_interrupted.emit()
 	if not s0 and s1:
@@ -187,3 +227,22 @@ func _apply(focused: bool, paused: bool) -> void:
 		app_foregrounded.emit()
 	if not a0 and a1:
 		app_returned.emit()
+
+
+## Reads `display_source` (Dictionary with `safe_area`, `screen_size`, `viewport_size`, `refresh_rate`, `screen_dpi`).
+## Missing keys keep their previous value. An empty safe area becomes the full screen rectangle.
+func _read_display() -> void:
+	if not _display_source.is_valid():
+		return
+	var facts: Dictionary = _display_source.call()
+	if facts.has("screen_size"):
+		_screen_size = facts["screen_size"]
+	if facts.has("viewport_size"):
+		_viewport_size = facts["viewport_size"]
+	if facts.has("refresh_rate"):
+		_refresh_rate = facts["refresh_rate"]
+	if facts.has("screen_dpi"):
+		_screen_dpi = facts["screen_dpi"]
+	if facts.has("safe_area"):
+		var area: Rect2i = facts["safe_area"]
+		_safe_area = area if area.has_area() else Rect2i(Vector2i.ZERO, _screen_size)
