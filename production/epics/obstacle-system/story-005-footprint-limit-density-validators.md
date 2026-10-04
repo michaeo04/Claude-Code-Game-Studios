@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Edge Cases footprint validation; Formulas F5)
@@ -48,7 +48,9 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_footprint_validators_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [~] Created and passing; AC-9 gap open
+**Evidence**: `obstacle_system_footprint_validators_test.gd` (17 tests for AC-7, 8, 12, 31, 35 and the home-segment validator).
+**Gap (stays Ready)**: AC-9 says piece `s 190..193` declared for segment 15 passes, but the GDD Edge Cases rule requires the whole raw range inside `[i*L, (i+1)*L)` and 193 >= 192. Implemented the Edge Cases rule (full containment); the test uses `190..191.5` for the passing row and asserts `190..193` is rejected for 15. Needs a GDD/AC decision (fix AC-9 wording, or relax to `s_start`-only).
 
 ## Dependencies
 - Depends on: Story 003

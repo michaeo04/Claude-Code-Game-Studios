@@ -20,6 +20,8 @@ const _MAX_PIECES_RANGE: Vector2i = Vector2i(6, 20)
 @export var hidden_span_min_time: float = 1.44
 ## Most footprint pieces per segment (safe range 6 to 20).
 @export var max_pieces_per_segment: int = 12
+## Length in world units of the hazard-free start of segment 0 (Ball Movement Rule 5 reset glide, 11 u at defaults).
+@export var grace_zone_length: float = 11.0
 
 
 ## Returns a copy with every knob inside its safe range (non-finite replaced by the default; the GDD names no
@@ -32,6 +34,7 @@ func validated(log_sink: Callable = Callable(), omega_max: float = 3.0, dt_max: 
 	out.gap_margin = clampf(out.gap_margin, _GAP_MARGIN_RANGE.x, _GAP_MARGIN_RANGE.y)
 	out.t_reveal_min = _finite_or(out.t_reveal_min, defaults.t_reveal_min)
 	out.hidden_span_min_time = _finite_or(out.hidden_span_min_time, defaults.hidden_span_min_time)
+	out.grace_zone_length = maxf(_finite_or(out.grace_zone_length, defaults.grace_zone_length), 0.0)
 	out.max_pieces_per_segment = clampi(out.max_pieces_per_segment, _MAX_PIECES_RANGE.x, _MAX_PIECES_RANGE.y)
 	sweep_invariant_holds(omega_max, dt_max, log_sink)
 	return out

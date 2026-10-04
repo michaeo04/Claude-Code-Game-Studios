@@ -1,7 +1,7 @@
 ## Pure Obstacle System math (GDD F1, F2). Static and engine-free; all values are float64.
 ##
 ## Footprints are flat `PackedFloat64Array`s, 4 values per piece: `theta_min, theta_max, s_start, s_end`.
-## The F3 gap sweep-line and F4/F5 are added by later stories to THIS file.
+## The F3 sweep-line and the preflight validators (Stories 004, 005) live at the bottom; F4 is added by later stories.
 class_name ObstacleMath
 extends RefCounted
 
@@ -77,3 +77,240 @@ static func swept_hit(
 		theta_hit(theta_prev, theta, eff_footprint[i], eff_footprint[i + 1])
 		and s_hit(s_prev, s, eff_footprint[i + 2], eff_footprint[i + 3])
 	)
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Offline preflight validators (Stories 004 and 005). Pure, exhaustive and deterministic: hazards are visited in
+# ascending `hazard_id` order, results come back as `PreflightRecord`s and nothing stops at the first failure.
+# ---------------------------------------------------------------------------------------------------------------
+
+## F3: a gap must hold a ball width times `GAP_MARGIN` (`NO_SAFE_GAP`).
+const NO_SAFE_GAP: StringName = &"NO_SAFE_GAP"
+## Two different hazards whose footprints touch (`HAZARD_OVERLAP`).
+const HAZARD_OVERLAP: StringName = &"HAZARD_OVERLAP"
+const FOOTPRINT_NOT_FINITE: StringName = &"FOOTPRINT_NOT_FINITE"
+const FOOTPRINT_INVALID_ORDER: StringName = &"FOOTPRINT_INVALID_ORDER"
+const HOME_SEGMENT_MISMATCH: StringName = &"HOME_SEGMENT_MISMATCH"
+const GRACE_ZONE_VIOLATION: StringName = &"GRACE_ZONE_VIOLATION"
+const TOO_MANY_PIECES: StringName = &"TOO_MANY_PIECES"
+const TOO_DENSE: StringName = &"TOO_DENSE"
+
+## Numeric slack of the F3 `>=` check (GDD AC-6: "to within 1e-4"); authored gaps are given to four decimals.
+const GAP_TOLERANCE: float = 1e-4
+## Float-noise slack of the F5 spacing check.
+const SPACING_EPSILON: float = 1e-9
+
+
+## `w = 2 * BALL_HALF_ANGLE`, the angular width of one ball (Tube Track F6).
+static func ball_width(r: float, d: float) -> float:
+	return 2.0 * ball_half_angle(r, d)
+
+
+## `GAP_MIN = GAP_MARGIN * w`, computed from the injected `R`, `D`, `GAP_MARGIN` (never from constants).
+static func gap_min(r: float, d: float, gap_margin: float) -> float:
+	return gap_margin * ball_width(r, d)
+
+
+## F5 `S_MIN_SPACING = T_REACT * v_max`.
+static func min_spacing(t_react: float, v_max: float) -> float:
+	return t_react * v_max
+
+
+## F3 sweep-line over every critical `s0` (each piece's `s_eff_start` and `s_eff_end`, ascending, unique):
+## `open(s0) = 2*PI - sum(theta_eff widths of the active pieces of any hazard)` must be `>= GAP_MIN`.
+## One `NO_SAFE_GAP` record per failing `s0`, holding `s0` and the active `(hazard_id, piece_index)` set.
+## Pieces with a non-finite field are skipped (reported by `validate_footprints`).
+static func validate_gaps(
+	hazards: Array[PreflightHazard], r: float, d: float, gap_margin: float
+) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	var half: float = ball_half_angle(r, d)
+	var floor_open: float = gap_min(r, d, gap_margin) - GAP_TOLERANCE
+	var ids: PackedInt64Array = PackedInt64Array()
+	var idx: PackedInt64Array = PackedInt64Array()
+	var widths: PackedFloat64Array = PackedFloat64Array()
+	var s_lo: PackedFloat64Array = PackedFloat64Array()
+	var s_hi: PackedFloat64Array = PackedFloat64Array()
+	var crit: PackedFloat64Array = PackedFloat64Array()
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		for k: int in range(hz.piece_count()):
+			if not _piece_finite(hz.pieces, k * 4):
+				continue
+			ids.append(hz.hazard_id)
+			idx.append(k)
+			widths.append(hz.pieces[k * 4 + 1] - hz.pieces[k * 4] + 2.0 * half)
+			s_lo.append(hz.pieces[k * 4 + 2] - d / 2.0)
+			s_hi.append(hz.pieces[k * 4 + 3] + d / 2.0)
+			crit.append(s_lo[s_lo.size() - 1])
+			crit.append(s_hi[s_hi.size() - 1])
+	crit.sort()
+	var last: float = NAN
+	for s0: float in crit:
+		if not is_nan(last) and s0 == last:
+			continue
+		last = s0
+		var occupied: float = 0.0
+		var active: Array[Vector2i] = []
+		for i: int in range(ids.size()):
+			if s_lo[i] <= s0 and s0 <= s_hi[i]:
+				occupied += widths[i]
+				active.append(Vector2i(ids[i], idx[i]))
+		if TAU - occupied < floor_open:
+			var rec: PreflightRecord = PreflightRecord.new(NO_SAFE_GAP, -1, s0)
+			rec.pieces = active
+			out.append(rec)
+	return out
+
+
+## `HAZARD_OVERLAP`, pairwise over the whole library (distinct hazards only), one record per offending pair.
+## Two pieces collide when one piece's raw footprint reaches into the other's effective (F1 expanded) footprint in
+## both `theta` and `s`, i.e. their raw gaps are within `BALL_HALF_ANGLE` and `D/2` (the ball is expanded once, not
+## twice; this reproduces the GDD AC-11 rows). Closed bounds.
+static func validate_overlaps(hazards: Array[PreflightHazard], r: float, d: float) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	var half: float = ball_half_angle(r, d)
+	var sorted: Array[PreflightHazard] = _sorted_hazards(hazards)
+	for i: int in range(sorted.size()):
+		for j: int in range(i + 1, sorted.size()):
+			var a: PreflightHazard = sorted[i]
+			var b: PreflightHazard = sorted[j]
+			if a.hazard_id == b.hazard_id:
+				continue
+			var hit: Vector2i = _first_piece_overlap(a, b, half, d)
+			if hit.x >= 0:
+				var s_first: float = maxf(a.pieces[hit.x * 4 + 2], b.pieces[hit.y * 4 + 2])
+				var rec: PreflightRecord = PreflightRecord.new(HAZARD_OVERLAP, -1, s_first)
+				rec.pieces = [Vector2i(a.hazard_id, hit.x), Vector2i(b.hazard_id, hit.y)]
+				out.append(rec)
+	return out
+
+
+## `FOOTPRINT_NOT_FINITE` (any NaN or infinite field, one record per piece, the piece is then not order-checked) and
+## `FOOTPRINT_INVALID_ORDER` (`theta_max < theta_min` or `s_end < s_start`, one record per piece; equal bounds pass).
+static func validate_footprints(hazards: Array[PreflightHazard]) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		for k: int in range(hz.piece_count()):
+			var b: int = k * 4
+			var code: StringName = &""
+			if not _piece_finite(hz.pieces, b):
+				code = FOOTPRINT_NOT_FINITE
+			elif hz.pieces[b + 1] < hz.pieces[b] or hz.pieces[b + 3] < hz.pieces[b + 2]:
+				code = FOOTPRINT_INVALID_ORDER
+			if code != &"":
+				var s_at: float = hz.pieces[b + 2] if is_finite(hz.pieces[b + 2]) else 0.0
+				var rec: PreflightRecord = PreflightRecord.new(code, hz.home_segment, s_at)
+				rec.pieces = [Vector2i(hz.hazard_id, k)]
+				out.append(rec)
+	return out
+
+
+## `HOME_SEGMENT_MISMATCH`: a piece's raw `s` range must lie fully inside `[k*L, (k+1)*L)` of its declared segment `k`
+## (Edge Cases text; a piece straddling the boundary is rejected). One record per piece. Non-finite pieces are skipped.
+static func validate_home_segments(hazards: Array[PreflightHazard], seg_len: float) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		var lo: float = hz.home_segment * seg_len
+		var hi: float = (hz.home_segment + 1) * seg_len
+		for k: int in range(hz.piece_count()):
+			if not _piece_finite(hz.pieces, k * 4):
+				continue
+			if hz.pieces[k * 4 + 2] < lo or hz.pieces[k * 4 + 3] >= hi:
+				var rec: PreflightRecord = PreflightRecord.new(HOME_SEGMENT_MISMATCH, hz.home_segment, hz.pieces[k * 4 + 2])
+				rec.pieces = [Vector2i(hz.hazard_id, k)]
+				out.append(rec)
+	return out
+
+
+## `GRACE_ZONE_VIOLATION`: a piece of segment 0 with raw `s_start < grace_length` (strict, so exactly equal passes).
+static func validate_grace_zone(hazards: Array[PreflightHazard], grace_length: float) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		if hz.home_segment != 0:
+			continue
+		for k: int in range(hz.piece_count()):
+			if _piece_finite(hz.pieces, k * 4) and hz.pieces[k * 4 + 2] < grace_length:
+				var rec: PreflightRecord = PreflightRecord.new(GRACE_ZONE_VIOLATION, 0, hz.pieces[k * 4 + 2])
+				rec.pieces = [Vector2i(hz.hazard_id, k)]
+				out.append(rec)
+	return out
+
+
+## `TOO_MANY_PIECES`: pieces summed over every hazard bound to one segment must be `<= max_pieces`.
+## One record per offending segment, ascending, with `count` set.
+static func validate_piece_counts(hazards: Array[PreflightHazard], max_pieces: int) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	var totals: Dictionary = {}
+	for hz: PreflightHazard in hazards:
+		totals[hz.home_segment] = (totals.get(hz.home_segment, 0) as int) + hz.piece_count()
+	var segments: Array = totals.keys()
+	segments.sort()
+	for seg: int in segments:
+		var total: int = totals[seg] as int
+		if total > max_pieces:
+			var rec: PreflightRecord = PreflightRecord.new(TOO_MANY_PIECES, seg, 0.0)
+			rec.count = total
+			out.append(rec)
+	return out
+
+
+## F5 `TOO_DENSE`: each hazard is one read positioned at its earliest finite raw `s_start`; reads sorted by position
+## (ties by `hazard_id`) across the whole library must be consecutively `>= S_MIN_SPACING` apart. One record per
+## offending consecutive pair (`s0` = the later read).
+static func validate_spacing(hazards: Array[PreflightHazard], s_min_spacing: float) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	var pos: PackedFloat64Array = PackedFloat64Array()
+	var ids: PackedInt64Array = PackedInt64Array()
+	for hz: PreflightHazard in hazards:
+		var earliest: float = INF
+		for k: int in range(hz.piece_count()):
+			if _piece_finite(hz.pieces, k * 4):
+				earliest = minf(earliest, hz.pieces[k * 4 + 2])
+		if is_finite(earliest):
+			pos.append(earliest)
+			ids.append(hz.hazard_id)
+	var order: Array[int] = []
+	for i: int in range(pos.size()):
+		order.append(i)
+	order.sort_custom(func(a: int, b: int) -> bool: return pos[a] < pos[b] or (pos[a] == pos[b] and ids[a] < ids[b]))
+	for n: int in range(1, order.size()):
+		var prev: int = order[n - 1]
+		var cur: int = order[n]
+		if pos[cur] - pos[prev] < s_min_spacing - SPACING_EPSILON:
+			var rec: PreflightRecord = PreflightRecord.new(TOO_DENSE, -1, pos[cur])
+			rec.pieces = [Vector2i(ids[prev], -1), Vector2i(ids[cur], -1)]
+			out.append(rec)
+	return out
+
+
+static func _piece_finite(p: PackedFloat64Array, base: int) -> bool:
+	return is_finite(p[base]) and is_finite(p[base + 1]) and is_finite(p[base + 2]) and is_finite(p[base + 3])
+
+
+static func _sorted_hazards(hazards: Array[PreflightHazard]) -> Array[PreflightHazard]:
+	var copy: Array[PreflightHazard] = []
+	copy.append_array(hazards)
+	copy.sort_custom(func(a: PreflightHazard, b: PreflightHazard) -> bool: return a.hazard_id < b.hazard_id)
+	return copy
+
+
+## First `(piece_a, piece_b)` pair of two hazards that overlap, else `Vector2i(-1, -1)`.
+static func _first_piece_overlap(a: PreflightHazard, b: PreflightHazard, half: float, d: float) -> Vector2i:
+	for i: int in range(a.piece_count()):
+		if not _piece_finite(a.pieces, i * 4):
+			continue
+		for j: int in range(b.piece_count()):
+			if not _piece_finite(b.pieces, j * 4):
+				continue
+			var a0: float = a.pieces[i * 4]
+			var a1: float = a.pieces[i * 4 + 1]
+			var b0: float = b.pieces[j * 4]
+			var b1: float = b.pieces[j * 4 + 1]
+			var theta_ok: bool = arc_overlap(a0 - half, a1 - a0 + 2.0 * half, b0, b1 - b0)
+			var s_ok: bool = (
+				b.pieces[j * 4 + 2] <= a.pieces[i * 4 + 3] + d / 2.0
+				and a.pieces[i * 4 + 2] <= b.pieces[j * 4 + 3] + d / 2.0
+			)
+			if theta_ok and s_ok:
+				return Vector2i(i, j)
+	return Vector2i(-1, -1)

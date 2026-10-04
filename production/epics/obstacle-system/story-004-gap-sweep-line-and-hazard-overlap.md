@@ -1,12 +1,12 @@
 # Story 004: Safe-gap sweep-line (F3) and hazard overlap validation
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Formulas F3; Edge Cases `NO_SAFE_GAP`, `HAZARD_OVERLAP`)
@@ -44,7 +44,9 @@ F3: critical `s0` are every piece's `s_eff_start` and `s_eff_end`; `occupied(s0)
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_gap_overlap_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `obstacle_system_gap_overlap_test.gd` (13 tests: gap boundary rows, 0.001 rad structured record, corner derived values and mutation guard, determinism, 501/502, moved 502, adjacent-segment row, far-apart negative). Implementation: `ObstacleMath.validate_gaps` / `validate_overlaps`, `PreflightHazard`, `PreflightRecord`.
+**Interpretation note**: HAZARD_OVERLAP compares one piece raw against the other effective (ball expanded once); expanding both sides contradicts the AC-11 moved-502 row (401.6 raw start vs 501 effective end 401.4 only passes with a single expansion). `GAP_TOLERANCE` 1e-4 applies to the `>=` check, as AC-6 states.
 
 ## Dependencies
 - Depends on: Story 003

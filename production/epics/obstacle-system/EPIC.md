@@ -71,7 +71,7 @@ This epic is complete when:
 | 001 | [Authored content classes, HazardSpec and HazardContentProvider](story-001-authored-content-classes-hazard-spec.md) | Integration | Complete | ADR-0008 |
 | 002 | [ObstacleConfig, sweep-invariant validation and test fixtures](story-002-obstacle-config-and-test-fixtures.md) | Logic | Complete | ADR-0009 |
 | 003 | [Effective footprint (F1) and swept-rectangle overlap (F2)](story-003-footprint-expansion-and-swept-overlap.md) | Logic | Complete | ADR-0008 |
-| 004 | [Safe-gap sweep-line (F3) and hazard overlap validation](story-004-gap-sweep-line-and-hazard-overlap.md) | Logic | Ready | ADR-0008 |
+| 004 | [Safe-gap sweep-line (F3) and hazard overlap validation](story-004-gap-sweep-line-and-hazard-overlap.md) | Logic | Complete | ADR-0008 |
 | 005 | [Footprint, grace-zone, piece-count and spacing validators](story-005-footprint-limit-density-validators.md) | Logic | Ready | ADR-0008 |
 | 006 | [hidden() classification, hidden-content gate and exit rule (F4)](story-006-hidden-classification-and-exit-rules.md) | Logic | Ready | ADR-0008 |
 | 007 | [ObstacleCore hazard bind and window lifecycle](story-007-hazard-bind-and-window-lifecycle.md) | Logic | Ready | ADR-0008 |
