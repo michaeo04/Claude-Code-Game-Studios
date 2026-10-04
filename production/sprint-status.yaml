@@ -156,20 +156,20 @@ stories:
     name: "RunConfig validation and lock bounds"
     file: "production/epics/run-state-restart/story-010-config-validation-lock-bounds.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "RS-011"
     name: "Flash bound bot and contract doubles"
     file: "production/epics/run-state-restart/story-011-flash-bound-contract-doubles.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-007"
     name: "milestone_crossed, ScoringConfig and validate_milestones"
     file: "production/epics/scoring-personal-best/story-007-milestones-and-scoring-config.md"

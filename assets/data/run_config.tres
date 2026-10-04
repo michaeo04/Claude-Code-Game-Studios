@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="RunConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/core/run_state/run_config.gd" id="1_rscfg"]
+
+[resource]
+script = ExtResource("1_rscfg")
+restart_lock = 0.5
+pause_input_guard = 0.3
+resume_countdown = 2.0
+dt_max = 0.1
+stall_pause_threshold = 0.5
+hitstop_actual = 0.2
+hitstop_max = 0.2
+t_read = 0.25
+t_react = 0.25
+t_stop = 0.15
+friction_max = 0.6
+restart_budget = 1.0
+t_restart_30fps = 0.266

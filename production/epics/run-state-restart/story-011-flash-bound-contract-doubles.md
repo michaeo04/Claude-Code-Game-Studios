@@ -1,12 +1,12 @@
 # Story 011: Flash bound bot and contract doubles
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -22,8 +22,8 @@
 - Guardrail: the art-bible cap is 3 flashes per second; margin is zero at the minimum lock
 
 ## Acceptance Criteria
-- [ ] **AC-24** (BLOCKING): a bot on the injected clock at 60 fps hits at a fixed run time and restarts at the earliest allowed press (`press_us = hit_us + RESTART_LOCK_us`); over 300 cycles every hit-to-hit interval is strictly greater than `RESTART_LOCK`, at most 2 `run_ended` fall in any closed 1.0 s window at the default lock and at most 3 at the minimum lock 0.45
-- [ ] **AC-25**: with doubles for Ball Movement, Obstacle System, Juice and Scoring (contract only), 1000 scripted hit and restart cycles give each double exactly one reset per run and a constant number of signal connections, and a `hit_reported` sent from a `run_started` handler is rejected
+- [x] **AC-24** (BLOCKING): a bot on the injected clock at 60 fps hits at a fixed run time and restarts at the earliest allowed press (`press_us = hit_us + RESTART_LOCK_us`); over 300 cycles every hit-to-hit interval is strictly greater than `RESTART_LOCK`, at most 2 `run_ended` fall in any closed 1.0 s window at the default lock and at most 3 at the minimum lock 0.45
+- [x] **AC-25**: with doubles for Ball Movement, Obstacle System, Juice and Scoring (contract only), 1000 scripted hit and restart cycles give each double exactly one reset per run and a constant number of signal connections, and a `hit_reported` sent from a `run_started` handler is rejected
 
 ## Implementation Notes
 Per test-plan section 6: state the fixed run time, assert exact counts (a cycle of 32 ticks gives exactly 2 hits per closed second at the default lock, 29 ticks exactly 3 at the minimum lock 0.45; re-derive before coding) and sweep the lock {0.45, 0.5, 0.6} and fps {30, 60, 120} instead of 300 identical cycles. The plan also notes AC-25 duplicates AC-5 and AC-6 and the doubles verify themselves: keep it small (reset-count and connection-count assertions) or fold it into the AC-24 test, but do not drop the constant-connection-count check. Doubles are plain RefCounted in `tests/support/run_state_doubles.gd`.
@@ -46,7 +46,8 @@ Per test-plan section 6: state the fixed run time, assert exact counts (a cycle 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/run_state/run_state_flash_bound_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: `tests/unit/run_state/run_state_flash_bound_test.gd` (AC-24 bot, exact 32/29 tick cycles, lock x fps sweep; AC-25 doubles in `tests/support/run_state_doubles.gd`)
 
 ## Dependencies
 - Depends on: Stories 003, 004, 005, 006, 008, 009, 010
