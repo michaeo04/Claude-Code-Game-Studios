@@ -12,6 +12,8 @@ var s0: float = 0.0
 var pieces: Array[Vector2i] = []
 ## Piece total for `TOO_MANY_PIECES` (0 for other codes).
 var count: int = 0
+## Offending solution angle for `EXIT_BEYOND_VISIBLE_ARC` (NAN for other codes).
+var angle: float = NAN
 
 
 func _init(p_code: StringName = &"", p_segment_index: int = -1, p_s0: float = 0.0) -> void:

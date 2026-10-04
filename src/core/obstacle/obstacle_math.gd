@@ -94,6 +94,16 @@ const HOME_SEGMENT_MISMATCH: StringName = &"HOME_SEGMENT_MISMATCH"
 const GRACE_ZONE_VIOLATION: StringName = &"GRACE_ZONE_VIOLATION"
 const TOO_MANY_PIECES: StringName = &"TOO_MANY_PIECES"
 const TOO_DENSE: StringName = &"TOO_DENSE"
+## A piece whose whole arc lies beyond the visible arc (the ban is active until OQ2 and OQ15 resolve).
+const HIDDEN_CONTENT_FORBIDDEN: StringName = &"HIDDEN_CONTENT_FORBIDDEN"
+## Hidden pieces too close together (F4b frequency floor).
+const HIDDEN_UNFAIR: StringName = &"HIDDEN_UNFAIR"
+## An escape gap beyond the visible arc on a type that is not PI-symmetric.
+const EXIT_BEYOND_VISIBLE_ARC: StringName = &"EXIT_BEYOND_VISIBLE_ARC"
+## Fixed reference angle of the static hidden classification: the tube's top.
+const THETA_REF: float = 0.0
+## Tolerance of the PI-symmetry test of the exit rule.
+const PI_SYMMETRY_TOLERANCE: float = 1e-6
 
 ## Numeric slack of the F3 `>=` check (GDD AC-6: "to within 1e-4"); authored gaps are given to four decimals.
 const GAP_TOLERANCE: float = 1e-4
@@ -314,3 +324,85 @@ static func _first_piece_overlap(a: PreflightHazard, b: PreflightHazard, half: f
 			if theta_ok and s_ok:
 				return Vector2i(i, j)
 	return Vector2i(-1, -1)
+
+
+## F4 `hidden()` of one raw piece: the whole arc `[theta_min, theta_max]` lies farther than `visible_half` from
+## `theta_ref`. `W = theta_max - theta_min`, `o = fposmod(theta_ref - theta_min, 2*PI)`,
+## `d_min = 0 if o <= W else min(o - W, 2*PI - o)`, `hidden := d_min > visible_half` (strict).
+static func hidden(theta_min: float, theta_max: float, visible_half: float, theta_ref: float = THETA_REF) -> bool:
+	var width: float = theta_max - theta_min
+	var o: float = fposmod(theta_ref - theta_min, TAU)
+	var d_min: float = 0.0 if o <= width else minf(o - width, TAU - o)
+	return d_min > visible_half
+
+
+## `HIDDEN_CONTENT_FORBIDDEN`: one record per hidden piece (a hazard with one hidden piece is rejected).
+static func validate_hidden_content(hazards: Array[PreflightHazard], visible_half: float) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		for k: int in range(hz.piece_count()):
+			if _piece_finite(hz.pieces, k * 4) and hidden(hz.pieces[k * 4], hz.pieces[k * 4 + 1], visible_half):
+				var rec: PreflightRecord = PreflightRecord.new(
+					HIDDEN_CONTENT_FORBIDDEN, hz.home_segment, hz.pieces[k * 4 + 2]
+				)
+				rec.pieces = [Vector2i(hz.hazard_id, k)]
+				out.append(rec)
+	return out
+
+
+## F4b `HIDDEN_UNFAIR`: hidden pieces of different hazards sorted by `s_start` must be at least
+## `hidden_span_min_s` apart (`>=`) and never in the same or an adjacent home segment. One record per offending
+## consecutive pair (`s0` = the later `s_start`). The pieces of one hazard count as one read.
+static func validate_hidden_frequency(
+	hazards: Array[PreflightHazard], visible_half: float, hidden_span_min_s: float
+) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	var reads: Array[Dictionary] = []
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		var first: Dictionary = {}
+		for k: int in range(hz.piece_count()):
+			if _piece_finite(hz.pieces, k * 4) and hidden(hz.pieces[k * 4], hz.pieces[k * 4 + 1], visible_half):
+				if first.is_empty() or hz.pieces[k * 4 + 2] < (first["s"] as float):
+					first = {"id": hz.hazard_id, "piece": k, "s": hz.pieces[k * 4 + 2], "seg": hz.home_segment}
+		if not first.is_empty():
+			reads.append(first)
+	reads.sort_custom(_read_before)
+	for n: int in range(1, reads.size()):
+		var prev: Dictionary = reads[n - 1]
+		var cur: Dictionary = reads[n]
+		var gap: float = (cur["s"] as float) - (prev["s"] as float)
+		var adjacent: bool = absi((cur["seg"] as int) - (prev["seg"] as int)) <= 1
+		if adjacent or gap < hidden_span_min_s - SPACING_EPSILON:
+			var rec: PreflightRecord = PreflightRecord.new(HIDDEN_UNFAIR, cur["seg"] as int, cur["s"] as float)
+			rec.pieces = [
+				Vector2i(prev["id"] as int, prev["piece"] as int), Vector2i(cur["id"] as int, cur["piece"] as int)
+			]
+			out.append(rec)
+	return out
+
+
+## `EXIT_BEYOND_VISIBLE_ARC`: per solution angle, `e = fposmod(angle - theta_ref, 2*PI)`, `d_exit = min(e, 2*PI - e)`;
+## `d_exit > visible_half` is only allowed when `d_exit` is PI within 1e-6. One record per failing angle (`angle`
+## set). A hazard without solution angles (Spike) is exempt.
+static func validate_exit_rule(
+	hazards: Array[PreflightHazard], visible_half: float, theta_ref: float = THETA_REF
+) -> Array[PreflightRecord]:
+	var out: Array[PreflightRecord] = []
+	for hz: PreflightHazard in _sorted_hazards(hazards):
+		for angle: float in hz.solution_angles:
+			if not is_finite(angle):
+				continue
+			var e: float = fposmod(angle - theta_ref, TAU)
+			var d_exit: float = minf(e, TAU - e)
+			if d_exit > visible_half and absf(d_exit - PI) > PI_SYMMETRY_TOLERANCE:
+				var rec: PreflightRecord = PreflightRecord.new(EXIT_BEYOND_VISIBLE_ARC, hz.home_segment, 0.0)
+				rec.pieces = [Vector2i(hz.hazard_id, -1)]
+				rec.angle = angle
+				out.append(rec)
+	return out
+
+
+static func _read_before(a: Dictionary, b: Dictionary) -> bool:
+	var sa: float = a["s"] as float
+	var sb: float = b["s"] as float
+	return sa < sb or (sa == sb and (a["id"] as int) < (b["id"] as int))

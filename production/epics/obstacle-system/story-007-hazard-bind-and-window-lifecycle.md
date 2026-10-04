@@ -1,12 +1,12 @@
 # Story 007: ObstacleCore hazard bind and window lifecycle
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Core Rules 1, 5, 6, 7; Edge Cases window and lifecycle)
@@ -45,7 +45,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_lifecycle_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_lifecycle_test.gd` (10 tests: AC-14, AC-19, AC-20, AC-21)
+**Status**: [x] Passing (CI 2026-10-04)
 
 ## Dependencies
 - Depends on: Stories 001, 002

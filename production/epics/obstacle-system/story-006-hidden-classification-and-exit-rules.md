@@ -1,12 +1,12 @@
 # Story 006: hidden() classification, hidden-content gate and exit rule (F4)
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Core Rule 8; Formulas F4, F4b; Edge Cases)
@@ -44,7 +44,8 @@ F4: `W = theta_max - theta_min`, `o = fposmod(THETA_REF - theta_min, 2*PI)`, `d_
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_hidden_rules_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_hidden_rules_test.gd` (16 tests: AC-34, AC-15, AC-36, AC-42)
+**Status**: [x] Passing (CI 2026-10-04)
 
 ## Dependencies
 - Depends on: Story 003

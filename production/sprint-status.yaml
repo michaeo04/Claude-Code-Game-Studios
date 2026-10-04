@@ -129,11 +129,11 @@ stories:
     name: "hidden() classification, hidden-content gate and exit rule (F4)"
     file: "production/epics/obstacle-system/story-006-hidden-classification-and-exit-rules.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "OB-007"
     name: "ObstacleCore hazard bind and window lifecycle"
     file: "production/epics/obstacle-system/story-007-hazard-bind-and-window-lifecycle.md"

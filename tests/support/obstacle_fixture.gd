@@ -65,9 +65,12 @@ class FakeProvider:
 	extends HazardContentProvider
 	var table: Dictionary = {}
 	var calls: int = 0
+	## Every queried index, in call order.
+	var queried: Array[int] = []
 
 	func hazards_for_segment(segment_index: int) -> Array[HazardSpec]:
 		calls += 1
+		queried.append(segment_index)
 		var out: Array[HazardSpec] = []
 		if table.has(segment_index):
 			out.assign(table[segment_index] as Array)
@@ -106,3 +109,10 @@ static func worked_hazard(hazard_id: int) -> HazardSpec:
 		601:
 			return HazardSpec.new(spike, 0, PackedFloat64Array([-0.05, 0.05, 200.0, 200.3]), PackedFloat64Array())
 	return null
+
+
+## An `ObstacleCore` at the fixture `L`, `R`, `D`.
+static func make_core(
+	config: ObstacleConfig, provider: HazardContentProvider, log_sink: Callable = Callable()
+) -> ObstacleCore:
+	return ObstacleCore.new(config, provider, L, ObstacleMath.ball_half_angle(R, D), D, log_sink)

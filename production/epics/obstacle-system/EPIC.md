@@ -73,9 +73,9 @@ This epic is complete when:
 | 003 | [Effective footprint (F1) and swept-rectangle overlap (F2)](story-003-footprint-expansion-and-swept-overlap.md) | Logic | Complete | ADR-0008 |
 | 004 | [Safe-gap sweep-line (F3) and hazard overlap validation](story-004-gap-sweep-line-and-hazard-overlap.md) | Logic | Complete | ADR-0008 |
 | 005 | [Footprint, grace-zone, piece-count and spacing validators](story-005-footprint-limit-density-validators.md) | Logic | Ready | ADR-0008 |
-| 006 | [hidden() classification, hidden-content gate and exit rule (F4)](story-006-hidden-classification-and-exit-rules.md) | Logic | Ready | ADR-0008 |
-| 007 | [ObstacleCore hazard bind and window lifecycle](story-007-hazard-bind-and-window-lifecycle.md) | Logic | Ready | ADR-0008 |
-| 008 | [Release flag, run_reset handler and read accessors](story-008-release-flag-run-reset-and-accessors.md) | Logic | Ready | ADR-0008, ADR-0014 |
+| 006 | [hidden() classification, hidden-content gate and exit rule (F4)](story-006-hidden-classification-and-exit-rules.md) | Logic | Complete | ADR-0008 |
+| 007 | [ObstacleCore hazard bind and window lifecycle](story-007-hazard-bind-and-window-lifecycle.md) | Logic | Complete | ADR-0008 |
+| 008 | [Release flag, run_reset handler and read accessors](story-008-release-flag-run-reset-and-accessors.md) | Logic | Complete | ADR-0008, ADR-0014 |
 | 009 | [Level-triggered hit test with broad phase](story-009-level-triggered-hit-test.md) | Logic | Ready | ADR-0008, ADR-0002 |
 | 010 | [Determinism, no side effects and the engine-coupling lint](story-010-determinism-no-side-effects-and-lint.md) | Logic | Ready | ADR-0009, ADR-0008 |
 | 011 | [ContentPreflight P1, exhaustive and deterministic](story-011-content-preflight-p1-exhaustive.md) | Logic | Ready | ADR-0008 |

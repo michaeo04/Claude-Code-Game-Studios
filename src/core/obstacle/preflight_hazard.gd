@@ -9,14 +9,20 @@ extends RefCounted
 var hazard_id: int = 0
 var home_segment: int = 0
 var pieces: PackedFloat64Array = PackedFloat64Array()
+## Escape-gap angles (`theta_solution`s) of the type; empty for a Spike.
+var solution_angles: PackedFloat64Array = PackedFloat64Array()
 
 
 func _init(
-	p_hazard_id: int = 0, p_home_segment: int = 0, p_pieces: PackedFloat64Array = PackedFloat64Array()
+	p_hazard_id: int = 0,
+	p_home_segment: int = 0,
+	p_pieces: PackedFloat64Array = PackedFloat64Array(),
+	p_solution_angles: PackedFloat64Array = PackedFloat64Array()
 ) -> void:
 	hazard_id = p_hazard_id
 	home_segment = p_home_segment
 	pieces = PackedFloat64Array(p_pieces)
+	solution_angles = PackedFloat64Array(p_solution_angles)
 
 
 ## Number of pieces (`pieces.size() / 4`).

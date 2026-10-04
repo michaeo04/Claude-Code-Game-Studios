@@ -1,12 +1,12 @@
 # Story 008: Release flag, run_reset handler and read accessors
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Core Rule 5; Interactions with Near-Miss)
@@ -42,7 +42,8 @@ Order inside Run State rank 2 (Tube Track adapter and Obstacle) is by row order,
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_release_reset_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_release_reset_test.gd` (7 tests: AC-40, AC-41, accessors)
+**Status**: [x] Passing (CI 2026-10-04)
 
 ## Dependencies
 - Depends on: Story 007
