@@ -48,6 +48,8 @@ const CODE_ROW_INVALID: String = "WIRE_ROW_INVALID"
 const CODE_HANDLER_UNTYPED: String = "WIRE_HANDLER_UNTYPED"
 const CODE_JUICE_AFTER_SCORING: String = "WIRE_JUICE_AFTER_SCORING"
 const CODE_NO_RUN_STATE: String = "WIRE_NO_RUN_STATE"
+## Log code of a refused Scoring build (a `ScoringConfig` whose milestones fail `validate_milestones`).
+const CODE_SCORING_MILESTONES_INVALID: StringName = &"SCORING_MILESTONES_INVALID"
 
 ## Steps finished so far, in order (`CONSTRUCTION_ORDER` names, then `wire`, `map_loader`, `map_loader.start`).
 var construction_trace: Array[StringName] = []
@@ -196,6 +198,8 @@ func _construct() -> Error:
 			if not _factory.has(step) or not (_factory[step] is Callable):
 				push_error("GameRoot._construct: missing factory step %s" % step)
 				return ERR_UNCONFIGURED
+			if step == &"scoring" and not _scoring_config_ok():
+				return ERR_INVALID_DATA
 			var built: Variant = (_factory[step] as Callable).call()
 			if step == &"core_systems":
 				if not (built is Dictionary):
@@ -227,6 +231,22 @@ func _rendering_method_ok() -> bool:
 	if sink.is_valid():
 		sink.call(LogLevel.ERROR, CODE_RENDERING_METHOD_REFUSED, "rendering_method", message)
 	push_error("GameRoot._construct: %s" % message)
+	return false
+
+
+## True when the optional `scoring_config` factory entry has valid milestones (or is absent). A bad config logs
+## `CODE_SCORING_MILESTONES_INVALID`, is fatal, and `ScoreCore` is never built (nothing gets connected).
+func _scoring_config_ok() -> bool:
+	var config: ScoringConfig = _factory.get(&"scoring_config") as ScoringConfig
+	if config == null:
+		return true
+	var problems: Array[String] = ScoringConfig.validate_milestones(config.milestone_distances)
+	if problems.is_empty():
+		return true
+	var sink: Callable = _factory.get(&"log_sink", Callable()) as Callable
+	if sink.is_valid():
+		sink.call(LogLevel.ERROR, CODE_SCORING_MILESTONES_INVALID, "milestone_distances", "; ".join(problems))
+	push_error("GameRoot._construct: %s %s" % [CODE_SCORING_MILESTONES_INVALID, problems])
 	return false
 
 
@@ -407,6 +427,7 @@ func _real_core_rows(rs: RunStateCore) -> Array:
 	var obstacle: ObstacleCore = _obstacle as ObstacleCore
 	var near_miss: NearMissCore = _near_miss as NearMissCore
 	var ball: BallCore = _ball as BallCore
+	var scoring_service: ScoreService = _scoring as ScoreService
 	var scoring: ScoreCore = _scoring as ScoreCore
 	var window: TubeWindow = _tube_track as TubeWindow
 	if obstacle != null:
@@ -429,6 +450,10 @@ func _real_core_rows(rs: RunStateCore) -> Array:
 		rows.append([rs.run_reset, scoring.on_run_reset, RANK_REST])
 		rows.append([rs.run_ended, scoring.on_run_ended, RANK_SCORING])
 		rows.append([rs.run_abandoned, scoring.on_run_abandoned, RANK_SCORING])
+	if scoring_service != null:
+		rows.append([rs.run_reset, scoring_service.on_run_reset, RANK_REST])
+		rows.append([rs.run_ended, scoring_service.on_run_ended, RANK_SCORING])
+		rows.append([rs.run_abandoned, scoring_service.on_run_abandoned, RANK_SCORING])
 	return rows
 
 

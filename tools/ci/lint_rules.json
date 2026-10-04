@@ -892,6 +892,52 @@
    "message": "Scoring reflection check (stub: not yet specified)"
   },
   {
+   "id": "forbidden:scoring_no_near_miss_identifiers",
+   "source": "scoring-personal-best.md Rule 8 (story SPB-010 AC-10)",
+   "severity": "ADVISORY",
+   "kind": "forbid",
+   "scope": [
+    "src/core/scoring_personal_best/score_math.gd",
+    "src/core/scoring_personal_best/score_core.gd"
+   ],
+   "pattern": "(?i)near_?miss",
+   "message": "Scoring never consumes near_miss events: no near_miss, NearMiss or NearMissDetection identifier in ScoreMath or ScoreCore code"
+  },
+  {
+   "id": "forbidden:scoring_hazard_id_unread",
+   "source": "scoring-personal-best.md Rule 8 (story SPB-010 AC-10)",
+   "severity": "ADVISORY",
+   "kind": "forbid",
+   "scope": [
+    "src/core/scoring_personal_best/score_core.gd"
+   ],
+   "pattern": "^\\t+.*\\b_?hazard_id\\b",
+   "message": "hazard_id is a parameter of the ending handlers but is never read inside a method body"
+  },
+  {
+   "id": "forbidden:scoring_core_deny_list",
+   "source": "ADR-0002; scoring-personal-best.md (story SPB-010 AC-12b)",
+   "severity": "ADVISORY",
+   "kind": "forbid",
+   "scope": [
+    "src/core/scoring_personal_best/score_core.gd",
+    "src/core/scoring_personal_best/score_math.gd"
+   ],
+   "pattern": "\\b(?:Engine|OS)\\s*\\.|\\b(?:ProjectSettings|FileAccess|get_tree|get_node)\\b",
+   "message": "ScoreCore and ScoreMath make no engine call and name no autoload: Engine., OS., ProjectSettings, FileAccess, get_tree, get_node are forbidden"
+  },
+  {
+   "id": "forbidden:composition_root_string_built_callable",
+   "source": "ADR-0002; scoring-personal-best.md Rule 11 (story SPB-010 AC-11a)",
+   "severity": "ADVISORY",
+   "kind": "forbid",
+   "scope": [
+    "src/core/game_root.gd"
+   ],
+   "pattern": "\\bCallable\\s*\\(\\s*[\\w.]+\\s*,\\s*&?[\\\"']",
+   "message": "The composition root binds seams from a direct method reference (obj.method), never Callable(obj, \"name\")"
+  },
+  {
    "id": "forbidden:run_state_core_purity",
    "source": "ADR-0002; run-state-restart.md R2/R12 (story RS-001 AC-9)",
    "severity": "BLOCKING",

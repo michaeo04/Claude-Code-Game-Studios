@@ -1,0 +1,5 @@
+#@path: src/core/game_root.gd
+extends Node
+
+var a: Callable = save.get_value
+var b: Callable = save.set_value

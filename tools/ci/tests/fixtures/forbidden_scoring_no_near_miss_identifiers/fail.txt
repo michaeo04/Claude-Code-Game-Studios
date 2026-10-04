@@ -1,0 +1,5 @@
+#@path: src/core/scoring_personal_best/score_core.gd
+extends RefCounted
+
+func on_near_miss(a: int) -> void:
+	pass

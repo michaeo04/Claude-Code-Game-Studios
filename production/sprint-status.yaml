@@ -192,29 +192,29 @@ stories:
     name: "ScoreService driver and Run State wiring against a fake source"
     file: "production/epics/scoring-personal-best/story-009-score-service-driver.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-010"
     name: "CI lints: identifier, deny-list and typed-binding scans"
     file: "production/epics/scoring-personal-best/story-010-ci-lints.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-011"
     name: "Composition Root: construct, wire rows, tick call and milestone preflight"
     file: "production/epics/scoring-personal-best/story-011-composition-root-wiring.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "OB-012"
     name: "ContentPreflight P2 pairs, P3 soak and the blocking CI test"
     file: "production/epics/obstacle-system/story-012-content-preflight-p2-p3-sequencer-soak.md"

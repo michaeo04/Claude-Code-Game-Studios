@@ -1,12 +1,12 @@
 # Story 010: CI lints: identifier, deny-list and typed-binding scans
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -54,7 +54,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_lint_rules_test.gd` and a clean `python tools/ci/run_ci.py` lint run
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_scoring_rules.py` (good and mutated sources for AC-10, AC-12b, AC-11a; run by run_ci step 4a) and four new rules with pass/fail fixtures; clean lint run. Deviation: Python unit test instead of a GUT file, matching the existing lint-rule tests.
 
 ## Dependencies
 - Depends on: Story 008; story 011 for the typed-binding row

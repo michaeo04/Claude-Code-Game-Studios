@@ -1,0 +1,6 @@
+#@path: src/core/scoring_personal_best/score_core.gd
+extends RefCounted
+
+## Rule 8: near_miss events are never consumed here.
+var note: String = "NearMiss"
+var hazard_id: int = 0

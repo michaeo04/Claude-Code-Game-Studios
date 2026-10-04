@@ -1,12 +1,12 @@
 # Story 011: Composition Root: construct, wire rows, tick call and milestone preflight
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -54,7 +54,7 @@
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/scoring_personal_best/scoring_personal_best_wiring_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/scoring_personal_best/scoring_personal_best_wiring_test.gd` (construction order, rows and ranks, tick order, milestone preflight [250,100] refused, [] and [100,250] built).
 
 ## Dependencies
 - Depends on: Stories 007, 009; composition-root epic stories (`_construct`, `_wire`, rank constants already in `src/core/game_root.gd`)

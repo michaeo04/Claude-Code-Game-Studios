@@ -1,0 +1,6 @@
+#@path: src/core/scoring_personal_best/score_core.gd
+extends RefCounted
+
+func a() -> void:
+	var v: Vector3 = Vector3.ZERO
+	var t: float = Time.get_ticks_usec()

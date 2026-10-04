@@ -1,0 +1,5 @@
+#@path: src/core/scoring_personal_best/score_core.gd
+extends RefCounted
+
+func on_run_ended(_run_id: int, hazard_id: int, _t: int) -> void:
+	print(hazard_id)

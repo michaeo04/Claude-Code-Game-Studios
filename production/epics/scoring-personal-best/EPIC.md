@@ -71,9 +71,9 @@ This epic is complete when:
 | 006 | [personal_best_passed: once-per-run live crossing](story-006-personal-best-passed.md) | Logic | Complete | ADR-0002 |
 | 007 | [milestone_crossed, ScoringConfig and validate_milestones](story-007-milestones-and-scoring-config.md) | Logic | Complete | ADR-0002 |
 | 008 | [Public surface, determinism and no side effects](story-008-surface-determinism-no-side-effects.md) | Logic | Complete | ADR-0009 |
-| 009 | [ScoreService driver and Run State wiring against a fake source](story-009-score-service-driver.md) | Logic | Ready | ADR-0002 |
-| 010 | [CI lints: identifier, deny-list and typed-binding scans](story-010-ci-lints.md) | Logic | Ready | ADR-0009 |
-| 011 | [Composition Root: construct, wire rows, tick call and milestone preflight](story-011-composition-root-wiring.md) | Integration | Ready | ADR-0002 |
+| 009 | [ScoreService driver and Run State wiring against a fake source](story-009-score-service-driver.md) | Logic | Complete | ADR-0002 |
+| 010 | [CI lints: identifier, deny-list and typed-binding scans](story-010-ci-lints.md) | Logic | Complete | ADR-0009 |
+| 011 | [Composition Root: construct, wire rows, tick call and milestone preflight](story-011-composition-root-wiring.md) | Integration | Complete | ADR-0002 |
 | 012 | [Integration: real SaveCore round trip (AC-21)](story-012-real-save-round-trip.md) | Integration | Ready | ADR-0007 |
 | 013 | [Integration: real Ball Movement and Run State lifecycle (AC-22, AC-26)](story-013-real-run-state-and-ball-integration.md) | Integration | Ready | ADR-0002 |
 

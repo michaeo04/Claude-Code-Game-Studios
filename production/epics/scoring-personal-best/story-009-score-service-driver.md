@@ -1,12 +1,12 @@
 # Story 009: ScoreService driver and Run State wiring against a fake source
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -42,7 +42,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_service_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_service_test.gd` (AC-19 wiring, non-deferred, no tree; no-autoload test) plus `tests/integration/scoring_personal_best/scoring_personal_best_wiring_test.gd` (static var / singleton companion) and the BLOCKING `forbidden:autoload_singletons` lint.
 
 ## Dependencies
 - Depends on: Stories 003, 005; `RunStateCore` signal shapes (exist in `src/core/run_state/run_state_core.gd`)
