@@ -1,6 +1,6 @@
 extends GutTest
 
-const Fx = preload("res://tests/unit/scoring_personal_best/scoring_personal_best_fixtures.gd")
+const Fx = preload("res://tests/support/scoring_fixtures.gd")
 
 
 func _noop_f() -> float:
@@ -23,6 +23,18 @@ func test_construction_reads_save_exactly_once_across_cycles() -> void:
 		core.step()
 	assert_eq(save.get_calls, 1)
 	assert_eq(core.get_personal_best(), 500)
+
+
+func test_read_once_holds_across_new_best_ending_cycles() -> void:
+	var s: Fx.SStub = Fx.make_s_stub([700.0])
+	var save: Fx.SaveStub = Fx.make_save_stub(500)
+	var core: ScoreCore = Fx.make_core(s, save)
+	for i: int in 3:
+		core.on_run_reset()
+		core.step()
+		core.on_run_ended(1, 2, 3)
+	assert_eq(save.get_calls, 1)
+	assert_eq(save.set_calls, 1)
 
 
 func test_consecutive_resets_without_step_keep_count_and_score() -> void:

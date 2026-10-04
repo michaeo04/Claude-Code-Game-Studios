@@ -30,11 +30,11 @@ stories:
     name: "ScoreCore construction, seams, boot read and accessors"
     file: "production/epics/scoring-personal-best/story-002-score-core-construction.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-003"
     name: "step(): live score, frozen score and run reset"
     file: "production/epics/scoring-personal-best/story-003-step-live-frozen-reset.md"
@@ -48,29 +48,29 @@ stories:
     name: "step(): non-finite, negative, over-range and decreasing s"
     file: "production/epics/scoring-personal-best/story-004-out-of-contract-s-guards.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-005"
     name: "Run endings: finalize, new-best write and personal_best_updated"
     file: "production/epics/scoring-personal-best/story-005-run-endings-and-personal-best-write.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-006"
     name: "personal_best_passed: once-per-run live crossing"
     file: "production/epics/scoring-personal-best/story-006-personal-best-passed.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-001"
     name: "NearMissConfig, validation and test fixtures"
     file: "production/epics/near-miss-detection/story-001-near-miss-config-and-fixtures.md"

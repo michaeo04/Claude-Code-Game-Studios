@@ -1,12 +1,12 @@
 # Story 005: Run endings: finalize, new-best write and personal_best_updated
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -22,11 +22,11 @@
 - Guardrail: 60 FPS / 16.6 ms frame; the death frame carries Juice, Scoring, HUD freeze and the save write in one tick (ADR-0007 Decision 5, spike SP-3 budget p95 <= 3 ms)
 
 ## Acceptance Criteria
-- [ ] **AC-7** Two parallel scenarios with an identical `s` script, one ending with `on_run_ended(run_id, hazard_id, run_time_ms)`, one with `on_run_abandoned(run_id, run_time_ms)`: identical `final_score`, `is_new_best`, `set_value_seam` call count and argument, and `personal_best_updated` count. Companion rows: only `on_run_abandoned` is called and a score is still produced; varying `hazard_id` and `run_time_ms` never changes the outcome; the non-new-best branch is identical for both (zero writes, zero events).
-- [ ] **AC-8** Against `PERSONAL_BEST_FIXTURE_DEFAULT` 500: (a) final 600 gives exactly one `set_value_seam("scoring","personal_best",600)`, in-memory best 600 already readable when `personal_best_updated(600)` fires once; (b) final 500 (tie) gives zero writes, no event, best still 500; (c) final 400 gives zero writes, no event, best still 500.
-- [ ] **AC-14** `make_save_stub(500, write_succeeds := false)` with a 600 ending still updates the in-memory best to 600 (a later comparison uses 600) and `personal_best_updated` still fires; a rollback mutation fails.
-- [ ] **AC-16** `on_run_reset()` then an immediate `on_run_ended`/`on_run_abandoned` with zero `step()` calls gives `final_score` 0 and `is_new_best` false for stored bests 0, 500 and -5 (clamped), each on its own fresh core.
-- [ ] **SCORE-1** `on_run_ended` setting a new best, then `on_run_abandoned` for the same un-reset run: no second `set_value_seam` call and no second `personal_best_updated`.
+- [x] **AC-7** Two parallel scenarios with an identical `s` script, one ending with `on_run_ended(run_id, hazard_id, run_time_ms)`, one with `on_run_abandoned(run_id, run_time_ms)`: identical `final_score`, `is_new_best`, `set_value_seam` call count and argument, and `personal_best_updated` count. Companion rows: only `on_run_abandoned` is called and a score is still produced; varying `hazard_id` and `run_time_ms` never changes the outcome; the non-new-best branch is identical for both (zero writes, zero events).
+- [x] **AC-8** Against `PERSONAL_BEST_FIXTURE_DEFAULT` 500: (a) final 600 gives exactly one `set_value_seam("scoring","personal_best",600)`, in-memory best 600 already readable when `personal_best_updated(600)` fires once; (b) final 500 (tie) gives zero writes, no event, best still 500; (c) final 400 gives zero writes, no event, best still 500.
+- [x] **AC-14** `make_save_stub(500, write_succeeds := false)` with a 600 ending still updates the in-memory best to 600 (a later comparison uses 600) and `personal_best_updated` still fires; a rollback mutation fails.
+- [x] **AC-16** `on_run_reset()` then an immediate `on_run_ended`/`on_run_abandoned` with zero `step()` calls gives `final_score` 0 and `is_new_best` false for stored bests 0, 500 and -5 (clamped), each on its own fresh core.
+- [x] **SCORE-1** `on_run_ended` setting a new best, then `on_run_abandoned` for the same un-reset run: no second `set_value_seam` call and no second `personal_best_updated`.
 
 ## Implementation Notes
 - Both handlers finalize from the stored `current_score`, never re-read `s_seam`, and never read `hazard_id` or `run_time_ms` (they exist in the signatures only).
@@ -67,7 +67,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_endings_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: scoring_personal_best_endings_test.gd (AC-7, AC-8, AC-14, AC-16, SCORE-1)
 
 ## Dependencies
 - Depends on: Stories 001, 002, 003; spike SP-3 (save-persistence epic) for the on-device write timing

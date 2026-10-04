@@ -1,6 +1,6 @@
 extends GutTest
 
-const Fx = preload("res://tests/unit/scoring_personal_best/scoring_personal_best_fixtures.gd")
+const Fx = preload("res://tests/support/scoring_fixtures.gd")
 
 
 func test_step_publishes_floor_each_tick() -> void:

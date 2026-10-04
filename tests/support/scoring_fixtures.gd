@@ -49,6 +49,19 @@ class SignalLog:
 	extends RefCounted
 	var entries: Array = []
 
+	func count(signal_name: String) -> int:
+		var n: int = 0
+		for e: Array in entries:
+			if e[0] == signal_name:
+				n += 1
+		return n
+
+	func on_updated(final_score: int) -> void:
+		entries.append(["personal_best_updated", final_score])
+
+	func on_passed(best: int) -> void:
+		entries.append(["personal_best_passed", best])
+
 
 static func make_s_stub(sequence: Array[float]) -> SStub:
 	var stub: SStub = SStub.new()
@@ -75,5 +88,9 @@ static func make_score_fixture() -> Dictionary:
 	return {"s": s_stub, "save": save_stub, "core": make_core(s_stub, save_stub)}
 
 
-static func make_signal_log(_core: ScoreCore) -> SignalLog:
-	return SignalLog.new()
+static func make_signal_log(core: ScoreCore) -> SignalLog:
+	var log: SignalLog = SignalLog.new()
+	_retained.append(log)
+	core.personal_best_updated.connect(log.on_updated)
+	core.personal_best_passed.connect(log.on_passed)
+	return log

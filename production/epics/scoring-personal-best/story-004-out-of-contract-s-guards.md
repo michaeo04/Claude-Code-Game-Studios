@@ -1,12 +1,12 @@
 # Story 004: step(): non-finite, negative, over-range and decreasing s
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -22,7 +22,7 @@
 - Guardrail: 60 FPS / 16.6 ms frame; the death frame carries Juice, Scoring, HUD freeze and the save write in one tick (ADR-0007 Decision 5, spike SP-3 budget p95 <= 3 ms)
 
 ## Acceptance Criteria
-- [ ] **AC-15** `NAN` then `INF` via `s_seam` mid-session leave `current_score` at its last known-good value on every affected tick; an ending right after captures that value as `final_score` and, if it writes, passes that integer (never NaN or INF) to `set_value_seam`. Companion rows: a negative finite `-5.0` holds; a finite non-negative decreasing sequence `500.0, 490.0` holds at 500; a finite `1e19` holds with no garbage integer. Recovery rows: `500, 490, 495, 510` publishes 500, 500, 500, 510; `500, NaN, 510` publishes 500, 500, 510; `s = 9.2e18` exactly is accepted, just above it holds.
+- [x] **AC-15** `NAN` then `INF` via `s_seam` mid-session leave `current_score` at its last known-good value on every affected tick; an ending right after captures that value as `final_score` and, if it writes, passes that integer (never NaN or INF) to `set_value_seam`. Companion rows: a negative finite `-5.0` holds; a finite non-negative decreasing sequence `500.0, 490.0` holds at 500; a finite `1e19` holds with no garbage integer. Recovery rows: `500, 490, 495, 510` publishes 500, 500, 500, 510; `500, NaN, 510` publishes 500, 500, 510; `s = 9.2e18` exactly is accepted, just above it holds.
 
 ## Implementation Notes
 - Guard order in `step()`: `is_finite(s) and s >= 0.0 and s <= 9.2e18`, then `floori(s)`, then hold if `floori(s) < current_score`. Check before converting, never after.
@@ -43,7 +43,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_guards_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: scoring_personal_best_guards_test.gd (AC-15 rows)
 
 ## Dependencies
 - Depends on: Story 003; the ending assertions in AC-15 use story 005 (write the ending-dependent rows after it, or stub the handler)
