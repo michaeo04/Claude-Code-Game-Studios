@@ -1,12 +1,12 @@
 # Story 008: Flush no-op and SaveService node wiring
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -41,7 +41,8 @@ Add `flush()` to `save_core.gd`; create `src/core/persistence/save_service.gd` (
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_save_service_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/save_persistence/save_persistence_save_service_test.gd` (7 tests: AC-7 x3, AC-18 x2, AC-19, clock conversion). `SaveService` (`src/core/persistence/save_service.gd`) boot-loads in `_init`, so the load precedes any `_ready`; doubles in `tests/support/save_core_spy.gd` and `platform_signal_stub.gd`.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Story 003, Story 004, Story 005

@@ -1,0 +1,13 @@
+#@path: src/core/ball_movement/ball_math.gd
+class_name BallMath
+extends RefCounted
+
+## wrapf( is only named in a comment; so is TABLE[0] = 1.
+const PI_HALF: float = PI / 2.0
+const SNAP_EPSILON: float = 1e-6
+
+
+static func f(x: float) -> float:
+	var local: Array[float] = [1.0]
+	local[0] = x
+	return local[0]

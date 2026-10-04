@@ -1,0 +1,10 @@
+#@path: src/core/ball_movement/ball_math.gd
+extends RefCounted
+
+const A: Array = [1]
+const B = {"k": 1}
+TABLE[0] = 1
+
+
+static func f(x: float) -> float:
+	return wrapf(x, -PI, PI)

@@ -1,12 +1,12 @@
 # Story 009: Architecture and coupling lint for SettingsCore and SettingsMath
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -41,7 +41,8 @@ Add a `forbid` rule scoped to `src/**/settings_core.gd` and `src/**/settings_mat
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/` unit cases for the two rules, plus a green `python tools/ci/run_ci.py --only lint`
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_settings_rules.py` (token, Timer/SomeTime, comment/string, CRLF, real sources, no-autoload rule and project.godot) plus fixtures `forbidden_settings_core_purity` and `forbidden_settings_core_coupling` (rules of the same ids in `tools/ci/lint_rules.json`).
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Story 002 (source files exist); test-harness-ci epic (lint runner)

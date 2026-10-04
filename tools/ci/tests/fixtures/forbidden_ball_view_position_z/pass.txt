@@ -1,0 +1,8 @@
+#@path: src/presentation/ball/ball_view.gd
+extends Node3D
+
+# position.z is named in a comment only
+func apply(x: float, y: float) -> void:
+	position.x = x
+	position.y = y
+	position = Vector3(x, y, WorldFrame.render_z(0.0))

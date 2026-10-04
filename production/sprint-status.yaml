@@ -246,17 +246,17 @@ stories:
     name: "Architecture and coupling lint for SettingsCore and SettingsMath"
     file: "production/epics/settings-accessibility/story-009-architecture-lint.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-008"
     name: "Flush no-op and SaveService node wiring"
     file: "production/epics/save-persistence/story-008-flush-and-save-service-node.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"

@@ -74,7 +74,7 @@ This epic is complete when:
 | 006 | [Anchor, resume, published state](story-006-anchor-resume-published-state.md) | Logic | Complete | ADR-0002 |
 | 007 | [RATE mapping and latch](story-007-rate-mode-latch.md) | Logic | Complete | ADR-0009 |
 | 008 | [Reset conformance, logs, determinism](story-008-reset-logs-determinism.md) | Logic | Ready | ADR-0009 |
-| 009 | [CI lint rules for the ball core](story-009-ball-lint-rules.md) | Logic | Ready | ADR-0009 |
+| 009 | [CI lint rules for the ball core](story-009-ball-lint-rules.md) | Logic | Complete | ADR-0009 |
 | 010 | [Sign and driver-order integration](story-010-sign-driver-order-integration.md) | Integration | Ready | ADR-0002 |
 | 011 | [BallView node and placement](story-011-ball-view-node-placement.md) | Integration | Ready | ADR-0012 |
 | 012 | [Ball material, rim, setters](story-012-ball-material-rim-setters.md) | Visual/Feel | Ready | ADR-0012 |

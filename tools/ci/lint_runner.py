@@ -487,7 +487,40 @@ def custom_scoring_reflection_check(rule: dict, source) -> Result:
     return res
 
 
+def custom_function_body_forbid(rule: dict, source) -> Result:
+    """The body of `func <function_name>(` (up to the next top-level line) must not match `pattern`.
+    A same-named function in a nested class counts too; other functions in the file are ignored."""
+    res = Result()
+    files = source.files(rule.get("scope", []), rule.get("exclude", []))
+    if not files:
+        res.notes.append(f"{rule['id']}: no file in scope, passes")
+        return res
+    head = re.compile(r"^(?:static\s+)?func\s+" + re.escape(rule["function_name"]) + r"\s*\(")
+    rx = re.compile(rule["pattern"])
+    for path in files:
+        lines = strip_gdscript(source.read(path)).split("\n")
+        i = 0
+        found = False
+        while i < len(lines):
+            if not head.match(lines[i]):
+                i += 1
+                continue
+            found = True
+            j = i
+            while True:
+                if j > i and rx.search(lines[j]):
+                    res.violations.append(_viol(rule, path, j + 1))
+                j += 1
+                if j >= len(lines) or (lines[j].strip() and not lines[j][0].isspace()):
+                    break
+            i = j
+        if not found:
+            res.notes.append(f"{rule['id']}: func {rule['function_name']} not found in {path}")
+    return res
+
+
 CUSTOM = {
+    "function_body_forbid": custom_function_body_forbid,
     "tscn_connection_deferred": custom_tscn_connection_deferred,
     "rng_seeded_before_draw": custom_rng_seeded_before_draw,
     "noninteractive_mouse_filter": custom_noninteractive_mouse_filter,

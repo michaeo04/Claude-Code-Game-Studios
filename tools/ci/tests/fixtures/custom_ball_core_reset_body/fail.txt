@@ -1,0 +1,14 @@
+#@path: src/core/ball_movement/ball_core.gd
+extends RefCounted
+
+
+func reset() -> void:
+	_phi = 0.0
+	for i in 3:
+		_w = 0.0
+	var c := BallConfig.new()
+	var r := load("res://x.tres")
+
+
+func other() -> void:
+	pass

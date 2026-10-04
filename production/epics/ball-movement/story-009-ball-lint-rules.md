@@ -1,12 +1,12 @@
 # Story 009: CI lint rules for BallCore, BallConfig and BallMath (AC-25)
 
 > **Epic**: Ball Movement
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -54,7 +54,8 @@ Add rules to `tools/ci/lint_rules.json` and Python `unittest` fixtures under `to
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/` unittest cases pass under `python tools/ci/run_ci.py --only lint`
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_ball_rules.py` (token, substring, comment/string, CRLF, BallMath, position-z, reset-body cases and the real sources) plus one pass and one fail fixture per rule in `tools/ci/tests/fixtures/` (`forbidden_ball_core_purity`, `forbidden_ball_core_base_class`, `forbidden_ball_config_base_class`, `forbidden_ball_math_statics_only`, `forbidden_ball_view_position_z`, `custom_ball_core_reset_body`); new custom function `function_body_forbid` in `tools/ci/lint_runner.py`. Note: Tube Track's position-z regex was not registered as a rule, so `forbidden:ball_view_position_z` defines it for the ball driver and view paths.
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Story 001, Story 008 (final reset body); test-harness-ci (lint runner story)

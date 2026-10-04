@@ -1,0 +1,28 @@
+#@path: src/core/ball_movement/ball_core.gd
+extends RefCounted
+
+var a: Node3D
+var b: CharacterBody3D
+var c: Area3D
+var d: RayCast3D
+var e: ShapeCast3D
+var f: RunState
+var g: TiltInput
+var h: TubeWindow
+var i := randi()
+var j := randf()
+var k: RandomNumberGenerator
+
+
+func _process(delta: float) -> void:
+	randomize()
+	Input.get_vector(&"a", &"b", &"c", &"d")
+	Engine.get_frames_drawn()
+	Time.get_ticks_usec()
+	OS.get_name()
+	DisplayServer.window_get_size()
+	get_tree()
+	PhysicsServer3D.area_create()
+	hit_reported.emit()
+	request_restart()
+	get_process_delta_time()

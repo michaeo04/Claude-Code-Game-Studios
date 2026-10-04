@@ -122,6 +122,13 @@ func set_value(section: String, key: String, value: Variant) -> bool:
 	return written
 
 
+## Flush is a no-op: every `set_value` already wrote synchronously, so nothing is ever pending (ADR-0007).
+## Makes zero `SaveFs` calls; a future async write path that adds a race must fail the AC-7 test.
+## Example: `core.flush()` on `app_backgrounded`.
+func flush() -> void:
+	pass
+
+
 ## Logs a file-level failure once, moves the unusable file aside and rotates old backups.
 func _fail_file(code: String, message: String) -> void:
 	_log_sink.call(LEVEL_ERROR, StringName(code), "", message)

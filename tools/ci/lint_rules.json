@@ -898,6 +898,101 @@
    ],
    "pattern": "\\b(?:PlatformServices|PlatformCore|SaveService|SaveCore|ScoreService|SettingsCore|TiltInput|TiltCore|TubeWindow|BallCore|ObstacleCore|PatternCore|NearMissCore|JuiceCore|CameraCore|HudCore|MenusCore|GameRoot)\\b|\\bget_tree\\b|\\bget_node\\b|\\bget_parent\\b|\\bpreload\\b",
    "message": "RunStateCore references no other system, no autoload and no node tree: dependencies enter only through signals, tick arguments and injected callables"
+  },
+  {
+   "id": "forbidden:ball_core_purity",
+   "source": "ADR-0002; ADR-0008; ball-movement.md R11-R13 (story BM-009 AC-25)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/ball_movement/ball_*.gd"
+   ],
+   "pattern": "\\b(?:Node|Node2D|Node3D|CollisionObject3D|CharacterBody3D|Area3D|RayCast3D|ShapeCast3D|PhysicsServer3D|PhysicsServer2D|PhysicsServer|RandomNumberGenerator)\\b|\\b(?:hit_reported|request_\\w*|RunState\\w*|Tilt\\w*|Tube\\w*|get_tree|get_process_delta_time|get_physics_process_delta_time|_process|_physics_process|randi\\w*|randf\\w*|randomize)\\b|\\b(?:Input|Engine|Time|OS|DisplayServer)\\s*\\.",
+   "message": "Ball Movement cores hold no node, physics, RunState, Tilt or Tube Track reference, no engine singleton call, no process hook and no randomness"
+  },
+  {
+   "id": "forbidden:ball_core_base_class",
+   "source": "ADR-0002; ball-movement.md R11-R13 (story BM-009 AC-25)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/ball_movement/ball_core.gd",
+    "src/core/ball_movement/ball_math.gd"
+   ],
+   "pattern": "^extends\\s+(?!RefCounted\\b)\\S+",
+   "message": "BallCore and BallMath extend RefCounted"
+  },
+  {
+   "id": "forbidden:ball_config_base_class",
+   "source": "ADR-0002; ball-movement.md R11-R13 (story BM-009 AC-25)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/ball_movement/ball_config.gd"
+   ],
+   "pattern": "^extends\\s+(?!Resource\\b)\\S+",
+   "message": "BallConfig extends Resource"
+  },
+  {
+   "id": "forbidden:ball_math_statics_only",
+   "source": "ADR-0002; ball-movement.md R11-R13 (story BM-009 AC-25)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/ball_movement/ball_math.gd"
+   ],
+   "pattern": "\\bwrapf\\s*\\(|^[ \\t]*const\\s+\\w+[^=\\n]*=\\s*[\\[{]|^\\w+\\[[^\\n]*\\]\\s*=(?!=)",
+   "message": "BallMath: no wrapf( (it collapses PI - 1e-9 to -PI on 4.7.2), no container const and no top-level subscript assignment"
+  },
+  {
+   "id": "forbidden:ball_view_position_z",
+   "source": "ADR-0013; tube-track.md AC-25; ball-movement.md R11-R13 (story BM-009 AC-25)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/presentation/ball/*.gd",
+    "src/**/ball_view.gd",
+    "src/**/ball_driver.gd"
+   ],
+   "pattern": "\\b(?:global_)?position\\.z\\b|\\bglobal_transform\\.origin\\b",
+   "message": "Ball driver and view scripts never write position.z or global_transform.origin: Z comes from WorldFrame"
+  },
+  {
+   "id": "custom:ball_core_reset_body",
+   "source": "ADR-0002; ball-movement.md R11-R13 (story BM-009 AC-25); AC-27 static part",
+   "severity": "BLOCKING",
+   "kind": "custom",
+   "function": "function_body_forbid",
+   "scope": [
+    "src/core/ball_movement/ball_core.gd"
+   ],
+   "function_name": "reset",
+   "pattern": "\\b(?:for|while)\\b|\\.new\\s*\\(|\\bload\\s*\\(",
+   "message": "BallCore.reset() has no loop, no .new() and no load( : it assigns fields only"
+  },
+  {
+   "id": "forbidden:settings_core_purity",
+   "source": "ADR-0002; settings-accessibility.md (story SA-009 AC-18, TR-settings-accessibility-011)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/settings_core.gd",
+    "src/**/settings_math.gd"
+   ],
+   "pattern": "\\b(?:ConfigFile|FileAccess|DirAccess|get_tree)\\b|\\b(?:Input|DisplayServer|Engine|Time|OS)\\s*\\.",
+   "message": "SettingsCore and SettingsMath make no file, Input, DisplayServer, Engine, Time, OS or scene-tree call: persistence and sensors enter through injected Callables"
+  },
+  {
+   "id": "forbidden:settings_core_coupling",
+   "source": "ADR-0002; settings-accessibility.md (story SA-009 AC-18, TR-settings-accessibility-011)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/settings_core.gd",
+    "src/**/settings_math.gd"
+   ],
+   "pattern": "\\b(?:PlatformServices|PlatformCore|HapticsConfig|TiltInput|TiltCore|TiltConfig|TubeTrack|TubeWindow|TubeMath|TubeRoute)\\b",
+   "message": "SettingsCore and SettingsMath know no Platform Services, Tilt Input or Tube Track symbol: they see only opaque key strings"
   }
  ]
 }

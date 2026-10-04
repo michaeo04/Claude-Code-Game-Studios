@@ -1,0 +1,7 @@
+#@path: src/core/settings/settings_core.gd
+extends RefCounted
+
+## TiltInput and PlatformServices are named in a comment: it passes.
+const KEY_TILT: String = "tilt/sensitivity"
+var tilt_sensitivity: float = 1.0
+var _tube_note: String = "TubeTrack"

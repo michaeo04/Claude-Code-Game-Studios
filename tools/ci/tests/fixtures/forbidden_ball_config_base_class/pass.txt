@@ -1,0 +1,3 @@
+#@path: src/core/ball_movement/ball_config.gd
+class_name BallConfig
+extends Resource

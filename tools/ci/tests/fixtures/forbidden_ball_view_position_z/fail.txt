@@ -1,0 +1,8 @@
+#@path: src/presentation/ball/ball_view.gd
+extends Node3D
+
+
+func apply(z: float) -> void:
+	position.z = z
+	global_position.z = z
+	global_transform.origin = Vector3.ZERO

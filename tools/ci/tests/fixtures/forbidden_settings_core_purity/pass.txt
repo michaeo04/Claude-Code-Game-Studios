@@ -1,0 +1,13 @@
+#@path: src/core/settings/settings_core.gd
+class_name SettingsCore
+extends RefCounted
+
+## ConfigFile, FileAccess and OS.get_name() are named in a comment: it passes.
+var _get_seam: Callable
+var _timer_note: String = "Time.get_ticks_usec()"
+var timer: Timer
+var override_time: float = 0.0
+
+
+func get_value(section: String, key: String) -> Variant:
+	return _get_seam.call(section, key, null)

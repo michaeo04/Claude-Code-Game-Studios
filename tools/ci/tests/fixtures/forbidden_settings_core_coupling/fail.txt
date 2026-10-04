@@ -1,0 +1,8 @@
+#@path: src/core/settings/settings_core.gd
+extends RefCounted
+
+var a: PlatformServices
+var b: PlatformCore
+var c: TiltInput
+var d: TubeTrack
+var e: TubeWindow

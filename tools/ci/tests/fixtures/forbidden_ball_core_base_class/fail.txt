@@ -1,0 +1,3 @@
+#@path: src/core/ball_movement/ball_core.gd
+class_name BallCore
+extends Node

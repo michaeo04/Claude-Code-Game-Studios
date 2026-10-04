@@ -1,0 +1,15 @@
+#@path: src/core/settings/settings_core.gd
+extends RefCounted
+
+var cfg: ConfigFile
+var fa: FileAccess
+
+
+func read() -> void:
+	DirAccess.open("user://")
+	Input.get_accelerometer()
+	DisplayServer.window_get_size()
+	Engine.get_frames_drawn()
+	Time.get_ticks_usec()
+	OS.get_name()
+	get_tree()

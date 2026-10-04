@@ -1,0 +1,12 @@
+#@path: src/core/ball_movement/ball_core.gd
+class_name BallCore
+extends RefCounted
+
+## RunState, Tilt and Node are named in a comment: it passes. get_tree() Input.get_vector
+const NOTE: String = "Time.get_ticks_usec() Engine.time_scale randf()"
+var path: NodePath
+var prerequest_count: int = 0
+
+
+func step(dt: float) -> float:
+	return BallMath.wrap_angle(dt)
