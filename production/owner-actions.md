@@ -8,7 +8,7 @@
 |---|---|---|---|
 | A1 | Commit the SHA-512 of the official Godot 4.7.2 Linux archive into `tools/ci/versions.json` (`godot.sha512`). Candidate to compare: see `production/qa/evidence/test-harness-ci/t-1-gut-on-4-7-2.md` item 9 (`9aa00f7a...`). | ADR-0009: committed by hand so a tampered release cannot vouch for itself | CI workflow (TH-009), spike T-2 (TH-010) |
 | A2 | After the first green CI run (T-2): decide whether the `ci` job becomes a required status check on `main`. | Repository setting | nothing technical |
-| A3 | Merge `dev` into `main` (PR, merge commit, no squash) when you consider a milestone done; tag releases. | CLAUDE.md: explicit approval every time | release |
+| A3 | **M1 (headless simulation complete) was reached 2026-10-05**: decide whether to open the first `dev` to `main` PR (merge commit, no squash; `gh pr create --base main --head dev`). The assistant will not do it without your yes. Tag releases only at real releases. | CLAUDE.md: explicit approval every time | release |
 | A4 | Android: create the first export preset and keystore handling, install a debug APK on your phones. | Needs your devices, signing secrets and accounts | all device spikes |
 | A5 | Delete the merged remote branch `wip/run-state-core` (`git push origin --delete wip/run-state-core`). | git-workflow: deleting remote branches needs explicit approval | nothing (cosmetic) |
 
