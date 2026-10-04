@@ -1,12 +1,12 @@
 # Story 005: Rebase contract for views, reset wiring and soak
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0013
@@ -59,7 +59,7 @@ Use the real `WorldFrame` (Story 003) and the real `_tick` (Story 002) with fake
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/world_frame_rebase_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/composition_root/world_frame_rebase_test.gd` (6 tests, passing; fakes in `tests/support/rebase_fakes.gd`)
 
 ## Dependencies
 - Depends on: Story 002, Story 003

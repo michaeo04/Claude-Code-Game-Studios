@@ -1,12 +1,12 @@
 # Story 006: Construction order and the WorldGeometry/WorldFrame preflight
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0002
@@ -60,7 +60,7 @@
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/composition_root_construction_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/composition_root/composition_root_construction_test.gd` (6 tests, passing). AC-2: construction of the core itself is proven by `tests/unit/run_state/run_state_core_shape_test.gd::test_construction_emits_no_signal_and_logs_nothing`; the new test proves the rest of construction emits nothing.
 
 ## Dependencies
 - Depends on: Story 001, Story 003; map-loader epic (`WorldGeometry`), platform-services, save-persistence, settings-accessibility and run-state-restart epics (fakes until they land)

@@ -6,7 +6,7 @@
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0002 (ranks owned by `design/gdd/run-state-restart.md`)
@@ -59,7 +59,7 @@ Rows live in `_rows: Array` built inside `_wire()`; sort with a comparator on `(
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/composition_root_wire_order_test.gd`
-**Status**: [ ] Not yet created
+**Evidence (partial)**: `tests/integration/composition_root/composition_root_wire_order_test.gd` (8 tests, passing). Gap: AC-1 (Run State AC-30 against the full real table) and the rank rows of Pattern, Obstacle, Ball, Camera, Juice, Scoring, HUD are exercised with typed spies through `add_wire_row`; the real rows land with their system stories.
 
 ## Dependencies
 - Depends on: Story 006; run-state-restart epic (signals; fake until then)

@@ -43,8 +43,8 @@ This epic is complete when:
 | 002 | [Fixed per-frame order in `_tick()`](story-002-per-frame-tick-order.md) | Logic | Complete | ADR-0002, ADR-0013 |
 | 003 | [WorldFrame, WorldFrameConfig and render-origin math](story-003-world-frame-core.md) | Logic | Complete | ADR-0013 |
 | 004 | [`TubeMath.local_point` and logical-frame reference](story-004-tube-math-local-point.md) | Logic | Complete | ADR-0013 |
-| 005 | [Rebase contract for views, reset wiring and soak](story-005-world-frame-rebase-contract.md) | Integration | Ready | ADR-0013 |
-| 006 | [Construction order and WorldGeometry/WorldFrame preflight](story-006-construction-order-and-validation.md) | Integration | Ready | ADR-0002, ADR-0013 |
+| 005 | [Rebase contract for views, reset wiring and soak](story-005-world-frame-rebase-contract.md) | Integration | Complete | ADR-0013 |
+| 006 | [Construction order and WorldGeometry/WorldFrame preflight](story-006-construction-order-and-validation.md) | Integration | Complete | ADR-0002, ADR-0013 |
 | 007 | [`_wire()` row table and pinned subscriber order](story-007-wire-table-subscriber-order.md) | Integration | Ready | ADR-0002 |
 | 008 | [Boot rendering-method check through injected getter](story-008-boot-rendering-method-seam.md) | Integration | Ready | ADR-0003 |
 | 009 | [Composition-root lint rules and import-before-test](story-009-ci-lints-and-import-order.md) | Logic | Ready | ADR-0002, ADR-0013 |

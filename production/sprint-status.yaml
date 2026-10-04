@@ -111,20 +111,20 @@ stories:
     name: "Rebase contract for views, reset wiring and soak"
     file: "production/epics/composition-root/story-005-world-frame-rebase-contract.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-006"
     name: "Construction order and the WorldGeometry/WorldFrame preflight"
     file: "production/epics/composition-root/story-006-construction-order-and-validation.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-007"
     name: "`_wire()` row table and pinned subscriber order"
     file: "production/epics/composition-root/story-007-wire-table-subscriber-order.md"
