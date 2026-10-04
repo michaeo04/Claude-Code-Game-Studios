@@ -1,12 +1,12 @@
 # Story 009: Level-triggered hit test with broad phase
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Core Rules 2, 3, 4; Edge Cases collision test)
@@ -45,7 +45,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_hit_test_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_hit_test_test.gd` (4 tests, AC-16, AC-17, AC-18, AC-22). Non-finite tick is a full no-op with log code `BALL_STATE_NOT_FINITE` (GDD names no code).
 
 ## Dependencies
 - Depends on: Stories 003, 007 (and 008 for `run_id` capture)

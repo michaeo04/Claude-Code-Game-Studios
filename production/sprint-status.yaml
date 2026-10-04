@@ -84,20 +84,20 @@ stories:
     name: "Sign and driver-order integration with Tilt and Run State (AC-29, AC-31)"
     file: "production/epics/ball-movement/story-010-sign-driver-order-integration.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "OB-009"
     name: "Level-triggered hit test with broad phase"
     file: "production/epics/obstacle-system/story-009-level-triggered-hit-test.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "OB-010"
     name: "Determinism, no side effects and the engine-coupling lint"
     file: "production/epics/obstacle-system/story-010-determinism-no-side-effects-and-lint.md"

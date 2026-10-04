@@ -1,0 +1,25 @@
+#@path: src/core/obstacle/obstacle_core.gd
+extends RefCounted
+
+var a: Area3D
+var b: CollisionObject3D
+var c: CharacterBody3D
+var d: RayCast3D
+var e: ShapeCast3D
+var f: RandomNumberGenerator
+
+
+func _process(delta: float) -> void:
+	randi()
+	randf_range(0.0, 1.0)
+	randomize()
+	seed(1)
+	Input.get_vector(&"a", &"b", &"c", &"d")
+	Engine.get_frames_drawn()
+	Time.get_ticks_usec()
+	OS.get_name()
+	DisplayServer.window_get_size()
+	get_tree()
+	PhysicsServer3D.area_create()
+	var z: float = node.global_position.z + node.position.z
+	var o = node.global_transform.origin

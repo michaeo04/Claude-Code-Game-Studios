@@ -76,7 +76,7 @@ This epic is complete when:
 | 006 | [hidden() classification, hidden-content gate and exit rule (F4)](story-006-hidden-classification-and-exit-rules.md) | Logic | Complete | ADR-0008 |
 | 007 | [ObstacleCore hazard bind and window lifecycle](story-007-hazard-bind-and-window-lifecycle.md) | Logic | Complete | ADR-0008 |
 | 008 | [Release flag, run_reset handler and read accessors](story-008-release-flag-run-reset-and-accessors.md) | Logic | Complete | ADR-0008, ADR-0014 |
-| 009 | [Level-triggered hit test with broad phase](story-009-level-triggered-hit-test.md) | Logic | Ready | ADR-0008, ADR-0002 |
+| 009 | [Level-triggered hit test with broad phase](story-009-level-triggered-hit-test.md) | Logic | Complete | ADR-0008, ADR-0002 |
 | 010 | [Determinism, no side effects and the engine-coupling lint](story-010-determinism-no-side-effects-and-lint.md) | Logic | Ready | ADR-0009, ADR-0008 |
 | 011 | [ContentPreflight P1, exhaustive and deterministic](story-011-content-preflight-p1-exhaustive.md) | Logic | Ready | ADR-0008 |
 | 012 | [ContentPreflight P2 pairs, P3 soak and the blocking CI test](story-012-content-preflight-p2-p3-sequencer-soak.md) | Integration | Ready | ADR-0008, ADR-0009 |

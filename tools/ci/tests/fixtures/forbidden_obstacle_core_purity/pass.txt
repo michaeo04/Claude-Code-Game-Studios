@@ -1,0 +1,13 @@
+#@path: src/core/obstacle/obstacle_core.gd
+class_name ObstacleCore
+extends RefCounted
+
+## Area3D, get_tree() and randf() named in a comment pass. Time.now position.z
+const NOTE: String = "Input.x Engine.y seed(1) randi()"
+var area_path: NodePath
+var operating: int = 0
+var seeded_count: int = 0
+
+
+func step(ball: RefCounted) -> void:
+	var s: float = ball.get(&"s") as float

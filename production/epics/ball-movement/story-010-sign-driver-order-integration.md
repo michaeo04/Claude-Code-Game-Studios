@@ -1,12 +1,12 @@
 # Story 010: Sign and driver-order integration with Tilt and Run State (AC-29, AC-31)
 
 > **Epic**: Ball Movement
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -48,7 +48,7 @@ Test file `tests/integration/ball_movement/ball_movement_driver_order_test.gd`, 
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/ball_movement/ball_movement_driver_order_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/ball_movement/ball_movement_driver_order_test.gd` (5 tests, passing: sign right/left, poll-after-step mutation, zero-dt bit-identity with t_run == run_time, first tick after run_started and run_resumed); driver `tests/support/ball_test_driver.gd`.
 
 ## Dependencies
 - Depends on: Story 006, Story 008, Story 009; tilt-input (TiltCore + adapter stories); run-state-restart (core story); tube-track (`TubeMath.local_point`); composition-root (WorldFrame story for `render_z` reference)

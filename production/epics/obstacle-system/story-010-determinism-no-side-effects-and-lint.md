@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Core Rules 6, 9; AC-23, AC-24, AC-39)
@@ -42,7 +42,7 @@ Register the AC-24 rule in `lint_rules.json` with scope globs over the three fil
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_determinism_test.gd` (AC-23, AC-39); lint rule + fixtures in `tools/ci/` (AC-24) with a recorded code-review sign-off
-**Status**: [ ] Not yet created
+**Evidence (partial)**: `tests/unit/obstacle_system/obstacle_system_determinism_test.gd` (AC-23, AC-39 passing); lint rule `forbidden:obstacle_core_purity` with fixtures in `tools/ci/`. Gap: AC-24 needs the recorded code-review sign-off, not yet given.
 
 ## Dependencies
 - Depends on: Stories 007, 008, 009; test-harness-ci epic (lint runner)

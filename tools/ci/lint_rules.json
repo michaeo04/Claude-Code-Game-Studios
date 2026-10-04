@@ -1121,6 +1121,17 @@
     }
    ],
    "message": "Android preset must disable Picture-in-Picture (key name UNVERIFIED until the first preset, owner-actions E14; keys live in src/core/platform/platform_settings.gd)"
+  },
+  {
+   "id": "forbidden:obstacle_core_purity",
+   "source": "ADR-0008; obstacle-system.md Core Rule 9 (story OB-010 AC-24)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/obstacle/*.gd"
+   ],
+   "pattern": "\\b(?:CollisionObject3D|CharacterBody3D|Area3D|RayCast3D|ShapeCast3D|PhysicsServer\\w*|RandomNumberGenerator|get_tree|_process|_physics_process|randi\\w*|randf\\w*|randomize|seed)\\b|\\b(?:Input|Engine|Time|OS|DisplayServer)\\s*\\.|\\bseed\\s*\\(|\\b(?:global_)?position\\.z\\b|\\bglobal_transform\\.origin\\b",
+   "message": "Obstacle System cores hold no physics node, no engine singleton call, no process hook, no randomness and no raw world Z"
   }
  ]
 }

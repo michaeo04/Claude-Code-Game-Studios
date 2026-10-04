@@ -10,6 +10,8 @@ extends RefCounted
 
 ## A second `hazards_for_segment` query for an index that is already bound.
 const DUPLICATE_SEGMENT_QUERY: StringName = &"DUPLICATE_SEGMENT_QUERY"
+## Ball Movement published a non-finite `theta` or `s`: the tick is a no-op (one ERROR per such tick, no hit).
+const BALL_STATE_NOT_FINITE: StringName = &"BALL_STATE_NOT_FINITE"
 
 ## A hazard was stored. `footprint` is 4 floats per piece in world `s`: `theta_min, theta_max, s_start, s_end` (raw).
 ## State is recorded before the emission, so the read accessors are valid inside the handler.
@@ -102,12 +104,16 @@ func on_run_reset(run_id: int) -> void:
 	_run_id = run_id
 
 
-## One tick: swept test of the ball (`theta_prev, theta, s_prev, s`) against every bound hazard.
+## One tick: swept test of the ball (`theta_prev, theta, s_prev, s`) against every bound hazard. A non-finite value
+## makes the tick a no-op (nothing is tested or reported) and logs one `BALL_STATE_NOT_FINITE` ERROR.
 func step(ball: RefCounted) -> void:
 	var theta: float = ball.get(&"theta") as float
 	var theta_prev: float = ball.get(&"theta_prev") as float
 	var s: float = ball.get(&"s") as float
 	var s_prev: float = ball.get(&"s_prev") as float
+	if not (is_finite(theta) and is_finite(theta_prev) and is_finite(s) and is_finite(s_prev)):
+		_log(BALL_STATE_NOT_FINITE, "ball_state", "non-finite swept endpoint, tick skipped")
+		return
 	var ids: Array[int] = []
 	for key: int in _hazards.keys():
 		ids.append(key)

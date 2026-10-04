@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Edge Cases "When validation actually runs"; AC-32, AC-37)
@@ -43,7 +43,7 @@ P1 code list (ADR-0008): `FOOTPRINT_NOT_FINITE`, `FOOTPRINT_INVALID_ORDER`, `FOO
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_preflight_p1_test.gd`
-**Status**: [ ] Not yet created
+**Evidence (partial)**: `tests/unit/obstacle_system/obstacle_system_preflight_p1_test.gd` (5 tests: AC-32, AC-37, SOLUTION_NOT_IN_GAP); `src/core/obstacle/content_preflight.gd`. Gap: the EditorScript entry is not written; NEAR_ZONE_OVERLAP and DODGE_RECOVERY_VIOLATION await their validators.
 
 ## Dependencies
 - Depends on: Stories 001, 004, 005, 006
