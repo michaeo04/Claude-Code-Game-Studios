@@ -8,6 +8,10 @@ extends RefCounted
 
 const REAL_PATH: String = "user://save.cfg"
 const TMP_PATH: String = "user://save.cfg.tmp"
+const SAVE_DIR: String = "user://"
+const BACKUP_PREFIX: String = "save.cfg.corrupt-"
+## Upper bound on the probes for a free backup name within one clock second (a safety stop, not a tuning knob).
+const BACKUP_NAME_ATTEMPTS_MAX: int = 1000
 const META_SECTION: String = "_meta"
 const SCHEMA_KEY: String = "schema_version"
 
@@ -25,6 +29,8 @@ var _config: SaveConfig
 var _limiter: RateLimitedLog
 ## Section name to `Dictionary` of key to value. The complete map that is written on every `set_value`.
 var _sections: Dictionary = {}
+## Slots (`section/key`) whose `TYPE_MISMATCH` was already logged this load.
+var _mismatch_logged: Dictionary = {}
 
 
 ## `clock` returns monotonic seconds (float); `wall_clock` returns Unix seconds (int);
@@ -40,34 +46,51 @@ func _init(fs: SaveFs, clock: Callable, wall_clock: Callable, log_sink: Callable
 
 
 ## Loads the save file once, synchronously, at boot. A missing file gives defaults and one INFO `FILE_MISSING`.
-## Unusable files (parse error, incompatible schema) leave the memory empty; their logging and backup
-## belong to stories 006 and 007.
+## A file-level failure (oversized or unknown size, parse error, incompatible schema) is logged once at ERROR
+## (`FILE_UNREADABLE` > `SCHEMA_INCOMPATIBLE`), the file is renamed aside, old backups are rotated, and the
+## memory stays empty so every read returns the caller's default.
 func boot_load() -> void:
 	_sections = {}
+	_mismatch_logged = {}
 	if not _fs.exists(REAL_PATH):
 		_log_sink.call(LEVEL_INFO, StringName(PersistMath.FILE_MISSING), "", "no save file; using defaults")
 		return
-	var result: Dictionary = _fs.read_config(REAL_PATH)
-	if result.get("status", "PARSE_ERROR") != "OK":
+	var file_size: int = _fs.size(REAL_PATH)
+	if file_size < 0 or file_size > _config.save_file_size_max:
+		var why: String = "size unknown" if file_size < 0 else "oversized"
+		_fail_file(PersistMath.FILE_UNREADABLE, "save file unreadable (%s)" % why)
 		return
+	var result: Dictionary = _fs.read_config(REAL_PATH)
 	var loaded: Variant = result.get("sections", {})
-	if typeof(loaded) != TYPE_DICTIONARY:
+	var parsed_ok: bool = result.get("status", "PARSE_ERROR") == "OK" and typeof(loaded) == TYPE_DICTIONARY
+	if not parsed_ok:
+		_fail_file(PersistMath.FILE_UNREADABLE, "save file could not be parsed")
 		return
 	var sections: Dictionary = (loaded as Dictionary).duplicate(true)
 	var meta: Variant = sections.get(META_SECTION, {})
 	var version: Variant = (meta as Dictionary).get(SCHEMA_KEY) if typeof(meta) == TYPE_DICTIONARY else null
-	if not PersistMath.schema_compatible(version, current_schema_version):
+	var compatible: bool = PersistMath.schema_compatible(version, current_schema_version)
+	var code: String = PersistMath.read_error_code(parsed_ok, compatible, false, false)
+	if not code.is_empty():
+		_fail_file(code, "save file schema %s is incompatible with %d" % [str(version), current_schema_version])
 		return
 	_sections = sections
 
 
 ## Returns the stored value when it exists and has the same type as `default`, else `default` unchanged.
+## An absent key logs nothing; a wrong-typed key logs one `TYPE_MISMATCH` the first time it is read.
 func get_value(section: String, key: String, default: Variant) -> Variant:
 	var entries: Variant = _sections.get(section)
 	if typeof(entries) != TYPE_DICTIONARY or not (entries as Dictionary).has(key):
 		return default
 	var stored: Variant = (entries as Dictionary)[key]
 	if typeof(stored) != typeof(default):
+		var slot: String = "%s/%s" % [section, key]
+		if not _mismatch_logged.has(slot):
+			_mismatch_logged[slot] = true
+			_log_sink.call(
+				LEVEL_ERROR, StringName(PersistMath.TYPE_MISMATCH), slot, "stored value of %s has the wrong type" % slot
+			)
 		return default
 	return stored
 
@@ -97,3 +120,25 @@ func set_value(section: String, key: String, value: Variant) -> bool:
 	if not written:
 		_limiter.emit(LEVEL_ERROR, StringName(PersistMath.WRITE_FAILED), slot, "could not save %s" % slot)
 	return written
+
+
+## Logs a file-level failure once, moves the unusable file aside and rotates old backups.
+func _fail_file(code: String, message: String) -> void:
+	_log_sink.call(LEVEL_ERROR, StringName(code), "", message)
+	var stamp: String = "%s%d-" % [SAVE_DIR + BACKUP_PREFIX, int(_wall_clock.call())]
+	var n: int = 0
+	while n < BACKUP_NAME_ATTEMPTS_MAX and _fs.exists("%s%d" % [stamp, n]):
+		n += 1
+	if n >= BACKUP_NAME_ATTEMPTS_MAX:
+		# Every probed name is taken: leave the unusable file in place rather than loop without end.
+		return
+	if not _fs.rename(REAL_PATH, "%s%d" % [stamp, n]):
+		return
+	# Name order equals age order only while the Unix timestamps have the same digit count (10 digits until 2286).
+	var names: Array[String] = []
+	for backup: String in _fs.list_backups(SAVE_DIR, BACKUP_PREFIX):
+		names.append(backup)
+	names.sort()
+	var excess: int = names.size() - _config.corrupt_backup_retention
+	for i: int in range(maxi(excess, 0)):
+		_fs.delete(SAVE_DIR + names[i])

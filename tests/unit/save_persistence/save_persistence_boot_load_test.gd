@@ -71,7 +71,7 @@ func test_boot_load_is_synchronous_and_every_fixture_key_is_readable() -> void:
 	assert_eq(core.get_value("settings", "haptics_enabled", false), true)
 	assert_eq(core.get_value("settings", "tilt_sensitivity", 0.0), 1.0)
 	assert_eq(_sink.count(), 0)
-	assert_eq(_fs.call_names(), ["exists", "read_config"] as Array[String])
+	assert_eq(_fs.call_names(), ["exists", "size", "read_config"] as Array[String])
 
 
 func test_missing_file_gives_defaults_and_one_info_file_missing() -> void:

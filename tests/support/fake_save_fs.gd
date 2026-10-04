@@ -21,6 +21,9 @@ func write_config(path: String, sections: Dictionary) -> bool:
 
 func exists(path: String) -> bool:
 	calls.append(["exists", [path]])
+	var per_path: Dictionary = returns.get("exists_by_path", {})
+	if per_path.has(path):
+		return per_path[path]
 	return returns.get("exists", false)
 
 
