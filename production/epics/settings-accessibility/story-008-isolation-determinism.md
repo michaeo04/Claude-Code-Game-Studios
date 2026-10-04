@@ -1,12 +1,12 @@
 # Story 008: No consumer seams, closed call surface and determinism
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -53,7 +53,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_isolation_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/settings_accessibility/settings_accessibility_isolation_test.gd: test_ac15_*, test_ac16_*, test_ac17_*
 
 ## Dependencies
 - Depends on: Story 005, Story 006, Story 007

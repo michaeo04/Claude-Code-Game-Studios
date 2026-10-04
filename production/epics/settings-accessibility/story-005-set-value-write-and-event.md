@@ -1,12 +1,12 @@
 # Story 005: set_value writes on change, no-ops on equal, emits setting_changed once
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 > **Unblocked 2026-10-03**: the GDD Core Rule 5 amendment landed (a slider commits its value on `drag_ended`; `set_value` is never called per `value_changed`), so the Partial coverage of `TR-settings-accessibility-005` is closed.
 
@@ -55,7 +55,8 @@ Order inside `set_value(key, value) -> bool`: reject unknown key (story 006); co
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_set_value_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/settings_accessibility/settings_accessibility_set_value_test.gd: test_ac9_*, test_ac10_*, test_ac11_*
 
 ## Dependencies
 - Depends on: Story 002; Story 002 (the GDD Core Rule 5 amendment is done)

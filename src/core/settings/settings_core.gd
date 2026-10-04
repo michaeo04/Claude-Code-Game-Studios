@@ -17,8 +17,17 @@ const KEY_REDUCED_MOTION: String = "reduced_motion_enabled"
 const KEY_COLORBLIND_SAFE: String = "colorblind_safe_enabled"
 ## Log level of a corrected setting (same scale as `RunStateMath.LogLevel.WARNING`).
 const LEVEL_WARNING: int = 1
-## Log code emitted once at boot when the stored tilt sensitivity had to be corrected.
+## Log code emitted when a tilt sensitivity (stored at boot, or passed to `set_value`) had to be corrected.
 const CODE_SETTING_CLAMPED: StringName = &"SETTING_CLAMPED"
+## Log code emitted when `set_value` receives a key that is not one of the five settings.
+const CODE_UNKNOWN_SETTING_KEY: StringName = &"UNKNOWN_SETTING_KEY"
+## The closed list of recognised setting keys.
+const KEYS: Array[String] = [
+	KEY_HAPTICS_ENABLED, KEY_HAPTICS_INTENSITY, KEY_TILT_SENSITIVITY, KEY_REDUCED_MOTION, KEY_COLORBLIND_SAFE
+]
+
+## Emitted once per actual change, after memory is updated and the write seam was called.
+signal setting_changed(key: String, value: Variant)
 
 var _get_value_seam: Callable
 var _set_value_seam: Callable
@@ -95,3 +104,67 @@ func get_colorblind_safe_enabled() -> bool:
 ## A plain computation: it never touches the get/set seams.
 func get_seam_contrast_scale() -> float:
 	return SettingsMath.seam_contrast_scale(_reduced_motion_enabled)
+
+
+## Changes one setting. Returns `false` only for an unknown key (logged `UNKNOWN_SETTING_KEY`, no state change);
+## returns `true` for every recognised key, including a no-op (value equal to the current one: no write, no event).
+## On an actual change: memory is updated, `set_value_seam` is called immediately (its result is ignored: no
+## rollback, no retry; Save logs a failed write), then `setting_changed(key, value)` is emitted once.
+## `tilt_sensitivity` is corrected through F2 first and the corrected value is stored, written and emitted.
+## Menus owns the slider rule: commit on `drag_ended`, never per `value_changed`; there is no coalescing here.
+func set_value(key: String, value: Variant) -> bool:
+	if not KEYS.has(key):
+		_log_sink.call(LEVEL_WARNING, CODE_UNKNOWN_SETTING_KEY, key, "unknown setting key '%s'" % key)
+		return false
+	var new_value: Variant
+	match key:
+		KEY_TILT_SENSITIVITY:
+			var checked: Dictionary = SettingsMath.tilt_sensitivity_validate(
+				value as float, _sensitivity_min, _sensitivity_max, _default_sensitivity
+			)
+			new_value = checked["value"] as float
+			if checked["was_corrected"] as bool:
+				_log_sink.call(
+					LEVEL_WARNING,
+					CODE_SETTING_CLAMPED,
+					key,
+					"tilt_sensitivity %s corrected to %s" % [str(value), str(new_value)]
+				)
+		KEY_HAPTICS_INTENSITY:
+			new_value = value as float
+		_:
+			new_value = value as bool
+	if new_value == _current(key):
+		return true
+	_store(key, new_value)
+	_set_value_seam.call(SECTION, key, new_value)
+	setting_changed.emit(key, new_value)
+	return true
+
+
+func _current(key: String) -> Variant:
+	match key:
+		KEY_HAPTICS_ENABLED:
+			return _haptics_enabled
+		KEY_HAPTICS_INTENSITY:
+			return _haptics_intensity
+		KEY_TILT_SENSITIVITY:
+			return _tilt_sensitivity
+		KEY_REDUCED_MOTION:
+			return _reduced_motion_enabled
+		_:
+			return _colorblind_safe_enabled
+
+
+func _store(key: String, value: Variant) -> void:
+	match key:
+		KEY_HAPTICS_ENABLED:
+			_haptics_enabled = value as bool
+		KEY_HAPTICS_INTENSITY:
+			_haptics_intensity = value as float
+		KEY_TILT_SENSITIVITY:
+			_tilt_sensitivity = value as float
+		KEY_REDUCED_MOTION:
+			_reduced_motion_enabled = value as bool
+		_:
+			_colorblind_safe_enabled = value as bool

@@ -84,38 +84,38 @@ stories:
     name: "set_value writes on change, no-ops on equal, emits setting_changed once"
     file: "production/epics/settings-accessibility/story-005-set-value-write-and-event.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-006"
     name: "Runtime tilt sensitivity validation and unknown-key rejection"
     file: "production/epics/settings-accessibility/story-006-runtime-validation-unknown-key.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-007"
     name: "Failed write keeps the in-memory value"
     file: "production/epics/settings-accessibility/story-007-write-failure.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.12
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-008"
     name: "No consumer seams, closed call surface and determinism"
     file: "production/epics/settings-accessibility/story-008-isolation-determinism.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-006"
     name: "advance(s) and synchronous recycling"
     file: "production/epics/tube-track/story-006-tubewindow-advance-recycling.md"

@@ -1,12 +1,12 @@
 # Story 006: Runtime tilt sensitivity validation and unknown-key rejection
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -47,7 +47,8 @@ In `set_value`, for `tilt_sensitivity` run `SettingsMath.tilt_sensitivity_valida
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_runtime_validation_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/settings_accessibility/settings_accessibility_runtime_validation_test.gd: test_ac12_*, test_ac13_*
 
 ## Dependencies
 - Depends on: Story 001, Story 003, Story 005

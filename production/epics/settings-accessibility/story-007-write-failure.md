@@ -1,12 +1,12 @@
 # Story 007: Failed write keeps the in-memory value
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 1 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -41,7 +41,8 @@ Ignore the boolean returned by `set_value_seam` for state purposes; do not branc
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_write_failure_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/settings_accessibility/settings_accessibility_write_failure_test.gd: test_ac14_*
 
 ## Dependencies
 - Depends on: Story 005
