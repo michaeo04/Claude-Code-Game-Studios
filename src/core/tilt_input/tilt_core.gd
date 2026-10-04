@@ -3,7 +3,7 @@
 ## Engine-free `RefCounted`: no `Input`, no `Time`, no node. The gravity vector comes from the injected
 ## `sample_source`, time from the injected microsecond `clock`. Covers the poll path, neutral capture
 ## (rules 7, 8), the pipeline and the published output (rules 2, 5), the availability states, the start timeout,
-## the sensor-loss hold (F6) and the app lifecycle (rule 9). Fallback steering arrives in a later story.
+## the sensor-loss hold (F6) and the app lifecycle (rule 9). Fallback steering (F6, story 011) is driven by the injected `fallback_source`.
 class_name TiltCore
 extends RefCounted
 
@@ -151,7 +151,10 @@ func poll() -> void:
 	_last_dt = float(diff_us) / 1e6
 	_has_previous = true
 	_previous_now_us = now_us
-	if _input_source == InputSource.FALLBACK or now_us < _settle_until_us:
+	if _input_source == InputSource.FALLBACK:
+		_step_fallback()
+		return
+	if now_us < _settle_until_us:
 		return
 	if not _timeout_armed:
 		_timeout_armed = true
@@ -450,6 +453,12 @@ func _on_invalid_poll(now_us: int, diff_us: int) -> void:
 		_steer = 0.0
 		_neutral_stale = true
 		availability_changed.emit(false)
+
+
+## F6 fallback steering: `steer` slews toward the injected source value clamped to [-1, 1] at `fallback_slew` per second.
+func _step_fallback() -> void:
+	var target: float = float(clampi(_fallback_source.call() as int, -1, 1))
+	_steer = move_toward(_steer, target, _config.fallback_slew * _last_dt)
 
 
 func _enter_fallback_state() -> void:

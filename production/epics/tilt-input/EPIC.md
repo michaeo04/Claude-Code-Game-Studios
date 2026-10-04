@@ -78,9 +78,9 @@ This epic is complete when:
 | 008 | [Availability states and timeout](story-008-availability-states.md) | Logic | Complete | ADR-0005 |
 | 009 | [Sensor-loss dropout hold](story-009-sensor-loss-hold.md) | Logic | Complete | ADR-0005 |
 | 010 | [App lifecycle handling](story-010-app-lifecycle.md) | Logic | Complete | ADR-0006 |
-| 011 | [Fallback input and transition table](story-011-fallback-input.md) | Logic | Ready | ADR-0005 |
-| 012 | [TiltRunAdapter and sensor-lost pause](story-012-tilt-run-adapter.md) | Integration | Ready | ADR-0002 |
-| 013 | [TiltInput node, settings, log sink](story-013-tilt-input-node.md) | Integration | Ready | ADR-0005 |
+| 011 | [Fallback input and transition table](story-011-fallback-input.md) | Logic | Complete | ADR-0005 |
+| 012 | [TiltRunAdapter and sensor-lost pause](story-012-tilt-run-adapter.md) | Integration | Complete | ADR-0002 |
+| 013 | [TiltInput node, settings, log sink](story-013-tilt-input-node.md) | Integration | Complete | ADR-0005 |
 | 014 | [Spike V-1 / V-5 on devices](story-014-v1-sensor-sign-device.md) | Integration | Ready | ADR-0005 |
 | 015 | [Spikes P-1 / P-2 / P-3](story-015-p1-p2-p3-device-performance.md) | Integration | Ready | ADR-0005 |
 | 016 | [Spikes V-2..V-9 and AC-41](story-016-feel-posture-tuning-spikes.md) | Visual/Feel | Ready | ADR-0005 |

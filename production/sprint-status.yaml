@@ -21,11 +21,11 @@ stories:
     name: "Fallback input (unwired) and the state-transition table"
     file: "production/epics/tilt-input/story-011-fallback-input.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-012"
     name: "TiltRunAdapter and the level-triggered sensor-lost pause"
     file: "production/epics/tilt-input/story-012-tilt-run-adapter.md"
