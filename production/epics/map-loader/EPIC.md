@@ -41,9 +41,9 @@ This epic is complete when:
 | 001 | MapDefinition, MapConfig and loader seam types | Logic | Complete | ADR-0004 |
 | 002 | HazardStyle validation and TubeConfig.from_map | Logic | Complete | ADR-0004, ADR-0014 |
 | 003 | MapConfig.build with Camera values and camera_far | Logic | Complete | ADR-0004, ADR-0014 |
-| 004 | Phase A validation sequence | Logic | Ready | ADR-0004 |
-| 005 | Phase B apply order and map_ready | Logic | Ready | ADR-0004 |
-| 006 | Failure reporting, map_load_failed and Retry | Logic | Ready | ADR-0004 |
+| 004 | Phase A validation sequence | Logic | Complete | ADR-0004 |
+| 005 | Phase B apply order and map_ready | Logic | Complete | ADR-0004 |
+| 006 | Failure reporting, map_load_failed and Retry | Logic | Complete | ADR-0004 |
 | 007 | Author map_01.tres and its round-trip test | Config/Data | Ready | ADR-0004, ADR-0008, ADR-0014 |
 | 008 | map_loader.gd driver and ResourceLoader lint | Integration | Ready | ADR-0004 |
 | 009 | Loader wiring order, map_load_failed to Menus, Retry Callable | Integration | Ready | ADR-0004 |

@@ -84,29 +84,29 @@ stories:
     name: "Phase A validation sequence"
     file: "production/epics/map-loader/story-004-phase-a-validation.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-005"
     name: "Phase B apply order and map_ready"
     file: "production/epics/map-loader/story-005-phase-b-apply-and-map-ready.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-006"
     name: "Failure reporting, map_load_failed and Retry"
     file: "production/epics/map-loader/story-006-failure-signal-and-retry.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-005"
     name: "Rebase contract for views, reset wiring and soak"
     file: "production/epics/composition-root/story-005-world-frame-rebase-contract.md"

@@ -1,12 +1,12 @@
 # Story 005: Phase B apply order and map_ready
 
 > **Epic**: Map Loader & MapConfig
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0004
@@ -67,7 +67,8 @@ Seam names and order are the ADR-0004 Key Interfaces. The "system name" detail g
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/map_loader/map_loader_phase_b_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/map_loader/map_loader_phase_b_test.gd` (6 tests)
 
 ## Dependencies
 - Depends on: Story 004

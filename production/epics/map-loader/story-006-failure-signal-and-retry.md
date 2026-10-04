@@ -1,12 +1,12 @@
 # Story 006: Failure reporting, map_load_failed and Retry
 
 > **Epic**: Map Loader & MapConfig
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0004
@@ -73,7 +73,8 @@ Keep the last path in the core so `retry()` takes no argument. Emission happens 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/map_loader/map_loader_failure_retry_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/map_loader/map_loader_failure_retry_test.gd` (8 tests)
 
 ## Dependencies
 - Depends on: Story 004, Story 005
