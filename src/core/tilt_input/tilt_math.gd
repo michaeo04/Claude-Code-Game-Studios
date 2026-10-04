@@ -8,6 +8,8 @@ extends RefCounted
 const PHI_MAX: float = 70.0
 ## Cap of the effective full-scale angle in degrees (lowest sensitivity).
 const FS_EFF_MAX: float = 50.0
+## Cap of the re-anchor offset as a fraction of `FS_eff` (`REANCHOR_FS_CAP`).
+const REANCHOR_FS_CAP: float = 0.5
 ## Smallest filter time constant used by `alpha`, in seconds.
 const TAU_FLOOR: float = 0.005
 
@@ -62,3 +64,16 @@ static func median(samples: PackedFloat64Array) -> float:
 	if n % 2 == 1:
 		return sorted[n / 2]
 	return (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
+
+
+## F2 conditional re-anchor decision. Recapture iff `n >= n_min`, `spread <= ra_spread`, `phi_stop` is known
+## (not NAN), and the clamped median differs from both `phi0` and `phi_stop` by more than
+## `RA_eff = min(ra_offset, REANCHOR_FS_CAP * fs_eff)`.
+## Example: `should_reanchor(5, 0, 20, 5, 5, 5, 3, 12, 25)` is true; with median 17 it is false (offset exactly 12).
+static func should_reanchor(n: int, spread: float, median_deg: float, phi0: float, phi_stop: float, n_min: int,
+		ra_spread: float, ra_offset: float, fs_eff: float) -> bool:
+	if n < n_min or spread > ra_spread or is_nan(phi_stop):
+		return false
+	var m_c: float = clampf(median_deg, -PHI_MAX, PHI_MAX)
+	var ra_eff: float = minf(ra_offset, REANCHOR_FS_CAP * fs_eff)
+	return absf(m_c - phi0) > ra_eff and absf(m_c - phi_stop) > ra_eff

@@ -1,12 +1,12 @@
 # Story 006: Pipeline order and the published output contract
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -50,7 +50,7 @@ Pipeline per GDD rule 5. The dead zone acts on the filtered signal. `steer` is n
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_pipeline_output_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tilt_input/tilt_core_pipeline_output_test.gd` (passing, all ACs).
 
 ## Dependencies
 - Depends on: Story 005

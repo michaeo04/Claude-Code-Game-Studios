@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -52,7 +52,7 @@ Capture sets `phi0` to the median of samples in the closed window `[t - G - W, t
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_neutral_capture_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tilt_input/tilt_core_neutral_capture_test.gd` (passing). Gap: AC-18 Unavailable half needs the Unavailable transition of Story 009; only Acquiring is proven.
 
 ## Dependencies
 - Depends on: Story 002, Story 003, Story 004

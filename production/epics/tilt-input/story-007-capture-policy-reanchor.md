@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -44,7 +44,7 @@ Always capture on `run_reset` from Boot, Menu or an unknown previous phase and o
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tilt_input/tilt_core_capture_policy_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tilt_input/tilt_core_capture_policy_test.gd` (passing). Gap: AC-16e needs `on_app_backgrounded` (Story 010); only the stale routing from construction is proven.
 
 ## Dependencies
 - Depends on: Story 002, Story 005

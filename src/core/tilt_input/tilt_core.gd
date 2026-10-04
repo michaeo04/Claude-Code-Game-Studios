@@ -1,12 +1,20 @@
 ## Tilt Input core (design/gdd/tilt-input.md rules 4, 6, 8, 12): poll, clock stamps and the sample ring buffer.
 ##
 ## Engine-free `RefCounted`: no `Input`, no `Time`, no node. The gravity vector comes from the injected
-## `sample_source`, time from the injected microsecond `clock`. This story covers the poll path only;
-## neutral capture, the filter, availability timeouts and the fallback arrive in later stories.
+## `sample_source`, time from the injected microsecond `clock`. Covers the poll path, neutral capture
+## (rules 7, 8), the pipeline and the published output (rules 2, 5). Availability timeouts, the sensor-loss
+## hold, the app lifecycle and the fallback arrive in later stories.
 class_name TiltCore
 extends RefCounted
 
+## Emitted whenever `valid` changes value (not at construction).
+signal availability_changed(available: bool)
+
 enum State { ACQUIRING, LIVE, UNAVAILABLE }
+## Control source (rule 2). Only SENSOR is produced until the fallback story.
+enum InputSource { SENSOR, FALLBACK }
+## Phase before a `run_reset`, supplied by the adapter (Story 012).
+enum PreviousPhase { UNKNOWN, BOOT, MENU, HIT, PAUSED }
 
 ## Log code of an invalid injected Callable at construction (error level).
 const LOG_SEAM_INVALID: StringName = &"SEAM_INVALID"
@@ -14,6 +22,12 @@ const LOG_SEAM_INVALID: StringName = &"SEAM_INVALID"
 const BUFFER_CAPACITY: int = 256
 ## Samples older than this (microseconds) are dropped at every append (`BUFFER_AGE` 1.0 s).
 const BUFFER_AGE_US: int = 1000000
+## Log code of a non-finite published value (error level).
+const LOG_BAD_OUTPUT: StringName = &"BAD_OUTPUT"
+## Log code of a rest pose beyond `L_eff` (error level).
+const LOG_POSTURE_UNSUPPORTED: StringName = &"POSTURE_UNSUPPORTED"
+## Log code of a non-portrait boot (diagnostic, error level).
+const LOG_NOT_PORTRAIT: StringName = &"NOT_PORTRAIT"
 ## Shared clamp of `dt` in microseconds (`DT_MAX` 0.1 s, Run State registry `dt_max`).
 const DT_MAX_US: int = 100000
 
@@ -29,6 +43,21 @@ var _has_previous: bool = false
 var _previous_now_us: int = 0
 var _last_dt: float = 0.0
 var _g_min_sq: float = 0.0
+var _sensitivity: float = 1.0
+var _fs_eff: float = 25.0
+var _guard_us: int = 0
+var _window_us: int = 0
+var _n_min: int = 5
+
+var _phi0: float = 0.0
+var _phi_f: float = 0.0
+var _steer: float = 0.0
+var _neutral_pending: bool = true
+var _neutral_stale: bool = true
+var _pending_samples: PackedFloat64Array = PackedFloat64Array()
+var _pending_count: int = 0
+var _stop_us: int = 0
+var _phi_stop: float = NAN
 
 # Ring buffer: roll angles (degrees) and their poll stamps (us); `_head` is the next write slot.
 var _angles: PackedFloat64Array = PackedFloat64Array()
@@ -39,14 +68,22 @@ var _count: int = 0
 
 ## Builds a core. `config` should already be validated. An invalid Callable (unset or freed) logs one
 ## `SEAM_INVALID` error per seam through `log_sink` (when that one is valid) and leaves the core Unavailable
-## for good; `poll()` then does nothing.
-func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sink: Callable, fallback_source: Callable) -> void:
+## for good; `poll()` then does nothing. `sensitivity` is the Settings hook (validated here); a false
+## `is_portrait` logs one `NOT_PORTRAIT` diagnostic and changes nothing else.
+func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sink: Callable, fallback_source: Callable,
+		sensitivity: float = 1.0, is_portrait: bool = true) -> void:
 	_config = config
 	_sample_source = sample_source
 	_clock = clock
 	_log_sink = log_sink
 	_fallback_source = fallback_source
 	_g_min_sq = config.g_min * config.g_min
+	_sensitivity = TiltConfig.validated_sensitivity(sensitivity, log_sink)
+	_fs_eff = minf(config.tilt_full_scale / _sensitivity, TiltMath.FS_EFF_MAX)
+	_guard_us = roundi(config.neutral_guard * 1e6)
+	_window_us = roundi(config.neutral_window * 1e6)
+	_n_min = maxi(1, config.neutral_min_samples)
+	_pending_samples.resize(_n_min)
 	_angles.resize(BUFFER_CAPACITY)
 	_stamps.resize(BUFFER_CAPACITY)
 	var seams: Dictionary = {
@@ -60,6 +97,8 @@ func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sin
 			_log(LOG_SEAM_INVALID, "%s is not a valid Callable" % seam_name)
 	if broken:
 		_state = State.UNAVAILABLE
+	if not is_portrait:
+		_log(LOG_NOT_PORTRAIT, "the screen is not in portrait; F1 still uses the screen-relative x axis")
 
 
 ## Reads one sample and stamps it with the injected clock (once per rendered frame, GDD rule 6).
@@ -82,10 +121,47 @@ func poll() -> void:
 	var g: Vector3 = _sample_source.call() as Vector3
 	if not g.is_finite() or g.length_squared() < _g_min_sq:
 		return
-	_append(TiltMath.roll_deg(g, _config.sensor_sign), now_us)
+	var angle: float = TiltMath.roll_deg(g, _config.sensor_sign)
+	_append(angle, now_us)
 	_sensor_ever_live = true
-	if _state != State.LIVE:
-		_state = State.LIVE
+	var was_live: bool = _state == State.LIVE
+	_state = State.LIVE
+	_process_sample(angle, was_live)
+	if not was_live:
+		availability_changed.emit(true)
+
+
+## Capture event: `run_reset` (rule 7). From Hit or Paused it re-anchors conditionally unless `neutral_stale`;
+## every other previous phase (Boot, Menu, unknown) always captures.
+func on_run_reset(previous_phase: PreviousPhase) -> void:
+	if _is_broken():
+		return
+	if (previous_phase == PreviousPhase.HIT or previous_phase == PreviousPhase.PAUSED) and not _neutral_stale:
+		_reanchor()
+	else:
+		_capture_event()
+
+
+## Capture event: the end of the resume countdown (rule 7). Always captures.
+func on_run_resumed() -> void:
+	if _is_broken():
+		return
+	_capture_event()
+
+
+## `run_started` changes nothing in the core (rule 7); kept so the adapter can forward every Run State event.
+func on_run_started() -> void:
+	pass
+
+
+## `run_ended` / `run_paused`: records `stop_us` and `phi_stop`, the median of the roll samples in
+## `[stop_us - G - W, stop_us - G]` (unknown, NAN, with fewer than `N_min` samples). Nothing else changes.
+func on_run_stopped() -> void:
+	if _is_broken():
+		return
+	_stop_us = _clock.call() as int
+	var vals: PackedFloat64Array = _window_samples(_stop_us - _guard_us - _window_us, _stop_us - _guard_us)
+	_phi_stop = TiltMath.median(vals) if vals.size() >= _n_min else NAN
 
 
 ## Current availability state.
@@ -106,6 +182,51 @@ func get_last_dt() -> float:
 ## True once a valid sample was accepted.
 func get_sensor_ever_live() -> bool:
 	return _sensor_ever_live
+
+
+## Published steer in `[-1, 1]`, never NaN or infinite. Reading it twice without a poll gives the same value.
+func get_steer() -> float:
+	return _steer
+
+
+## True while the state is Live (rule 2).
+func get_valid() -> bool:
+	return _state == State.LIVE
+
+
+## Control source; always SENSOR until the fallback story.
+func get_input_source() -> InputSource:
+	return InputSource.SENSOR
+
+
+## Captured neutral in degrees (within +-PHI_MAX).
+func get_phi0() -> float:
+	return _phi0
+
+
+## Filtered relative angle in degrees.
+func get_phi_f() -> float:
+	return _phi_f
+
+
+## Median roll of the window before the last stop, or NAN when unknown.
+func get_phi_stop() -> float:
+	return _phi_stop
+
+
+## Clock stamp (us) of the last `on_run_stopped`.
+func get_stop_us() -> int:
+	return _stop_us
+
+
+## True while a capture waits for its first `N_min` valid samples.
+func get_neutral_pending() -> bool:
+	return _neutral_pending
+
+
+## True from construction until any capture.
+func get_neutral_stale() -> bool:
+	return _neutral_stale
 
 
 func _is_broken() -> bool:
@@ -129,3 +250,85 @@ func _append(angle_deg: float, now_us: int) -> void:
 func _log(code: StringName, detail: String) -> void:
 	if _log_sink.is_valid():
 		_log_sink.call(RateLimitedLog.Level.ERROR, code, detail)
+
+
+func _process_sample(angle: float, was_live: bool) -> void:
+	if _neutral_pending:
+		_pending_samples[_pending_count] = angle
+		_pending_count += 1
+		if _pending_count >= _n_min:
+			_apply_capture(TiltMath.median(_pending_samples))
+		return
+	var phi_r: float = angle - _phi0
+	if was_live:
+		_phi_f = TiltMath.filter_step(_phi_f, phi_r, _last_dt, _config.filter_tau)
+	else:
+		_phi_f = phi_r
+	_update_steer()
+
+
+func _update_steer() -> void:
+	var s: float = TiltMath.steer(_phi_f, _config.tilt_full_scale, _config.dead_zone, _config.curve_exp, _sensitivity)
+	if not is_finite(s) or not is_finite(_phi_f):
+		_log(LOG_BAD_OUTPUT, "steer is not finite (phi_f=%s); using 0" % _phi_f)
+		_phi_f = 0.0
+		s = 0.0
+	_steer = s
+
+
+func _capture_event() -> void:
+	if _state != State.LIVE:
+		_begin_pending()
+		return
+	var t: int = _clock.call() as int
+	var vals: PackedFloat64Array = _window_samples(t - _guard_us - _window_us, t - _guard_us)
+	if vals.size() >= _n_min:
+		_apply_capture(TiltMath.median(vals))
+	else:
+		_begin_pending()
+
+
+func _reanchor() -> void:
+	var t: int = _clock.call() as int
+	var vals: PackedFloat64Array = _window_samples(maxi(t - _guard_us - _window_us, _stop_us), t - _guard_us)
+	if vals.is_empty():
+		return
+	var m: float = TiltMath.median(vals)
+	var lo: float = vals[0]
+	var hi: float = vals[0]
+	for v: float in vals:
+		lo = minf(lo, v)
+		hi = maxf(hi, v)
+	if TiltMath.should_reanchor(vals.size(), hi - lo, m, _phi0, _phi_stop, _n_min, _config.reanchor_spread,
+			_config.reanchor_offset, _fs_eff):
+		_apply_capture(m)
+
+
+func _begin_pending() -> void:
+	_neutral_pending = true
+	_pending_count = 0
+	_steer = 0.0
+
+
+## Sets the neutral from median `m` (F2): clamp, posture diagnostic, filter to 0, flags cleared.
+func _apply_capture(m: float) -> void:
+	_phi0 = clampf(m, -TiltMath.PHI_MAX, TiltMath.PHI_MAX)
+	if absf(m) > maxf(0.0, TiltMath.PHI_MAX - _fs_eff):
+		_log(LOG_POSTURE_UNSUPPORTED, "rest pose %s deg is beyond the supported range" % m)
+	_phi_f = 0.0
+	_steer = 0.0
+	_neutral_pending = false
+	_neutral_stale = false
+	_pending_count = 0
+
+
+## Roll samples whose stamp lies in the closed interval `[lo_us, hi_us]`, oldest first.
+func _window_samples(lo_us: int, hi_us: int) -> PackedFloat64Array:
+	var out: PackedFloat64Array = PackedFloat64Array()
+	var first: int = _head - _count
+	for i: int in _count:
+		var idx: int = posmod(first + i, BUFFER_CAPACITY)
+		var stamp: int = _stamps[idx]
+		if stamp >= lo_us and stamp <= hi_us:
+			out.append(_angles[idx])
+	return out

@@ -165,11 +165,11 @@ stories:
     name: "Pipeline order and the published output contract"
     file: "production/epics/tilt-input/story-006-pipeline-output-contract.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-007"
     name: "Capture policy, conditional re-anchor and run-stop recording"
     file: "production/epics/tilt-input/story-007-capture-policy-reanchor.md"

@@ -73,7 +73,7 @@ This epic is complete when:
 | 003 | [TiltConfig, validation, sensitivity](story-003-tilt-config.md) | Logic | Complete | ADR-0009 |
 | 004 | [TiltCore poll, stamps, ring buffer](story-004-tilt-core-poll-buffer.md) | Logic | Complete | ADR-0002 |
 | 005 | [Neutral capture mechanics](story-005-neutral-capture.md) | Logic | Ready | ADR-0002 |
-| 006 | [Pipeline order and output contract](story-006-pipeline-output-contract.md) | Logic | Ready | ADR-0005 |
+| 006 | [Pipeline order and output contract](story-006-pipeline-output-contract.md) | Logic | Complete | ADR-0005 |
 | 007 | [Capture policy and re-anchor](story-007-capture-policy-reanchor.md) | Logic | Ready | ADR-0002 |
 | 008 | [Availability states and timeout](story-008-availability-states.md) | Logic | Ready | ADR-0005 |
 | 009 | [Sensor-loss dropout hold](story-009-sensor-loss-hold.md) | Logic | Ready | ADR-0005 |
