@@ -72,7 +72,7 @@ This epic is complete when:
 | 004 | [BallCore shell, speed and distance](story-004-ballcore-speed-distance.md) | Logic | Complete | ADR-0002 |
 | 005 | [Position tracking, dt guards, held steer](story-005-position-tracking-dt-steer.md) | Logic | Complete | ADR-0002 |
 | 006 | [Anchor, resume, published state](story-006-anchor-resume-published-state.md) | Logic | Complete | ADR-0002 |
-| 007 | [RATE mapping and latch](story-007-rate-mode-latch.md) | Logic | Ready | ADR-0009 |
+| 007 | [RATE mapping and latch](story-007-rate-mode-latch.md) | Logic | Complete | ADR-0009 |
 | 008 | [Reset conformance, logs, determinism](story-008-reset-logs-determinism.md) | Logic | Ready | ADR-0009 |
 | 009 | [CI lint rules for the ball core](story-009-ball-lint-rules.md) | Logic | Ready | ADR-0009 |
 | 010 | [Sign and driver-order integration](story-010-sign-driver-order-integration.md) | Integration | Ready | ADR-0002 |

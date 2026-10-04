@@ -1,12 +1,12 @@
 # Story 007: RATE mapping (F3) and the mapping-mode latch
 
 > **Epic**: Ball Movement
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -53,7 +53,8 @@ F3: `w_ss = OMEGA_MAX * clamp(steer)`; `dphi = w_ss*dt + (w - w_ss)*tau*alpha`; 
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/ball_movement/ball_movement_rate_mode_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `ball_movement_rate_mode_test.gd` (AC-14: test_rate_*; AC-15: test_truth_table_only_position_sensor_returns_to_zero; AC-16: test_noop_fallback_step_does_not_latch, test_mid_run_flip_is_ignored_both_ways, test_resume_does_not_relatch_and_reset_rearms, test_any_value_other_than_fallback_counts_as_sensor)
 
 ## Dependencies
 - Depends on: Story 005, Story 006

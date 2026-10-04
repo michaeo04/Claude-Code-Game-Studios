@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/ball-movement.md`
@@ -59,7 +59,7 @@ Add a `BallCore` snapshot helper for tests only if needed (a field-by-field equa
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/ball_movement/ball_movement_reset_determinism_test.gd` (must pass); device part `production/qa/evidence/ball-movement/ac-27-reset-timing.md` (advisory)
-**Status**: [ ] Not yet created
+**Status**: [~] Tests created and passing (AC-1, AC-18, AC-24, AC-27 automated allocation part). Gap: AC-27 lint on the reset body (Story 009) and the advisory device timing evidence (`ac-27-reset-timing.md`, Story 013 harness) are not done, so the story stays Ready.
 
 ## Dependencies
 - Depends on: Story 005, Story 006, Story 007

@@ -210,11 +210,11 @@ stories:
     name: "RATE mapping (F3) and the mapping-mode latch"
     file: "production/epics/ball-movement/story-007-rate-mode-latch.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "BM-008"
     name: "Reset conformance, log-code census and bit-identical determinism"
     file: "production/epics/ball-movement/story-008-reset-logs-determinism.md"
