@@ -15,7 +15,11 @@ const SNAP_EPSILON: float = 1e-6
 ## Wraps an angle to the shortest signed representative in `[-PI, PI)`.
 ## Example: `wrap_angle(3.0 * PI / 2.0)` is `-PI / 2.0`.
 static func wrap_angle(x: float) -> float:
-	return x - TAU * floor((x + PI) / TAU)
+	var r: float = x - TAU * floor((x + PI) / TAU)
+	# For x one ulp below -PI, `x + PI` rounds so that the quotient lands on the wrong side and r can reach +PI.
+	if r >= PI:
+		r -= TAU
+	return r
 
 
 ## The smoothing factor of F1: `1 - exp(-dt / tau)`, or 1 when `tau < ALPHA_GUARD_TAU`.

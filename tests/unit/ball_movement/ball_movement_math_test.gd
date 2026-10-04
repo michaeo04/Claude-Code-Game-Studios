@@ -170,3 +170,12 @@ func test_speed_is_monotone_over_0_to_200_s() -> void:
 		var current: float = BallMath.speed(float(i) * 0.1, V_START, V_MAX, T_RAMP)
 		assert_gte(current, previous)
 		previous = current
+
+
+## Code review 2026-10-04 finding 6: the result must stay in [-PI, PI) at the edge of the range.
+func test_wrap_angle_edge_values_stay_in_half_open_range() -> void:
+	var below_minus_pi: float = -3.1415926535897936  # the double just below -PI
+	for x: float in [below_minus_pi, -PI, PI, -PI + 1e-12, PI - 1e-12, 3.0 * PI, -3.0 * PI]:
+		var r: float = BallMath.wrap_angle(x)
+		assert_true(r >= -PI and r < PI, "wrap_angle(%s) = %s must lie in [-PI, PI)" % [x, r])
+

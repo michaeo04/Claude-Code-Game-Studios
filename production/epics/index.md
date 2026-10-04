@@ -17,3 +17,4 @@ Control Manifest Version: 2026-10-03
 | Tilt Input | Core | Tilt Input | design/gdd/tilt-input.md | 16 stories | Ready |
 | Ball Movement | Core | Ball Movement | design/gdd/ball-movement.md | 17 stories | Ready |
 | Obstacle System | Core | Obstacle System | design/gdd/obstacle-system.md | 17 stories | Ready |
+| Code Review Follow-ups | Foundation | cross-cutting (`src/core/`) | none (code review 2026-10-04) | 7 stories | Ready |
