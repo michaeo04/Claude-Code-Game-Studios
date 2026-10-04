@@ -1,12 +1,12 @@
 # Story 001: Authored content classes, HazardSpec and HazardContentProvider
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Core Rules 1, 7; Formulas F1 range table)
@@ -50,7 +50,8 @@ Seam-crossing pieces are authored unwrapped (`theta_max > PI` or `theta_min < -P
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_hazard_spec_test.gd` (AC-2, AC-3) and `tests/integration/obstacle_system/obstacle_system_resource_roundtrip_test.gd` (AC-1, AC-4; loads real files)
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_hazard_spec_test.gd` (5 tests), `tests/integration/obstacle_system/obstacle_system_resource_roundtrip_test.gd` (3 tests; fixture `tests/support/data/obstacle_library_fixture.tres`). Note: `HazardSpec` getters return copies because GDScript packed arrays are shared by reference.
+**Status**: [x] Created, passing
 
 ## Dependencies
 - Depends on: test-harness-ci epic (GUT runner), composition-root epic (project scaffold)

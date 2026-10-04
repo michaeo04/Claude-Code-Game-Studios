@@ -138,29 +138,29 @@ stories:
     name: "Authored content classes, HazardSpec and HazardContentProvider"
     file: "production/epics/obstacle-system/story-001-authored-content-classes-hazard-spec.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "OB-002"
     name: "ObstacleConfig, sweep-invariant validation and test fixtures"
     file: "production/epics/obstacle-system/story-002-obstacle-config-and-test-fixtures.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "OB-003"
     name: "Effective footprint (F1) and swept-rectangle overlap (F2)"
     file: "production/epics/obstacle-system/story-003-footprint-expansion-and-swept-overlap.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CRF-005"
     name: "SaveCore backup ordering and wall-clock robustness"
     file: "production/epics/code-review-followups/story-005-save-backup-ordering.md"

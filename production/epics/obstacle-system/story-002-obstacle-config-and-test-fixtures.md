@@ -1,12 +1,12 @@
 # Story 002: ObstacleConfig, sweep-invariant validation and test fixtures
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Tuning Knobs; Acceptance Criteria fixture block)
@@ -44,7 +44,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_config_test.gd` (AC-13); `tests/advisory/obstacle_system/obstacle_system_config_defaults_test.gd` (AC-30, ADVISORY); fixtures in `tests/support/obstacle_fixture.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_config_test.gd` (9 tests), `tests/advisory/obstacle_system/obstacle_system_config_defaults_test.gd` (1 test), fixtures `tests/support/obstacle_fixture.gd`. Note: GDD AC-13 illegal row (31.4, 0.1) has product 3.14 < PI, so the test uses (31.5, 0.1); the exact-PI row is also rejected.
+**Status**: [x] Created, passing
 
 ## Dependencies
 - Depends on: Story 001; test-harness-ci epic

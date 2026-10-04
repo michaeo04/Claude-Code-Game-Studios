@@ -1,12 +1,12 @@
 # Story 003: Effective footprint (F1) and swept-rectangle overlap (F2)
 
 > **Epic**: Obstacle System
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Formulas F1, F2; Core Rule 2)
@@ -48,7 +48,8 @@ F1: `theta_eff = raw -/+ BALL_HALF_ANGLE`, `s_eff = raw -/+ D/2`, `BALL_HALF_ANG
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_swept_overlap_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/obstacle_system/obstacle_system_swept_overlap_test.gd` (11 tests).
+**Status**: [x] Created, passing
 
 ## Dependencies
 - Depends on: Story 002 (fixture); tube-track epic (`delta_theta` F1)

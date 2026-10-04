@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="ChunkLibrary" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://src/core/obstacle/chunk_library.gd" id="1_lib"]
+[ext_resource type="Script" path="res://src/core/obstacle/chunk_def.gd" id="2_chunk"]
+[ext_resource type="Script" path="res://src/core/obstacle/hazard_placement.gd" id="3_place"]
+[ext_resource type="Script" path="res://src/core/obstacle/hazard_piece.gd" id="4_piece"]
+
+[sub_resource type="Resource" id="Resource_seam"]
+script = ExtResource("4_piece")
+theta_min = 2.9
+theta_max = 3.6
+s_start = 12.5
+s_end = 13.5
+
+[sub_resource type="Resource" id="Resource_wall"]
+script = ExtResource("4_piece")
+theta_min = 1.0472
+theta_max = 1.5707963267948966
+s_start = 0.1
+s_end = 1.0
+
+[sub_resource type="Resource" id="Resource_place_a"]
+script = ExtResource("3_place")
+hazard_type = 3
+local_segment_index = 1
+pieces = Array[ExtResource("4_piece")]([SubResource("Resource_seam")])
+solution_angles = PackedFloat64Array(1.5707963267948966)
+
+[sub_resource type="Resource" id="Resource_place_b"]
+script = ExtResource("3_place")
+hazard_type = 1
+local_segment_index = 0
+pieces = Array[ExtResource("4_piece")]([SubResource("Resource_wall")])
+solution_angles = PackedFloat64Array()
+
+[sub_resource type="Resource" id="Resource_chunk_a"]
+script = ExtResource("2_chunk")
+chunk_id = &"fixture_a"
+tier = 2
+segment_count = 2
+placements = Array[ExtResource("3_place")]([SubResource("Resource_place_a"), SubResource("Resource_place_b")])
+
+[sub_resource type="Resource" id="Resource_chunk_b"]
+script = ExtResource("2_chunk")
+chunk_id = &"fixture_b"
+tier = 1
+segment_count = 1
+placements = Array[ExtResource("3_place")]([])
+
+[resource]
+script = ExtResource("1_lib")
+chunks = Array[ExtResource("2_chunk")]([SubResource("Resource_chunk_a"), SubResource("Resource_chunk_b")])
