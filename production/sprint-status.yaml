@@ -30,20 +30,20 @@ stories:
     name: "TiltRunAdapter and the level-triggered sensor-lost pause"
     file: "production/epics/tilt-input/story-012-tilt-run-adapter.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-05"
   - id: "TI-013"
     name: "TiltInput node, ProjectSettings and log sink"
     file: "production/epics/tilt-input/story-013-tilt-input-node.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-05"
   - id: "TT-010"
     name: "Run State adapter and map-load integration"
     file: "production/epics/tube-track/story-010-run-state-adapter.md"
