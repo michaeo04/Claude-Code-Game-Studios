@@ -120,38 +120,38 @@ stories:
     name: "advance(s) and synchronous recycling"
     file: "production/epics/tube-track/story-006-tubewindow-advance-recycling.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-007"
     name: "Re-entrancy guard, binder contract and idempotent begin_run"
     file: "production/epics/tube-track/story-007-tubewindow-reentrancy-guard.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-008"
     name: "Idle scroll step and deterministic segment content"
     file: "production/epics/tube-track/story-008-idle-scroll-and-content-determinism.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TT-009"
     name: "300 s deterministic window simulation"
     file: "production/epics/tube-track/story-009-window-simulation-300s.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "TI-005"
     name: "Neutral capture mechanics and pending capture"
     file: "production/epics/tilt-input/story-005-neutral-capture.md"

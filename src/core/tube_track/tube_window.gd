@@ -2,8 +2,9 @@
 ##
 ## Engine-free `RefCounted`, not an autoload, no `_process`: `GameRoot` drives it. It owns the primed segment window
 ## `first_index .. last_index`, the run distance `s` and the idle offset `s_idle`, re-targets pool slots through the
-## injected `slot_binder` and reports through signals. Slot recycling on `advance` (Story 006) and the re-entrancy
-## guard (Story 007) are not part of this file yet.
+## injected `slot_binder` and reports through signals. `advance` recycles slots synchronously; a re-entrancy guard
+## rejects any mutating call made from a signal handler (immediate connections only: a deferred or awaiting handler
+## runs outside the guard). A multi-recycle `advance` shows handlers an intermediate window.
 ##
 ## Binder contract: `slot_binder.call(slot_index: int, segment_index: int)` with `slot_index = posmod(segment_index, N)`.
 ## Log contract: `log_sink.call(level: int, code: StringName, key: String, message: String)`.
@@ -26,6 +27,10 @@ signal segment_left_window(index: int)
 const LOG_EVENT_REJECTED: StringName = &"TUBE_EVENT_REJECTED"
 ## Log code of a `load_map` that failed validation (error level, one line per failure record).
 const LOG_LOAD_FAILED: StringName = &"TUBE_LOAD_FAILED"
+## Log code of a non-finite `s` passed to `advance` (error level).
+const LOG_NON_FINITE: StringName = &"TUBE_NON_FINITE_INPUT"
+## Log code of an `advance` whose `s` is below the previous one (debug level: the log has no warning level).
+const LOG_S_DECREASED: StringName = &"TUBE_S_DECREASED"
 
 var _config: TubeConfig = null
 var _log_sink: Callable
@@ -36,6 +41,7 @@ var _s_idle: float = 0.0
 var _first_index: int = 0
 var _last_index: int = -1
 var _n: int = 0
+var _in_emission: bool = false
 
 
 ## `log_sink` and `slot_binder` are injected; an unset Callable is skipped (never called).
@@ -49,7 +55,7 @@ func _init(log_sink: Callable, slot_binder: Callable) -> void:
 ## validation failure nothing is bound or emitted and the state stays Uninitialized (the loader may Retry); a call from
 ## any other state returns one `TUBE_EVENT_REJECTED` record and logs one error.
 func load_map(cfg: TubeConfig, v_max: float, d: float) -> Array[Dictionary]:
-	if _state != State.UNINITIALIZED:
+	if _in_emission or _state != State.UNINITIALIZED:
 		_reject("load_map")
 		return [{"code": LOG_EVENT_REJECTED}] as Array[Dictionary]
 	var failures: Array[Dictionary] = cfg.validate(v_max, d)
@@ -65,7 +71,7 @@ func load_map(cfg: TubeConfig, v_max: float, d: float) -> Array[Dictionary]:
 
 ## Idle or Running, Paused, Ended to Uninitialized: releases the window (no binder call). Rejected in Uninitialized.
 func unload_map() -> void:
-	if _state == State.UNINITIALIZED:
+	if _in_emission or _state == State.UNINITIALIZED:
 		_reject("unload_map")
 		return
 	_first_index = 0
@@ -78,7 +84,7 @@ func unload_map() -> void:
 ## Idle, Running, Paused or Ended to Running: resets `s` to 0 and primes `-B .. A`. From Running it re-primes and
 ## emits `window_primed` only (no `state_changed`).
 func begin_run() -> void:
-	if _state == State.UNINITIALIZED:
+	if _in_emission or _state == State.UNINITIALIZED:
 		_reject("begin_run")
 		return
 	_s = 0.0
@@ -86,17 +92,46 @@ func begin_run() -> void:
 	_commit_state(State.RUNNING)
 
 
-## Running only: moves the run distance to `s`. Slot recycling is Story 006.
+## Running only (one caller, once per frame): moves the run distance to `s` and recycles synchronously. `s` never
+## decreases (`max(s, prev)`, one debug-level `TUBE_S_DECREASED`); an equal `s` is a silent no-op; a non-finite `s` is
+## ignored with one error. Each crossed boundary `k + 1` emits `segment_left_window(k - B)` then
+## `segment_entered_window(k + 1 + A)` and re-targets the recycled slot, in increasing index order (a boundary value
+## `s = i * L` counts as entered). A jump of N or more segments re-primes (`window_primed` only, no `segment_*`).
+## Handlers of a multi-recycle call see the intermediate window.
 func advance(s: float) -> void:
-	if _state != State.RUNNING:
+	if _in_emission or _state != State.RUNNING:
 		_reject("advance")
 		return
+	if not is_finite(s):
+		_log(LOG_NON_FINITE, "advance", "advance ignored a non-finite s")
+		return
+	if s < _s:
+		_log_level(RateLimitedLog.Level.DEBUG, LOG_S_DECREASED, "advance", "advance(%s) below s %s ignored" % [s, _s])
+		return
+	if s == _s:
+		return
 	_s = s
+	var target: int = TubeMath.segment_index(s, _config.segment_length)
+	var current: int = _last_index - _config.segments_ahead
+	if target <= current:
+		return
+	if target - current >= _n:
+		_prime(target - _config.segments_behind, target + _config.segments_ahead)
+		return
+	for k: int in range(current, target):
+		var leaving: int = _first_index
+		var entering: int = _last_index + 1
+		_first_index += 1
+		_last_index = entering
+		if _slot_binder.is_valid():
+			_slot_binder.call(posmod(entering, _n), entering)
+		_emit_left(leaving)
+		_emit_entered(entering)
 
 
 ## Running to Paused; `s` and the window are kept.
 func pause() -> void:
-	if _state != State.RUNNING:
+	if _in_emission or _state != State.RUNNING:
 		_reject("pause")
 		return
 	_change_state(State.PAUSED)
@@ -104,7 +139,7 @@ func pause() -> void:
 
 ## Paused to Running; `s` is unchanged.
 func resume() -> void:
-	if _state != State.PAUSED:
+	if _in_emission or _state != State.PAUSED:
 		_reject("resume")
 		return
 	_change_state(State.RUNNING)
@@ -112,7 +147,7 @@ func resume() -> void:
 
 ## Running to Ended (a hit); `s` and the window are kept.
 func end_run() -> void:
-	if _state != State.RUNNING:
+	if _in_emission or _state != State.RUNNING:
 		_reject("end_run")
 		return
 	_change_state(State.ENDED)
@@ -120,19 +155,18 @@ func end_run() -> void:
 
 ## Running, Paused or Ended to Idle: `s_idle = 0`, the run's `s` is discarded and `-B .. A` is primed.
 func to_idle() -> void:
-	if _state != State.RUNNING and _state != State.PAUSED and _state != State.ENDED:
+	if _in_emission or (_state != State.RUNNING and _state != State.PAUSED and _state != State.ENDED):
 		_reject("to_idle")
 		return
 	_enter_idle()
 
 
 ## Idle only: scrolls the idle offset by `idle_scroll_speed * min(dt, t_lat)`, wrapped into `[0, L)`.
-## Emits nothing and never moves the window. (Story 008 replaces the body with `TubeMath.idle_step`.)
+## Emits nothing and never moves the window.
 func tick_idle(dt: float) -> void:
-	if _state != State.IDLE or not is_finite(dt) or dt <= 0.0:
+	if _state != State.IDLE:
 		return
-	var l: float = _config.segment_length
-	_s_idle = fposmod(_s_idle + _config.idle_scroll_speed * minf(dt, _config.t_lat), l)
+	_s_idle = TubeMath.idle_step(_s_idle, _config.idle_scroll_speed, dt, _config.t_lat, _config.segment_length)
 
 
 ## Current lifecycle state.
@@ -181,7 +215,9 @@ func _prime(first: int, last: int) -> void:
 	if _slot_binder.is_valid():
 		for i: int in range(first, last + 1):
 			_slot_binder.call(posmod(i, _n), i)
+	_in_emission = true
 	window_primed.emit(first, last)
+	_in_emission = false
 
 
 ## Changes state after a prime and emits `state_changed` only if it changed.
@@ -194,7 +230,21 @@ func _change_state(new_state: State) -> void:
 	if new_state == old_state:
 		return
 	_state = new_state
+	_in_emission = true
 	state_changed.emit(new_state, old_state)
+	_in_emission = false
+
+
+func _emit_left(index: int) -> void:
+	_in_emission = true
+	segment_left_window.emit(index)
+	_in_emission = false
+
+
+func _emit_entered(index: int) -> void:
+	_in_emission = true
+	segment_entered_window.emit(index)
+	_in_emission = false
 
 
 func _reject(event_name: String) -> void:
@@ -202,5 +252,9 @@ func _reject(event_name: String) -> void:
 
 
 func _log(code: StringName, key: String, message: String) -> void:
+	_log_level(RateLimitedLog.Level.ERROR, code, key, message)
+
+
+func _log_level(level: int, code: StringName, key: String, message: String) -> void:
 	if _log_sink.is_valid():
-		_log_sink.call(RateLimitedLog.Level.ERROR, code, key, message)
+		_log_sink.call(level, code, key, message)

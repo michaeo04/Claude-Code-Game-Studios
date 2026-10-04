@@ -204,10 +204,11 @@ func test_load_map_from_every_non_uninitialized_state_is_rejected() -> void:
 		_spy.attach(_window)
 		_in_state(state, 77.0)
 		var s_before: float = _window.get_s()
+		var window_before: Array[int] = [_window.get_first_index(), _window.get_last_index()]
 		_load()
 		assert_eq(_sink.count(), 1, "one error in %s" % S.keys()[state])
 		assert_eq(_spy.events.size(), 0)
 		assert_eq(_spy.binds.size(), 0)
 		assert_eq(_window.get_state(), state)
 		assert_eq(_window.get_s(), s_before)
-		assert_eq([_window.get_first_index(), _window.get_last_index()], [-2, 9])
+		assert_eq([_window.get_first_index(), _window.get_last_index()], window_before)

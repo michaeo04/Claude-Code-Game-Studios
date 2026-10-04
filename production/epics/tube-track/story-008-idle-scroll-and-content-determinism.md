@@ -1,12 +1,12 @@
 # Story 008: Idle scroll step and deterministic segment content
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -42,7 +42,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_idle_content_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/tube_track/tube_idle_content_test.gd`: test_idle_step_*, test_tick_idle_*, test_segment_content_equal_across_instances, test_continuous_run_and_reprime_give_same_binds_and_seams, test_two_begin_run_cycles_give_identical_binds, test_tube_track_sources_contain_no_randomness
 
 ## Dependencies
 - Depends on: Story 002, Story 005

@@ -139,6 +139,28 @@ static func l_min(v_max: float, seam_hz_max: float) -> int:
 	return ceili(v_max / seam_hz_max)
 
 
+## F5/AC-17 idle scroll: `fposmod(s_idle + v_idle * step, L)` with `step = clamp(dt, 0, t_lat)`; a non-finite or negative
+## `dt` adds 0. The result is always in `[0, L)` (guards `fposmod(-tiny, L)` returning exactly `L`).
+## Example: `idle_step(0.0, 1.5, 1.0 / 60.0, 0.1, 12.0)` is 0.025.
+static func idle_step(s_idle: float, v_idle: float, dt: float, t_lat: float, l: float) -> float:
+	var step: float = 0.0
+	if is_finite(dt) and dt > 0.0:
+		step = minf(dt, t_lat)
+	var r: float = fposmod(s_idle + v_idle * step, l)
+	if r >= l or r < 0.0:
+		r = 0.0
+	return r
+
+
+## AC-18 pure content of segment `index`: `{"index": int, "seam_s": Array[float]}` (seam positions along the track,
+## F5, one per seam). A function of `(cfg, index)` only: no randomness, no engine objects.
+static func segment_content(cfg: TubeConfig, index: int) -> Dictionary:
+	var seams: Array[float] = []
+	for j: int in range(cfg.n_seams):
+		seams.append(seam_s(index, j, cfg.segment_length, cfg.n_seams))
+	return {"index": index, "seam_s": seams}
+
+
 static func _log(log_sink: Callable, level: int, code: StringName, key: String, message: String) -> void:
 	if log_sink.is_valid():
 		log_sink.call(level, code, key, message)

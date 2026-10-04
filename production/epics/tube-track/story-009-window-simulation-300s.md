@@ -1,12 +1,12 @@
 # Story 009: 300 s deterministic window simulation
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -44,7 +44,8 @@ Single test file with one shared simulation run in `before_all`, then separate `
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_window_simulation_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/tube_track/tube_window_simulation_test.gd`: test_far_edge_bounds_hold_every_frame, test_t_lat_step_keeps_bounds, test_each_crossing_emits_one_pair_in_same_call, test_recycled_slot_is_out_of_view, test_binder_slot_indices_in_range_and_posmod
 
 ## Dependencies
 - Depends on: Story 006, Story 007, Story 008

@@ -1,12 +1,12 @@
 # Story 007: Re-entrancy guard, binder contract and idempotent begin_run
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -39,7 +39,8 @@ Add a `_in_emission` depth flag set around every `emit_signal`/`signal.emit()` i
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_window_reentrancy_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/tube_track/tube_window_reentrancy_test.gd`: test_handler_calls_are_rejected_with_one_error_and_no_state_change (4 signals x 3 actions), test_begin_run_twice_emits_two_primes_and_twelve_unique_slots, test_binder_called_once_per_slot_with_posmod_segment
 
 ## Dependencies
 - Depends on: Story 005, Story 006

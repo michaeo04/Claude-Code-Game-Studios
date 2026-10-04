@@ -1,12 +1,12 @@
 # Story 006: advance(s) and synchronous recycling
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -45,7 +45,8 @@ In `TubeWindow.advance(s)`: reject outside Running (one error, already covered b
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/tube_window_advance_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/tube_track/tube_window_advance_test.gd`: test_begin_run_signals_in_order_and_window, test_advance_boundary_recycles_exactly_once, test_advance_eleven_segments_emits_ordered_pairs, test_advance_n_segments_reprimes_without_segment_signals, test_advance_decrease_keeps_s_with_one_warning, test_advance_equal_is_silent_noop, test_advance_non_finite_ignored_with_one_error_each
 
 ## Dependencies
 - Depends on: Story 005
