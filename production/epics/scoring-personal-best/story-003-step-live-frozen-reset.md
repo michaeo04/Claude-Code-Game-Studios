@@ -1,12 +1,12 @@
 # Story 003: step(): live score, frozen score and run reset
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -55,7 +55,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_step_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: scoring_personal_best_step_test.gd (floor, frozen, reset, reset-clears-memory, NaN-after-reset)
 
 ## Dependencies
 - Depends on: Stories 001, 002

@@ -1,12 +1,12 @@
 # Story 001: ScoreMath: floor score and strict new-best comparison
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -56,7 +56,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_score_math_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: scoring_personal_best_score_math_test.gd (test_score_floor_table_matches_expected, three monotone tests, test_is_new_best_table_matches_expected)
 
 ## Dependencies
 - Depends on: None (the GUT framework, spike T-1, is owned by the test-framework work)

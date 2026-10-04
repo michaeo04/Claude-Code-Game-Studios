@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -63,7 +63,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/scoring_personal_best/scoring_personal_best_construction_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [~] Created
+**Evidence**: scoring_personal_best_construction_test.gd (read-once, arity, validate_seams, AC-17, AC-18 rows). AC-9 new-best-ending leg is deferred to story 005 (no ending handler exists yet)
 
 ## Dependencies
 - Depends on: Story 001; `SaveCore` (exists in `src/core/persistence/save_core.gd`)

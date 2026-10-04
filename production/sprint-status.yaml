@@ -21,11 +21,11 @@ stories:
     name: "ScoreMath: floor score and strict new-best comparison"
     file: "production/epics/scoring-personal-best/story-001-score-math.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-002"
     name: "ScoreCore construction, seams, boot read and accessors"
     file: "production/epics/scoring-personal-best/story-002-score-core-construction.md"
@@ -39,11 +39,11 @@ stories:
     name: "step(): live score, frozen score and run reset"
     file: "production/epics/scoring-personal-best/story-003-step-live-frozen-reset.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-004"
     name: "step(): non-finite, negative, over-range and decreasing s"
     file: "production/epics/scoring-personal-best/story-004-out-of-contract-s-guards.md"

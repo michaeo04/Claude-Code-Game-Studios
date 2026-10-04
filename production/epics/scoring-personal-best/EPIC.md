@@ -63,9 +63,9 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | [ScoreMath: floor score and strict new-best comparison](story-001-score-math.md) | Logic | Ready | ADR-0002, ADR-0009 |
+| 001 | [ScoreMath: floor score and strict new-best comparison](story-001-score-math.md) | Logic | Complete | ADR-0002, ADR-0009 |
 | 002 | [ScoreCore construction, seams, boot read and accessors](story-002-score-core-construction.md) | Logic | Ready | ADR-0007 |
-| 003 | [step(): live score, frozen score and run reset](story-003-step-live-frozen-reset.md) | Logic | Ready | ADR-0002 |
+| 003 | [step(): live score, frozen score and run reset](story-003-step-live-frozen-reset.md) | Logic | Complete | ADR-0002 |
 | 004 | [step(): non-finite, negative, over-range and decreasing s](story-004-out-of-contract-s-guards.md) | Logic | Ready | ADR-0002 |
 | 005 | [Run endings: finalize, new-best write and personal_best_updated](story-005-run-endings-and-personal-best-write.md) | Logic | Ready | ADR-0007 |
 | 006 | [personal_best_passed: once-per-run live crossing](story-006-personal-best-passed.md) | Logic | Ready | ADR-0002 |
