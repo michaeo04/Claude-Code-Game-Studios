@@ -7,7 +7,6 @@ extends Resource
 const CURRENT_SCHEMA_VERSION: int = 1
 ## Log code of a clamped knob.
 const KNOB_CLAMPED: String = "KNOB_CLAMPED"
-const LEVEL_ERROR: int = 2
 
 const RATE_LIMIT_MIN: float = 0.5
 const RATE_LIMIT_MAX: float = 5.0
@@ -48,4 +47,4 @@ func validated(log_sink: Callable) -> SaveConfig:
 
 static func _log_clamped(log_sink: Callable, key: String, raw: String, used: String) -> void:
 	if log_sink.is_valid():
-		log_sink.call(LEVEL_ERROR, KNOB_CLAMPED, key, "%s=%s is outside its safe range; using %s" % [key, raw, used])
+		log_sink.call(LogLevel.ERROR, KNOB_CLAMPED, key, "%s=%s is outside its safe range; using %s" % [key, raw, used])

@@ -2,7 +2,7 @@
 ##
 ## `validated(log_sink)` returns a clamped copy and never modifies the loaded resource. Durations are in seconds,
 ## angles in degrees. Field names are the snake_case of the GDD knob names. Logging goes through
-## `log_sink(level: int, code: StringName, detail: String)`.
+## `log_sink(level: int, code: StringName, key: String, message: String)` (see `LogLevel`).
 class_name TiltConfig
 extends Resource
 
@@ -142,4 +142,4 @@ static func _sane_int(value: int, lo: int, hi: int, field: String, log_sink: Cal
 
 static func _log_clamped(log_sink: Callable, message: String) -> void:
 	if log_sink.is_valid():
-		log_sink.call(RateLimitedLog.Level.ERROR, LOG_KNOB_CLAMPED, message)
+		log_sink.call(LogLevel.ERROR, LOG_KNOB_CLAMPED, "", message)

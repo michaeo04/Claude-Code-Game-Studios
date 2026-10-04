@@ -1,7 +1,7 @@
 ## Story TI-004: TiltCore poll, clock stamps and ring buffer (AC-3 [C], AC-47c [C]).
 extends GutTest
 
-const TiltSink = preload("res://tests/support/tilt_log_sink.gd")
+const TiltSink = preload("res://tests/support/platform_log_sink.gd")
 const ClockStub = preload("res://tests/support/clock_stub.gd")
 const TiltCoreClass = preload("res://src/core/tilt_input/tilt_core.gd")
 

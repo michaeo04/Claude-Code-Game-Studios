@@ -7,8 +7,8 @@ const S = Factory.State
 const P = RunStateCore.Phase
 const Src = RunStateCore.PauseSource
 const GUARD_US: int = 300_000
-const DEBUG_LEVEL: int = RunStateMath.LogLevel.DEBUG
-const ERROR_LEVEL: int = RunStateMath.LogLevel.ERROR
+const DEBUG_LEVEL: int = LogLevel.DEBUG
+const ERROR_LEVEL: int = LogLevel.ERROR
 const PAUSED_EVENTS: Array[String] = ["run_paused", "phase_changed"]
 
 
@@ -235,7 +235,7 @@ func test_guard_rejection_is_debug_logged_without_event() -> void:
 	rig.tick()
 	assert_eq(rig.recorder.events.size(), 0)
 	assert_eq(rig.logs.count_level(DEBUG_LEVEL), 1)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_REQUEST_LOCKED)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_REQUEST_LOCKED)
 
 
 func test_guard_accepted_restart_emits_run_abandoned_first() -> void:

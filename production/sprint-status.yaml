@@ -21,11 +21,11 @@ stories:
     name: "One log-sink contract and one level enum for every core"
     file: "production/epics/code-review-followups/story-001-unified-log-contract.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CRF-002"
     name: "GameRoot `_tick` against the real core APIs"
     file: "production/epics/code-review-followups/story-002-game-root-tick-real-apis.md"

@@ -15,8 +15,6 @@ const KEY_HAPTICS_INTENSITY: String = "haptics_intensity"
 const KEY_TILT_SENSITIVITY: String = "tilt_sensitivity"
 const KEY_REDUCED_MOTION: String = "reduced_motion_enabled"
 const KEY_COLORBLIND_SAFE: String = "colorblind_safe_enabled"
-## Log level of a corrected setting (same scale as `RunStateMath.LogLevel.WARNING`).
-const LEVEL_WARNING: int = 1
 ## Log code emitted when a tilt sensitivity (stored at boot, or passed to `set_value`) had to be corrected.
 const CODE_SETTING_CLAMPED: StringName = &"SETTING_CLAMPED"
 ## Log code emitted when `set_value` receives a key that is not one of the five settings.
@@ -66,7 +64,7 @@ func _init(
 	_tilt_sensitivity = checked["value"] as float
 	if checked["was_corrected"] as bool:
 		_log_sink.call(
-			LEVEL_WARNING,
+			LogLevel.WARNING,
 			CODE_SETTING_CLAMPED,
 			KEY_TILT_SENSITIVITY,
 			"stored tilt_sensitivity %s corrected to %s" % [str(raw_tilt), str(_tilt_sensitivity)]
@@ -114,7 +112,7 @@ func get_seam_contrast_scale() -> float:
 ## Menus owns the slider rule: commit on `drag_ended`, never per `value_changed`; there is no coalescing here.
 func set_value(key: String, value: Variant) -> bool:
 	if not KEYS.has(key):
-		_log_sink.call(LEVEL_WARNING, CODE_UNKNOWN_SETTING_KEY, key, "unknown setting key '%s'" % key)
+		_log_sink.call(LogLevel.WARNING, CODE_UNKNOWN_SETTING_KEY, key, "unknown setting key '%s'" % key)
 		return false
 	var new_value: Variant
 	match key:
@@ -125,7 +123,7 @@ func set_value(key: String, value: Variant) -> bool:
 			new_value = checked["value"] as float
 			if checked["was_corrected"] as bool:
 				_log_sink.call(
-					LEVEL_WARNING,
+					LogLevel.WARNING,
 					CODE_SETTING_CLAMPED,
 					key,
 					"tilt_sensitivity %s corrected to %s" % [str(value), str(new_value)]

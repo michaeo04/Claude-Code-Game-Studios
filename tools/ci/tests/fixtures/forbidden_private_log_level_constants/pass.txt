@@ -1,0 +1,6 @@
+#@path: src/core/persistence/save_core.gd
+extends RefCounted
+
+## LEVEL_ERROR is named in a comment only.
+var level: int = LogLevel.ERROR
+const KNOB_LEVELED: String = "x"

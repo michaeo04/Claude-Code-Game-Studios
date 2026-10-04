@@ -6,8 +6,8 @@ const Factory = preload("res://tests/support/run_state_factory.gd")
 const S = Factory.State
 const HIT_US: int = 10_000_000
 const LOCK_US: int = 500_000
-const DEBUG_LEVEL: int = RunStateMath.LogLevel.DEBUG
-const ERROR_LEVEL: int = RunStateMath.LogLevel.ERROR
+const DEBUG_LEVEL: int = LogLevel.DEBUG
+const ERROR_LEVEL: int = LogLevel.ERROR
 
 
 ## A core in Hit, entered at exactly `HIT_US` on the injected clock; recorder and log are clear.
@@ -72,7 +72,7 @@ func test_restart_lock_rejected_press_logs_debug_and_emits_nothing() -> void:
 	rig.core.request_restart(10_499_000)
 	rig.tick()
 	assert_eq(rig.logs.count_level(DEBUG_LEVEL), 1)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_REQUEST_LOCKED)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_REQUEST_LOCKED)
 	assert_false(rig.recorder.names().has("run_reset"))
 
 
@@ -160,7 +160,7 @@ func test_restart_lock_press_zero_is_replaced_by_now_with_one_error() -> void:
 	rig.core.request_restart(0)
 	rig.tick()
 	assert_eq(rig.logs.count_level(ERROR_LEVEL), 1)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_PRESS_US_INVALID)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_PRESS_US_INVALID)
 	assert_eq(rig.core.phase, RunStateCore.Phase.RUNNING, "now_us is after the lock")
 
 

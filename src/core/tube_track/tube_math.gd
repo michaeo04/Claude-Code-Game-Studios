@@ -8,7 +8,7 @@ extends RefCounted
 
 ## Log code for a non-finite `theta` or `h` (TR-tube-track-002); the key is the function name.
 const NON_FINITE_INPUT: StringName = &"TUBE_NON_FINITE_INPUT"
-## Log code for a negative `h` clamped to 0 (logged at `RateLimitedLog.Level.DEBUG`: the log has no warning level).
+## Log code for a negative `h` clamped to 0 (logged at `LogLevel.DEBUG`: the log has no warning level).
 const H_NEGATIVE: StringName = &"TUBE_H_NEGATIVE"
 
 ## Fixed caps (GDD F3): segments ahead, segments behind, and pool size.
@@ -26,7 +26,7 @@ static func local_point(theta: float, h: float, r: float, log_sink: Callable = C
 	if not (is_finite(theta) and is_finite(h) and is_finite(r)):
 		if log_sink.is_valid():
 			log_sink.call(
-				RateLimitedLog.Level.ERROR,
+				LogLevel.ERROR,
 				NON_FINITE_INPUT,
 				"local_point",
 				"local_point got a non-finite input (theta=%s, h=%s, r=%s)" % [theta, h, r]
@@ -42,7 +42,7 @@ static func local_point(theta: float, h: float, r: float, log_sink: Callable = C
 ## Example: `wrap_angle(3.0 * PI / 2.0)` is `-PI / 2.0`.
 static func wrap_angle(a: float, log_sink: Callable = Callable()) -> float:
 	if not is_finite(a):
-		_log(log_sink, RateLimitedLog.Level.ERROR, NON_FINITE_INPUT, "wrap_angle", "wrap_angle got a non-finite angle (%s)" % [a])
+		_log(log_sink, LogLevel.ERROR, NON_FINITE_INPUT, "wrap_angle", "wrap_angle got a non-finite angle (%s)" % [a])
 		return 0.0
 	var r: float = fposmod(a + PI, TAU) - PI
 	if r >= PI:
@@ -63,13 +63,13 @@ static func frame_xy(theta: float, h: float, r: float, log_sink: Callable = Call
 	var t: float = theta
 	var height: float = h
 	if not is_finite(t):
-		_log(log_sink, RateLimitedLog.Level.ERROR, NON_FINITE_INPUT, "frame_xy", "frame_xy got a non-finite theta (%s)" % [theta])
+		_log(log_sink, LogLevel.ERROR, NON_FINITE_INPUT, "frame_xy", "frame_xy got a non-finite theta (%s)" % [theta])
 		t = 0.0
 	if not is_finite(height):
-		_log(log_sink, RateLimitedLog.Level.ERROR, NON_FINITE_INPUT, "frame_xy", "frame_xy got a non-finite h (%s)" % [h])
+		_log(log_sink, LogLevel.ERROR, NON_FINITE_INPUT, "frame_xy", "frame_xy got a non-finite h (%s)" % [h])
 		height = 0.0
 	elif height < 0.0:
-		_log(log_sink, RateLimitedLog.Level.DEBUG, H_NEGATIVE, "frame_xy", "frame_xy clamped h=%s to 0" % [h])
+		_log(log_sink, LogLevel.DEBUG, H_NEGATIVE, "frame_xy", "frame_xy clamped h=%s to 0" % [h])
 		height = 0.0
 	return local_point(t, height, r)
 

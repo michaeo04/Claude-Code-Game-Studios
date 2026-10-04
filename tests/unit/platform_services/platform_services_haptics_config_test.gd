@@ -12,7 +12,7 @@ func _validate(c: HapticsConfig, sink: LogSink) -> HapticsConfig:
 func _assert_one_clamp(sink: LogSink, key: String) -> void:
 	assert_eq(sink.count(), 1, "one log for " + key)
 	if sink.count() == 1:
-		assert_eq(sink.entries[0][0], RateLimitedLog.Level.ERROR)
+		assert_eq(sink.entries[0][0], LogLevel.ERROR)
 		assert_eq(sink.entries[0][1], RateLimitedLog.KNOB_CLAMPED)
 		assert_eq(sink.entries[0][2], key)
 

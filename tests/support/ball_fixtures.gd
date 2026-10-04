@@ -5,7 +5,7 @@
 ## Framework-free: no GUT call.
 extends RefCounted
 
-const BallSink = preload("res://tests/support/ball_sink.gd")
+const BallSink = preload("res://tests/support/platform_log_sink.gd")
 
 
 ## The fixture config: equals the shipped defaults (Tuning Knobs). Tests that depend on a knob override it with

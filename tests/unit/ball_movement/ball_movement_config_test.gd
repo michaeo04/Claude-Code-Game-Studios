@@ -42,7 +42,7 @@ func _assert_clamped(field: StringName, input: float, expected: float) -> void:
 	var sink: RefCounted = r[1] as RefCounted
 	assert_eq(_log_count(r), 1, "%s=%s logs once" % [field, input])
 	assert_eq(sink.call("code_at", 0) as StringName, BallConfig.LOG_KNOB_CLAMPED)
-	assert_eq(sink.call("level_at", 0) as int, RateLimitedLog.Level.ERROR)
+	assert_eq(sink.call("level_at", 0) as int, LogLevel.ERROR)
 	assert_almost_eq(_field(r, field), expected, 1e-12, "%s=%s" % [field, input])
 
 
@@ -83,13 +83,13 @@ func test_fixture_equals_defaults() -> void:
 
 func test_sink_records_level_code_message_in_order() -> void:
 	var sink: RefCounted = Fixtures.make_sink()
-	sink.call("sink", 1, &"BAD_DT", "first")
-	sink.call("sink", 0, &"BAD_STEER", "second")
+	sink.call("sink", LogLevel.WARNING, &"BAD_DT", "k1", "first")
+	sink.call("sink", LogLevel.DEBUG, &"BAD_STEER", "k2", "second")
 	assert_eq(sink.call("count") as int, 2)
-	assert_eq(sink.call("level_at", 0) as int, 1)
+	assert_eq(sink.call("level_at", 0) as int, LogLevel.WARNING)
 	assert_eq(sink.call("code_at", 0) as StringName, &"BAD_DT")
 	assert_eq(sink.call("message_at", 0) as String, "first")
-	assert_eq(sink.call("level_at", 1) as int, 0)
+	assert_eq(sink.call("level_at", 1) as int, LogLevel.DEBUG)
 	assert_eq(sink.call("code_at", 1) as StringName, &"BAD_STEER")
 	assert_eq(sink.call("message_at", 1) as String, "second")
 

@@ -51,7 +51,7 @@ const _BISECT_ITERATIONS: int = 60
 ## Returns a copy with every value inside its safe range. NaN and infinity are replaced by the default, then each
 ## value is clamped (one `KNOB_CLAMPED` per value changed), then the derived `T_DODGE_180` check lowers
 ## `ball_lag_tau` (never `omega_max`) when `T(PI, 0.05)` exceeds `T_DODGE_180_MAX` (one more `KNOB_CLAMPED`).
-## `log_sink` is called as `log_sink(level: int, code: StringName, message: String)` with `RateLimitedLog.Level.ERROR`.
+## `log_sink` is called as `log_sink(level: int, code: StringName, key: String, message: String)` (see `LogLevel`) with `LogLevel.ERROR`.
 ## The loaded resource is left untouched.
 func validated(log_sink: Callable) -> BallConfig:
 	var out: BallConfig = duplicate() as BallConfig
@@ -130,4 +130,4 @@ static func _sane(value: float, default_value: float, lo: float, hi: float, fiel
 
 static func _log_clamped(log_sink: Callable, message: String) -> void:
 	if log_sink.is_valid():
-		log_sink.call(RateLimitedLog.Level.ERROR, LOG_KNOB_CLAMPED, message)
+		log_sink.call(LogLevel.ERROR, LOG_KNOB_CLAMPED, "", message)

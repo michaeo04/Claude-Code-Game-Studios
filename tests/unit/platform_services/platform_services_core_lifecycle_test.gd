@@ -71,7 +71,7 @@ func test_resume_or_focus_in_on_fresh_core_logs_one_noop_with_event_key() -> voi
 			var rig: Rig = res[0]
 			assert_eq(res[1], ["-"])
 			assert_eq(rig.sink.count(), 1)
-			assert_eq(rig.sink.entries[0][0], RateLimitedLog.Level.DEBUG)
+			assert_eq(rig.sink.entries[0][0], LogLevel.DEBUG)
 			assert_eq(rig.sink.entries[0][1], RateLimitedLog.LIFECYCLE_NOOP)
 			assert_eq(rig.sink.entries[0][2], pair[1])
 
@@ -201,3 +201,11 @@ func _check_sequence(fis: bool, seq: Array[int]) -> bool:
 func _expect(cond: bool, message: String) -> bool:
 	assert_true(cond, message)
 	return cond
+
+
+func test_redundant_lifecycle_1000_calls_log_one_line_per_window() -> void:
+	var rig: Rig = Rig.new(true)
+	for i: int in range(1000):
+		rig.clock.now_us = i * 1000
+		rig.core.on_resumed()
+	assert_eq(rig.sink.count(), 1, "1000 redundant resumes in one window are one line")

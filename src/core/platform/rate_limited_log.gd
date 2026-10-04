@@ -10,9 +10,6 @@
 class_name RateLimitedLog
 extends RefCounted
 
-## Log levels of Platform Services' codes.
-enum Level { DEBUG, ERROR }
-
 ## The rate-limit window in microseconds. A fixed constant, not a tuning knob.
 const RATE_LIMIT_US: int = 1_000_000
 

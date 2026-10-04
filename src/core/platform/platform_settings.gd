@@ -49,7 +49,7 @@ static func mismatches(entries: Array[Dictionary], read: Callable) -> Array[Stri
 static func report(entries: Array[Dictionary], read: Callable, log: RateLimitedLog) -> Array[String]:
 	var bad: Array[String] = mismatches(entries, read)
 	for key: String in bad:
-		log.emit(RateLimitedLog.Level.ERROR, RateLimitedLog.SETTINGS_MISMATCH, key, "project setting %s differs from the manifest" % key)
+		log.emit(LogLevel.ERROR, RateLimitedLog.SETTINGS_MISMATCH, key, "project setting %s differs from the manifest" % key)
 	return bad
 
 

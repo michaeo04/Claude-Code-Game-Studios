@@ -52,7 +52,7 @@ func test_ac13_unknown_keys_rejected_without_effect() -> void:
 	assert_false(_core.set_value("haptics_enable", true))
 	assert_false(_core.set_value("brightness", 0.5))
 	assert_eq(_logs.entries.size(), 2)
-	assert_eq(_logs.entries[0][0], 1)
+	assert_eq(_logs.entries[0][0], LogLevel.WARNING)
 	assert_eq(_logs.entries[0][1], &"UNKNOWN_SETTING_KEY")
 	assert_eq(_logs.entries[0][2], "haptics_enable")
 	assert_eq(_logs.entries[1][1], &"UNKNOWN_SETTING_KEY")

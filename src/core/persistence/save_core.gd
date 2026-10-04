@@ -15,9 +15,6 @@ const BACKUP_NAME_ATTEMPTS_MAX: int = 1000
 const META_SECTION: String = "_meta"
 const SCHEMA_KEY: String = "schema_version"
 
-## Log levels passed to `log_sink` (same scale as `SaveConfig.LEVEL_ERROR`).
-const LEVEL_INFO: int = 1
-const LEVEL_ERROR: int = 2
 
 ## Schema version this core accepts and writes. Defaults to the build's version; a test may override it.
 var current_schema_version: int = SaveConfig.CURRENT_SCHEMA_VERSION
@@ -53,7 +50,7 @@ func boot_load() -> void:
 	_sections = {}
 	_mismatch_logged = {}
 	if not _fs.exists(REAL_PATH):
-		_log_sink.call(LEVEL_INFO, StringName(PersistMath.FILE_MISSING), "", "no save file; using defaults")
+		_log_sink.call(LogLevel.INFO, StringName(PersistMath.FILE_MISSING), "", "no save file; using defaults")
 		return
 	var file_size: int = _fs.size(REAL_PATH)
 	if file_size < 0 or file_size > _config.save_file_size_max:
@@ -89,7 +86,7 @@ func get_value(section: String, key: String, default: Variant) -> Variant:
 		if not _mismatch_logged.has(slot):
 			_mismatch_logged[slot] = true
 			_log_sink.call(
-				LEVEL_ERROR, StringName(PersistMath.TYPE_MISMATCH), slot, "stored value of %s has the wrong type" % slot
+				LogLevel.ERROR, StringName(PersistMath.TYPE_MISMATCH), slot, "stored value of %s has the wrong type" % slot
 			)
 		return default
 	return stored
@@ -100,7 +97,7 @@ func get_value(section: String, key: String, default: Variant) -> Variant:
 func set_value(section: String, key: String, value: Variant) -> bool:
 	var slot: String = "%s/%s" % [section, key]
 	if not PersistMath.is_serializable_type(value):
-		_log_sink.call(LEVEL_ERROR, StringName(PersistMath.UNSERIALIZABLE_VALUE), slot, "value for %s cannot be saved" % slot)
+		_log_sink.call(LogLevel.ERROR, StringName(PersistMath.UNSERIALIZABLE_VALUE), slot, "value for %s cannot be saved" % slot)
 		return false
 	if typeof(_sections.get(section)) != TYPE_DICTIONARY:
 		_sections[section] = {}
@@ -118,7 +115,7 @@ func set_value(section: String, key: String, value: Variant) -> bool:
 	if written:
 		written = _fs.rename(TMP_PATH, REAL_PATH)
 	if not written:
-		_limiter.emit(LEVEL_ERROR, StringName(PersistMath.WRITE_FAILED), slot, "could not save %s" % slot)
+		_limiter.emit(LogLevel.ERROR, StringName(PersistMath.WRITE_FAILED), slot, "could not save %s" % slot)
 	return written
 
 
@@ -131,7 +128,7 @@ func flush() -> void:
 
 ## Logs a file-level failure once, moves the unusable file aside and rotates old backups.
 func _fail_file(code: String, message: String) -> void:
-	_log_sink.call(LEVEL_ERROR, StringName(code), "", message)
+	_log_sink.call(LogLevel.ERROR, StringName(code), "", message)
 	var stamp: String = "%s%d-" % [SAVE_DIR + BACKUP_PREFIX, int(_wall_clock.call())]
 	var n: int = 0
 	while n < BACKUP_NAME_ATTEMPTS_MAX and _fs.exists("%s%d" % [stamp, n]):

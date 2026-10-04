@@ -1,7 +1,7 @@
 # Story 001: One log-sink contract and one level enum for every core
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3-4 h
@@ -25,12 +25,12 @@
 
 ## Acceptance Criteria
 
-- [ ] One `LogLevel` enum (DEBUG, INFO, WARNING, ERROR) and one sink signature `(level: int, code: StringName, key: String, message: String)` are defined once (for example `src/core/log/`), documented, and used by every core and config in `src/core/`.
-- [ ] `RunStateCore`, `RunConfig`, `WorldFrameConfig` (two-argument sinks), `BallCore`, `BallConfig`, `TiltCore`, `TiltConfig` (three-argument) and the four-argument modules all call the same signature; no module defines its own level numbers.
-- [ ] `RateLimitedLog.Level` is replaced by or aliased to the shared enum; `SaveConfig.LEVEL_ERROR`, `SettingsCore.LEVEL_WARNING` and `RunStateMath` WARNING constants are removed.
-- [ ] A single recording sink in `tests/support/` serves every module's tests; no existing assertion on a log code or level is weakened.
-- [ ] A lint rule `forbidden:private_log_level_constants` flags a new `LEVEL_` constant in `src/core/` (with pass and fail fixtures).
-- [ ] `PlatformCore` routes repeating diagnostics through `RateLimitedLog` (finding 5): an unknown haptic kind logged on 1000 consecutive ticks produces at most one line per window.
+- [x] One `LogLevel` enum (DEBUG, INFO, WARNING, ERROR) and one sink signature `(level: int, code: StringName, key: String, message: String)` are defined once (for example `src/core/log/`), documented, and used by every core and config in `src/core/`.
+- [x] `RunStateCore`, `RunConfig`, `WorldFrameConfig` (two-argument sinks), `BallCore`, `BallConfig`, `TiltCore`, `TiltConfig` (three-argument) and the four-argument modules all call the same signature; no module defines its own level numbers.
+- [x] `RateLimitedLog.Level` is replaced by or aliased to the shared enum; `SaveConfig.LEVEL_ERROR`, `SettingsCore.LEVEL_WARNING` and `RunStateMath` WARNING constants are removed.
+- [x] A single recording sink in `tests/support/` serves every module's tests; no existing assertion on a log code or level is weakened.
+- [x] A lint rule `forbidden:private_log_level_constants` flags a new `LEVEL_` constant in `src/core/` (with pass and fail fixtures).
+- [x] `PlatformCore` routes repeating diagnostics through `RateLimitedLog` (finding 5): an unknown haptic kind logged on 1000 consecutive ticks produces at most one line per window.
 
 ---
 
@@ -56,7 +56,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Logic
 **Required evidence**: `tests/unit/` test file named in the story, must exist and pass
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/log/log_contract_log_level_test.gd`; `tests/unit/platform_services/platform_services_core_haptics_test.gd::test_unknown_kind_1000_consecutive_calls_log_one_line_per_window`; `platform_services_core_lifecycle_test.gd::test_redundant_lifecycle_1000_calls_log_one_line_per_window`; shared recorder `tests/support/platform_log_sink.gd` used by all existing log tests; lint fixtures `tools/ci/tests/fixtures/forbidden_private_log_level_constants/`.
+**Status**: Complete
 
 ---
 

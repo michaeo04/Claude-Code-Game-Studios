@@ -82,7 +82,7 @@ func test_nan_stream_gives_sixty_unlimited_error_lines() -> void:
 	assert_eq(sink.count(), 60)
 	for i: int in sink.count():
 		assert_eq(sink.code_at(i), BallConfig.LOG_BAD_STEER)
-		assert_eq(sink.level_at(i), RateLimitedLog.Level.ERROR)
+		assert_eq(sink.level_at(i), LogLevel.ERROR)
 
 
 func test_bad_dt_and_over_max_use_their_codes_at_error_level() -> void:
@@ -95,7 +95,7 @@ func test_bad_dt_and_over_max_use_their_codes_at_error_level() -> void:
 	assert_eq(sink.count_code(BallConfig.LOG_DT_OVER_MAX), 1)
 	assert_eq(sink.count(), 3)
 	for i: int in sink.count():
-		assert_eq(sink.level_at(i), RateLimitedLog.Level.ERROR)
+		assert_eq(sink.level_at(i), LogLevel.ERROR)
 
 
 func test_clean_sine_run_logs_nothing() -> void:

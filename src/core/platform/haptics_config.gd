@@ -146,7 +146,7 @@ static func _fix_priority(log_sink: Callable, key: String, raw: int) -> int:
 
 static func _log(log_sink: Callable, key: String, raw: String, used: String) -> void:
 	log_sink.call(
-		RateLimitedLog.Level.ERROR,
+		LogLevel.ERROR,
 		RateLimitedLog.KNOB_CLAMPED,
 		key,
 		"%s=%s is outside its safe range; using %s" % [key, raw, used]

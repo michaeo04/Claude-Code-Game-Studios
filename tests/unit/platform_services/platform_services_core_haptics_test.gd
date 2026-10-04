@@ -70,7 +70,7 @@ func test_unknown_kind_drops_logs_once_and_does_not_vibrate() -> void:
 	assert_eq(_drops(rig), [1, 0, 0, 0, 0] as Array[int])
 	assert_eq(rig.vibrations.size(), 0)
 	assert_eq(rig.sink.count(), 1)
-	assert_eq(rig.sink.entries[0][0], RateLimitedLog.Level.ERROR)
+	assert_eq(rig.sink.entries[0][0], LogLevel.ERROR)
 	assert_eq(rig.sink.entries[0][1], RateLimitedLog.UNKNOWN_HAPTIC_KIND)
 	assert_eq(rig.sink.entries[0][2], "99")
 	assert_true(_at(rig, 0, HIT), "allowed call at the same stamp plays")
@@ -155,3 +155,13 @@ func test_intensity_scales_amplitude() -> void:
 	rig.core.set_haptics_intensity(0.5)
 	_at(rig, 0, NEAR)
 	assert_almost_eq(rig.vibrations[0][1] as float, 0.25, 1e-6)
+
+
+func test_unknown_kind_1000_consecutive_calls_log_one_line_per_window() -> void:
+	var rig: Rig = Rig.new(true)
+	for i: int in range(1000):
+		_at(rig, i * 1000, 99)
+	assert_eq(rig.core.haptic_drops(PlatformCore.DropCause.UNKNOWN_KIND), 1000, "every call is still counted as a drop")
+	assert_eq(rig.sink.count(), 1, "1000 calls over 0.999 s are one window: one line")
+	_at(rig, 1_000_000, 99)
+	assert_eq(rig.sink.count(), 2, "the next window logs again")

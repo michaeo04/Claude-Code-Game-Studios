@@ -13,7 +13,7 @@ func _boot(raw: float) -> Array:
 
 func _assert_one_clamp(log_spy: Fx.LogSpy) -> void:
 	assert_eq(log_spy.entries.size(), 1)
-	assert_eq(log_spy.entries[0][0], SettingsCore.LEVEL_WARNING)
+	assert_eq(log_spy.entries[0][0], LogLevel.WARNING)
 	assert_eq(log_spy.entries[0][1], &"SETTING_CLAMPED")
 	assert_eq(log_spy.entries[0][2], "tilt_sensitivity")
 

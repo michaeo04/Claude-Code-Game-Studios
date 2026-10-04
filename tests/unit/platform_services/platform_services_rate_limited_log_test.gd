@@ -15,7 +15,7 @@ func before_each() -> void:
 	_limiter = RateLimitedLog.new(_sink.sink, _clock.as_callable())
 
 
-func _send(code: StringName, key: String, at_us: int, level: int = RateLimitedLog.Level.ERROR) -> bool:
+func _send(code: StringName, key: String, at_us: int, level: int = LogLevel.ERROR) -> bool:
 	_clock.now_us = at_us
 	return _limiter.emit(level, code, key, "msg")
 
@@ -81,7 +81,7 @@ func test_clock_backwards_passes_and_rebases() -> void:
 
 func test_sink_receives_level_code_key_and_message() -> void:
 	_clock.now_us = 10
-	_limiter.emit(RateLimitedLog.Level.DEBUG, RateLimitedLog.LIFECYCLE_NOOP, "FI", "noop")
-	_limiter.emit(RateLimitedLog.Level.ERROR, RateLimitedLog.SETTINGS_MISMATCH, "orientation", "bad")
-	assert_eq(_sink.entries[0], [RateLimitedLog.Level.DEBUG, &"LIFECYCLE_NOOP", "FI", "noop"])
-	assert_eq(_sink.entries[1], [RateLimitedLog.Level.ERROR, &"SETTINGS_MISMATCH", "orientation", "bad"])
+	_limiter.emit(LogLevel.DEBUG, RateLimitedLog.LIFECYCLE_NOOP, "FI", "noop")
+	_limiter.emit(LogLevel.ERROR, RateLimitedLog.SETTINGS_MISMATCH, "orientation", "bad")
+	assert_eq(_sink.entries[0], [LogLevel.DEBUG, &"LIFECYCLE_NOOP", "FI", "noop"])
+	assert_eq(_sink.entries[1], [LogLevel.ERROR, &"SETTINGS_MISMATCH", "orientation", "bad"])

@@ -993,6 +993,17 @@
    ],
    "pattern": "\\b(?:PlatformServices|PlatformCore|HapticsConfig|TiltInput|TiltCore|TiltConfig|TubeTrack|TubeWindow|TubeMath|TubeRoute)\\b",
    "message": "SettingsCore and SettingsMath know no Platform Services, Tilt Input or Tube Track symbol: they see only opaque key strings"
+  },
+  {
+   "id": "forbidden:private_log_level_constants",
+   "source": "ADR-0002; code review 2026-10-04 finding 1 (story CRF-001)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/**/*.gd"
+   ],
+   "pattern": "^\\s*const\\s+(?:LOG_|LOGGER_)?LEVEL_\\w*",
+   "message": "Log level numbers live only in LogLevel (src/core/log/log_level.gd); do not declare a private LEVEL_ constant in a core"
   }
  ]
 }

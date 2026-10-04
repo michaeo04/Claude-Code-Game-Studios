@@ -1,7 +1,7 @@
 ## Story TI-003: TiltConfig defaults, validated() clamps, rule 14 order and the sensitivity hook (AC-4 [C], AC-8, AC-36).
 extends GutTest
 
-const TiltSink = preload("res://tests/support/tilt_log_sink.gd")
+const TiltSink = preload("res://tests/support/platform_log_sink.gd")
 
 const LOG_CODE: StringName = &"KNOB_CLAMPED"
 
@@ -89,7 +89,7 @@ func test_ac4_filter_tau_zero_or_negative_clamps_to_002_with_one_log() -> void:
 		assert_eq((r[0] as TiltConfig).filter_tau, 0.02, "tau=%s" % v)
 		assert_eq(_count(r), 1)
 		assert_eq((r[1] as RefCounted).call("code_at", 0) as StringName, LOG_CODE)
-		assert_eq(((r[1] as RefCounted).get("entries") as Array)[0][0] as int, RateLimitedLog.Level.ERROR)
+		assert_eq(((r[1] as RefCounted).get("entries") as Array)[0][0] as int, LogLevel.ERROR)
 
 
 func test_ac8_sensitivity_table() -> void:

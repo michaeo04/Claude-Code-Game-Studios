@@ -38,7 +38,7 @@ func test_parse_error_gives_defaults_and_one_file_unreadable_error() -> void:
 	assert_eq(core.get_value("scoring", "personal_best", 77), 77)
 	assert_eq(core.get_value("settings", "tilt_sensitivity", 9.5), 9.5)
 	assert_eq(_sink.count(), 1)
-	assert_eq(_sink.entries[0][0], SaveCore.LEVEL_ERROR)
+	assert_eq(_sink.entries[0][0], LogLevel.ERROR)
 	assert_eq(_sink.entries[0][1], &"FILE_UNREADABLE")
 
 
@@ -51,7 +51,7 @@ func test_incompatible_schema_gives_defaults_and_one_schema_incompatible() -> vo
 	assert_eq(core.get_value("scoring", "personal_best", 77), 77)
 	assert_eq(core.get_value("settings", "haptics_enabled", false), false)
 	assert_eq(_sink.count(), 1)
-	assert_eq(_sink.entries[0][0], SaveCore.LEVEL_ERROR)
+	assert_eq(_sink.entries[0][0], LogLevel.ERROR)
 	assert_eq(_sink.entries[0][1], &"SCHEMA_INCOMPATIBLE")
 
 

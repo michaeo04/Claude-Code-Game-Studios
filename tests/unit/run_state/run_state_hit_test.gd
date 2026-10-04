@@ -4,8 +4,8 @@ extends GutTest
 const Factory = preload("res://tests/support/run_state_factory.gd")
 
 const S = Factory.State
-const DEBUG_LEVEL: int = RunStateMath.LogLevel.DEBUG
-const WARNING_LEVEL: int = RunStateMath.LogLevel.WARNING
+const DEBUG_LEVEL: int = LogLevel.DEBUG
+const WARNING_LEVEL: int = LogLevel.WARNING
 
 
 func _count(rig: Factory, event_name: String) -> int:
@@ -94,7 +94,7 @@ func test_hit_stale_run_id_is_ignored_with_debug_log() -> void:
 	assert_eq(rig.core.phase, RunStateCore.Phase.RUNNING)
 	assert_eq(rig.logs.count(), 1)
 	assert_eq(rig.logs.level_at(0), DEBUG_LEVEL)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_HIT_STALE)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_HIT_STALE)
 
 
 func test_hit_on_settling_tick_after_run_started_is_ignored_then_accepted_next_tick() -> void:
@@ -109,7 +109,7 @@ func test_hit_on_settling_tick_after_run_started_is_ignored_then_accepted_next_t
 	assert_eq(_count(rig, "run_ended"), 0)
 	assert_eq(rig.logs.count(), 1)
 	assert_eq(rig.logs.level_at(0), DEBUG_LEVEL)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_HIT_SETTLING)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_HIT_SETTLING)
 	rig.core.request_hit(2, rig.core.run_id) # level-triggered: the same hit is re-reported
 	rig.tick()
 	assert_eq(_first_args(rig, "run_ended"), [1, 2, 0])
@@ -127,7 +127,7 @@ func test_hit_on_settling_tick_after_run_resumed_is_ignored_then_accepted_next_t
 	rig.tick()
 	assert_eq(_count(rig, "run_ended"), 0)
 	assert_eq(rig.logs.count_level(DEBUG_LEVEL), 1)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_HIT_SETTLING)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_HIT_SETTLING)
 	rig.core.request_hit(6, rig.core.run_id)
 	rig.tick()
 	assert_eq(_count(rig, "run_ended"), 1)
@@ -168,7 +168,7 @@ func test_hit_tie_break_stale_dropped_before_the_tie_break() -> void:
 	rig.tick()
 	assert_eq(_first_args(rig, "run_ended")[1], 5)
 	assert_eq(rig.logs.count_level(DEBUG_LEVEL), 1)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_HIT_STALE)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_HIT_STALE)
 
 
 func test_hit_negative_id_below_minus_one_is_treated_as_unknown_with_one_warning() -> void:
@@ -178,4 +178,4 @@ func test_hit_negative_id_below_minus_one_is_treated_as_unknown_with_one_warning
 	rig.tick()
 	assert_eq(_first_args(rig, "run_ended")[1], -1)
 	assert_eq(rig.logs.count_level(WARNING_LEVEL), 1)
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_HIT_BAD_ID)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_HIT_BAD_ID)

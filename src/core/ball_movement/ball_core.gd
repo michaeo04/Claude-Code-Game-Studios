@@ -94,7 +94,7 @@ var _rate_mode: bool = false
 
 
 ## `cfg` must already be validated (`BallConfig.validated`). `dt_max` is Run State's `DT_MAX`; a non-positive or
-## non-finite value becomes 0.1 with one `KNOB_CLAMPED`. `log_sink` is `Callable(level, code, message)`.
+## non-finite value becomes 0.1 with one `KNOB_CLAMPED`. `log_sink` is `Callable(level, code, key, message)` (see `LogLevel`).
 func _init(cfg: BallConfig, dt_max: float, log_sink: Callable) -> void:
 	_cfg = cfg
 	_log_sink = log_sink
@@ -211,4 +211,4 @@ func _accept_steer(steer: float, valid: bool) -> void:
 
 func _log(code: StringName, message: String) -> void:
 	if _log_sink.is_valid():
-		_log_sink.call(RateLimitedLog.Level.ERROR, code, message)
+		_log_sink.call(LogLevel.ERROR, code, "", message)

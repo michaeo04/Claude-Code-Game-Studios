@@ -82,7 +82,7 @@ func test_missing_file_gives_defaults_and_one_info_file_missing() -> void:
 	assert_eq(core.get_value("settings", "haptics_enabled", true), true)
 	assert_eq(core.get_value("settings", "tilt_sensitivity", 1.0), 1.0)
 	assert_eq(_sink.count(), 1)
-	assert_eq(_sink.entries[0][0], SaveCore.LEVEL_INFO)
+	assert_eq(_sink.entries[0][0], LogLevel.INFO)
 	assert_eq(_sink.entries[0][1], &"FILE_MISSING")
 	assert_false("read_config" in _fs.call_names())
 

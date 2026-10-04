@@ -35,7 +35,8 @@ var last_prio: int = 0
 
 var _fis: bool
 var _clock_us: Callable
-var _log_sink: Callable
+## Repeating diagnostics (unknown haptic kind, redundant lifecycle calls) go through this: one line per window.
+var _limiter: RateLimitedLog
 var _vibrate: Callable
 var _display_source: Callable
 var _config: HapticsConfig
@@ -98,7 +99,7 @@ func _init(
 ) -> void:
 	_fis = focus_implies_suspend
 	_clock_us = clock_us
-	_log_sink = log_sink
+	_limiter = RateLimitedLog.new(log_sink, clock_us)
 	_vibrate = vibrate
 	_display_source = display_source
 	_config = config
@@ -158,8 +159,8 @@ func set_haptics_intensity(intensity: float) -> void:
 func haptic(kind: int) -> bool:
 	if not _config.has_kind(kind):
 		_drop(DropCause.UNKNOWN_KIND)
-		_log_sink.call(
-			RateLimitedLog.Level.ERROR, RateLimitedLog.UNKNOWN_HAPTIC_KIND, str(kind), "haptic kind %d is not configured" % kind
+		_limiter.emit(
+			LogLevel.ERROR, RateLimitedLog.UNKNOWN_HAPTIC_KIND, str(kind), "haptic kind %d is not configured" % kind
 		)
 		return false
 	if not _haptics_enabled:
@@ -206,7 +207,7 @@ func _is_suspended() -> bool:
 
 
 func _noop(event_name: String) -> void:
-	_log_sink.call(RateLimitedLog.Level.DEBUG, RateLimitedLog.LIFECYCLE_NOOP, event_name, "%s ignored: no state change" % event_name)
+	_limiter.emit(LogLevel.DEBUG, RateLimitedLog.LIFECYCLE_NOOP, event_name, "%s ignored: no state change" % event_name)
 
 
 ## Applies the new flags, then emits the edges in order INT, BG, FG, RET.

@@ -327,7 +327,7 @@ func _append(angle_deg: float, now_us: int) -> void:
 
 func _log(code: StringName, detail: String) -> void:
 	if _log_sink.is_valid():
-		_log_sink.call(RateLimitedLog.Level.ERROR, code, detail)
+		_log_sink.call(LogLevel.ERROR, code, "", detail)
 
 
 func _process_sample(angle: float, was_live: bool) -> void:

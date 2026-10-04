@@ -88,7 +88,7 @@ var _dt_warning_given: bool = false
 
 ## Builds a core in Boot with `run_id` 0. Construction emits nothing (GDD Core Rule 15).
 ## `config` is validated into a clamped copy (a null config means defaults); `clock_us` returns the
-## monotonic time in microseconds; `log_sink` is called as `log_sink(level: int, message: String)`.
+## monotonic time in microseconds; `log_sink` is called as `log_sink(level: int, code: StringName, key: String, message: String)` (see `LogLevel`).
 func _init(config: RunConfig, clock_us: Callable, log_sink: Callable) -> void:
 	_clock_us = clock_us
 	_log_sink = log_sink
@@ -151,7 +151,7 @@ func request_menu(press_us: int) -> void:
 ## and is not a settling tick. The owner passes the same value on to Ball Movement.
 func tick(world_dt: float, real_dt: float) -> float:
 	if _busy:
-		_log(RunStateMath.LogLevel.ERROR, RunStateMath.LOG_REQUEST_NESTED, "tick() called from inside a handler or a tick")
+		_log(LogLevel.ERROR, RunStateMath.LOG_REQUEST_NESTED, "tick() called from inside a handler or a tick")
 		return 0.0
 	_busy = true
 	var now_us: int = _clock_us.call()
@@ -213,7 +213,7 @@ static func progress_for(duration: float, elapsed: float) -> float:
 func _enqueue(req: _Request) -> void:
 	if _busy:
 		_log(
-			RunStateMath.LogLevel.ERROR,
+			LogLevel.ERROR,
 			RunStateMath.LOG_REQUEST_NESTED,
 			"%s sent from inside a handler or a tick" % _request_name(req.kind)
 		)
@@ -230,7 +230,7 @@ func _make_request(kind: RequestKind) -> _Request:
 func _apply_app_interrupted() -> void:
 	if _busy:
 		_log(
-			RunStateMath.LogLevel.ERROR,
+			LogLevel.ERROR,
 			RunStateMath.LOG_REQUEST_NESTED,
 			"pause(app_interrupted) sent from inside a handler or a tick"
 		)
@@ -258,7 +258,7 @@ func _warn_bad_dt(now_us: int, value: float) -> void:
 		return
 	_dt_warning_given = true
 	_last_dt_warning_us = now_us
-	_log(RunStateMath.LogLevel.WARNING, RunStateMath.LOG_DT_INVALID, "world_dt=%s is not finite and non-negative" % value)
+	_log(LogLevel.WARNING, RunStateMath.LOG_DT_INVALID, "world_dt=%s is not finite and non-negative" % value)
 
 
 ## A bad `real_dt` shares the one-per-second limiter of a bad `world_dt`: one warning per second in total.
@@ -267,7 +267,7 @@ func _warn_bad_real_dt(now_us: int, value: float) -> void:
 		return
 	_dt_warning_given = true
 	_last_dt_warning_us = now_us
-	_log(RunStateMath.LogLevel.WARNING, RunStateMath.LOG_DT_INVALID, "real_dt=%s is not finite and non-negative" % value)
+	_log(LogLevel.WARNING, RunStateMath.LOG_DT_INVALID, "real_dt=%s is not finite and non-negative" % value)
 
 
 ## Drops the queued hits of a stalled tick, one debug line each (they must not end a run the player did not see).
@@ -275,7 +275,7 @@ func _discard_queued_hits() -> void:
 	var kept: Array[_Request] = []
 	for req: _Request in _queue:
 		if req.kind == RequestKind.HIT:
-			_log(RunStateMath.LogLevel.DEBUG, RunStateMath.LOG_HIT_IGNORED, "hit discarded on a stall-guard tick")
+			_log(LogLevel.DEBUG, RunStateMath.LOG_HIT_IGNORED, "hit discarded on a stall-guard tick")
 		else:
 			kept.append(req)
 	_queue = kept
@@ -341,7 +341,7 @@ func _handle_leave(req: _Request, now_us: int, restart: bool) -> void:
 	var limit_us: int = _config.restart_lock_us() if _phase == Phase.HIT else _config.pause_input_guard_us()
 	if press_us - anchor_us < limit_us:
 		_log(
-			RunStateMath.LogLevel.DEBUG,
+			LogLevel.DEBUG,
 			RunStateMath.LOG_REQUEST_LOCKED,
 			"%s press_us=%d inside the %s (anchor_us=%d, limit_us=%d)"
 			% [_request_name(req.kind), press_us, "lock" if _phase == Phase.HIT else "guard", anchor_us, limit_us]
@@ -372,12 +372,12 @@ func _resolve_hits(hits: Array[_Request], now_us: int) -> void:
 	for req: _Request in hits:
 		if req.run_id != _run_id:
 			_log(
-				RunStateMath.LogLevel.DEBUG,
+				LogLevel.DEBUG,
 				RunStateMath.LOG_HIT_STALE,
 				"hit run_id=%d is not the current run_id=%d" % [req.run_id, _run_id]
 			)
 		elif _tick_settling:
-			_log(RunStateMath.LogLevel.DEBUG, RunStateMath.LOG_HIT_SETTLING, "hit ignored on a settling tick")
+			_log(LogLevel.DEBUG, RunStateMath.LOG_HIT_SETTLING, "hit ignored on a settling tick")
 		else:
 			candidates.append(req)
 	if candidates.is_empty():
@@ -387,13 +387,13 @@ func _resolve_hits(hits: Array[_Request], now_us: int) -> void:
 		var hazard_id: int = req.hazard_id
 		if hazard_id < -1:
 			_log(
-				RunStateMath.LogLevel.WARNING, RunStateMath.LOG_HIT_BAD_ID, "hazard_id=%d treated as -1" % hazard_id
+				LogLevel.WARNING, RunStateMath.LOG_HIT_BAD_ID, "hazard_id=%d treated as -1" % hazard_id
 			)
 			hazard_id = -1
 		if hazard_id >= 0 and (winner < 0 or hazard_id < winner):
 			winner = hazard_id
 	for _loser in range(candidates.size() - 1):
-		_log(RunStateMath.LogLevel.DEBUG, RunStateMath.LOG_HIT_IGNORED, "hit lost the same-tick tie-break")
+		_log(LogLevel.DEBUG, RunStateMath.LOG_HIT_IGNORED, "hit lost the same-tick tie-break")
 	_enter_hit(winner, now_us)
 
 
@@ -461,14 +461,14 @@ func _set_phase(new_phase: Phase) -> Phase:
 func _normalized_press(req: _Request, now_us: int) -> int:
 	if req.press_us <= 0:
 		_log(
-			RunStateMath.LogLevel.ERROR,
+			LogLevel.ERROR,
 			RunStateMath.LOG_PRESS_US_INVALID,
 			"%s press_us=%d is missing or not positive; using now_us" % [_request_name(req.kind), req.press_us]
 		)
 		return now_us
 	if req.press_us > now_us:
 		_log(
-			RunStateMath.LogLevel.ERROR,
+			LogLevel.ERROR,
 			RunStateMath.LOG_PRESS_US_INVALID,
 			"%s press_us=%d is in the future; clamped to now_us=%d" % [_request_name(req.kind), req.press_us, now_us]
 		)
@@ -488,28 +488,28 @@ func _reject(req: _Request) -> void:
 	)
 
 
-## -1 is the silent class, otherwise a `RunStateMath.LogLevel` value.
+## -1 is the silent class, otherwise a `LogLevel` value.
 func _reject_level(req: _Request) -> int:
-	var level: int = RunStateMath.LogLevel.WARNING
+	var level: int = LogLevel.WARNING
 	match req.kind:
 		RequestKind.HIT:
 			if _phase == Phase.PAUSED or _phase == Phase.RESUMING or _phase == Phase.HIT:
-				level = RunStateMath.LogLevel.DEBUG
+				level = LogLevel.DEBUG
 		RequestKind.PAUSE:
 			if req.source != PauseSource.BUTTON:
 				return -1
 			if _phase == Phase.PAUSED:
-				level = RunStateMath.LogLevel.DEBUG
+				level = LogLevel.DEBUG
 		RequestKind.RESUME:
 			if _phase == Phase.RESUMING:
-				level = RunStateMath.LogLevel.DEBUG
+				level = LogLevel.DEBUG
 		RequestKind.RESTART:
 			if _phase == Phase.RUNNING:
-				level = RunStateMath.LogLevel.DEBUG
+				level = LogLevel.DEBUG
 		_:
 			pass
-	if level == RunStateMath.LogLevel.WARNING and _was_valid_earlier_this_tick(req):
-		level = RunStateMath.LogLevel.DEBUG
+	if level == LogLevel.WARNING and _was_valid_earlier_this_tick(req):
+		level = LogLevel.DEBUG
 	return level
 
 
@@ -544,7 +544,7 @@ func _request_name(kind: RequestKind) -> String:
 
 func _log(level: int, code: StringName, detail: String) -> void:
 	if _log_sink.is_valid():
-		_log_sink.call(level, "%s %s" % [code, detail])
+		_log_sink.call(level, code, "", detail)
 
 
 ## A queued request: only the fields of its kind are meaningful.

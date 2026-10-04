@@ -91,7 +91,7 @@ func test_report_logs_one_error_per_key() -> void:
 	var log: RateLimitedLog = RateLimitedLog.new(sink.sink, clock.as_callable())
 	PlatformSettings.report(PlatformSettings.manifest(), _read, log)
 	assert_eq(sink.count(), 2)
-	assert_eq(sink.entries[0][0], RateLimitedLog.Level.ERROR)
+	assert_eq(sink.entries[0][0], LogLevel.ERROR)
 	assert_eq(sink.entries[0][1], RateLimitedLog.SETTINGS_MISMATCH)
 	assert_eq(sink.entries[0][2], MAX_FPS)
 	assert_eq(sink.entries[1][2], QUIT)

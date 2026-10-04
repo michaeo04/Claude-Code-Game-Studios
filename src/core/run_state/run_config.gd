@@ -74,7 +74,7 @@ func resume_countdown_ms() -> int:
 
 
 ## Returns a copy with every value inside its safe range. NaN and infinity are replaced by the default,
-## then each value is clamped; one error is logged through `log_sink(level, message)` per corrected value
+## then each value is clamped; one error is logged through `log_sink(level, code, key, message)` (see `LogLevel`) per corrected value
 ## (GDD Tuning Knobs, "Interactions between knobs"). Run State never runs with an unsafe value.
 func validated(log_sink: Callable) -> RunConfig:
 	var out: RunConfig = duplicate() as RunConfig
@@ -135,4 +135,4 @@ static func _sane(value: float, default_value: float, lo: float, hi: float, fiel
 
 static func _log_error(log_sink: Callable, code: StringName, detail: String) -> void:
 	if log_sink.is_valid():
-		log_sink.call(RunStateMath.LogLevel.ERROR, "%s %s" % [code, detail])
+		log_sink.call(LogLevel.ERROR, code, "", detail)

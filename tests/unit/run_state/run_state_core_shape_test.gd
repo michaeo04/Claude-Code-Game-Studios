@@ -4,7 +4,7 @@ extends GutTest
 
 const Factory = preload("res://tests/support/run_state_factory.gd")
 const ClockStub = preload("res://tests/support/clock_stub.gd")
-const LogSink = preload("res://tests/support/run_state_log_sink.gd")
+const LogSink = preload("res://tests/support/platform_log_sink.gd")
 
 const EXPECTED_SIGNALS: Array[String] = [
 	"phase_changed",

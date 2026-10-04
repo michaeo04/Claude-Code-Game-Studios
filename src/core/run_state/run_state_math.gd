@@ -5,10 +5,6 @@
 class_name RunStateMath
 extends RefCounted
 
-## Severity classes of the injected `log_sink(level, message)` (GDD Core Rule 3). "Silent" is the absence
-## of a call, so it has no value here.
-enum LogLevel { DEBUG, WARNING, ERROR }
-
 ## Microseconds per second, as a float for the `round(seconds * 1e6)` conversions of the GDD.
 const US_PER_S: float = 1_000_000.0
 ## Milliseconds per second.

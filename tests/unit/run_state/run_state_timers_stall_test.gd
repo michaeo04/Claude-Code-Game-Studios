@@ -7,8 +7,8 @@ const S = Factory.State
 const P = RunStateCore.Phase
 const Src = RunStateCore.PauseSource
 const TICK_US: int = 16_667
-const WARNING_LEVEL: int = RunStateMath.LogLevel.WARNING
-const DEBUG_LEVEL: int = RunStateMath.LogLevel.DEBUG
+const WARNING_LEVEL: int = LogLevel.WARNING
+const DEBUG_LEVEL: int = LogLevel.DEBUG
 
 
 func _rig(state: Factory.State) -> Factory:
@@ -172,7 +172,7 @@ func test_stall_non_finite_or_negative_real_dt_does_not_pause_and_warns_once_per
 		assert_eq(rig.core.phase, P.RUNNING)
 		assert_eq(rig.recorder.events.size(), 0)
 		assert_eq(rig.logs.count_level(WARNING_LEVEL), 1, "one warning for %s" % bad)
-		assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_DT_INVALID)))
+		assert_true(rig.logs.code_at(0) == RunStateMath.LOG_DT_INVALID)
 		rig.clock.advance_us(1_000_000)
 		rig.core.tick(Factory.DT, bad)
 		assert_eq(rig.logs.count_level(WARNING_LEVEL), 2, "a second warning after one second")

@@ -5,8 +5,8 @@ const Factory = preload("res://tests/support/run_state_factory.gd")
 
 const S = Factory.State
 ## Log classes of the test plan: "A" accepted, "D" debug, "W" warning.
-const DEBUG_LEVEL: int = RunStateMath.LogLevel.DEBUG
-const WARNING_LEVEL: int = RunStateMath.LogLevel.WARNING
+const DEBUG_LEVEL: int = LogLevel.DEBUG
+const WARNING_LEVEL: int = LogLevel.WARNING
 
 ## Phase reached by each accepted request.
 const _RESULT_PHASE: Dictionary = {

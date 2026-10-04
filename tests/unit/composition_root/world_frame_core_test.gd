@@ -1,7 +1,7 @@
 ## Story CR-003: WorldFrame, WorldFrameConfig and the render-origin math.
 extends GutTest
 
-const LogSink = preload("res://tests/support/run_state_log_sink.gd")
+const LogSink = preload("res://tests/support/platform_log_sink.gd")
 const L: float = 12.0
 
 var _geometry: WorldGeometry
@@ -81,6 +81,8 @@ func test_config_clamps_rebase_segments_and_logs() -> void:
 	_config.rebase_segments = 200
 	assert_eq(_config.validated(sink.sink).rebase_segments, 128)
 	assert_eq(sink.count(), 2)
+	assert_eq(sink.code_at(0), &"REBASE_SEGMENTS_CLAMPED")
+	assert_eq(sink.level_at(0), LogLevel.WARNING)
 
 
 func test_config_validated_returns_copy_without_mutating_original() -> void:

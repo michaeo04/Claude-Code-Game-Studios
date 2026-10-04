@@ -5,7 +5,7 @@
 extends RefCounted
 
 const ClockStub = preload("res://tests/support/clock_stub.gd")
-const TiltSink = preload("res://tests/support/tilt_log_sink.gd")
+const TiltSink = preload("res://tests/support/platform_log_sink.gd")
 const TiltCoreClass = preload("res://src/core/tilt_input/tilt_core.gd")
 
 ## Default poll step in microseconds (60 Hz).

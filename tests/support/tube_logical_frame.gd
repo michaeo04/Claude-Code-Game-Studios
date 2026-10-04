@@ -16,6 +16,6 @@ static func p_reference(theta: float, s: float, h: float, r: float, log_sink: Ca
 	var z: float = s
 	if not is_finite(z):
 		if log_sink.is_valid():
-			log_sink.call(RateLimitedLog.Level.ERROR, TubeMath.NON_FINITE_INPUT, "p_reference", "non-finite s")
+			log_sink.call(LogLevel.ERROR, TubeMath.NON_FINITE_INPUT, "p_reference", "non-finite s")
 		z = 0.0
 	return Vector3(xy.x, xy.y, -z)

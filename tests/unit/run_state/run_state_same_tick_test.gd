@@ -7,8 +7,8 @@ const Factory = preload("res://tests/support/run_state_factory.gd")
 const S = Factory.State
 const P = RunStateCore.Phase
 const Src = RunStateCore.PauseSource
-const D: int = RunStateMath.LogLevel.DEBUG
-const W: int = RunStateMath.LogLevel.WARNING
+const D: int = LogLevel.DEBUG
+const W: int = LogLevel.WARNING
 
 const ALL_FIVE: Array[String] = ["hit", "pause", "menu", "restart", "resume"]
 

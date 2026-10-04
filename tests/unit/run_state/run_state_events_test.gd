@@ -4,11 +4,11 @@ extends GutTest
 const Factory = preload("res://tests/support/run_state_factory.gd")
 const Recorder = preload("res://tests/support/run_state_recorder.gd")
 const ClockStub = preload("res://tests/support/clock_stub.gd")
-const LogSink = preload("res://tests/support/run_state_log_sink.gd")
+const LogSink = preload("res://tests/support/platform_log_sink.gd")
 
 const S = Factory.State
 const P = RunStateCore.Phase
-const ERROR_LEVEL: int = RunStateMath.LogLevel.ERROR
+const ERROR_LEVEL: int = LogLevel.ERROR
 
 ## Every request the nested-call test attempts from inside a handler (7 requests, pause with 4 sources).
 const _ATTEMPTS: Array[String] = [

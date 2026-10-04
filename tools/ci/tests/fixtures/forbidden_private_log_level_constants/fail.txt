@@ -1,0 +1,5 @@
+#@path: src/core/persistence/save_core.gd
+extends RefCounted
+
+const LEVEL_ERROR: int = 2
+const LEVEL_WARNING: int = 1

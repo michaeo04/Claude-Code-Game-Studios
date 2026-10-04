@@ -49,7 +49,7 @@ func test_ac2_negative_h_equals_zero_h_with_one_warning() -> void:
 	var neg: Vector2 = TubeMath.frame_xy(1.0, -0.5, R, Callable(sink, "sink"))
 	assert_eq(neg, TubeMath.frame_xy(1.0, 0.0, R))
 	assert_eq(_count(sink), 1)
-	assert_eq(_count_level(sink, RateLimitedLog.Level.ERROR), 0)
+	assert_eq(_count_level(sink, LogLevel.ERROR), 0)
 
 
 func test_ac2_zero_h_logs_nothing() -> void:
@@ -63,7 +63,7 @@ func test_ac2_nan_and_inf_h_clamp_to_zero_with_one_error() -> void:
 		var sink: RefCounted = _new_sink()
 		var p: Vector2 = TubeMath.frame_xy(1.0, bad, R, Callable(sink, "sink"))
 		assert_eq(p, TubeMath.frame_xy(1.0, 0.0, R), "h=%s" % bad)
-		assert_eq(_count_level(sink, RateLimitedLog.Level.ERROR), 1)
+		assert_eq(_count_level(sink, LogLevel.ERROR), 1)
 		assert_eq(_count(sink), 1)
 
 
@@ -101,7 +101,7 @@ func test_ac6_non_finite_theta_wrap_returns_zero_with_one_error() -> void:
 		var sink: RefCounted = _new_sink()
 		assert_eq(TubeMath.wrap_angle(bad, Callable(sink, "sink")), 0.0)
 		assert_eq(_count(sink), 1, "theta=%s" % bad)
-		assert_eq(_count_level(sink, RateLimitedLog.Level.ERROR), 1)
+		assert_eq(_count_level(sink, LogLevel.ERROR), 1)
 
 
 func test_ac6_p_with_non_finite_theta_equals_p_at_zero() -> void:

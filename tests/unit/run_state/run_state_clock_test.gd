@@ -4,7 +4,7 @@ extends GutTest
 const Factory = preload("res://tests/support/run_state_factory.gd")
 
 const S = Factory.State
-const WARNING_LEVEL: int = RunStateMath.LogLevel.WARNING
+const WARNING_LEVEL: int = LogLevel.WARNING
 const EPS: float = 1e-6
 
 
@@ -46,7 +46,7 @@ func test_clock_bad_input_warning_is_rate_limited_to_one_per_second() -> void:
 	var rig: Factory = _running_at_zero()
 	rig.core.tick(NAN, NAN)
 	assert_eq(rig.logs.count_level(WARNING_LEVEL), 1, "first bad input warns")
-	assert_true(rig.logs.message_at(0).begins_with(String(RunStateMath.LOG_DT_INVALID)))
+	assert_true(rig.logs.code_at(0) == RunStateMath.LOG_DT_INVALID)
 	rig.clock.advance_us(999_999)
 	rig.core.tick(INF, INF)
 	assert_eq(rig.logs.count_level(WARNING_LEVEL), 1, "no second warning within 1.0 s")

@@ -106,7 +106,7 @@ func advance(s: float) -> void:
 		_log(LOG_NON_FINITE, "advance", "advance ignored a non-finite s")
 		return
 	if s < _s:
-		_log_level(RateLimitedLog.Level.DEBUG, LOG_S_DECREASED, "advance", "advance(%s) below s %s ignored" % [s, _s])
+		_log_level(LogLevel.DEBUG, LOG_S_DECREASED, "advance", "advance(%s) below s %s ignored" % [s, _s])
 		return
 	if s == _s:
 		return
@@ -252,7 +252,7 @@ func _reject(event_name: String) -> void:
 
 
 func _log(code: StringName, key: String, message: String) -> void:
-	_log_level(RateLimitedLog.Level.ERROR, code, key, message)
+	_log_level(LogLevel.ERROR, code, key, message)
 
 
 func _log_level(level: int, code: StringName, key: String, message: String) -> void:

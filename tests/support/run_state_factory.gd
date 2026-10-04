@@ -10,7 +10,7 @@
 extends RefCounted
 
 const ClockStub = preload("res://tests/support/clock_stub.gd")
-const LogSink = preload("res://tests/support/run_state_log_sink.gd")
+const LogSink = preload("res://tests/support/platform_log_sink.gd")
 const Recorder = preload("res://tests/support/run_state_recorder.gd")
 
 ## The 8 factory states of the test plan (Paused and Hit each in the locked and the unlocked form).
