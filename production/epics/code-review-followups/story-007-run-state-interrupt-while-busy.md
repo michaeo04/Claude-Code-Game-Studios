@@ -1,7 +1,7 @@
 # Story 007: RunStateCore must not drop an app interrupt while busy
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
@@ -26,7 +26,7 @@
 ## Acceptance Criteria
 
 - [ ] An `app_interrupted` request that arrives while a handler is running is queued and applied after the current emission completes (or rejected deterministically per the Run State GDD), never silently lost.
-- [ ] Test: a handler of `run_started` that triggers an interrupt results in the Paused phase on the same tick's end.
+- [x] ~~Test: a handler of `run_started` that triggers an interrupt results in the Paused phase on the same tick's end.~~ **Withdrawn 2026-10-04**: it contradicts Run State GDD Core Rule 3 / AC-5 (a request sent from inside a handler is rejected, not queued). Replaced by: the rejection is visible (error log plus the public counter `RunStateCore.nested_request_rejections`), proven in `tests/unit/run_state/run_state_interrupt_busy_test.gd`.
 
 ---
 
@@ -52,7 +52,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Logic
 **Required evidence**: `tests/unit/` test file named in the story, must exist and pass
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/run_state/run_state_interrupt_busy_test.gd (3 tests)
 
 ---
 
@@ -60,3 +61,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 - Depends on: None
 - Unlocks: the real wiring stories of the composition-root epic
+
+
+## Resolution
+
+The GDD (Core Rule 3 / AC-5) rejects a request sent from inside a handler, so the interrupt is not queued: it is rejected with one error log and counted in `RunStateCore.nested_request_rejections`. The second acceptance criterion's Paused-at-tick-end outcome contradicts the GDD and is not implemented; the test proves the rejection and that an interrupt after the handler returns pauses.

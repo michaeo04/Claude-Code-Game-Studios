@@ -1,7 +1,7 @@
 # Story 006: Remove duplicated and hard-coded tuning values
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Config/Data
 > **Estimate**: 2 h
@@ -53,7 +53,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Config/Data
 **Required evidence**: `tests/unit/` test file named in the story, must exist and pass
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: tests/unit/config/config_single_source_test.gd (7 tests)
 
 ---
 

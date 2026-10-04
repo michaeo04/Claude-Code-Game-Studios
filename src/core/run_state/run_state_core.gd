@@ -63,6 +63,11 @@ var run_time: float:
 	get:
 		return _run_time
 
+## Requests (including `app_interrupted`) rejected because they were sent from inside a handler or a tick.
+## Each also logs one error line; the counter lets a test or the debug overlay see a rejection that would
+## otherwise only show in the log (GDD Core Rule 3: the request is rejected, never queued or applied).
+var nested_request_rejections: int = 0
+
 var _config: RunConfig
 var _clock_us: Callable
 var _log_sink: Callable
@@ -151,6 +156,7 @@ func request_menu(press_us: int) -> void:
 ## and is not a settling tick. The owner passes the same value on to Ball Movement.
 func tick(world_dt: float, real_dt: float) -> float:
 	if _busy:
+		nested_request_rejections += 1
 		_log(LogLevel.ERROR, RunStateMath.LOG_REQUEST_NESTED, "tick() called from inside a handler or a tick")
 		return 0.0
 	_busy = true
@@ -212,6 +218,7 @@ static func progress_for(duration: float, elapsed: float) -> float:
 
 func _enqueue(req: _Request) -> void:
 	if _busy:
+		nested_request_rejections += 1
 		_log(
 			LogLevel.ERROR,
 			RunStateMath.LOG_REQUEST_NESTED,
@@ -229,6 +236,7 @@ func _make_request(kind: RequestKind) -> _Request:
 
 func _apply_app_interrupted() -> void:
 	if _busy:
+		nested_request_rejections += 1
 		_log(
 			LogLevel.ERROR,
 			RunStateMath.LOG_REQUEST_NESTED,

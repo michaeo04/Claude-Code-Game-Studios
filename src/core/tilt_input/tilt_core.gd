@@ -28,8 +28,6 @@ const LOG_BAD_OUTPUT: StringName = &"BAD_OUTPUT"
 const LOG_POSTURE_UNSUPPORTED: StringName = &"POSTURE_UNSUPPORTED"
 ## Log code of a non-portrait boot (diagnostic, error level).
 const LOG_NOT_PORTRAIT: StringName = &"NOT_PORTRAIT"
-## Shared clamp of `dt` in microseconds (`DT_MAX` 0.1 s, Run State registry `dt_max`).
-const DT_MAX_US: int = 100000
 ## Log code of a corrected live sensitivity (warning level).
 const LOG_SETTING_CLAMPED: StringName = &"SETTING_CLAMPED"
 ## Log code of sensors disabled by project setting (error level).
@@ -50,6 +48,8 @@ var _sensor_ever_live: bool = false
 var _has_previous: bool = false
 var _previous_now_us: int = 0
 var _last_dt: float = 0.0
+## Poll step clamp in microseconds: the injected Run State `dt_max`.
+var _dt_max_us: int = 0
 var _g_min_sq: float = 0.0
 var _sensitivity: float = 1.0
 var _fs_eff: float = 25.0
@@ -90,10 +90,13 @@ var _count: int = 0
 ## for good; `poll()` then does nothing. `sensitivity` is the Settings hook (validated here); a false
 ## `is_portrait` logs one `NOT_PORTRAIT` diagnostic and changes nothing else. `sensors_enabled` false logs one
 ## `SENSORS_DISABLED` error: Live `FALLBACK` when `is_debug`, otherwise Unavailable for good (a configuration error).
+## `dt_max` is Run State's `dt_max` in seconds (non-positive or non-finite falls back to the shipped default).
 ## Example: `TiltCore.new(cfg, src, clk, sink, fb, 1.0, true, false, false)` is Unavailable and inert.
 func _init(config: TiltConfig, sample_source: Callable, clock: Callable, log_sink: Callable, fallback_source: Callable,
-		sensitivity: float = 1.0, is_portrait: bool = true, sensors_enabled: bool = true, is_debug: bool = true) -> void:
+		sensitivity: float = 1.0, is_portrait: bool = true, sensors_enabled: bool = true, is_debug: bool = true,
+		dt_max: float = TuningLimits.DT_MAX_DEFAULT) -> void:
 	_config = config
+	_dt_max_us = roundi((dt_max if is_finite(dt_max) and dt_max > 0.0 else TuningLimits.DT_MAX_DEFAULT) * 1e6)
 	_sample_source = sample_source
 	_clock = clock
 	_log_sink = log_sink
@@ -144,7 +147,7 @@ func poll() -> void:
 		return
 	var diff_us: int = 0
 	if _has_previous:
-		diff_us = clampi(now_us - _previous_now_us, 0, DT_MAX_US)
+		diff_us = clampi(now_us - _previous_now_us, 0, _dt_max_us)
 	_last_dt = float(diff_us) / 1e6
 	_has_previous = true
 	_previous_now_us = now_us

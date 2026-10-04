@@ -27,8 +27,8 @@ Defects and contract mismatches between modules that were written separately and
 | 003 | Live tilt sensitivity update from Settings to TiltCore | Integration | Complete | ADR-0002 |
 | 004 | Validate `haptics_intensity` in SettingsCore | Logic | Complete | ADR-0007 |
 | 005 | SaveCore backup ordering and wall-clock robustness | Logic | Complete | ADR-0007 |
-| 006 | Remove duplicated and hard-coded tuning values | Config/Data | Ready | ADR-0002 |
-| 007 | RunStateCore must not drop an app interrupt while busy | Logic | Ready | ADR-0002 |
+| 006 | Remove duplicated and hard-coded tuning values | Config/Data | Complete | ADR-0002 |
+| 007 | RunStateCore must not drop an app interrupt while busy | Logic | Complete | ADR-0002 |
 
 ## Definition of Done
 

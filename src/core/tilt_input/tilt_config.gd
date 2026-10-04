@@ -8,9 +8,6 @@ extends Resource
 
 ## The only log code this file emits (error level).
 const LOG_KNOB_CLAMPED: StringName = &"KNOB_CLAMPED"
-## Fixed range of the Settings `sensitivity` hook.
-const SENSITIVITY_MIN: float = 0.5
-const SENSITIVITY_MAX: float = 2.0
 ## Lowest supported frame rate (Hz), a fixed constant that bounds `neutral_min_samples`.
 const F_MIN: int = 20
 ## `neutral_guard + neutral_window` ceiling, and `settle + guard + window` ceiling, in seconds.
@@ -111,15 +108,15 @@ func validated(log_sink: Callable) -> TiltConfig:
 
 
 ## The Settings `sensitivity` hook: NaN, infinity or a value <= 0 becomes 1; a finite value is clamped to
-## `[SENSITIVITY_MIN, SENSITIVITY_MAX]`. One `KNOB_CLAMPED` per value changed.
+## `[TuningLimits.SENSITIVITY_MIN, TuningLimits.SENSITIVITY_MAX]`. One `KNOB_CLAMPED` per value changed.
 ## Example: `validated_sensitivity(3.0, sink)` is `2.0`.
 static func validated_sensitivity(value: float, log_sink: Callable) -> float:
 	if is_nan(value) or is_inf(value) or value <= 0.0:
 		_log_clamped(log_sink, "sensitivity=%s is not a positive finite value; using 1" % [value])
 		return 1.0
-	var clamped: float = clampf(value, SENSITIVITY_MIN, SENSITIVITY_MAX)
+	var clamped: float = clampf(value, TuningLimits.SENSITIVITY_MIN, TuningLimits.SENSITIVITY_MAX)
 	if clamped != value:
-		_log_clamped(log_sink, "sensitivity=%s is outside [%s, %s]; using %s" % [value, SENSITIVITY_MIN, SENSITIVITY_MAX, clamped])
+		_log_clamped(log_sink, "sensitivity=%s is outside [%s, %s]; using %s" % [value, TuningLimits.SENSITIVITY_MIN, TuningLimits.SENSITIVITY_MAX, clamped])
 	return clamped
 
 

@@ -47,8 +47,8 @@ func _init(
 	get_value_seam: Callable,
 	set_value_seam: Callable,
 	log_sink: Callable,
-	sensitivity_min: float = 0.5,
-	sensitivity_max: float = 2.0,
+	sensitivity_min: float = TuningLimits.SENSITIVITY_MIN,
+	sensitivity_max: float = TuningLimits.SENSITIVITY_MAX,
 	default_sensitivity: float = 1.0
 ) -> void:
 	_get_value_seam = get_value_seam

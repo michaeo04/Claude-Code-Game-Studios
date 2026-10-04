@@ -165,29 +165,29 @@ stories:
     name: "SaveCore backup ordering and wall-clock robustness"
     file: "production/epics/code-review-followups/story-005-save-backup-ordering.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CRF-006"
     name: "Remove duplicated and hard-coded tuning values"
     file: "production/epics/code-review-followups/story-006-duplicated-tuning-values.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CRF-007"
     name: "RunStateCore must not drop an app interrupt while busy"
     file: "production/epics/code-review-followups/story-007-run-state-interrupt-while-busy.md"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ML-007"
     name: "Author map_01.tres and its round-trip test"
     file: "production/epics/map-loader/story-007-map-01-resource.md"

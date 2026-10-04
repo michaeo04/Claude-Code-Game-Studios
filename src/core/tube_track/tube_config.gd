@@ -51,7 +51,7 @@ const GAP_MAX_FRACTION: float = 0.02
 
 @export_group("Window")
 ## Step margin `t_lat` in seconds (the shared `DT_MAX`).
-@export var t_lat: float = 0.1
+@export var t_lat: float = TuningLimits.DT_MAX_DEFAULT
 ## Camera rear extent `C_b`.
 @export var rear_extent: float = 6.0
 ## Camera slack `M_cam`.
@@ -72,6 +72,13 @@ const GAP_MAX_FRACTION: float = 0.02
 @export var fog_density: float = 1.0
 ## Readable distance `F_read` at v_max.
 @export var readable_distance: float = 46.0
+
+
+## Copy of this config whose `t_lat` is the injected Run State `dt_max` (the single source); `self` is not mutated.
+func with_dt_max(dt_max: float) -> TubeConfig:
+	var out: TubeConfig = duplicate() as TubeConfig
+	out.t_lat = dt_max
+	return out
 
 
 ## Validates the config for `v_max` (Ball Movement) and the ball diameter `d`. `raw` optionally replaces the integer

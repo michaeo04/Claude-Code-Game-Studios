@@ -20,7 +20,7 @@ const _READ_EPSILON: float = 1e-9
 
 @export_group("Clock")
 ## Clamp on the run clock step, shared with Tube Track's `t_lat` (safe range 0.05 to 0.25).
-@export var dt_max: float = 0.1
+@export var dt_max: float = TuningLimits.DT_MAX_DEFAULT
 ## A frame this long while Running or Resuming is treated as an interruption (safe range 0.5 to 3.0).
 @export var stall_pause_threshold: float = 0.5
 
