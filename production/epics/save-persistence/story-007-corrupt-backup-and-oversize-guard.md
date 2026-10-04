@@ -1,12 +1,12 @@
 # Story 007: Corrupt-file backup, rotation and oversize guard
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -39,7 +39,8 @@ Extend `boot_load` (ADR-0007 Decision 3 steps 2 and 5). After a file-level failu
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_corrupt_backup_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `save_persistence_corrupt_backup_test.gd` (8 tests: AC-15 rename, order, counter, retention, oversize, limit, size -1, schema)
 
 ## Dependencies
 - Depends on: Story 003, Story 004 (Story 006 recommended first for the codes)

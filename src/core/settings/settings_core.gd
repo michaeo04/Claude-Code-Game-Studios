@@ -15,6 +15,10 @@ const KEY_HAPTICS_INTENSITY: String = "haptics_intensity"
 const KEY_TILT_SENSITIVITY: String = "tilt_sensitivity"
 const KEY_REDUCED_MOTION: String = "reduced_motion_enabled"
 const KEY_COLORBLIND_SAFE: String = "colorblind_safe_enabled"
+## Log level of a corrected setting (same scale as `RunStateMath.LogLevel.WARNING`).
+const LEVEL_WARNING: int = 1
+## Log code emitted once at boot when the stored tilt sensitivity had to be corrected.
+const CODE_SETTING_CLAMPED: StringName = &"SETTING_CLAMPED"
 
 var _get_value_seam: Callable
 var _set_value_seam: Callable
@@ -48,7 +52,16 @@ func _init(
 	_default_sensitivity = default_sensitivity
 	_haptics_enabled = _get_value_seam.call(SECTION, KEY_HAPTICS_ENABLED, true) as bool
 	_haptics_intensity = _get_value_seam.call(SECTION, KEY_HAPTICS_INTENSITY, 1.0) as float
-	_tilt_sensitivity = _get_value_seam.call(SECTION, KEY_TILT_SENSITIVITY, _default_sensitivity) as float
+	var raw_tilt: float = _get_value_seam.call(SECTION, KEY_TILT_SENSITIVITY, _default_sensitivity) as float
+	var checked: Dictionary = SettingsMath.tilt_sensitivity_validate(raw_tilt, _sensitivity_min, _sensitivity_max, _default_sensitivity)
+	_tilt_sensitivity = checked["value"] as float
+	if checked["was_corrected"] as bool:
+		_log_sink.call(
+			LEVEL_WARNING,
+			CODE_SETTING_CLAMPED,
+			KEY_TILT_SENSITIVITY,
+			"stored tilt_sensitivity %s corrected to %s" % [str(raw_tilt), str(_tilt_sensitivity)]
+		)
 	_reduced_motion_enabled = _get_value_seam.call(SECTION, KEY_REDUCED_MOTION, false) as bool
 	_colorblind_safe_enabled = _get_value_seam.call(SECTION, KEY_COLORBLIND_SAFE, false) as bool
 
@@ -76,3 +89,9 @@ func get_reduced_motion_enabled() -> bool:
 ## Whether the colorblind-safe palette is on.
 func get_colorblind_safe_enabled() -> bool:
 	return _colorblind_safe_enabled
+
+
+## Seam contrast scale (F1), derived from reduced motion on each call: 0.0 when on, 1.0 when off.
+## A plain computation: it never touches the get/set seams.
+func get_seam_contrast_scale() -> float:
+	return SettingsMath.seam_contrast_scale(_reduced_motion_enabled)

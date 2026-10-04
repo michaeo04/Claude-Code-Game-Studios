@@ -48,38 +48,38 @@ stories:
     name: "Read validity, per-key fallback and error logging"
     file: "production/epics/save-persistence/story-006-read-validity-and-error-logging.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SP-007"
     name: "Corrupt-file backup, rotation and oversize guard"
     file: "production/epics/save-persistence/story-007-corrupt-backup-and-oversize-guard.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-003"
     name: "Boot-time tilt sensitivity validation and logging"
     file: "production/epics/settings-accessibility/story-003-boot-sensitivity-clamp.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-004"
     name: "Typed getters and seam_contrast_scale, no seam access after construction"
     file: "production/epics/settings-accessibility/story-004-getters.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.19
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "ST-005"
     name: "set_value writes on change, no-ops on equal, emits setting_changed once"
     file: "production/epics/settings-accessibility/story-005-set-value-write-and-event.md"

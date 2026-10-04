@@ -89,6 +89,7 @@ func test_oversized_file_is_not_parsed_and_is_backed_up() -> void:
 	var core: SaveCore = _boot(config)
 	assert_false("read_config" in _fs.call_names())
 	assert_eq(_calls_of("rename").size(), 1)
+	assert_eq(_calls_of("rename")[0][1], ["user://save.cfg", BACKUP_0])
 	assert_eq(_sink.count(), 1)
 	assert_eq(_sink.entries[0][1], &"FILE_UNREADABLE")
 	assert_true((_sink.entries[0][3] as String).contains("oversized"))

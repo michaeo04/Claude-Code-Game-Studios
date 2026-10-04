@@ -1,12 +1,12 @@
 # Story 003: Boot-time tilt sensitivity validation and logging
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -47,7 +47,8 @@ At construction, pass the raw `tilt_sensitivity` through `SettingsMath.tilt_sens
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_boot_clamp_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `settings_accessibility_boot_clamp_test.gd` (4 tests: AC-3 nine rows, AC-7)
 
 ## Dependencies
 - Depends on: Story 001, Story 002

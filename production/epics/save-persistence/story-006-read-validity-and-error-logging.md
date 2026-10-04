@@ -1,12 +1,12 @@
 # Story 006: Read validity, per-key fallback and error logging
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 > **Unblocked 2026-10-03**: the GDD F2 and AC-10 now say a file-level failure is logged once per load (ADR-0007 Decision 3), so `TR-save-persistence-012` is closed.
 
@@ -41,7 +41,8 @@ Use `PersistMath.read_valid`/`read_error_code` (Story 001). Compute `file_parsed
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/save_persistence/save_persistence_read_validity_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `save_persistence_read_validity_test.gd` (6 tests: AC-10 rows 1-3, AC-11, double read, int/float mismatch)
 
 ## Dependencies
 - Depends on: Story 001, Story 003; GDD revision of F2/AC-10 (TR-012 open point)

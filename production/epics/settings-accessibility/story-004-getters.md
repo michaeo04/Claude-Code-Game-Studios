@@ -1,12 +1,12 @@
 # Story 004: Typed getters and seam_contrast_scale, no seam access after construction
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 1-2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/settings-accessibility.md`
@@ -41,7 +41,8 @@ Getters: `get_haptics_enabled() -> bool`, `get_haptics_intensity() -> float`, `g
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/settings_accessibility/settings_accessibility_getters_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `settings_accessibility_getters_test.gd` (3 tests: AC-8, F1 wiring)
 
 ## Dependencies
 - Depends on: Story 001, Story 002
