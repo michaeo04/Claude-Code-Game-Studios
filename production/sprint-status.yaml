@@ -102,20 +102,20 @@ stories:
     name: "F3-NM preflight validator: NEAR_ZONE_OVERLAP"
     file: "production/epics/near-miss-detection/story-004-near-zone-overlap-validator.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-005"
     name: "NearMissCore per-hazard state and edge-triggered output"
     file: "production/epics/near-miss-detection/story-005-near-miss-core-state-and-edge-output.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-006"
     name: "Hit overrides near-miss and same-tick order"
     file: "production/epics/near-miss-detection/story-006-hit-override.md"

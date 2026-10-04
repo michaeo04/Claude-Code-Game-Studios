@@ -65,8 +65,8 @@ This epic is complete when:
 | 001 | [NearMissConfig, validation and test fixtures](story-001-near-miss-config-and-fixtures.md) | Logic | Complete | ADR-0008 |
 | 002 | [NearMissMath near-zone expansion (F1-NM)](story-002-near-zone-expansion.md) | Logic | Complete | ADR-0008 |
 | 003 | [Two-invocation swept test: HIT_ZONE and NEAR_MISS_CANDIDATE (F2 reused)](story-003-swept-near-zone-test.md) | Logic | Complete | ADR-0008 |
-| 004 | [F3-NM preflight validator: NEAR_ZONE_OVERLAP](story-004-near-zone-overlap-validator.md) | Logic | Ready | ADR-0008 |
-| 005 | [NearMissCore per-hazard state and edge-triggered output](story-005-near-miss-core-state-and-edge-output.md) | Logic | Ready | ADR-0002 |
+| 004 | [F3-NM preflight validator: NEAR_ZONE_OVERLAP](story-004-near-zone-overlap-validator.md) | Logic | Complete | ADR-0008 |
+| 005 | [NearMissCore per-hazard state and edge-triggered output](story-005-near-miss-core-state-and-edge-output.md) | Logic | Complete | ADR-0002 |
 | 006 | [Hit overrides near-miss and same-tick order](story-006-hit-override.md) | Logic | Ready | ADR-0002 |
 | 007 | [Release by reset suppression and same-tick bind and release](story-007-reset-release-and-same-tick.md) | Logic | Ready | ADR-0002 |
 | 008 | [Non-finite ball state is a no-op frame](story-008-non-finite-state-guard.md) | Logic | Ready | ADR-0008 |

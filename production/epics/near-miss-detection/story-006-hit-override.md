@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -48,7 +48,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_hit_override_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_hit_override_test.gd (passing). Gap: AC-12 order independence is proven for hit vs release and hit-before-step; a hit delivered AFTER step on the same tick cannot be honoured (output already emitted), which the tick order forbids.
 
 ## Dependencies
 - Depends on: Story 005

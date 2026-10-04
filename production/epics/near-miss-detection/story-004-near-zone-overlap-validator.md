@@ -1,12 +1,12 @@
 # Story 004: F3-NM preflight validator: NEAR_ZONE_OVERLAP
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -55,7 +55,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_overlap_validator_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_overlap_validator_test.gd. `NearMissMath.validate_near_zone_overlap(hazards, r, d, cfg)` returns one PreflightRecord per offending pair (first s0), code `NearMissMath.NEAR_ZONE_OVERLAP`.
 
 ## Dependencies
 - Depends on: Stories 001, 002

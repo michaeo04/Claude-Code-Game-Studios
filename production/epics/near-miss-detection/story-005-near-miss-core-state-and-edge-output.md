@@ -1,12 +1,12 @@
 # Story 005: NearMissCore per-hazard state and edge-triggered output
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -62,7 +62,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_edge_output_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_edge_output_test.gd. `NearMissCore.new(cfg, half_angle, d, log_sink)`; inputs on_hazard_bound/on_hazard_released/on_hit_reported/on_run_reset, step(ball). Hits and releases are queued and applied inside step.
 
 ## Dependencies
 - Depends on: Stories 001, 002, 003; cross-epic: obstacle-system story 007 (signal shapes), run-state-restart (`run_reset`)
