@@ -30,11 +30,11 @@ stories:
     name: "GameRoot `_tick` against the real core APIs"
     file: "production/epics/code-review-followups/story-002-game-root-tick-real-apis.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.50
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CRF-003"
     name: "Live tilt sensitivity update from Settings to TiltCore"
     file: "production/epics/code-review-followups/story-003-live-sensitivity-update.md"

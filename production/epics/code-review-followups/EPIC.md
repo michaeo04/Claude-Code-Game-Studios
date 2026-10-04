@@ -23,7 +23,7 @@ Defects and contract mismatches between modules that were written separately and
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
 | 001 | One log-sink contract and one level enum for every core | Logic | Complete | ADR-0002 |
-| 002 | GameRoot `_tick` against the real core APIs (strict test doubles) | Integration | Ready | ADR-0002 |
+| 002 | GameRoot `_tick` against the real core APIs (strict test doubles) | Integration | Complete | ADR-0002 |
 | 003 | Live tilt sensitivity update from Settings to TiltCore | Integration | Ready | ADR-0002 |
 | 004 | Validate `haptics_intensity` in SettingsCore | Logic | Ready | ADR-0007 |
 | 005 | SaveCore backup ordering and wall-clock robustness | Logic | Ready | ADR-0007 |

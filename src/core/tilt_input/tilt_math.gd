@@ -77,3 +77,12 @@ static func should_reanchor(n: int, spread: float, median_deg: float, phi0: floa
 	var m_c: float = clampf(median_deg, -PHI_MAX, PHI_MAX)
 	var ra_eff: float = minf(ra_offset, REANCHOR_FS_CAP * fs_eff)
 	return absf(m_c - phi0) > ra_eff and absf(m_c - phi_stop) > ra_eff
+
+
+## Level-triggered sensor-lost rule (Tilt Input AC-43): true only while a run is live (Running or Resuming) and
+## the tilt `valid` flag is false. `phase` is a `RunStateCore.Phase` value.
+## Example: `TiltMath.sensor_lost_pause_needed(RunStateCore.Phase.RUNNING, false)` is true.
+static func sensor_lost_pause_needed(phase: int, valid: bool) -> bool:
+	if valid:
+		return false
+	return phase == RunStateCore.Phase.RUNNING or phase == RunStateCore.Phase.RESUMING

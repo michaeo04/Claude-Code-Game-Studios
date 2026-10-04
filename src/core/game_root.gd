@@ -89,17 +89,24 @@ func register_view(view: Node) -> void:
 	view.set_physics_process(false)
 
 
-## The ONE place the per-frame order is written (ADR-0002 Decision 6, ADR-0013 Decision 2).
+## The ONE place the per-frame order is written (ADR-0002 Decision 6, ADR-0013 Decision 2), against the real APIs:
+## `TiltCore.poll()`, `TiltRunAdapter.flush()`, `dt_eff = RunStateCore.tick(world_dt, real_dt)`,
+## `BallCore.step(dt_eff, steer, valid, input_source)` with the Tilt outputs, then (Running only)
+## `TubeWindow.advance(ball.s)` and `WorldFrame.maybe_rebase(ball.s)`. Ball Movement only ever sees `dt_eff`.
 func _tick(real_dt: float, world_dt: float) -> void:
 	_tilt_input.call(&"poll")
 	_tilt_adapter.call(&"flush")
-	_run_state.call(&"tick", world_dt, real_dt)
+	var dt_eff: float = _run_state.call(&"tick", world_dt, real_dt) as float
 	var phase: int = _run_state.get(&"phase") as int
-	_ball.call(&"step", world_dt)
+	var steer: float = _tilt_input.call(&"get_steer") as float
+	var valid: bool = _tilt_input.call(&"get_valid") as bool
+	var input_source: int = _tilt_input.call(&"get_input_source") as int
+	_ball.call(&"step", dt_eff, steer, valid, input_source)
 	if phase == RunStateCore.Phase.RUNNING:
-		_tube_track.call(&"advance", world_dt)
+		var ball_s: float = _ball.get(&"s") as float
+		_tube_track.call(&"advance", ball_s)
 		# WorldFrame step: rebase, then re-place the views that hold placed nodes.
-		if _world_frame.call(&"maybe_rebase", _ball.get(&"s") as float) as bool:
+		if _world_frame.call(&"maybe_rebase", ball_s) as bool:
 			_tube_view.call(&"rebase")
 			_hazard_view.call(&"rebase")
 	_obstacle.call(&"test")

@@ -1,7 +1,7 @@
 # Story 002: GameRoot `_tick` against the real core APIs
 
 > **Epic**: Code Review Follow-ups
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 4 h
@@ -25,11 +25,11 @@
 
 ## Acceptance Criteria
 
-- [ ] `GameRoot._tick` uses the `dt_eff` returned by `RunStateCore.tick(world_dt, real_dt)` for everything downstream: Ball and Tube Track receive 0 in Paused, Hit, Resuming and on the settling tick.
-- [ ] `BallCore.step(dt_eff, steer, valid, input_source)` is called with the Tilt Input outputs (`steer`, `valid`, `input_source`); `TubeWindow.advance(s)` receives the ball's absolute `s` (Running only); `WorldFrame.maybe_rebase(s)` follows it.
-- [ ] The test doubles in `tests/support/system_spy.gd` check argument count and types (strict signatures) so a wrong call fails the test.
-- [ ] An integration test runs the REAL `RunStateCore`, `BallCore`, `TubeWindow`, `TiltCore` (fed by a scripted sample source) and `WorldFrame` for 600 ticks with a scripted hit and restart, and asserts: ball `s` does not move in Hit and Paused, window indices follow `s`, the rebase fires once at the expected `s`.
-- [ ] The adapter objects needed (`TiltRunAdapter`, the Tube Track run-state adapter) live in `src/core/` as RefCounted classes with unit tests; the engine node stays thin.
+- [x] `GameRoot._tick` uses the `dt_eff` returned by `RunStateCore.tick(world_dt, real_dt)` for everything downstream: Ball and Tube Track receive 0 in Paused, Hit, Resuming and on the settling tick.
+- [x] `BallCore.step(dt_eff, steer, valid, input_source)` is called with the Tilt Input outputs (`steer`, `valid`, `input_source`); `TubeWindow.advance(s)` receives the ball's absolute `s` (Running only); `WorldFrame.maybe_rebase(s)` follows it.
+- [x] The test doubles in `tests/support/system_spy.gd` check argument count and types (strict signatures) so a wrong call fails the test.
+- [x] An integration test runs the REAL `RunStateCore`, `BallCore`, `TubeWindow`, `TiltCore` (fed by a scripted sample source) and `WorldFrame` for 600 ticks with a scripted hit and restart, and asserts: ball `s` does not move in Hit and Paused, window indices follow `s`, the rebase fires once at the expected `s`.
+- [x] The adapter objects needed (`TiltRunAdapter`, the Tube Track run-state adapter) live in `src/core/` as RefCounted classes with unit tests; the engine node stays thin.
 
 ---
 
@@ -55,7 +55,8 @@ One test per acceptance criterion above (Given the pre-fix behaviour described i
 
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/` test
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: tests/integration/composition_root/composition_root_real_tick_test.gd; tests/unit/composition_root/composition_root_tick_order_test.gd (strict spy); tests/unit/tilt_input/tilt_run_adapter_test.gd; tests/unit/tube_track/tube_run_adapter_test.gd
 
 ---
 
