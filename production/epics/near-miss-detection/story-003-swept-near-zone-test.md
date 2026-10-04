@@ -1,12 +1,12 @@
 # Story 003: Two-invocation swept test: HIT_ZONE and NEAR_MISS_CANDIDATE (F2 reused)
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -22,10 +22,10 @@
 - Guardrail: `Obstacle.test` plus `NearMiss.step` at most 0.4 ms per tick at the 192-piece worst case (spike OB-1, advisory until the first-playable profiling pass)
 
 ## Acceptance Criteria
-- [ ] AC-3 [M]: Graze at `theta_prev -0.5, theta -0.45, s_prev 100.5, s 100.6`: `HIT_ZONE` false, `NEAR_ZONE` true, `NEAR_MISS_CANDIDATE` true (pure angular graze).
-- [ ] AC-4 [M]: Graze at `theta_prev 0.0, theta 0.05, s_prev 99.3, s 99.5`: `HIT_ZONE` false (`s 99.5 < 99.6`), `NEAR_ZONE` true (`s >= 99.2`), `NEAR_MISS_CANDIDATE` true (pure along-track graze).
-- [ ] AC-5 [M]: mutation rows: (a) AC-3's pose with `NEAR_MISS_ANGLE_MARGIN` forced to 0 gives `NEAR_MISS_CANDIDATE` false; (b) AC-4's pose with `NEAR_MISS_S_MARGIN` forced to 0 gives false. A one-margin or shared-margin implementation must fail at least one row.
-- [ ] AC-6 [M]: over a fixed pose table (inside hit zone, AC-3 graze, AC-4 graze, clean miss) `HIT_ZONE => NEAR_ZONE` on every row and `HIT_ZONE and NEAR_MISS_CANDIDATE` never both true; no randomly generated rows.
+- [x] AC-3 [M]: Graze at `theta_prev -0.5, theta -0.45, s_prev 100.5, s 100.6`: `HIT_ZONE` false, `NEAR_ZONE` true, `NEAR_MISS_CANDIDATE` true (pure angular graze).
+- [x] AC-4 [M]: Graze at `theta_prev 0.0, theta 0.05, s_prev 99.3, s 99.5`: `HIT_ZONE` false (`s 99.5 < 99.6`), `NEAR_ZONE` true (`s >= 99.2`), `NEAR_MISS_CANDIDATE` true (pure along-track graze).
+- [x] AC-5 [M]: mutation rows: (a) AC-3's pose with `NEAR_MISS_ANGLE_MARGIN` forced to 0 gives `NEAR_MISS_CANDIDATE` false; (b) AC-4's pose with `NEAR_MISS_S_MARGIN` forced to 0 gives false. A one-margin or shared-margin implementation must fail at least one row.
+- [x] AC-6 [M]: over a fixed pose table (inside hit zone, AC-3 graze, AC-4 graze, clean miss) `HIT_ZONE => NEAR_ZONE` on every row and `HIT_ZONE and NEAR_MISS_CANDIDATE` never both true; no randomly generated rows.
 
 ## Implementation Notes
 - `NearMissMath.zones(theta_prev, theta, s_prev, s, eff, near, piece)` returning the two booleans; `NEAR_MISS_CANDIDATE = NEAR_ZONE and not HIT_ZONE`. Containment (`HIT_ZONE => NEAR_ZONE`) is a consequence of Story 002's output, not a runtime check.
@@ -60,7 +60,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_swept_zone_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_swept_zone_test.gd. Signature `NearMissMath.zones(theta_prev, theta, s_prev, s, eff, near, piece := 0) -> int` (bitmask `HIT_BIT`/`NEAR_BIT`) plus `is_candidate(mask)`; the log code for a non-finite ball state is left to Story 008. dtheta is computed twice (ObstacleMath.swept_hit takes whole footprints).
 
 ## Dependencies
 - Depends on: Story 002

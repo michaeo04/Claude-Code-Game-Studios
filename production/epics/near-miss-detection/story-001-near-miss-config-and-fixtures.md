@@ -1,12 +1,12 @@
 # Story 001: NearMissConfig, validation and test fixtures
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -22,9 +22,9 @@
 - Guardrail: `Obstacle.test` plus `NearMiss.step` at most 0.4 ms per tick at the 192-piece worst case (spike OB-1, advisory until the first-playable profiling pass)
 
 ## Acceptance Criteria
-- [ ] AC-7 [K]: `NEAR_MISS_ANGLE_COEFF` = 0 or negative, and separately `NEAR_MISS_S_COEFF` = 0 or negative, each reject config load with one `NEAR_MISS_MARGIN_NONPOSITIVE` log per offending value; both coefficients at the safe-range floor 0.5 pass with zero log lines.
-- [ ] AC-27 [K, ADVISORY]: the shipped `NearMissConfig.tres` equals the Tuning Knobs table (`NEAR_MISS_ANGLE_COEFF` 1.0, `NEAR_MISS_S_COEFF` 1.0) and validates with zero log lines.
-- [ ] Fixtures (GDD AC preamble): `make_near_miss_fixture()` (registry defaults R 3.0, D 0.8, v_max 25, BALL_HALF_ANGLE 0.1179, w 0.2358, GAP_MARGIN 2.5, GAP_MIN 0.5896 plus both coefficients 1.0; derived `NEAR_MISS_ANGLE_MARGIN` 0.1179 and `NEAR_MISS_S_MARGIN` 0.4) and the three worked hazards Graze 701, Spike cluster 101, Double Gate 202.
+- [x] AC-7 [K]: `NEAR_MISS_ANGLE_COEFF` = 0 or negative, and separately `NEAR_MISS_S_COEFF` = 0 or negative, each reject config load with one `NEAR_MISS_MARGIN_NONPOSITIVE` log per offending value; both coefficients at the safe-range floor 0.5 pass with zero log lines.
+- [x] AC-27 [K, ADVISORY]: the shipped `NearMissConfig.tres` equals the Tuning Knobs table (`NEAR_MISS_ANGLE_COEFF` 1.0, `NEAR_MISS_S_COEFF` 1.0) and validates with zero log lines.
+- [x] Fixtures (GDD AC preamble): `make_near_miss_fixture()` (registry defaults R 3.0, D 0.8, v_max 25, BALL_HALF_ANGLE 0.1179, w 0.2358, GAP_MARGIN 2.5, GAP_MIN 0.5896 plus both coefficients 1.0; derived `NEAR_MISS_ANGLE_MARGIN` 0.1179 and `NEAR_MISS_S_MARGIN` 0.4) and the three worked hazards Graze 701, Spike cluster 101, Double Gate 202.
 
 ## Implementation Notes
 - `src/core/near_miss/near_miss_config.gd` (`class_name NearMissConfig`), shipped values in `assets/data/` as `NearMissConfig.tres`. Derived margins are computed from the coefficients, never stored as knobs: `NEAR_MISS_ANGLE_MARGIN = ANGLE_COEFF * BALL_HALF_ANGLE`, `NEAR_MISS_S_MARGIN = S_COEFF * (D / 2)`.
@@ -50,7 +50,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_config_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_config_test.gd (AC-7, fixtures); tests/advisory/near_miss_detection/near_miss_detection_config_defaults_test.gd (AC-27, advisory). Code at src/core/near_miss/ (story path wins over the prompt's near_miss_detection dir); knobs `near_miss_angle_coeff`/`near_miss_s_coeff`; shipped file assets/data/near_miss_config.tres; a bad coefficient is logged (key = knob name) and replaced by the default; fixture `tests/support/near_miss_fixture.gd` (`make_near_miss_fixture`, `worked_raw(701|101|202)`).
 
 ## Dependencies
 - Depends on: None (cross-epic: test-harness-ci for GUT; obstacle-system story 002 fixture pattern)

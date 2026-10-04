@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="NearMissConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/core/near_miss/near_miss_config.gd" id="1_nmcfg"]
+
+[resource]
+script = ExtResource("1_nmcfg")
+near_miss_angle_coeff = 1.0
+near_miss_s_coeff = 1.0

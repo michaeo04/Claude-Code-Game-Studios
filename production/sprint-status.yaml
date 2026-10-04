@@ -75,29 +75,29 @@ stories:
     name: "NearMissConfig, validation and test fixtures"
     file: "production/epics/near-miss-detection/story-001-near-miss-config-and-fixtures.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-002"
     name: "NearMissMath near-zone expansion (F1-NM)"
     file: "production/epics/near-miss-detection/story-002-near-zone-expansion.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.25
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-003"
     name: "Two-invocation swept test: HIT_ZONE and NEAR_MISS_CANDIDATE (F2 reused)"
     file: "production/epics/near-miss-detection/story-003-swept-near-zone-test.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.38
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-004"
     name: "F3-NM preflight validator: NEAR_ZONE_OVERLAP"
     file: "production/epics/near-miss-detection/story-004-near-zone-overlap-validator.md"

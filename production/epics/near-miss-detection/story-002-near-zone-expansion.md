@@ -1,12 +1,12 @@
 # Story 002: NearMissMath near-zone expansion (F1-NM)
 
 > **Epic**: Near-Miss Detection
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/near-miss-detection.md`
@@ -22,8 +22,8 @@
 - Guardrail: `Obstacle.test` plus `NearMiss.step` at most 0.4 ms per tick at the 192-piece worst case (spike OB-1, advisory until the first-playable profiling pass)
 
 ## Acceptance Criteria
-- [ ] AC-1 [M]: for Graze 701, `theta_near = [-0.5358, 0.5358]` and `s_near = [99.2, 102.3]` to 1e-4; the near zone's angular span is exactly `w` (0.2358) wider than the hit zone's and its `s` span exactly `D` (0.8) wider, both asserted.
-- [ ] AC-2 [M]: for Graze and every piece of Spike cluster 101 and Double Gate 202, `theta_near_min < theta_eff_min`, `theta_near_max > theta_eff_max`, `s_near_start < s_eff_start`, `s_near_end > s_eff_end`, all strict at defaults; a row at the safe-range floor (both coefficients 0.5) stays strict.
+- [x] AC-1 [M]: for Graze 701, `theta_near = [-0.5358, 0.5358]` and `s_near = [99.2, 102.3]` to 1e-4; the near zone's angular span is exactly `w` (0.2358) wider than the hit zone's and its `s` span exactly `D` (0.8) wider, both asserted.
+- [x] AC-2 [M]: for Graze and every piece of Spike cluster 101 and Double Gate 202, `theta_near_min < theta_eff_min`, `theta_near_max > theta_eff_max`, `s_near_start < s_eff_start`, `s_near_end > s_eff_end`, all strict at defaults; a row at the safe-range floor (both coefficients 0.5) stays strict.
 
 ## Implementation Notes
 - `NearMissMath.near_footprint(raw, half_angle, d, angle_margin, s_margin) -> PackedFloat64Array` (4 floats per piece, same layout as `effective_footprint_array`): hit zone from `ObstacleMath`, then add the margins. `NEAR_MISS_ANGLE_MARGIN = ANGLE_COEFF * BALL_HALF_ANGLE`, `NEAR_MISS_S_MARGIN = S_COEFF * D / 2` (neither depends on `v_max`).
@@ -48,7 +48,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: tests/unit/near_miss_detection/near_miss_detection_near_zone_test.gd
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/near_miss_detection/near_miss_detection_near_zone_test.gd. Signature `NearMissMath.near_footprint(raw, half_angle, d, angle_margin, s_margin) -> PackedFloat64Array`.
 
 ## Dependencies
 - Depends on: Story 001; obstacle-system `ObstacleMath` F1/F2 (already in `src/core/obstacle/obstacle_math.gd`)
