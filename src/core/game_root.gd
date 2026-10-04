@@ -38,6 +38,11 @@ const RANK_SCORING: int = 2
 const RANK_HUD: int = 3
 const RANK_ENDED_REST: int = 4
 
+## The only rendering method the game runs on (ADR-0003 Decision 1).
+const REQUIRED_RENDERING_METHOD: String = "mobile"
+## Log code of a refused boot (rendering method is not `REQUIRED_RENDERING_METHOD`, or the getter is not callable).
+const CODE_RENDERING_METHOD_REFUSED: StringName = &"BOOT_RENDERING_METHOD_REFUSED"
+
 ## Codes of `validate_rows` and `_wire`.
 const CODE_ROW_INVALID: String = "WIRE_ROW_INVALID"
 const CODE_HANDLER_UNTYPED: String = "WIRE_HANDLER_UNTYPED"
@@ -54,7 +59,11 @@ var map_loader_config: MapLoaderConfig
 var quit_on_fatal: bool = true
 ## Microsecond clock (ADR-0002 Decision 4). Production: `Time.get_ticks_usec`.
 var clock_us: Callable
+## Rendering-method getter (ADR-0003 Decision 1), a `Callable` returning a `String`. Production:
+## `RenderingServer.get_current_rendering_method`, bound in `_engine_rendering_method` only. Tests inject a fake.
+var rendering_method_getter: Callable
 
+var _loop_blocked: bool = false
 var _prev_us: int = 0
 var _has_prev: bool = false
 
@@ -86,10 +95,11 @@ var _hud: Object
 var _menus: Object
 
 
-## `clock` defaults to the production binding. `process_mode` is set here until the root scene
-## file (which will carry it) exists.
-func _init(clock: Callable = Callable()) -> void:
+## `clock` and `rendering_getter` default to their production bindings. `process_mode` is set here until the root
+## scene file (which will carry it) exists.
+func _init(clock: Callable = Callable(), rendering_getter: Callable = Callable()) -> void:
 	clock_us = clock if clock.is_valid() else _engine_clock_us
+	rendering_method_getter = rendering_getter if rendering_getter.is_valid() else _engine_rendering_method
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
@@ -105,13 +115,19 @@ func configure(factory: Dictionary) -> void:
 func _ready() -> void:
 	if _factory.is_empty():
 		return
+	# The loop stays blocked until construction, wiring and the map-load attempt all finished (ADR-0002 Decision 5).
+	_loop_blocked = true
 	if _construct() != OK or _wire() != OK or _start_map_loader() != OK:
 		if quit_on_fatal and is_inside_tree():
 			get_tree().quit(1)
+		return
+	_loop_blocked = false
 
 
 ## The engine delta is ignored on purpose: `real_dt` comes from `clock_us`, raw and unclamped.
 func _process(_engine_delta: float) -> void:
+	if _loop_blocked:
+		return
 	var now_us: int = clock_us.call() as int
 	# The first tick yields 0 (not a boot-time gap); Run State's stall guard needs raw values afterwards.
 	var real_dt: float = 0.0
@@ -166,6 +182,8 @@ func add_wire_row(sig: Signal, handler: Callable, rank: int) -> void:
 ## failure, or a step that built nothing); after a preflight failure no view has been built.
 func _construct() -> Error:
 	construction_trace.clear()
+	if not _rendering_method_ok():
+		return ERR_UNAVAILABLE
 	_cores.clear()
 	geometry_validated = false
 	var systems: Dictionary = {}
@@ -192,6 +210,24 @@ func _construct() -> Error:
 			_cores[step] = built
 		construction_trace.append(step)
 	return OK if inject_systems(systems) else ERR_INVALID_DATA
+
+
+## True when the injected getter returns `REQUIRED_RENDERING_METHOD`; otherwise logs one error and returns false
+## (no silent downgrade, ADR-0003 Decision 1). An invalid getter or a non-String result counts as a refusal.
+func _rendering_method_ok() -> bool:
+	var method: String = ""
+	if rendering_method_getter.is_valid():
+		var raw: Variant = rendering_method_getter.call()
+		if raw is String:
+			method = raw as String
+	if method == REQUIRED_RENDERING_METHOD:
+		return true
+	var message: String = "rendering method '%s' is not '%s'; boot refused" % [method, REQUIRED_RENDERING_METHOD]
+	var sink: Callable = _factory.get(&"log_sink", Callable()) as Callable
+	if sink.is_valid():
+		sink.call(LogLevel.ERROR, CODE_RENDERING_METHOD_REFUSED, "rendering_method", message)
+	push_error("GameRoot._construct: %s" % message)
+	return false
 
 
 func _preflight() -> bool:
@@ -427,6 +463,10 @@ func _tick(real_dt: float, world_dt: float) -> void:
 	_juice.call(&"tick")
 	_hud.call(&"tick")
 	_menus.call(&"tick")
+
+
+static func _engine_rendering_method() -> String:
+	return RenderingServer.get_current_rendering_method()
 
 
 static func _engine_clock_us() -> int:

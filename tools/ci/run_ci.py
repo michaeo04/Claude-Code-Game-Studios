@@ -11,6 +11,9 @@ Steps, in order (`all`):
     4a  Python unittest in tools/ci/tests/                     (BLOCKING, offline)
     4   python tools/ci/lint_runner.py                         (BLOCKING, offline)
 
+A GUT run without step 1 is invalid: `class_name` types (GameRoot, the cores) do not resolve without the import
+pass, and the suites are skipped when step 1 fails.
+
 `--only unit` / `integration` / `advisory` run step 1 plus that suite. `--only lint` runs 4a and 4
 only, needs no Godot, and works before project.godot exists.
 

@@ -1,0 +1,6 @@
+#@path: src/core/game_root.gd
+extends Node
+
+var _scoring: Object
+var _near_miss: Object
+# var score: int = 0 is only a comment here

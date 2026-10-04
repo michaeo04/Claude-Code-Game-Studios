@@ -1,0 +1,5 @@
+#@path: src/core/game_root.gd
+extends Node
+
+var _x: int = 0
+var score_total: int = 0

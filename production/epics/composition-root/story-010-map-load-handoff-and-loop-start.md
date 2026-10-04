@@ -1,12 +1,12 @@
 # Story 010: Map load hand-off and loop start
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0002 (with ADR-0004 Decisions 2 and 3)
@@ -60,7 +60,7 @@
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/composition_root_startup_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/composition_root/composition_root_startup_test.gd` (5 tests, AC-1 to AC-5).
 
 ## Dependencies
 - Depends on: Story 002, Story 006, Story 007, Story 008, Story 009; map-loader epic (loader seam; fake until it lands)

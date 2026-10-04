@@ -1,12 +1,12 @@
 # Story 009: Composition-root lint rules and the import-before-test order
 
 > **Epic**: Composition Root & Game Loop
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0002 and ADR-0013
@@ -57,7 +57,7 @@ Add the rules to `tools/ci/lint_rules.json` and fixtures under `tests/fixtures/l
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/composition_root/composition_root_lint_rules_test.gd` (or a pytest file beside the lint runner if the harness defines one)
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_composition_root.py` (rule registration, fixtures, keyword guard, import-before-suite order, docstring), fixtures `tools/ci/tests/fixtures/forbidden_game_root_logic_keywords/`; pre-existing rules and fixtures cover the forbidden constructs. Fixtures live in `tools/ci/tests/fixtures/` (the runner convention), not `tests/fixtures/lint/`.
 
 ## Dependencies
 - Depends on: test-harness-ci (lint runner and rule table); Story 001

@@ -147,20 +147,20 @@ stories:
     name: "Composition-root lint rules and the import-before-test order"
     file: "production/epics/composition-root/story-009-ci-lints-and-import-order.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "CR-010"
     name: "Map load hand-off and loop start"
     file: "production/epics/composition-root/story-010-map-load-handoff-and-loop-start.md"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "NM-009"
     name: "Determinism and no side effects"
     file: "production/epics/near-miss-detection/story-009-determinism-and-no-side-effects.md"

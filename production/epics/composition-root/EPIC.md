@@ -46,9 +46,9 @@ This epic is complete when:
 | 005 | [Rebase contract for views, reset wiring and soak](story-005-world-frame-rebase-contract.md) | Integration | Complete | ADR-0013 |
 | 006 | [Construction order and WorldGeometry/WorldFrame preflight](story-006-construction-order-and-validation.md) | Integration | Complete | ADR-0002, ADR-0013 |
 | 007 | [`_wire()` row table and pinned subscriber order](story-007-wire-table-subscriber-order.md) | Integration | Ready | ADR-0002 |
-| 008 | [Boot rendering-method check through injected getter](story-008-boot-rendering-method-seam.md) | Integration | Ready | ADR-0003 |
-| 009 | [Composition-root lint rules and import-before-test](story-009-ci-lints-and-import-order.md) | Logic | Ready | ADR-0002, ADR-0013 |
-| 010 | [Map load hand-off and loop start](story-010-map-load-handoff-and-loop-start.md) | Integration | Ready | ADR-0002, ADR-0004 |
+| 008 | [Boot rendering-method check through injected getter](story-008-boot-rendering-method-seam.md) | Integration | Ready (AC-5 device row open) | ADR-0003 |
+| 009 | [Composition-root lint rules and import-before-test](story-009-ci-lints-and-import-order.md) | Logic | Complete | ADR-0002, ADR-0013 |
+| 010 | [Map load hand-off and loop start](story-010-map-load-handoff-and-loop-start.md) | Integration | Complete | ADR-0002, ADR-0004 |
 | 011 | [Orchestration soak on device (60/120 Hz)](story-011-orchestration-device-soak.md) | Integration | Ready | ADR-0002 |
 | 012 | [PRC-1 rebase spike on device](story-012-rebase-device-spike-prc1.md) | Integration | Ready | ADR-0013 |
 | 013 | [M1 headless run through the real cores](story-013-m1-headless-run.md) | Integration | Complete | ADR-0002 |

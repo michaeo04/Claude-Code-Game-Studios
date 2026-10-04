@@ -6,7 +6,7 @@
 > **Type**: Integration
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: none, defined by ADR-0003
@@ -55,7 +55,7 @@ Add `rendering_method_getter: Callable` to the `GameRoot` construction inputs be
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/composition_root/composition_root_rendering_seam_test.gd`; device row in `production/qa/evidence/composition-root-rendering-method-device.md`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/composition_root/composition_root_rendering_seam_test.gd` (AC-1 to AC-4, AC-6 proven). **Gap**: AC-5 device row (`composition-root-rendering-method-device.md`) needs an Android export; story stays Ready.
 
 ## Dependencies
 - Depends on: Story 001; test-harness-ci (spike T-1 result for the headless value)

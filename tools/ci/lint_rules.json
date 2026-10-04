@@ -1143,6 +1143,17 @@
    ],
    "pattern": "\\b(?:CollisionObject3D|CharacterBody3D|Area3D|RayCast3D|ShapeCast3D|PhysicsServer\\w*|RandomNumberGenerator|get_tree|_process|_physics_process|randi\\w*|randf\\w*|randomize|seed)\\b|\\b(?:Input|Engine|Time|OS|DisplayServer)\\s*\\.|\\bseed\\s*\\(|\\b(?:global_)?position\\.z\\b|\\bglobal_transform\\.origin\\b",
    "message": "Obstacle System cores hold no physics node, no engine singleton call, no process hook, no randomness and no raw world Z"
+  },
+  {
+   "id": "forbidden:game_root_logic_keywords",
+   "source": "ADR-0002 Risks",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/game_root.gd"
+   ],
+   "pattern": "\\b(?:var|const)\\s+_?(?:score|combo|health|lives|damage|multiplier|streak|difficulty|hit_count|near_miss_count)\\w*",
+   "message": "GameRoot is wiring only: no gameplay-rule state (score, combo, health, lives, damage, multiplier, streak, difficulty, hit or near-miss counters)"
   }
  ]
 }
