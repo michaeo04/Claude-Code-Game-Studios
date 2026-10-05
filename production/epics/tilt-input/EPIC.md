@@ -68,7 +68,7 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | [Tilt Input CI lint gate (AC-37)](story-001-tilt-lint-gate.md) | Integration | Ready | ADR-0009, ADR-0005 |
+| 001 | [Tilt Input CI lint gate (AC-37)](story-001-tilt-lint-gate.md) | Integration | Complete | ADR-0009, ADR-0005 |
 | 002 | [TiltMath pure functions](story-002-tilt-math.md) | Logic | Complete | ADR-0002 |
 | 003 | [TiltConfig, validation, sensitivity](story-003-tilt-config.md) | Logic | Complete | ADR-0009 |
 | 004 | [TiltCore poll, stamps, ring buffer](story-004-tilt-core-poll-buffer.md) | Logic | Complete | ADR-0002 |

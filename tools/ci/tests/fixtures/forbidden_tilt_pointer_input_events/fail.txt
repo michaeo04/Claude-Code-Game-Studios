@@ -1,0 +1,4 @@
+#@path: src/core/tilt_input/tilt_input.gd
+extends Node
+func _unhandled_input(e: InputEvent) -> void:
+	pass

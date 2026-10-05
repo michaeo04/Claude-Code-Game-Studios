@@ -1,0 +1,5 @@
+#@path: src/core/other/foo.gd
+extends Node
+func f() -> void:
+	Input.get_joy_gyroscope(0)
+	Input.set_gravity(Vector3.ZERO)

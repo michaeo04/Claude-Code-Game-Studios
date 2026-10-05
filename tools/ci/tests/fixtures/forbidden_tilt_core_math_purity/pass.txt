@@ -1,0 +1,4 @@
+#@path: src/core/tilt_input/tilt_core.gd
+extends RefCounted
+# Time.get_ticks_usec()
+var x: int = 0

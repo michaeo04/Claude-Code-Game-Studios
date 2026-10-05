@@ -1,12 +1,12 @@
 # Story 001: Tilt Input CI lint gate (AC-37a-f)
 
 > **Epic**: Tilt Input
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/tilt-input.md`
@@ -47,7 +47,7 @@ Scan `src/` only (`prototypes/` and `tests/` excluded), after the stripper remov
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tools/ci/tests/` Python unittest cases (run in `run_ci.py` step 4a) plus a green `python tools/ci/lint_runner.py`
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_tilt_rules.py` (20 tests) plus 10 rules `forbidden:tilt_*` and `project_setting:action_steer_*` with pass/fail fixtures; green `lint_runner.py`.
 
 ## Dependencies
 - Depends on: test-harness-ci (lint runner and `lint_rules.json` framework)

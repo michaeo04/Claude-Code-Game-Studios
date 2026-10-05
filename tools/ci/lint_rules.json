@@ -1271,6 +1271,124 @@
     "src/core/pattern_difficulty/*.gd"
    ],
    "message": "Every RandomNumberGenerator.new() must be followed by an explicit seed assignment before any draw (textual-order heuristic)"
+  },
+  {
+   "id": "forbidden:tilt_sensor_pattern_outside_tilt_input",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bInput\\.(?:get_(?:gravity|accelerometer|gyroscope|magnetometer)|get_joy_(?:gravity|gyroscope|accelerometer)|set_gravity)\\b",
+   "allow": [
+    "src/**/tilt_input.gd"
+   ],
+   "message": "AC-37a: only the TiltInput node file reads or writes the motion sensors"
+  },
+  {
+   "id": "forbidden:tilt_input_call_or_singleton",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/tilt_input/*.gd"
+   ],
+   "pattern": "\\bInput\\.call\\s*\\(|\\bEngine\\.get_singleton\\b",
+   "message": "AC-37a: no reflective Input.call( or Engine.get_singleton in the tilt files"
+  },
+  {
+   "id": "forbidden:tilt_core_math_purity",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/tilt_input/tilt_core.gd",
+    "src/core/tilt_input/tilt_math.gd"
+   ],
+   "pattern": "\\b(?:Input|Engine|Time|OS)\\s*\\.|^\\s*extends\\s+Node\\w*\\b",
+   "message": "AC-37b: TiltCore and TiltMath call no Input/Engine/Time/OS and never extend Node"
+  },
+  {
+   "id": "forbidden:tilt_pointer_input_events",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/tilt_input/*.gd"
+   ],
+   "pattern": "\\bInputEventScreen\\w*|\\bInputEventMouse\\w*|\\b_input\\s*\\(|\\b_unhandled_input\\s*\\(|\\bInput\\.is_mouse_button_pressed\\b",
+   "message": "AC-37c: the tilt files read no touch or mouse events and define no input callbacks"
+  },
+  {
+   "id": "forbidden:tilt_config_unvalidated_in_src",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\bTiltConfig\\s*\\.\\s*unvalidated\\b|\\.unvalidated\\s*\\(",
+   "message": "AC-37e: TiltConfig.unvalidated() is test-only and never referenced from src/"
+  },
+  {
+   "id": "forbidden:tilt_core_poll_outside_driver",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/**/*.gd"
+   ],
+   "pattern": "\\b\\w*[Cc]ore\\w*\\s*\\.\\s*poll\\s*\\(",
+   "allow": [
+    "src/**/tilt_input.gd"
+   ],
+   "message": "AC-37f: TiltCore.poll( is called only from the TiltInput driver file"
+  },
+  {
+   "id": "forbidden:tilt_driver_physics_process",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/tilt_input.gd"
+   ],
+   "pattern": "\\b_physics_process\\b",
+   "message": "AC-37f: the TiltInput driver has no _physics_process, so poll( never runs from it"
+  },
+  {
+   "id": "forbidden:tilt_synthetic_source_outside_editor_gate",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/tilt_input/*.gd"
+   ],
+   "pattern": "\\bOS\\s*\\.\\s*is_debug_build\\b|\\bOS\\s*\\.\\s*has_feature\\s*\\(\\s*\\\"(?!editor\\\")",
+   "keep_strings": true,
+   "message": "ADR-0005 Decision 7: the synthetic source is gated only by OS.has_feature(\"editor\")"
+  },
+  {
+   "id": "project_setting:action_steer_left",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "present",
+   "key": "input/steer_left",
+   "required": true,
+   "message": "AC-37d: project.godot must define the input action steer_left"
+  },
+  {
+   "id": "project_setting:action_steer_right",
+   "source": "ADR-0005 Decision 7; ADR-0009; design/gdd/tilt-input.md AC-37",
+   "severity": "BLOCKING",
+   "kind": "project_setting",
+   "file": "project.godot",
+   "check": "present",
+   "key": "input/steer_right",
+   "required": true,
+   "message": "AC-37d: project.godot must define the input action steer_right"
   }
  ]
 }

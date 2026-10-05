@@ -1,0 +1,4 @@
+#@path: src/core/other/foo.gd
+extends Node
+func f() -> void:
+	_tilt.poll()

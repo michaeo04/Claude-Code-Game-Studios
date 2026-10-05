@@ -1,0 +1,4 @@
+#@path: src/core/other/foo.gd
+extends Node
+# Input.get_gravity()
+var s: String = "Input.get_joy_gyroscope()"

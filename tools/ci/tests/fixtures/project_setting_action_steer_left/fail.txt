@@ -1,0 +1,6 @@
+#@path: project.godot
+[input]
+
+other={
+"deadzone": 0.5
+}

@@ -1,0 +1,5 @@
+#@path: src/core/tilt_input/tilt_config.gd
+extends Resource
+## Test-only unvalidated() copy.
+func unvalidated() -> TiltConfig:
+	return duplicate()

@@ -1,12 +1,12 @@
 # Story 004: WorldFrame render origin and rebase lint
 
 > **Epic**: Tube Track
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/tube-track.md`
@@ -44,7 +44,7 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/tube_track/world_frame_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/tube_track/world_frame_test.gd` (8 tests, AC-15); AC-25 lint `forbidden:raw_s_in_vector3` already registered with fixtures.
 
 ## Dependencies
 - Depends on: test-harness-ci (lint runner story)

@@ -1,0 +1,7 @@
+#@path: project.godot
+[input]
+
+steer_left={
+"deadzone": 0.5,
+"events": []
+}

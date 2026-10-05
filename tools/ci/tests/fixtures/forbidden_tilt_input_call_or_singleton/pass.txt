@@ -1,0 +1,3 @@
+#@path: src/core/tilt_input/tilt_input.gd
+extends Node
+# Engine.get_singleton

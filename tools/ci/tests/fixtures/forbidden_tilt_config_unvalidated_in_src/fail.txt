@@ -1,0 +1,4 @@
+#@path: src/core/game_root.gd
+extends Node
+func f() -> void:
+	var c: TiltConfig = _cfg.unvalidated()

@@ -1,0 +1,5 @@
+#@path: src/core/tilt_input/tilt_input.gd
+extends Node
+# _physics_process
+func poll() -> void:
+	_core.poll()

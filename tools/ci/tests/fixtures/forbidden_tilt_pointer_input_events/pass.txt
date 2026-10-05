@@ -1,0 +1,4 @@
+#@path: src/core/tilt_input/tilt_input.gd
+extends Node
+# _input(
+var s: String = "InputEventScreenTouch"

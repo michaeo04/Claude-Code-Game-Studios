@@ -1,0 +1,4 @@
+#@path: src/core/tilt_input/tilt_math.gd
+extends Node
+func f() -> void:
+	Time.get_ticks_usec()

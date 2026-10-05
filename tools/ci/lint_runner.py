@@ -365,6 +365,9 @@ def eval_project_setting(rule: dict, source) -> Result:
         for k, v, ln in hits:
             if _norm(v) != _norm(str(rule["value"])):
                 res.violations.append(_viol(rule, fname, ln, f"{k}={v}, expected {rule['value']}. {rule['message']}"))
+    elif check == "present":
+        if not any(k == rule["key"] for k, s, v, ln in full) and rule.get("required", True):
+            res.violations.append(_viol(rule, fname, 1, f"{rule['key']} is missing. {rule['message']}"))
     elif check == "section_empty":
         allowed = set(rule.get("allow_keys", []))
         for k, s, v, ln in full:
@@ -607,8 +610,8 @@ def validate_table(table: dict) -> list[str]:
             errors.append(f"{rid}: only_in needs a non-empty allow list")
         if kind == "secret" and rule.get("names_only") and not rule.get("scope"):
             errors.append(f"{rid}: scope is required")
-        if kind == "project_setting" and rule.get("check") not in ("equals", "section_empty", "only_true"):
-            errors.append(f"{rid}: check must be equals, section_empty or only_true")
+        if kind == "project_setting" and rule.get("check") not in ("equals", "present", "section_empty", "only_true"):
+            errors.append(f"{rid}: check must be equals, present, section_empty or only_true")
         if kind == "custom" and rule.get("function") not in CUSTOM:
             errors.append(f"{rid}: unknown custom function {rule.get('function')!r}")
     for entry in table.get("review_only", []):
