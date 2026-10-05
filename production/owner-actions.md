@@ -71,3 +71,10 @@
 - **Blocked, OB-012:** P2/P3 preflight needs `PatternCore._padding_segments_for` (PD-010, blocked on design review C6) and `assets/data/chunks/chunk_library_01.tres` (hidden-side content, see OB-017).
 
 - **B (device), SP-2 / Save 011:** run the hostile-save battery (`tests/integration/save_persistence/save_persistence_hostile_files_test.gd` fixtures) on an Android export build and record it in `production/qa/evidence/save-persistence-sp2.md`; gate sign-off is yours. Desktop part is done (ConfigFile executed an attached script, so `PersistMath.has_object_constructor` now sniffs the file before parsing).
+
+## Headless work status (2026-10-05)
+Every remaining Ready story needs a phone, an editor run, an owner decision or a blocked dependency:
+- Device: BM-1/BM-3 (Ball 014/015), CR-008 AC-5, CR-011/012, PS-011/013/015/016, SP-1/SP-3 (Save 012-014), TI-014..016, TT-013/014, OB-014/016, NM-012, RS-014.
+- Editor/owner: OB-011 EditorScript run, godot.sha512 + CI workflow (TH-009..011), Save/Platform export presets.
+- Blocked on design/content: PD-010/011/014 (C6), OB-005 (E17), NM-006 (E18), OB-012/013/017, NM-011 AC-26 (no Juice core), CR-007 (real Pattern/Camera/Juice/HUD rows).
+- Needs R-1 first: view modules (Ball 011/012, Tube Track 011/012, Camera, Environment, Juice, HUD, Menus epics).
