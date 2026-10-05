@@ -6,7 +6,7 @@
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (AC-25, AC-26; Core Rules 3, 11)
@@ -40,7 +40,8 @@ Register `apply_map` in the map-loader Phase B3 seam and `on_run_reset` in `_wir
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/pattern_difficulty/pattern_difficulty_wiring_test.gd` (AC-25, AC-26), `tests/unit/pattern_difficulty/pattern_difficulty_golden_sequence_test.gd`, and `production/qa/evidence/pattern-difficulty/golden-sequence-android.md`
-**Status**: [ ] Not yet created
+**Status**: [ ] Partial. Headless parts pass (AC-25, AC-26, desktop golden table); the Android device run and `production/qa/evidence/pattern-difficulty/golden-sequence-android.md` are still missing, so the story stays Ready.
+**Evidence**: `tests/integration/pattern_difficulty/pattern_difficulty_wiring_test.gd` (4 tests), `tests/unit/pattern_difficulty/pattern_difficulty_golden_sequence_test.gd` (3 tests)
 
 ## Dependencies
 - Depends on: Stories 005, 006, 007, 009, 012; composition-root, run-state-restart, tube-track and obstacle-system epics (code exists)

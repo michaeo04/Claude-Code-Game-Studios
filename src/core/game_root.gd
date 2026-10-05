@@ -80,6 +80,7 @@ var _connected: Array = []
 var _tilt_input: Object
 var _tilt_adapter: Object
 var _tube_adapter: Object
+var _pattern: Object
 var _run_state: Object
 var _ball: Object
 var _tube_track: Object
@@ -141,7 +142,8 @@ func _process(_engine_delta: float) -> void:
 
 
 ## Injects the systems listed in `SYSTEM_KEYS` (and the optional `tube_adapter`). Returns false (and injects
-## nothing) when a key is missing.
+## nothing) when a key is missing. The optional `pattern` key (a `PatternCore`) adds its `run_reset` row at
+## `RANK_PATTERN_FRAME`, ahead of the WorldFrame row.
 func inject_systems(systems: Dictionary) -> bool:
 	for key: StringName in SYSTEM_KEYS:
 		if not systems.has(key) or not (systems[key] is Object):
@@ -165,6 +167,7 @@ func inject_systems(systems: Dictionary) -> bool:
 	_hud = systems[&"hud"] as Object
 	_menus = systems[&"menus"] as Object
 	_tube_adapter = systems.get(&"tube_adapter") as Object
+	_pattern = systems.get(&"pattern") as Object
 	return true
 
 
@@ -394,6 +397,10 @@ func _build_rows() -> Array:
 	var rs: RunStateCore = _run_state as RunStateCore
 	if rs == null:
 		return rows
+	# Pattern reseeds before the WorldFrame row (same rank, earlier row index) and before Tube Track primes the window.
+	var pattern: PatternCore = _pattern as PatternCore
+	if pattern != null:
+		rows.append([rs.run_reset, pattern.on_run_reset, RANK_PATTERN_FRAME])
 	var frame: WorldFrame = _world_frame as WorldFrame
 	if frame != null:
 		rows.append([rs.run_reset, frame.on_run_reset, RANK_PATTERN_FRAME])
