@@ -78,3 +78,8 @@ Every remaining Ready story needs a phone, an editor run, an owner decision or a
 - Editor/owner: OB-011 EditorScript run, godot.sha512 + CI workflow (TH-009..011), Save/Platform export presets.
 - Blocked on design/content: PD-010/011/014 (C6), OB-005 (E17), NM-006 (E18), OB-012/013/017, NM-011 AC-26 (no Juice core), CR-007 (real Pattern/Camera/Juice/HUD rows).
 - Needs R-1 first: view modules (Ball 011/012, Tube Track 011/012, Camera, Environment, Juice, HUD, Menus epics).
+
+## Android toolchain (set up 2026-10-05)
+Installed on this PC: Microsoft OpenJDK 17, Android SDK at `C:\Users\candl\Android\Sdk` (platform-tools, build-tools 35.0.1, android-35, NDK 28.1.13356709), Godot 4.7.2 export templates, debug keystore `C:\Users\candl\.android\debug.keystore` (outside the repo), Godot editor settings pointing at them. Build with `bash tools/build_android_debug.sh` (preset kept in gitignored `build/export_presets.android.cfg`).
+- **A5 (decision, E14 resolved):** `graphics/picture_in_picture` does not exist in 4.7.2. Godot's template manifest hard-codes `android:supportsPictureInPicture="true"` and the preset has no switch for it, so ADR-0006's "PiP off" needs a Gradle build with a custom manifest (or an ADR change accepting PiP). Until decided, the preset stays out of the repo root, because the `manifest:preset_picture_in_picture` lint (correctly) blocks it. Also: the template manifest has no `enableOnBackInvokedCallback` and no Vulkan `uses-feature`; both need the same Gradle route. `allowBackup` is already false and `permissions/vibrate`, `screen/immersive_mode`, `user_data_backup/allow` are real keys.
+- Known: export prints "Cannot set object script" once and "No project icon specified"; neither blocks the APK.
