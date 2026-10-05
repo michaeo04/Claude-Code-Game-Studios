@@ -1,12 +1,12 @@
 # Story 005: Seeded PRNG, Fisher-Yates and tiered shuffled bags
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rule 3; Formula F4; AC-4, AC-5, AC-6, AC-15, AC-23, AC-31)
@@ -54,7 +54,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_bag_test.gd` (AC-4, 5, 6, 15, 31) and `tests/unit/pattern_difficulty/pattern_difficulty_shuffle_fairness_test.gd` (AC-23, advisory)
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/pattern_difficulty/pattern_difficulty_bag_test.gd (7 tests: AC-4, 5, 6, 15, 31) and pattern_difficulty_shuffle_fairness_test.gd (AC-23, advisory, passes)
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 001, 003

@@ -1,12 +1,12 @@
 # Story 004: Within-chunk validators (hidden side, exit rule, dodge-recovery)
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rules 7, 8; Formula F2)
@@ -47,7 +47,8 @@
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_chunk_validator_test.gd` (AC-10, AC-11, AC-12b)
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/pattern_difficulty/pattern_difficulty_chunk_validator_test.gd (14 tests: AC-10, AC-11, AC-12b within-chunk rows; cross-chunk rows stay in Story 010)
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 001, 002, 003; obstacle-system story 006 (hidden and exit validators)

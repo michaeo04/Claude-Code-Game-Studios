@@ -1,6 +1,6 @@
 ## Factories of the Pattern & Difficulty tests (GDD AC preamble): `make_pattern_fixture`, `make_chunk`,
 ## `make_content_library`, `make_run_time_stub`, `make_run_id_stub` and the 8-chunk library W1-W4, SP1, DG1, NR1, REV2.
-## `make_core` is added with `PatternCore` (Story 006). Framework-free: no GUT call.
+## `make_compiled_library`, `make_core` and `ScriptedShuffler` serve `PatternCore`/`TierBag`. Framework-free: no GUT call.
 extends RefCounted
 
 const V_MAX: float = 25.0
@@ -155,3 +155,54 @@ static func make_run_id_stub(value: int) -> IdStub:
 	var s: IdStub = IdStub.new()
 	s.value = value
 	return s
+
+
+## The compiled 8-chunk fixture library (all structural checks pass).
+static func make_compiled_library() -> CompiledLibrary:
+	return ChunkLibraryCompiler.compile(make_content_library(make_chunks()), PatternConfig.new(), L, Callable())
+
+
+## Permutation source that moves the chunks named in `order` (chunk ids) to the front, in that order, and keeps the
+## rest in their incoming order. Hand its `shuffle` Callable to `PatternCore`/`TierBag` to script a bag.
+class ScriptedShuffler:
+	extends RefCounted
+	var order: Array[int] = []
+
+	func shuffle(items: Array) -> void:
+		var front: Array = []
+		for id: int in order:
+			for item: Variant in items:
+				if (item as CompiledChunk).chunk_id == StringName(str(id)):
+					front.append(item)
+		var rest: Array = []
+		for item: Variant in items:
+			if not front.has(item):
+				rest.append(item)
+		items.assign(front + rest)
+
+
+static func make_scripted_shuffler(order: Array[int]) -> ScriptedShuffler:
+	var s: ScriptedShuffler = ScriptedShuffler.new()
+	s.order = order
+	return s
+
+
+## A `PatternCore` over the compiled fixture library, reset with `run_id`; `run_time` is read from `run_time_stub`.
+## A non-empty `shuffle_order` scripts every bag (those chunk ids first). The stub and shuffler are kept alive on the
+## core (a `Callable` does not hold a RefCounted target).
+static func make_core(
+	run_time_stub: ValueStub, run_id: int, shuffle_order: Array[int] = [], grace_zone_length: float = 11.0
+) -> PatternCore:
+	var shuffler: ScriptedShuffler = null
+	var shuffle_callable: Callable = Callable()
+	if not shuffle_order.is_empty():
+		shuffler = make_scripted_shuffler(shuffle_order)
+		shuffle_callable = Callable(shuffler, "shuffle")
+	var core: PatternCore = PatternCore.new(
+		PatternConfig.new(), L, Callable(run_time_stub, "get_value"), Callable(), grace_zone_length, shuffle_callable
+	)
+	core.set_meta(&"run_time_stub", run_time_stub)
+	core.set_meta(&"shuffler", shuffler)
+	core.set_library(make_compiled_library())
+	core.on_run_reset(run_id)
+	return core

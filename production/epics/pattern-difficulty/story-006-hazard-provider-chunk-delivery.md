@@ -1,12 +1,12 @@
 # Story 006: PatternCore as HazardContentProvider (chunk delivery, tiers, grace first draw)
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rules 1, 2, 4, 5, 6; States and Transitions)
@@ -43,7 +43,8 @@ Translation in AC-2/AC-7 is verified by composing the returned spec's chunk-loca
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_provider_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: tests/unit/pattern_difficulty/pattern_difficulty_provider_test.gd (13 tests: AC-2, 3, 7, 8, 9, 19, plus shared specs, apply_map, reset)
+**Status**: [x] Created and passing
 
 ## Dependencies
 - Depends on: Stories 001, 003, 005; obstacle-system story 001 (`HazardContentProvider`)

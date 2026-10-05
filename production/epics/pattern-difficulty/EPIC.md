@@ -67,9 +67,9 @@ This epic is complete when:
 | 001 | [PatternConfig, tier selection, config guards and fixture](story-001-pattern-config-tier-selection-guards.md) | Logic | Complete | ADR-0008, ADR-0009 |
 | 002 | [Dodge-recovery math, opposing test and cost ratio](story-002-dodge-recovery-math-and-cost-ratio.md) | Logic | Complete | ADR-0008 |
 | 003 | [ChunkLibraryCompiler, CompiledLibrary and structural checks](story-003-chunk-library-compiler-structural-checks.md) | Logic | Complete | ADR-0008, ADR-0004 |
-| 004 | [Within-chunk validators (hidden, exit, dodge-recovery)](story-004-within-chunk-validators.md) | Logic | Ready | ADR-0008 |
-| 005 | [Seeded PRNG, Fisher-Yates and tiered bags](story-005-seeded-prng-fisher-yates-bags.md) | Logic | Ready | ADR-0008 |
-| 006 | [PatternCore as HazardContentProvider](story-006-hazard-provider-chunk-delivery.md) | Logic | Ready | ADR-0008, ADR-0004 |
+| 004 | [Within-chunk validators (hidden, exit, dodge-recovery)](story-004-within-chunk-validators.md) | Logic | Complete | ADR-0008 |
+| 005 | [Seeded PRNG, Fisher-Yates and tiered bags](story-005-seeded-prng-fisher-yates-bags.md) | Logic | Complete | ADR-0008 |
+| 006 | [PatternCore as HazardContentProvider](story-006-hazard-provider-chunk-delivery.md) | Logic | Complete | ADR-0008, ADR-0004 |
 | 007 | [run_reset reseed, determinism and no side effects](story-007-run-reset-determinism-no-side-effects.md) | Logic | Ready | ADR-0008, ADR-0002 |
 | 008 | [Angular clustering fraction and pool advisories](story-008-angular-clustering-and-pool-advisories.md) | Logic | Ready | ADR-0008 |
 | 009 | [Shipped PatternConfig.tres](story-009-shipped-pattern-config-tres.md) | Config/Data | Ready | ADR-0004 |
