@@ -1,12 +1,12 @@
 # Story 009: Shipped PatternConfig.tres
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Config/Data
 > **Estimate**: 1-2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Tuning Knobs; AC-22)
@@ -37,7 +37,7 @@ Create `assets/data/pattern/pattern_config.tres` (path follows the other config 
 ## Test Evidence
 **Story Type**: Config/Data
 **Required evidence**: smoke check pass `production/qa/smoke-[date].md`, backed by `tests/integration/pattern_difficulty/pattern_difficulty_shipped_config_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/pattern_difficulty/pattern_difficulty_shipped_config_test.gd` (AC-22); shipped file `assets/data/pattern_config.tres`.
 
 ## Dependencies
 - Depends on: Stories 001, 008

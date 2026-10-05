@@ -1,12 +1,12 @@
 # Story 008: Angular clustering fraction and pool advisories
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rule 12; Formula F5; Edge Cases on small INTRO pool)
@@ -48,7 +48,7 @@ Add `PatternMath.opposing_pair_fraction(pool_angles: Array)` (each entry the chu
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_clustering_test.gd` (AC-28, AC-29b, AC-29, AC-21)
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_clustering_test.gd` (AC-28, AC-29b, AC-29, AC-21). Advisory code for AC-21 is `INTRO_POOL_SMALL`; hook is `ChunkLibraryCompiler.advise`.
 
 ## Dependencies
 - Depends on: Stories 001, 002, 003

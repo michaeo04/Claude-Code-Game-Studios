@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rule 11; States and Transitions; Edge Cases on mid-chunk `run_reset`)
@@ -45,7 +45,7 @@ Add `on_run_reset(run_id: int)` to `PatternCore` (register in the composition ro
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_reset_determinism_test.gd`
-**Status**: [ ] Not yet created
+**Evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_reset_determinism_test.gd` (AC-17, AC-18, AC-20 reseed part, repeated index). Gap: the AC-20 read-history-empty assertion waits for Story 010.
 
 ## Dependencies
 - Depends on: Stories 005, 006

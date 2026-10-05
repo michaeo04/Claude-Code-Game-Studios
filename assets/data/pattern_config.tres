@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PatternConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/core/pattern_difficulty/pattern_config.gd" id="1_patcfg"]
+
+[resource]
+script = ExtResource("1_patcfg")
+tier_intro_duration = 15.0
+tier_ramp_duration = 90.0
+angular_reversal_threshold = 1.5707963267948966
+max_opposing_fraction = 0.6

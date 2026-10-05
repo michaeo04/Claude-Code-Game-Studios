@@ -71,8 +71,8 @@ This epic is complete when:
 | 005 | [Seeded PRNG, Fisher-Yates and tiered bags](story-005-seeded-prng-fisher-yates-bags.md) | Logic | Complete | ADR-0008 |
 | 006 | [PatternCore as HazardContentProvider](story-006-hazard-provider-chunk-delivery.md) | Logic | Complete | ADR-0008, ADR-0004 |
 | 007 | [run_reset reseed, determinism and no side effects](story-007-run-reset-determinism-no-side-effects.md) | Logic | Ready | ADR-0008, ADR-0002 |
-| 008 | [Angular clustering fraction and pool advisories](story-008-angular-clustering-and-pool-advisories.md) | Logic | Ready | ADR-0008 |
-| 009 | [Shipped PatternConfig.tres](story-009-shipped-pattern-config-tres.md) | Config/Data | Ready | ADR-0004 |
+| 008 | [Angular clustering fraction and pool advisories](story-008-angular-clustering-and-pool-advisories.md) | Logic | Complete | ADR-0008 |
+| 009 | [Shipped PatternConfig.tres](story-009-shipped-pattern-config-tres.md) | Config/Data | Complete | ADR-0004 |
 | 010 | [Sequencer padding with generalized history](story-010-sequencer-padding-generalized-history.md) | Logic | Blocked (TR-011 Partial, Pattern design review) | ADR-0008 |
 | 011 | [t_dodge_worst config supply](story-011-t-dodge-worst-supply.md) | Logic | Blocked (TR-014 Partial, ADR-0004 carrier) | ADR-0004 |
 | 012 | [No-engine-coupling lint](story-012-no-engine-coupling-lint.md) | Logic | Ready | ADR-0009, ADR-0008 |

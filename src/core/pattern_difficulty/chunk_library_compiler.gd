@@ -12,13 +12,18 @@ const EMPTY_TIER_POOL: StringName = &"EMPTY_TIER_POOL"
 const GRACE_POOL_TOO_SMALL: StringName = &"GRACE_POOL_TOO_SMALL"
 ## Fewest grace-compliant INTRO chunks (Core Rule 6).
 const GRACE_POOL_MIN_SIZE: int = 2
+## ADVISORY (WARNING): a tier pool's opposing pair fraction exceeds `MAX_OPPOSING_FRACTION` (Core Rule 12).
+const EXCESSIVE_ANGULAR_CLUSTERING: StringName = &"EXCESSIVE_ANGULAR_CLUSTERING"
+## ADVISORY (WARNING): the INTRO pool has fewer than 2 chunks and may repeat every draw.
+const INTRO_POOL_SMALL: StringName = &"INTRO_POOL_SMALL"
+const _TIER_NAMES: Array[String] = ["INTRO", "RAMP", "FULL"]
 
 
 ## Compiles `library`; `obstacle_config` supplies `max_pieces_per_segment` and `grace_zone_length`
 ## (defaults when null). Returns `null` on any structural failure.
 static func compile(
 	library: ChunkLibrary,
-	_config: PatternConfig,
+	config: PatternConfig,
 	segment_length: float,
 	log_sink: Callable,
 	obstacle_config: ObstacleConfig = null
@@ -53,7 +58,50 @@ static func compile(
 			"INTRO pool has %d grace-compliant chunks, needs %d" % [grace_ok, GRACE_POOL_MIN_SIZE]
 		)
 		ok = false
-	return out if ok else null
+	if not ok:
+		return null
+	advise(out, config, log_sink)
+	return out
+
+
+## Advisory checks on a compiled library (never reject): per-tier `EXCESSIVE_ANGULAR_CLUSTERING` (F5, over non-Spike
+## chunks) and `INTRO_POOL_SMALL`. Both log WARNING through `log_sink`. Returns the fraction of each tier, INTRO first.
+static func advise(library: CompiledLibrary, config: PatternConfig, log_sink: Callable) -> PackedFloat64Array:
+	var cfg: PatternConfig = config if config != null else PatternConfig.new()
+	var fractions: PackedFloat64Array = PackedFloat64Array()
+	for tier: int in [ChunkDef.Tier.INTRO, ChunkDef.Tier.RAMP, ChunkDef.Tier.FULL]:
+		var sets: Array = []
+		for chunk: CompiledChunk in library.pool(tier as ChunkDef.Tier):
+			var angles: PackedFloat64Array = _read_angles(chunk)
+			if not angles.is_empty():
+				sets.append(angles)
+		var fraction: float = PatternMath.opposing_pair_fraction(sets, cfg.angular_reversal_threshold)
+		fractions.append(fraction)
+		if fraction > cfg.max_opposing_fraction and log_sink.is_valid():
+			log_sink.call(
+				LogLevel.WARNING,
+				EXCESSIVE_ANGULAR_CLUSTERING,
+				_TIER_NAMES[tier],
+				"%s pool opposing pair fraction %.3f exceeds %s" % [_TIER_NAMES[tier], fraction, cfg.max_opposing_fraction]
+			)
+	var intro_size: int = library.pool_size(ChunkDef.Tier.INTRO)
+	if intro_size < 2 and log_sink.is_valid():
+		log_sink.call(
+			LogLevel.WARNING,
+			INTRO_POOL_SMALL,
+			"INTRO",
+			"INTRO pool size %d may repeat every draw for up to %s s of a run" % [intro_size, cfg.tier_intro_duration]
+		)
+	return fractions
+
+
+## Solution angles of every non-Spike hazard of `chunk` (empty when the chunk has no non-Spike read).
+static func _read_angles(chunk: CompiledChunk) -> PackedFloat64Array:
+	var out: PackedFloat64Array = PackedFloat64Array()
+	for spec: HazardSpec in chunk.hazards:
+		if spec.hazard_type != HazardPlacement.HazardType.SPIKE:
+			out.append_array(spec.solution_angles)
+	return out
 
 
 static func _compile_chunk(chunk: ChunkDef, seg_len: float, ocfg: ObstacleConfig, log_sink: Callable) -> CompiledChunk:

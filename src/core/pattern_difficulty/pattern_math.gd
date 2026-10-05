@@ -34,3 +34,17 @@ static func dodge_recovery_s(t_dodge_180: float, v_max: float) -> float:
 ## F3 cost ratio of a dodge of `x` rad against a half turn: `T(x) / T(PI)`, delegating to `BallMath.T`.
 static func cost_ratio(x: float, eps: float, omega_max: float, tau: float) -> float:
 	return BallMath.T(x, eps, omega_max, tau) / BallMath.T(PI, eps, omega_max, tau)
+
+
+## F5 share of unordered chunk pairs that oppose. `pool_angles` holds one `PackedFloat64Array` of solution angles per
+## non-Spike chunk (callers drop Spike-only chunks). 0.0, never NaN, when fewer than 2 chunks (no pair exists).
+static func opposing_pair_fraction(pool_angles: Array, threshold: float) -> float:
+	var n: int = pool_angles.size()
+	if n < 2:
+		return 0.0
+	var opposing_pairs: int = 0
+	for i: int in range(n):
+		for j: int in range(i + 1, n):
+			if opposing(pool_angles[i] as PackedFloat64Array, pool_angles[j] as PackedFloat64Array, threshold):
+				opposing_pairs += 1
+	return float(opposing_pairs) / float(n * (n - 1) / 2)
