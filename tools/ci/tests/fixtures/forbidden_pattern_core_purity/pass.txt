@@ -1,0 +1,9 @@
+#@path: src/core/pattern_difficulty/tier_bag.gd
+extends RefCounted
+
+## randomize() and Engine.x in a comment pass
+var _rng: RandomNumberGenerator = null
+
+
+func draw(rng: RandomNumberGenerator) -> int:
+	return rng.randi_range(0, 3)

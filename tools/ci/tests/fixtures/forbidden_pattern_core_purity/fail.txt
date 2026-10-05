@@ -1,0 +1,14 @@
+#@path: src/core/pattern_difficulty/pattern_core.gd
+extends RefCounted
+
+var a: Area3D
+
+
+func _process(delta: float) -> void:
+	randomize()
+	seed(1)
+	var x: int = randi_range(0, 3)
+	var t: int = Time.get_ticks_usec()
+	Engine.get_frames_drawn()
+	get_tree()
+	items.shuffle()

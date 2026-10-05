@@ -1222,6 +1222,42 @@
    ],
    "pattern": "\\bfunc\\s+(?:arc_overlap\\w*|theta_hit|s_hit|swept_hit)\\b",
    "message": "Near-Miss reuses ObstacleMath for overlap and swept tests; a second definition is forbidden"
+  },
+  {
+   "id": "forbidden:pattern_core_purity",
+   "source": "ADR-0008 Decision 8; pattern-difficulty.md AC-24 (story PD-012)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/core/pattern_difficulty/*.gd"
+   ],
+   "pattern": "\\b(?:CollisionObject3D|CharacterBody3D|Area3D|RayCast3D|ShapeCast3D|PhysicsServer\\w*|get_tree|_process|_physics_process)\\b|\\b(?:Input|Engine|Time|OS|DisplayServer)\\s*\\.|(?<![\\w.])(?:randomize|randf|randf_range|randi|randi_range|seed)\\s*\\(|\\.(?:shuffle|randf|randf_range|randfn)\\s*\\(",
+   "message": "Pattern & Difficulty holds no physics node, no engine singleton call, no process hook, no global RNG, no float draw and no Array.shuffle(); only the seeded RandomNumberGenerator is allowed"
+  },
+  {
+   "id": "forbidden:pattern_rng_construction_outside_core",
+   "source": "ADR-0008 Decision 8; pattern-difficulty.md AC-24 (story PD-012)",
+   "severity": "BLOCKING",
+   "kind": "only_in",
+   "scope": [
+    "src/core/pattern_difficulty/*.gd"
+   ],
+   "pattern": "\\bRandomNumberGenerator\\s*\\.\\s*new\\s*\\(",
+   "allow": [
+    "src/core/pattern_difficulty/pattern_core.gd"
+   ],
+   "message": "Only PatternCore constructs the RandomNumberGenerator (the one named exception); other modules receive it as an argument"
+  },
+  {
+   "id": "custom:pattern_rng_construction_seeded",
+   "source": "ADR-0008 Decision 8; pattern-difficulty.md AC-24 (story PD-012)",
+   "severity": "BLOCKING",
+   "kind": "custom",
+   "function": "rng_construction_seeded",
+   "scope": [
+    "src/core/pattern_difficulty/*.gd"
+   ],
+   "message": "Every RandomNumberGenerator.new() must be followed by an explicit seed assignment before any draw (textual-order heuristic)"
   }
  ]
 }

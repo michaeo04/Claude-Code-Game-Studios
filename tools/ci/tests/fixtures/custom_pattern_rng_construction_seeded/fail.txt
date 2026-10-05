@@ -1,0 +1,8 @@
+#@path: src/core/pattern_difficulty/pattern_core.gd
+extends RefCounted
+
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+
+
+func go() -> int:
+	return _rng.randi_range(0, 3)

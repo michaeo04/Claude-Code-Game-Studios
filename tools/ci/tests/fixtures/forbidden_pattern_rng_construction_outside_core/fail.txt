@@ -1,0 +1,4 @@
+#@path: src/core/pattern_difficulty/tier_bag.gd
+extends RefCounted
+
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()

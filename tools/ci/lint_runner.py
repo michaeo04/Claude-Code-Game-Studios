@@ -451,6 +451,30 @@ def custom_rng_seeded_before_draw(rule: dict, source) -> Result:
     return res
 
 
+def custom_rng_construction_seeded(rule: dict, source) -> Result:
+    """Each `RandomNumberGenerator.new()` needs a seed assignment after it, before any draw and before the next
+    construction (textual-order heuristic; the replay test is the real backstop)."""
+    res = Result()
+    files = source.files(rule.get("scope", []), rule.get("exclude", []))
+    if not files:
+        res.notes.append(f"{rule['id']}: no file in scope, passes")
+        return res
+    ctor = re.compile(r"\bRandomNumberGenerator\s*\.\s*new\s*\(")
+    draw = re.compile(r"\.(?:randi|randf|randi_range|randf_range|rand_weighted|randfn)\s*\(")
+    seed = re.compile(r"\.seed\s*=(?!=)|\bset_seed\s*\(")
+    for path in files:
+        text = strip_gdscript(source.read(path))
+        starts = [m.start() for m in ctor.finditer(text)]
+        for k, pos in enumerate(starts):
+            end = starts[k + 1] if k + 1 < len(starts) else len(text)
+            seg = text[pos:end]
+            s_m = seed.search(seg)
+            d_m = draw.search(seg)
+            if s_m is None or (d_m is not None and d_m.start() < s_m.start()):
+                res.violations.append(_viol(rule, path, _line_of(text, pos)))
+    return res
+
+
 def custom_noninteractive_mouse_filter(rule: dict, source) -> Result:
     """A Panel / PanelContainer / ColorRect node in a scene must set mouse_filter to PASS (1) or IGNORE (2)
     unless its name marks it as interactive (scrim, tap catcher, ink cover)."""
@@ -523,6 +547,7 @@ CUSTOM = {
     "function_body_forbid": custom_function_body_forbid,
     "tscn_connection_deferred": custom_tscn_connection_deferred,
     "rng_seeded_before_draw": custom_rng_seeded_before_draw,
+    "rng_construction_seeded": custom_rng_construction_seeded,
     "noninteractive_mouse_filter": custom_noninteractive_mouse_filter,
     "scoring_reflection_check": custom_scoring_reflection_check,
 }

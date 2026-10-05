@@ -75,7 +75,7 @@ This epic is complete when:
 | 009 | [Shipped PatternConfig.tres](story-009-shipped-pattern-config-tres.md) | Config/Data | Complete | ADR-0004 |
 | 010 | [Sequencer padding with generalized history](story-010-sequencer-padding-generalized-history.md) | Logic | Blocked (TR-011 Partial, Pattern design review) | ADR-0008 |
 | 011 | [t_dodge_worst config supply](story-011-t-dodge-worst-supply.md) | Logic | Blocked (TR-014 Partial, ADR-0004 carrier) | ADR-0004 |
-| 012 | [No-engine-coupling lint](story-012-no-engine-coupling-lint.md) | Logic | Ready | ADR-0009, ADR-0008 |
+| 012 | [No-engine-coupling lint](story-012-no-engine-coupling-lint.md) | Logic | Complete | ADR-0009, ADR-0008 |
 | 013 | [Integration wiring and golden sequence](story-013-integration-wiring-golden-sequence.md) | Integration | Ready | ADR-0008, ADR-0002 |
 | 014 | [Real chunk library and PD-1 playtest](story-014-real-chunk-library-and-recognition-playtest.md) | Integration | Blocked (content, Story 010) | ADR-0008 |
 

@@ -1,12 +1,12 @@
 # Story 012: No-engine-coupling lint for Pattern modules
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 1-2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (AC-24)
@@ -38,7 +38,8 @@ Add a rule entry to `tools/ci/lint_rules.json` scoped to `src/core/pattern_diffi
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_lint_test.gd` plus a green `python tools/ci/run_ci.py` lint stage
-**Status**: [ ] Not yet created
+**Evidence**: `tools/ci/tests/test_lint_pattern_rules.py` (Python, the repo convention for lint rules; the GUT path named above was not used) plus fixtures `forbidden_pattern_core_purity`, `forbidden_pattern_rng_construction_outside_core`, `custom_pattern_rng_construction_seeded` and a green `run_ci.py` lint stage. Rules: `forbidden:pattern_core_purity`, `forbidden:pattern_rng_construction_outside_core`, `custom:pattern_rng_construction_seeded` (BLOCKING). `PatternCore._rng` now initialises to null (constructed and seeded in `on_run_reset`).
+**Status**: [x] Created
 
 ## Dependencies
 - Depends on: Stories 005, 006, 007 (code exists to scan); test-harness-ci lint runner

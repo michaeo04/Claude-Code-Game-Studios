@@ -1,0 +1,9 @@
+#@path: src/core/pattern_difficulty/pattern_core.gd
+extends RefCounted
+
+var _rng: RandomNumberGenerator = null
+
+
+func on_run_reset(run_id: int) -> void:
+	_rng = RandomNumberGenerator.new()
+	_rng.seed = run_id
