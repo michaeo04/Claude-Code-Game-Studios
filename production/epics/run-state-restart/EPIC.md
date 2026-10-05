@@ -82,7 +82,7 @@ This epic is complete when:
 | 009 | [Same-tick request conflicts and order independence](story-009-same-tick-ordering.md) | Logic | Complete | ADR-0002 |
 | 010 | [RunConfig validation and lock bounds](story-010-config-validation-lock-bounds.md) | Config/Data | Complete | ADR-0002, ADR-0009 |
 | 011 | [Flash bound bot and contract doubles](story-011-flash-bound-contract-doubles.md) | Logic | Complete | ADR-0009, ADR-0002 |
-| 012 | [Subscriber order and tick driver contract in GameRoot](story-012-wiring-subscriber-order-driver.md) | Integration | Ready | ADR-0002, ADR-0004 |
+| 012 | [Subscriber order and tick driver contract in GameRoot](story-012-wiring-subscriber-order-driver.md) | Integration | Complete | ADR-0002, ADR-0004 |
 | 013 | [Restart budget measurement on device (AC-27)](story-013-restart-budget-device.md) | Integration | Blocked | ADR-0002, ADR-0005 |
 | 014 | [Hit-restart flash rate on device (AC-26)](story-014-flash-rate-visual.md) | Visual/Feel | Ready | ADR-0010, ADR-0009 |
 

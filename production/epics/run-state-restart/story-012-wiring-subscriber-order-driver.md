@@ -1,12 +1,12 @@
 # Story 012: Subscriber order and tick driver contract in GameRoot
 
 > **Epic**: Run State & Restart
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/run-state-restart.md`
@@ -48,7 +48,8 @@ Use the real `GameRoot._wire()` table (a partial sketch is in ADR-0002 Key Inter
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/run_state/run_state_wiring_order_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created, passing (8 tests)
+**Evidence**: `tests/integration/run_state/run_state_wiring_order_test.gd`: `test_ac30_restart_run_reset_order_before_run_started`, `test_ac30_hit_run_ended_order_juice_before_personal_best`, `test_ac30_abandon_from_paused_order`, `test_ac30_order_survives_disconnect_and_reconnect`, `test_ac30_mutated_rank_order_is_caught`, `test_ac30_scoring_before_juice_root_fails`, `test_driver_time_scale_does_not_affect_real_dt_and_advance_only_in_running`, `test_driver_advance_never_called_outside_running_over_lifecycle`.
 
 ## Dependencies
 - Depends on: Stories 003, 004, 008; composition-root (GameRoot `_wire()` and `_tick()` story), tube-track (adapter), spike T-1 recorded
