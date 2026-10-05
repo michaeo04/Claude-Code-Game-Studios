@@ -73,7 +73,7 @@ This epic is complete when:
 | 007 | [Corrupt-file backup, rotation and oversize guard](story-007-corrupt-backup-and-oversize-guard.md) | Logic | Complete | ADR-0007 |
 | 008 | [Flush no-op and SaveService node wiring](story-008-flush-and-save-service-node.md) | Logic | Complete | ADR-0007 |
 | 009 | [Real SaveFs implementation and file round trip](story-009-real-save-fs.md) | Integration | Complete | ADR-0007 |
-| 010 | [Architecture and coupling lints](story-010-architecture-lints.md) | Logic | Ready | ADR-0009 |
+| 010 | [Architecture and coupling lints](story-010-architecture-lints.md) | Logic | Complete | ADR-0009 |
 | 011 | [SP-2 real-parser sweep against hostile files](story-011-sp2-real-parser-sweep.md) | Integration | Ready | ADR-0007 |
 | 012 | [SP-1 write survives a kill (device)](story-012-sp1-write-survives-kill.md) | Integration | Ready | ADR-0007 |
 | 013 | [SP-3 death-frame write latency (device)](story-013-sp3-write-latency.md) | Integration | Ready | ADR-0007 |

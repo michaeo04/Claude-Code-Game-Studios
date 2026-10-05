@@ -69,3 +69,5 @@
 
 - **B (editor), OB-011:** run `tools/content_preflight_editor.gd` once in the Godot editor (File > Run) and confirm it reports without errors; it has no automated test, so OB-011 stays Ready until then.
 - **Blocked, OB-012:** P2/P3 preflight needs `PatternCore._padding_segments_for` (PD-010, blocked on design review C6) and `assets/data/chunks/chunk_library_01.tres` (hidden-side content, see OB-017).
+
+- **B (device), SP-2 / Save 011:** run the hostile-save battery (`tests/integration/save_persistence/save_persistence_hostile_files_test.gd` fixtures) on an Android export build and record it in `production/qa/evidence/save-persistence-sp2.md`; gate sign-off is yours. Desktop part is done (ConfigFile executed an attached script, so `PersistMath.has_object_constructor` now sniffs the file before parsing).

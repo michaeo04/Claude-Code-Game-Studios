@@ -1,0 +1,11 @@
+#@path: src/core/persistence/save_core.gd
+class_name SaveCore
+extends RefCounted
+
+## ConfigFile, FileAccess, theta, phase and Time.get_unix_time_from_system() are named in a comment: it passes.
+var _wall_clock: Callable
+var _note: String = "RunState and OS.get_name() inside a string"
+
+
+func stamp() -> int:
+	return int(_wall_clock.call())

@@ -25,6 +25,9 @@ class RealSaveFs:
 
 	## Reads a config into `{"status", "sections"}`; a fresh `ConfigFile` per read.
 	func read_config(path: String) -> Dictionary:
+		if FileAccess.file_exists(_map(path)) and PersistMath.has_object_constructor(FileAccess.get_file_as_string(_map(path))):
+			# SP-2: the parser would instantiate objects and run scripts named in the file; reject it unparsed.
+			return {"status": "PARSE_ERROR", "sections": {}}
 		var cfg: ConfigFile = ConfigFile.new()
 		var err: Error = cfg.load(_map(path))
 		if err == ERR_FILE_NOT_FOUND:

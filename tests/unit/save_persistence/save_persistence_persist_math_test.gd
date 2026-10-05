@@ -106,3 +106,17 @@ func test_serializable_non_finite_float_false() -> void:
 	assert_false(PersistMath.is_serializable_type(NAN))
 	assert_false(PersistMath.is_serializable_type(INF))
 	assert_false(PersistMath.is_serializable_type(-INF))
+
+
+func test_sniff_flags_object_and_resource_constructors() -> void:
+	assert_true(PersistMath.has_object_constructor("x=Object(Node)"))
+	assert_true(PersistMath.has_object_constructor("x=Object (Node)"))
+	assert_true(PersistMath.has_object_constructor("x=Resource(\"res://a.gd\")"))
+	assert_true(PersistMath.has_object_constructor("x=ExtResource(\"1\")"))
+	assert_true(PersistMath.has_object_constructor("x=SubResource(\"1\")"))
+
+
+func test_sniff_passes_plain_values_and_bare_words() -> void:
+	assert_false(PersistMath.has_object_constructor(""))
+	assert_false(PersistMath.has_object_constructor("[_meta]\nschema_version=1\nv=Vector2(1, 2)\nc=Color(1, 0, 0, 1)\n"))
+	assert_false(PersistMath.has_object_constructor("name=\"Object\"\nother=\"Resource here\"\n"))

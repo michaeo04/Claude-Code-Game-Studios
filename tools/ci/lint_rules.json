@@ -339,6 +339,19 @@
    "message": "SaveCore must not declare methods that shadow global functions (use boot_load)"
   },
   {
+   "id": "forbidden:save_core_purity",
+   "source": "ADR-0007; ADR-0009; save-persistence.md (story SP-010 AC-16, TR-save-persistence-019, TR-save-persistence-021)",
+   "severity": "BLOCKING",
+   "kind": "forbid",
+   "scope": [
+    "src/**/persist_math.gd",
+    "src/**/save_core.gd",
+    "src/**/save_fs.gd"
+   ],
+   "pattern": "\\b(?:ConfigFile|FileAccess|DirAccess|get_tree|theta|phase|RunState)\\b|\\b(?:Input|DisplayServer|Engine|Time|OS)\\s*\\.",
+   "message": "SaveCore, PersistMath and SaveFs make no ConfigFile, FileAccess, DirAccess, Input, DisplayServer, Engine, Time, OS or scene-tree call and name no theta, phase or RunState: file I/O enters through the SaveFs seam, time through injected Callables"
+  },
+  {
    "id": "forbidden:engine_physics_for_hazards",
    "source": "ADR-0008",
    "severity": "BLOCKING",

@@ -1,0 +1,16 @@
+#@path: src/core/persistence/save_core.gd
+extends RefCounted
+
+var cfg: ConfigFile
+var fa: FileAccess
+var theta: float
+
+
+func read() -> void:
+	DirAccess.open("user://")
+	Input.get_accelerometer()
+	DisplayServer.window_get_size()
+	Engine.get_frames_drawn()
+	Time.get_unix_time_from_system()
+	OS.get_name()
+	get_tree()

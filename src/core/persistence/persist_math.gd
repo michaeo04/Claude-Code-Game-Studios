@@ -55,3 +55,25 @@ static func is_serializable_type(value: Variant) -> bool:
 			return is_finite(f)
 		_:
 			return true
+
+
+## SP-2 pre-parse sniff (ADR-0007; GDD Open Question 1). `ConfigFile`'s parser instantiates objects and runs
+## attached scripts while parsing `Object(...)` and loads `Resource(...)`, `ExtResource(...)` and
+## `SubResource(...)` values (confirmed on Godot 4.7.2). A save file holds only plain values, so a file that
+## names one of these constructors is rejected before it reaches the parser. Deliberately conservative: the
+## token is matched even inside a quoted string, because failing safe to defaults is the cheaper error.
+## Example: `PersistMath.has_object_constructor("x=Object(Node)")` is `true`; `"x=Vector2(1, 2)"` is `false`.
+static func has_object_constructor(text: String) -> bool:
+	for token: String in ["Object", "Resource"]:
+		var from: int = 0
+		while true:
+			var at: int = text.find(token, from)
+			if at < 0:
+				break
+			var next: int = at + token.length()
+			while next < text.length() and (text[next] == " " or text[next] == "\t"):
+				next += 1
+			if next < text.length() and text[next] == "(":
+				return true
+			from = at + token.length()
+	return false

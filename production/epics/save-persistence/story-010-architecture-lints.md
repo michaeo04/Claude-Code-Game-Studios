@@ -1,12 +1,12 @@
 # Story 010: Architecture and coupling lints
 
 > **Epic**: Save & Persistence
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Logic
 > **Estimate**: 2 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/save-persistence.md`
@@ -22,8 +22,8 @@
 - Guardrail: lint failures are BLOCKING.
 
 ## Acceptance Criteria
-- [ ] **AC-16 [L]** `SaveCore` and `PersistMath` (and the `SaveFs` base class) extend `RefCounted` or are static and contain none of `ConfigFile`, `FileAccess`, `DirAccess`, `Input.`, `DisplayServer.`, `Engine.`, `Time.`, `OS.`, `get_tree`; neither references `theta`, `phase` or `RunState`; no `[autoload]` entry exists for either class.
-- [ ] **AC-17 [L]** `SaveService` (`save_service.gd`) is the sole file in `src/` matching `ConfigFile`, `FileAccess`, `DirAccess`, confirmed both ways: present there, absent everywhere else.
+- [x] **AC-16 [L]** `SaveCore` and `PersistMath` (and the `SaveFs` base class) extend `RefCounted` or are static and contain none of `ConfigFile`, `FileAccess`, `DirAccess`, `Input.`, `DisplayServer.`, `Engine.`, `Time.`, `OS.`, `get_tree`; neither references `theta`, `phase` or `RunState`; no `[autoload]` entry exists for either class.
+- [x] **AC-17 [L]** `SaveService` (`save_service.gd`) is the sole file in `src/` matching `ConfigFile`, `FileAccess`, `DirAccess`, confirmed both ways: present there, absent everywhere else.
 
 ## Implementation Notes
 Add the `forbid` rule (scope `src/core/persistence/{persist_math,save_core,save_fs}.gd`) and the `only_in` rule from ADR-0009 Decision 5; extend the `project_setting` autoload rule if it does not already name the two classes. Python `unittest` cases in `tools/ci/tests/` with one passing and one failing fixture per rule. Note the existing untracked `tools/ci/lint_runner.py` belongs to the test-harness-ci epic; add rules, do not fork the runner.
@@ -39,7 +39,8 @@ Add the `forbid` rule (scope `src/core/persistence/{persist_math,save_core,save_
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tools/ci/tests/test_save_persistence_lints.py` (run by `python tools/ci/lint_runner.py` step 4a)
-**Status**: [ ] Not yet created
+**Status**: [x] Created
+**Evidence**: `tools/ci/tests/test_save_persistence_lints.py` (PurityTest, IoOnlyInSaveServiceTest; 9 tests), rule `forbidden:save_core_purity`, fixtures `tools/ci/tests/fixtures/forbidden_save_core_purity/`; AC-17 uses the existing rule `forbidden:save_io_outside_save_service`.
 
 ## Dependencies
 - Depends on: Story 002 (files exist); cross-epic: test-harness-ci (lint runner)
