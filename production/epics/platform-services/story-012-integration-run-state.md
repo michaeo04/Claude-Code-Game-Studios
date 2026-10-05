@@ -1,12 +1,12 @@
 # Story 012: Integration with Run State core (INT/BACK pause, 340 sequences)
 
 > **Epic**: Platform Services
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 > **Unblocked 2026-10-03**: the Run State stories now exist; depends on `run-state-restart` stories 001-004 (core, AC-8) and `composition-root` story 001, which supplies the production adapter wiring.
 
@@ -24,8 +24,8 @@
 - Guardrail: all 340 sequences deterministic, fixed enumeration order.
 
 ## Acceptance Criteria
-- [ ] **AC-14 [I]** (R4, R5) INT or BACK in Running or Resuming gives Paused with one `run_paused` whose source is `app_interrupted` or `back`, applied before the `on_*` call returns; in Menu, Boot, Hit and Paused: no phase change, zero log lines; two BACK in Running give one pause; an Android Home sequence (A1) leaves Paused with `run_id` unchanged and no `run_ended`.
-- [ ] **AC-15 [I]** (regression only) Events delivered between ticks: all 340 sequences of 1-4 events (4+16+64+256), both `fis`, from Running: zero Run State Error logs, and the run is Paused iff the sequence contains FO or (with `fis` false) P.
+- [x] **AC-14 [I]** (R4, R5) INT or BACK in Running or Resuming gives Paused with one `run_paused` whose source is `app_interrupted` or `back`, applied before the `on_*` call returns; in Menu, Boot, Hit and Paused: no phase change, zero log lines; two BACK in Running give one pause; an Android Home sequence (A1) leaves Paused with `run_id` unchanged and no `run_ended`.
+- [x] **AC-15 [I]** (regression only) Events delivered between ticks: all 340 sequences of 1-4 events (4+16+64+256), both `fis`, from Running: zero Run State Error logs, and the run is Paused iff the sequence contains FO or (with `fis` false) P.
 
 ## Implementation Notes
 Use the test-only adapter described in the GDD; the production adapter belongs to the composition-root epic. Events are delivered between ticks. A second BACK in Paused is a silent no-op in Run State. AC-16 (re-anchoring the Paused guard with `app_returned`) and AC-17 are deferred; do not implement them here. This story is blocked by the Run State core story (its AC-8 SceneTree-free core) and by the production adapter story, which the producer assigns.
@@ -49,7 +49,8 @@ Use the test-only adapter described in the GDD; the production adapter belongs t
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/platform_services/platform_services_run_state_test.gd` (must pass)
-**Status**: [ ] Not yet created
+**Evidence**: `tests/integration/platform_services/platform_services_run_state_test.gd` (6 tests, passing; AC-14 x5, AC-15 x1 over 340 sequences x 2 `fis`); test-only adapter `tests/support/platform_run_adapter.gd`. Note: Run State queues every pause source except `app_interrupted` until the next tick, so BACK is asserted after one tick; INT is applied before the `on_*` call returns.
+**Status**: [x] Created, passing
 
 ## Dependencies
 - Depends on: Stories 004, 006; run-state-restart epic core story (AC-8) and the production adapter story (composition-root epic)
