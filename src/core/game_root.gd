@@ -96,6 +96,7 @@ var _environment: Object
 var _juice: Object
 var _hud: Object
 var _menus: Object
+var _haptics_adapter: HapticsSettingsAdapter
 
 
 ## `clock` and `rendering_getter` default to their production bindings. `process_mode` is set here until the root
@@ -215,8 +216,26 @@ func _construct() -> Error:
 			else:
 				systems[step] = built
 			_cores[step] = built
+			if step == &"settings":
+				_push_haptics(systems)
 		construction_trace.append(step)
 	return OK if inject_systems(systems) else ERR_INVALID_DATA
+
+
+## Right after the Settings step (before Run State exists): pushes the boot `haptics_*` values to Platform Services once.
+## Applies only when the built Settings is a real `SettingsCore` and the platform object has both setters.
+func _push_haptics(systems: Dictionary) -> void:
+	_haptics_adapter = null
+	var settings: SettingsCore = systems.get(&"settings") as SettingsCore
+	var platform: Object = systems.get(&"platform") as Object
+	if settings == null or platform == null or not platform.has_method(&"set_haptics_enabled") \
+			or not platform.has_method(&"set_haptics_intensity"):
+		return
+	_haptics_adapter = HapticsSettingsAdapter.new(
+		func(enabled: bool) -> void: platform.call(&"set_haptics_enabled", enabled),
+		func(intensity: float) -> void: platform.call(&"set_haptics_intensity", intensity)
+	)
+	_haptics_adapter.push_initial(settings.get_haptics_enabled(), settings.get_haptics_intensity())
 
 
 ## True when the injected getter returns `REQUIRED_RENDERING_METHOD`; otherwise logs one error and returns false
@@ -314,8 +333,21 @@ func _wire() -> Error:
 	for row: Array in order_rows(_rows):
 		(row[0] as Signal).connect(row[1] as Callable)
 		_connected.append(row)
+	_connect_settings_rows()
 	construction_trace.append(&"wire")
 	return OK
+
+
+## Connects `SettingsCore.setting_changed` to the haptics push. Kept outside the typed row table because the handler
+## carries a `Variant` payload (`validate_rows` treats a `Variant` parameter as untyped); recorded in `_connected` so
+## `unwire()` removes it.
+func _connect_settings_rows() -> void:
+	var settings: SettingsCore = _cores.get(&"settings") as SettingsCore
+	if settings == null or _haptics_adapter == null:
+		return
+	var handler: Callable = _haptics_adapter.on_setting_changed
+	settings.setting_changed.connect(handler)
+	_connected.append([settings.setting_changed, handler, RANK_REST])
 
 
 ## Disconnects every row that `_wire()` connected.

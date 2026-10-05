@@ -1,12 +1,12 @@
 # Story 012: Composition wiring, haptics push and live consumer reads
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 > **Note**: GDD AC-20 is deferred (no owner/date). BLOCKING only once an owner and date are named. Consumers of other epics (Tilt Input, Tube Track, Environment) may not exist yet; rows for a missing consumer are written against its published interface and marked pending in the evidence doc, never skipped in code.
 
@@ -49,7 +49,8 @@ In the composition-root story's `GameRoot`, construct `SettingsCore` with `save.
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/settings_accessibility/settings_accessibility_consumers_test.gd`; pending rows documented in `production/qa/evidence/settings-accessibility-consumers.md`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing (8 tests); pending real-consumer rows in `production/qa/evidence/settings-accessibility-consumers.md`
+**Evidence**: `test_construction_order_is_platform_save_settings_then_haptics_pushed_once_before_run_state`, `test_stored_haptics_values_are_pushed_at_construction`, `test_haptics_change_reaches_platform_live_after_wire`, `test_unwire_removes_the_haptics_connection`, `test_tilt_sensitivity_change_is_read_live_under_its_own_name`, `test_stored_reduced_motion_gives_seam_scale_zero_on_the_first_frame`, `test_runtime_reduced_motion_change_updates_tube_track_without_the_signal`, `test_environment_reads_getter_at_load_and_follows_runtime_change`.
 
 ## Dependencies
 - Depends on: Story 004, Story 005, Story 011; cross-epic: composition-root (`GameRoot` and `_wire()`), platform-services, tilt-input, tube-track

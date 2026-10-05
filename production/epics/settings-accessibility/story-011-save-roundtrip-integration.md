@@ -1,12 +1,12 @@
 # Story 011: Real Save and Persistence round trip
 
 > **Epic**: Settings & Accessibility
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Foundation
 > **Type**: Integration
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 > **Note**: GDD AC-19 is deferred (no owner/date). The test is BLOCKING only once an owner and date are named; until then it is written and run but does not gate the epic.
 
@@ -43,7 +43,8 @@ Build `SaveCore` with the real fs facade over a temp path, `boot_load()`, build 
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/settings_accessibility/settings_accessibility_save_roundtrip_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `test_all_five_settings_round_trip_a_cold_restart`, `test_deleted_file_between_sessions_returns_the_five_defaults`, `test_failed_write_keeps_value_this_session_and_loses_it_on_restart` (3 tests, real `ConfigFile` fs in a per-test `user://` directory). AC-19 stays deferred (no owner/date), so the test does not gate the epic.
 
 ## Dependencies
 - Depends on: Story 002, Story 005; cross-epic: save-persistence (`SaveCore`, real `SaveFs`)
