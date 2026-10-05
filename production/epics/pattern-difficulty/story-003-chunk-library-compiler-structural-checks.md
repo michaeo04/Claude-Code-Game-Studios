@@ -1,12 +1,12 @@
 # Story 003: ChunkLibraryCompiler, CompiledLibrary and structural checks
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rules 1, 4, 6; Edge Cases on `GRACE_POOL_TOO_SMALL`)
@@ -46,7 +46,8 @@ Files in `src/core/pattern_difficulty/`: `chunk_library_compiler.gd` (`static fu
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_compiler_test.gd`
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_compiler_test.gd`. AC-9b and structural/pool/sharing cases proven. `Pattern.apply_map` returning false is wired in Story 006.
 
 ## Dependencies
 - Depends on: Story 001; obstacle-system stories 001, 005 (validators, `HazardSpec`), map-loader (`MapConfig.chunk_library`)

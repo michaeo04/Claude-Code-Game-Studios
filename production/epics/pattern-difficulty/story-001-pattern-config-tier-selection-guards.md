@@ -1,12 +1,12 @@
 # Story 001: PatternConfig, tier selection, config guards and pattern fixture
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rule 2; Formula F1; Edge Cases on tier durations and threshold)
@@ -48,7 +48,8 @@ Create `src/core/pattern_difficulty/pattern_math.gd` (static `tier_for(run_time,
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_config_test.gd` (AC-1, AC-1b, AC-1c)
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_config_test.gd`. AC-1, AC-1b, AC-1c proven (tier boundaries, order/range/threshold guards). Note: guards run independently, so 90/90 also logs TIER_DURATION_OUT_OF_RANGE (intro 90 is outside 8..20; GDD AC-1 and AC-1c overlap). `make_core` of the fixture arrives with Story 006.
 
 ## Dependencies
 - Depends on: obstacle-system story 001 (ChunkDef.Tier), test-harness-ci epic (GUT runner), `LogLevel` in `src/core/log/log_level.gd`

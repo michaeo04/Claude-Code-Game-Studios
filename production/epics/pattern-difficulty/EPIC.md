@@ -64,9 +64,9 @@ This epic is complete when:
 
 | # | Story | Type | Status | ADR |
 |---|-------|------|--------|-----|
-| 001 | [PatternConfig, tier selection, config guards and fixture](story-001-pattern-config-tier-selection-guards.md) | Logic | Ready | ADR-0008, ADR-0009 |
-| 002 | [Dodge-recovery math, opposing test and cost ratio](story-002-dodge-recovery-math-and-cost-ratio.md) | Logic | Ready | ADR-0008 |
-| 003 | [ChunkLibraryCompiler, CompiledLibrary and structural checks](story-003-chunk-library-compiler-structural-checks.md) | Logic | Ready | ADR-0008, ADR-0004 |
+| 001 | [PatternConfig, tier selection, config guards and fixture](story-001-pattern-config-tier-selection-guards.md) | Logic | Complete | ADR-0008, ADR-0009 |
+| 002 | [Dodge-recovery math, opposing test and cost ratio](story-002-dodge-recovery-math-and-cost-ratio.md) | Logic | Complete | ADR-0008 |
+| 003 | [ChunkLibraryCompiler, CompiledLibrary and structural checks](story-003-chunk-library-compiler-structural-checks.md) | Logic | Complete | ADR-0008, ADR-0004 |
 | 004 | [Within-chunk validators (hidden, exit, dodge-recovery)](story-004-within-chunk-validators.md) | Logic | Ready | ADR-0008 |
 | 005 | [Seeded PRNG, Fisher-Yates and tiered bags](story-005-seeded-prng-fisher-yates-bags.md) | Logic | Ready | ADR-0008 |
 | 006 | [PatternCore as HazardContentProvider](story-006-hazard-provider-chunk-delivery.md) | Logic | Ready | ADR-0008, ADR-0004 |

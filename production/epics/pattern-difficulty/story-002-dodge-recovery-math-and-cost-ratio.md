@@ -1,12 +1,12 @@
 # Story 002: Dodge-recovery math, opposing test and cost ratio
 
 > **Epic**: Pattern & Difficulty
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Logic
 > **Estimate**: 2-3 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-04
 
 ## Context
 **GDD**: `design/gdd/pattern-difficulty.md` (Core Rule 8; Formulas F2, F3)
@@ -44,7 +44,8 @@ Add to `PatternMath`: `opposing(angles_a, angles_b, threshold)` using `BallMath.
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_math_test.gd` (AC-14, AC-30)
-**Status**: [ ] Not yet created
+**Status**: [x] Created and passing
+**Evidence**: `tests/unit/pattern_difficulty/pattern_difficulty_math_test.gd`. AC-14, AC-30 proven; the DODGE_RECOVERY_VIOLATION verdict itself is Story 004.
 
 ## Dependencies
 - Depends on: Story 001; ball-movement `BallMath.T` and `wrap_angle` (exist in `src/core/ball_movement/ball_math.gd`)
