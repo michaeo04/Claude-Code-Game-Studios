@@ -6,7 +6,7 @@
 > **Type**: Logic
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: 2026-10-04
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Edge Cases "When validation actually runs"; AC-32, AC-37)
@@ -43,7 +43,7 @@ P1 code list (ADR-0008): `FOOTPRINT_NOT_FINITE`, `FOOTPRINT_INVALID_ORDER`, `FOO
 ## Test Evidence
 **Story Type**: Logic
 **Required evidence**: `tests/unit/obstacle_system/obstacle_system_preflight_p1_test.gd`
-**Evidence (partial)**: `tests/unit/obstacle_system/obstacle_system_preflight_p1_test.gd` (5 tests: AC-32, AC-37, SOLUTION_NOT_IN_GAP); `src/core/obstacle/content_preflight.gd`. Gap: the EditorScript entry is not written; NEAR_ZONE_OVERLAP and DODGE_RECOVERY_VIOLATION await their validators.
+**Evidence (partial)**: `tests/unit/obstacle_system/obstacle_system_preflight_p1_test.gd` (7 tests: AC-32, AC-37, SOLUTION_NOT_IN_GAP, NEAR_ZONE_OVERLAP and DODGE_RECOVERY_VIOLATION composed via `NearMissMath` and `ChunkValidator`); `src/core/obstacle/content_preflight.gd`; `ContentPreflightConfig` gained `angular_reversal_threshold`, `dodge_recovery_s`, `near_miss`. The EditorScript entry is written at `tools/content_preflight_editor.gd`. Gap: the EditorScript has no automated test and has not been run in the editor (owner check); stays Ready until then.
 
 ## Dependencies
 - Depends on: Stories 001, 004, 005, 006

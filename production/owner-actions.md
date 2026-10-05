@@ -66,3 +66,6 @@
 - Spike T-1 (GUT on 4.7.2): done on Windows, evidence in `production/qa/evidence/test-harness-ci/`.
 
 - **B (device), PD-013:** run the golden sequence on the Android build and record it in `production/qa/evidence/pattern-difficulty/golden-sequence-android.md`. Headless parts (wiring, golden table) are done; the story stays Ready until this exists.
+
+- **B (editor), OB-011:** run `tools/content_preflight_editor.gd` once in the Godot editor (File > Run) and confirm it reports without errors; it has no automated test, so OB-011 stays Ready until then.
+- **Blocked, OB-012:** P2/P3 preflight needs `PatternCore._padding_segments_for` (PD-010, blocked on design review C6) and `assets/data/chunks/chunk_library_01.tres` (hidden-side content, see OB-017).

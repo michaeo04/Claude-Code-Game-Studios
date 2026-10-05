@@ -65,9 +65,16 @@ static func _check_chunk(chunk: ChunkDef, cfg: ContentPreflightConfig) -> Array[
 		ObstacleMath.validate_hidden_frequency(hazards, cfg.visible_arc_half_width, cfg.hidden_span_min_s)
 	)
 	records.append_array(ObstacleMath.validate_exit_rule(hazards, cfg.visible_arc_half_width))
+	var near_cfg: NearMissConfig = cfg.near_miss if cfg.near_miss != null else NearMissConfig.new()
+	records.append_array(NearMissMath.validate_near_zone_overlap(hazards, cfg.tube_radius, cfg.ball_diameter, near_cfg))
 	var out: Array[Dictionary] = []
 	for rec: PreflightRecord in records:
 		out.append(_dict(chunk, rec.code, rec.s0, _detail(rec)))
+	for dodge: Dictionary in ChunkValidator.validate_chunk(
+		chunk, cfg.visible_arc_half_width, cfg.angular_reversal_threshold, cfg.dodge_recovery_s
+	):
+		if dodge["code"] == ChunkValidator.DODGE_RECOVERY_VIOLATION:
+			out.append(_dict(chunk, dodge["code"] as StringName, 0.0, dodge["detail"] as String))
 	for hz: PreflightHazard in hazards:
 		for k: int in range(hz.piece_count()):
 			var w_code: StringName = ObstacleMath.width_code(hz.pieces[k * 4], hz.pieces[k * 4 + 1], half)

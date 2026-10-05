@@ -6,7 +6,8 @@
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
+> **Blocker (2026-10-05)**: not started. P2 and P3 need the real sequencer padding (`PatternCore._padding_segments_for` is a seam returning 0; pattern-difficulty Story 010 is Blocked) and the shipped `assets/data/chunks/chunk_library_01.tres` does not exist yet.
 
 ## Context
 **GDD**: `design/gdd/obstacle-system.md` (Edge Cases validation; Formulas F3, F5); `design/gdd/pattern-difficulty.md` (sequencer)

@@ -87,6 +87,26 @@ func test_solution_inside_an_occupied_arc_is_reported() -> void:
 	assert_eq(found, 1)
 
 
+func test_dodge_recovery_violation_is_composed_for_close_opposing_reads() -> void:
+	var a: HazardPlacement = _place(1, [_piece(0.2, 0.6, 14.0, 15.0)] as Array[HazardPiece], PackedFloat64Array([0.0]))
+	var b: HazardPlacement = _place(1, [_piece(3.0, 3.4, 22.0, 23.0)] as Array[HazardPiece], PackedFloat64Array([PI]))
+	var lib: ChunkLibrary = _library([_chunk(&"dodge", [a, b] as Array[HazardPlacement])] as Array[ChunkDef])
+	var records: Array[Dictionary] = ContentPreflight.run(lib, ContentPreflightConfig.new())
+	assert_true(_codes(records).has(&"DODGE_RECOVERY_VIOLATION"), "codes: %s" % [_codes(records)])
+	for r: Dictionary in records:
+		if r["code"] == &"DODGE_RECOVERY_VIOLATION":
+			assert_eq(r["chunk_id"], &"dodge")
+
+
+func test_near_zone_overlap_is_composed_for_adjacent_pieces() -> void:
+	var one: HazardPlacement = _place(
+		1, [_piece(0.0, 1.0, 14.0, 15.0), _piece(1.05, 2.0, 14.0, 15.0)] as Array[HazardPiece], PackedFloat64Array()
+	)
+	var lib: ChunkLibrary = _library([_chunk(&"near", [one] as Array[HazardPlacement])] as Array[ChunkDef])
+	var records: Array[Dictionary] = ContentPreflight.run(lib, ContentPreflightConfig.new())
+	assert_true(_codes(records).has(&"NEAR_ZONE_OVERLAP"), "codes: %s" % [_codes(records)])
+
+
 func test_clean_chunk_and_empty_inputs_report_nothing() -> void:
 	var wall: HazardPlacement = _place(1, [_piece(0.5, 1.0, 14.0, 15.0)] as Array[HazardPiece], PackedFloat64Array([PI]))
 	var lib: ChunkLibrary = _library([_chunk(&"ok", [wall] as Array[HazardPlacement])] as Array[ChunkDef])
