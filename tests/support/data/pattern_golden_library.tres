@@ -1,0 +1,193 @@
+[gd_resource type="Resource" script_class="ChunkLibrary" format=3]
+
+[ext_resource type="Script" path="res://src/core/obstacle/chunk_def.gd" id="1_kgb4m"]
+[ext_resource type="Script" path="res://src/core/obstacle/hazard_placement.gd" id="2_1iabl"]
+[ext_resource type="Script" path="res://src/core/obstacle/hazard_piece.gd" id="3_03t23"]
+[ext_resource type="Script" path="res://src/core/obstacle/chunk_library.gd" id="4_584hh"]
+
+[sub_resource type="Resource" id="Resource_js7ue"]
+script = ExtResource("3_03t23")
+theta_min = 0.4127
+theta_max = 5.8705
+s_start = 2.0
+s_end = 3.0
+
+[sub_resource type="Resource" id="Resource_0edi3"]
+script = ExtResource("2_1iabl")
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_js7ue")])
+solution_angles = PackedFloat64Array(0)
+
+[sub_resource type="Resource" id="Resource_as874"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"1"
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_0edi3")])
+
+[sub_resource type="Resource" id="Resource_vqt5v"]
+script = ExtResource("3_03t23")
+theta_min = 0.4127
+theta_max = 5.8705
+s_start = 5.0
+s_end = 6.0
+
+[sub_resource type="Resource" id="Resource_r1a03"]
+script = ExtResource("2_1iabl")
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_vqt5v")])
+solution_angles = PackedFloat64Array(0)
+
+[sub_resource type="Resource" id="Resource_8erxk"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"2"
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_r1a03")])
+
+[sub_resource type="Resource" id="Resource_n2vtd"]
+script = ExtResource("3_03t23")
+theta_min = 0.4127
+theta_max = 5.8705
+s_start = 14.0
+s_end = 15.0
+
+[sub_resource type="Resource" id="Resource_liose"]
+script = ExtResource("2_1iabl")
+local_segment_index = 1
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_n2vtd")])
+solution_angles = PackedFloat64Array(0)
+
+[sub_resource type="Resource" id="Resource_arslr"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"3"
+segment_count = 2
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_liose")])
+
+[sub_resource type="Resource" id="Resource_akrdk"]
+script = ExtResource("3_03t23")
+theta_min = 0.4127
+theta_max = 5.8705
+s_start = 11.0
+s_end = 11.9
+
+[sub_resource type="Resource" id="Resource_i17ae"]
+script = ExtResource("2_1iabl")
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_akrdk")])
+solution_angles = PackedFloat64Array(0)
+
+[sub_resource type="Resource" id="Resource_bx85v"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"4"
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_i17ae")])
+
+[sub_resource type="Resource" id="Resource_s4lbl"]
+script = ExtResource("3_03t23")
+theta_min = -0.05
+theta_max = 0.05
+s_end = 0.3
+
+[sub_resource type="Resource" id="Resource_5kia6"]
+script = ExtResource("3_03t23")
+theta_min = 0.3
+theta_max = 0.4
+s_start = 0.05
+s_end = 0.35
+
+[sub_resource type="Resource" id="Resource_ww1nt"]
+script = ExtResource("3_03t23")
+theta_min = 0.65
+theta_max = 0.75
+s_end = 0.3
+
+[sub_resource type="Resource" id="Resource_os016"]
+script = ExtResource("2_1iabl")
+hazard_type = 1
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_s4lbl"), SubResource("Resource_5kia6"), SubResource("Resource_ww1nt")])
+solution_angles = PackedFloat64Array()
+
+[sub_resource type="Resource" id="Resource_sgv3d"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"5"
+tier = 1
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_os016")])
+
+[sub_resource type="Resource" id="Resource_kmggt"]
+script = ExtResource("3_03t23")
+theta_min = -1.2
+theta_max = -0.4
+s_start = 14.0
+s_end = 15.2
+
+[sub_resource type="Resource" id="Resource_mytud"]
+script = ExtResource("3_03t23")
+theta_min = 0.4
+theta_max = 1.2
+s_start = 14.0
+s_end = 15.2
+
+[sub_resource type="Resource" id="Resource_ik5vt"]
+script = ExtResource("2_1iabl")
+hazard_type = 2
+local_segment_index = 1
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_kmggt"), SubResource("Resource_mytud")])
+solution_angles = PackedFloat64Array(-0.8, 0.8)
+
+[sub_resource type="Resource" id="Resource_gw142"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"6"
+tier = 1
+segment_count = 2
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_ik5vt")])
+
+[sub_resource type="Resource" id="Resource_idlji"]
+script = ExtResource("3_03t23")
+theta_min = -2.7053
+theta_max = 2.7053
+s_start = 14.0
+s_end = 15.2
+
+[sub_resource type="Resource" id="Resource_cbqdt"]
+script = ExtResource("2_1iabl")
+hazard_type = 3
+local_segment_index = 1
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_idlji")])
+solution_angles = PackedFloat64Array(3.141592653589793)
+
+[sub_resource type="Resource" id="Resource_5awgq"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"7"
+tier = 2
+segment_count = 2
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_cbqdt")])
+
+[sub_resource type="Resource" id="Resource_4btdq"]
+script = ExtResource("3_03t23")
+theta_min = 0.4127
+theta_max = 5.8705
+s_start = 0.5
+s_end = 1.5
+
+[sub_resource type="Resource" id="Resource_yc4hy"]
+script = ExtResource("2_1iabl")
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_4btdq")])
+solution_angles = PackedFloat64Array(0)
+
+[sub_resource type="Resource" id="Resource_dnm4y"]
+script = ExtResource("3_03t23")
+theta_min = -2.7053
+theta_max = 2.7053
+s_start = 27.1
+s_end = 28.3
+
+[sub_resource type="Resource" id="Resource_3enrf"]
+script = ExtResource("2_1iabl")
+hazard_type = 3
+local_segment_index = 2
+pieces = Array[ExtResource("3_03t23")]([SubResource("Resource_dnm4y")])
+solution_angles = PackedFloat64Array(3.141592653589793)
+
+[sub_resource type="Resource" id="Resource_w2ixd"]
+script = ExtResource("1_kgb4m")
+chunk_id = &"8"
+tier = 2
+segment_count = 3
+placements = Array[ExtResource("2_1iabl")]([SubResource("Resource_yc4hy"), SubResource("Resource_3enrf")])
+
+[resource]
+script = ExtResource("4_584hh")
+chunks = Array[ExtResource("1_kgb4m")]([SubResource("Resource_as874"), SubResource("Resource_8erxk"), SubResource("Resource_arslr"), SubResource("Resource_bx85v"), SubResource("Resource_sgv3d"), SubResource("Resource_gw142"), SubResource("Resource_5awgq"), SubResource("Resource_w2ixd")])

@@ -1,12 +1,12 @@
 # Story 013: Integration: real Ball Movement and Run State lifecycle (AC-22, AC-26)
 
 > **Epic**: Scoring & Personal Best
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Integration
 > **Estimate**: 3-4 h
 > **Manifest Version**: 2026-10-03
-> **Last Updated**: (set by /dev-story when implementation begins)
+> **Last Updated**: 2026-10-05
 
 ## Context
 **GDD**: `design/gdd/scoring-personal-best.md`
@@ -22,8 +22,8 @@
 - Guardrail: 60 FPS / 16.6 ms frame; the death frame carries Juice, Scoring, HUD freeze and the save write in one tick (ADR-0007 Decision 5, spike SP-3 budget p95 <= 3 ms)
 
 ## Acceptance Criteria
-- [ ] **AC-22** With real Ball Movement and Run State: `current_score` tracks the real `s` through a full lifecycle (reset, start, running, hit, restart), proves connect-before-emit against the real Run State (not the AC-19 fake) and its reciprocal commitment (`run-state-restart.md` Core Rule 15), and asserts `final_score == floori(ball.s)` at ending time.
-- [ ] **AC-26** With the real Run State and spies at the Juice and HUD ranks registered through the `_wire()` table, a hit that sets a new best logs: Juice's `run_ended` handler, then Scoring's `on_run_ended`, then `personal_best_updated` (emitted inside Scoring's handler), then HUD's `run_ended` handler. A spy that records `personal_best_updated` before its own `run_ended` is a failure of the composition root's order, not of Scoring. The same order is checked for `run_abandoned` (Juice; Scoring; the rest).
+- [x] **AC-22** With real Ball Movement and Run State: `current_score` tracks the real `s` through a full lifecycle (reset, start, running, hit, restart), proves connect-before-emit against the real Run State (not the AC-19 fake) and its reciprocal commitment (`run-state-restart.md` Core Rule 15), and asserts `final_score == floori(ball.s)` at ending time.
+- [x] **AC-26** With the real Run State and spies at the Juice and HUD ranks registered through the `_wire()` table, a hit that sets a new best logs: Juice's `run_ended` handler, then Scoring's `on_run_ended`, then `personal_best_updated` (emitted inside Scoring's handler), then HUD's `run_ended` handler. A spy that records `personal_best_updated` before its own `run_ended` is a failure of the composition root's order, not of Scoring. The same order is checked for `run_abandoned` (Juice; Scoring; the rest).
 
 ## Implementation Notes
 - BLOCKING at the first-playable gate (owner: user). Shares the composition-root fixture with Run State AC-30.
@@ -48,7 +48,8 @@
 ## Test Evidence
 **Story Type**: Integration
 **Required evidence**: `tests/integration/scoring_personal_best/scoring_personal_best_run_lifecycle_test.gd`
-**Status**: [ ] Not yet created
+**Status**: Created and passing
+**Evidence**: tests/integration/scoring_personal_best/scoring_personal_best_run_lifecycle_test.gd (lifecycle hit/abandon, run_ended order, run_abandoned order, mis-ranked Juice)
 
 ## Dependencies
 - Depends on: Stories 005, 011; ball-movement and run-state epics (real cores exist); Juice and HUD represented by spies

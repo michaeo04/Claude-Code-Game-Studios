@@ -237,17 +237,17 @@ stories:
     name: "Integration: real SaveCore round trip (AC-21)"
     file: "production/epics/scoring-personal-best/story-012-real-save-round-trip.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.31
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
   - id: "SC-013"
     name: "Integration: real Ball Movement and Run State lifecycle (AC-22, AC-26)"
     file: "production/epics/scoring-personal-best/story-013-real-run-state-and-ball-integration.md"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.44
     blocker: ""
-    completed: ""
+    completed: "2026-10-04"
